@@ -1,2 +1,8 @@
 *.user
 *.suo
+*.Cache
+/_ReSharper.LogJam
+/TestResults
+obj
+bin
+/packages

@@ -1,0 +1,1 @@
+LogJam will provide a modern, efficient, and productive framework for trace logging and metrics logging for all projects.  LogJam is currently pre-alpha.

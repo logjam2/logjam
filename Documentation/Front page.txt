@@ -1,0 +1,29 @@
+*Project Description*
+{project:description}
+
+*Project Goals*
+LogJam intends to be a multi-project framework that provides best-of-breed logging APIs and functionality for all project types - library projects, command-line applications, web applications, web services, Silverlight, WPF, and other GUI applications, and phone applications.  Features will include:
+* Productive trace logging API
+* Productive and extensible API for activity logging
+* Productive logging configuration
+** Easy-to-use logging in unit tests
+* Support for logging any record type (not just trace messages or activities)
+* Text and binary log files that can be read and queried via LINQ - in other word, persisted logs are round-trippable
+* In-memory logging (trailing window of log data is held in memory)
+* 2-way interoperability with .NET Framework logging - projects that use {{System.Diagnostics}} logging can write to LogJam Trace; and projects that use LogJam Trace can write to {{System.Diagnostics}} {{TraceListeners}}.
+* Best-of-breed efficiency - including minimizing locks and impact on the managed heap
+* Web service
+** Support central management of logging configuration - across many servers and applications
+** Centralized log output collector
+** Browse and query logs via web service
+** Web UI for managing configuration and browsing/querying logs
+* UI plugins for Web and GUI applications
+** Configure logging
+** Browse and query application logs
+* Integration with ETW ([url:Event Tracing for Windows|http://msdn.microsoft.com/en-us/library/bb968803.aspx])
+* Support .NET 4.0 and later
+* Mono support
+* Deployed via NuGet
+
+*Why another logging framework?*
+Because none of the available open-source options provide a strong enough design or implementation.  Logging is critical to understanding application behavior, and it must be productive, efficient, versatile, and functional.
