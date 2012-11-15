@@ -48,7 +48,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Source\LogJam.csproj">
+    <ProjectReference Include="..\..\..\Source\LogJam\LogJam.csproj">
       <Project>{94FF277F-4BFA-4CB0-AA78-D23019281625}</Project>
       <Name>LogJam</Name>
     </ProjectReference>

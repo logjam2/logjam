@@ -2,22 +2,13 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{F89C3372-408F-4F99-A7BF-D2818C959F50}"
-	ProjectSection(SolutionItems) = preProject
-		TODO.txt = TODO.txt
-	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{B6C83552-02B7-410D-9EDD-C6B8A6CE0F7E}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.Config = .nuget\NuGet.Config
-		.nuget\NuGet.exe = .nuget\NuGet.exe
-		.nuget\NuGet.targets = .nuget\NuGet.targets
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogJam", "Source\LogJam.csproj", "{94FF277F-4BFA-4CB0-AA78-D23019281625}"
+
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogJam", "Source\LogJam\LogJam.csproj", "{94FF277F-4BFA-4CB0-AA78-D23019281625}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{45DD2233-A75B-42B8-BE5A-D8C631A9291C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogJam.UnitTests", "Tests\UnitTests\Trace\LogJam.UnitTests.csproj", "{6274E396-7957-43E1-B76B-51921F9C6AC3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogJam.UnitTests", "Tests\UnitTests\LogJam\LogJam.UnitTests.csproj", "{6274E396-7957-43E1-B76B-51921F9C6AC3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source", "Source", "{E3D54447-25CA-42F6-B58A-8A544118802E}"
 EndProject
