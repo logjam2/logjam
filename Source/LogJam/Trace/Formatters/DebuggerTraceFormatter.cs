@@ -1,13 +1,15 @@
-﻿// ------------------------------------------------------------------------------------------------------------
-// <copyright company="Crim Consulting" file="DebuggerTraceFormatter.cs">
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="DebuggerTraceFormatter.cs" company="Crim Consulting">
 // Copyright (c) 2011-2012 Crim Consulting.  
 // </copyright>
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
-// ------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
+
 namespace LogJam.Trace.Formatters
 {
 	using System;
+	using System.Diagnostics.Contracts;
 	using System.Text;
 
 	using LogJam.Trace.Util;
@@ -15,13 +17,40 @@ namespace LogJam.Trace.Formatters
 	/// <summary>
 	/// The debugger trace formatter.
 	/// </summary>
-	public class DebuggerTraceFormatter : TraceFormatter
+	public class DebuggerTraceFormatter : ITraceFormatter
 	{
+		#region Fields
+
+		private TimeZoneInfo _outputTimeZone = TimeZoneInfo.Local;
+
+		#endregion
+
+		#region Public Properties
+
+		public bool IncludeTimestamp { get; set; }
+
+		public TimeZoneInfo OutputTimeZone
+		{
+			get
+			{
+				return _outputTimeZone;
+			}
+			set
+			{
+				Contract.Requires<ArgumentNullException>(value != null);
+
+				_outputTimeZone = value;
+			}
+		}
+
+		#endregion
+
 		#region Public Methods and Operators
 
 		/// <summary>
 		/// The format trace.
 		/// </summary>
+		/// <param name="timestampUtc"></param>
 		/// <param name="tracerName">
 		/// The tracer name.
 		/// </param>
@@ -37,7 +66,7 @@ namespace LogJam.Trace.Formatters
 		/// <returns>
 		/// The <see cref="string"/>.
 		/// </returns>
-		public override string FormatTrace(string tracerName, TraceLevel traceLevel, string message, Exception exception)
+		public string FormatTrace(DateTime timestampUtc, string tracerName, TraceLevel traceLevel, string message, Exception exception)
 		{
 			StringBuilder sb = new StringBuilder(255);
 			int indentSpaces = 0;
@@ -47,7 +76,20 @@ namespace LogJam.Trace.Formatters
 			//	// Compute indent spaces based on current ActivityRecord scope
 			//}
 
-			sb.AppendIndentLines("[", indentSpaces);
+			sb.Append(' ', indentSpaces);
+
+			if (IncludeTimestamp)
+			{
+#if PORTABLE
+				DateTime outputTime = TimeZoneInfo.ConvertTime(timestampUtc, _outputTimeZone);
+#else
+				DateTime outputTime = TimeZoneInfo.ConvertTimeFromUtc(timestampUtc, _outputTimeZone);
+#endif
+				// TODO: Implement own formatting to make this more efficient
+				sb.Append(outputTime.ToString("HH:mm:ss.fff "));
+			}
+
+			sb.Append('[');
 			sb.Append(traceLevel);
 			sb.Append("] ");
 			sb.Append(tracerName);

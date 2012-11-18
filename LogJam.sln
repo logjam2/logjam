@@ -3,14 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{F89C3372-408F-4F99-A7BF-D2818C959F50}"
 EndProject
-
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogJam", "Source\LogJam\LogJam.csproj", "{94FF277F-4BFA-4CB0-AA78-D23019281625}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{45DD2233-A75B-42B8-BE5A-D8C631A9291C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogJam.UnitTests", "Tests\UnitTests\LogJam\LogJam.UnitTests.csproj", "{6274E396-7957-43E1-B76B-51921F9C6AC3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source", "Source", "{E3D54447-25CA-42F6-B58A-8A544118802E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogJam", "Source\LogJam\LogJam.csproj", "{43F154AD-AA27-48B3-BA07-D02C92BE4F45}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,20 +17,20 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{94FF277F-4BFA-4CB0-AA78-D23019281625}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{94FF277F-4BFA-4CB0-AA78-D23019281625}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{94FF277F-4BFA-4CB0-AA78-D23019281625}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{94FF277F-4BFA-4CB0-AA78-D23019281625}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6274E396-7957-43E1-B76B-51921F9C6AC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6274E396-7957-43E1-B76B-51921F9C6AC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6274E396-7957-43E1-B76B-51921F9C6AC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6274E396-7957-43E1-B76B-51921F9C6AC3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43F154AD-AA27-48B3-BA07-D02C92BE4F45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43F154AD-AA27-48B3-BA07-D02C92BE4F45}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43F154AD-AA27-48B3-BA07-D02C92BE4F45}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43F154AD-AA27-48B3-BA07-D02C92BE4F45}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{43F154AD-AA27-48B3-BA07-D02C92BE4F45} = {E3D54447-25CA-42F6-B58A-8A544118802E}
 		{6274E396-7957-43E1-B76B-51921F9C6AC3} = {45DD2233-A75B-42B8-BE5A-D8C631A9291C}
-		{94FF277F-4BFA-4CB0-AA78-D23019281625} = {E3D54447-25CA-42F6-B58A-8A544118802E}
 	EndGlobalSection
 EndGlobal

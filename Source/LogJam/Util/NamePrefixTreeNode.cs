@@ -65,8 +65,6 @@ namespace LogJam.Util
 		/// </returns>
 		public override bool WouldBeDescendent(T node)
 		{
-			Contract.Requires<ArgumentNullException>(node != null);
-
 			if (NamePrefix.Length == 0)
 			{
 				return node.NamePrefix.Length > 0;

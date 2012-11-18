@@ -139,6 +139,14 @@ namespace LogJam.Trace
 			}
 		}
 
+		public bool IsSevereEnabled
+		{
+			get
+			{
+				return IsTraceEnabled(TraceLevel.Severe);
+			}
+		}
+
 		/// <summary>
 		/// Gets a value indicating whether is verbose enabled.
 		/// </summary>

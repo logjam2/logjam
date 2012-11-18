@@ -21,6 +21,7 @@ namespace LogJam.Util
 	/// </summary>
 	/// <typeparam name="T">The type of all nodes within this tree.</typeparam>
 	/// <remarks>This class is not threadsafe.</remarks>
+	[ContractClass(typeof(TreeNodeContract<>))]
 	public abstract class TreeNode<T> : IComparer<T>
 		where T : TreeNode<T>
 	{
@@ -195,5 +196,22 @@ namespace LogJam.Util
 		public abstract int Compare(T x, T y);
 
 		#endregion
+	}
+
+	[ContractClassFor(typeof(TreeNode<>))]
+	internal abstract class TreeNodeContract<T> : TreeNode<T>
+				where T : TreeNodeContract<T>
+	{
+		public override bool WouldBeDescendent(T node)
+		{
+			Contract.Requires<ArgumentNullException>(node != null);
+
+			throw new NotImplementedException();
+		}
+
+		public override int Compare(T x, T y)
+		{
+			throw new NotImplementedException();
+		}
 	}
 }

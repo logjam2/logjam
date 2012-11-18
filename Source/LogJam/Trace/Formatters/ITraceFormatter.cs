@@ -1,5 +1,5 @@
 ﻿// ------------------------------------------------------------------------------------------------------------
-// <copyright company="Crim Consulting" file="TraceFormatter.cs">
+// <copyright company="Crim Consulting" file="ITraceFormatter.cs">
 // Copyright (c) 2011-2012 Crim Consulting.  
 // </copyright>
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
@@ -10,16 +10,16 @@ namespace LogJam.Trace.Formatters
 	using System;
 
 	/// <summary>
-	/// Base class for trace formatters.  Given a trace message, a TraceFormatter formats and returns a text representation 
-	/// to render the trace message in text.
+	/// Given a trace message, an ITraceFormatter formats and returns a text representation of the trace message.
 	/// </summary>
-	public abstract class TraceFormatter
+	public interface ITraceFormatter
 	{
 		#region Public Methods and Operators
 
 		/// <summary>
 		/// The format trace.
 		/// </summary>
+		/// <param name="timestampUtc"><see cref="DateTime"/> in UTC that the <see cref="LogJam.Trace.Tracer"/> method was called.</param>
 		/// <param name="tracerName">
 		/// The tracer name.
 		/// </param>
@@ -35,7 +35,7 @@ namespace LogJam.Trace.Formatters
 		/// <returns>
 		/// The <see cref="string"/>.
 		/// </returns>
-		public abstract string FormatTrace(string tracerName, TraceLevel traceLevel, string message, Exception exception);
+		string FormatTrace(DateTime timestampUtc, string tracerName, TraceLevel traceLevel, string message, Exception exception);
 
 		#endregion
 	}

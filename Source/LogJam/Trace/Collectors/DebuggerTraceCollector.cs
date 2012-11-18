@@ -9,8 +9,12 @@ namespace LogJam.Trace.Collectors
 {
 	using System;
 	using System.Diagnostics;
+	using System.Runtime.InteropServices;
+	using System.Runtime.Versioning;
 
 	using LogJam.Trace.Formatters;
+
+	using TraceLevel = LogJam.Trace.TraceLevel;
 
 	/// <summary>
 	/// An <see cref="ITraceCollector"/> that writes trace output to the debug window, if and when a debugger is attached.
@@ -27,7 +31,10 @@ namespace LogJam.Trace.Collectors
 
 		private DebuggerTraceCollector()
 		{
-			Formatter = new DebuggerTraceFormatter();
+			Formatter = new DebuggerTraceFormatter() 
+							{
+				                IncludeTimestamp = true
+			                };
 		}
 
 		#endregion
@@ -55,7 +62,7 @@ namespace LogJam.Trace.Collectors
 		/// <value>
 		/// The formatter.
 		/// </value>
-		public TraceFormatter Formatter { get; private set; }
+		public ITraceFormatter Formatter { get; private set; }
 
 		/// <summary>
 		/// Gets a value indicating whether is active.
@@ -67,7 +74,7 @@ namespace LogJam.Trace.Collectors
 		{
 			get
 			{
-				return Debugger.IsAttached;
+				return true; // System.Diagnostics.Debugger.IsLogging();
 			}
 		}
 
@@ -92,32 +99,34 @@ namespace LogJam.Trace.Collectors
 		/// </param>
 		public void Append(Tracer tracer, TraceLevel traceLevel, string message, Exception exception)
 		{
-			string debuggerMessage = Formatter.FormatTrace(tracer.Name, traceLevel, message, exception);
-			Debug.WriteLine(debuggerMessage);
-		}
+			DateTime traceTimestampUtc = DateTime.UtcNow;
+			string debuggerMessage = Formatter.FormatTrace(traceTimestampUtc, tracer.Name, traceLevel, message, exception);
 
-		/// <summary>
-		/// TODO The append message.
-		/// </summary>
-		/// <param name="tracer">
-		/// TODO The tracer.
-		/// </param>
-		/// <param name="traceLevel">
-		/// TODO The trace level.
-		/// </param>
-		/// <param name="message">
-		/// TODO The message.
-		/// </param>
-		/// <param name="exception">
-		/// TODO The exception.
-		/// </param>
-		/// <exception cref="NotImplementedException">
-		/// </exception>
-		public void AppendMessage(Tracer tracer, TraceLevel traceLevel, string message, Exception exception)
-		{
-			throw new NotImplementedException();
+#if (PORTABLE)
+			// REVIEW: This isn't reliable - it is conditionally compiled in debug builds; but it's all that's available in the portable profile.
+			Debug.WriteLine(debuggerMessage);
+#else
+			if (Debugger.IsLogging())
+			{
+				//Console.Out.WriteLine("Debugger.Log: " + debuggerMessage);
+				Debugger.Log(0, null, debuggerMessage);
+			}
+			else if (IsDebuggerPresent())
+			{
+				//Console.Out.WriteLine("OutputDebugString: " + debuggerMessage);
+				OutputDebugString(debuggerMessage);
+			} 
+#endif
 		}
 
 		#endregion
+
+#if !PORTABLE
+		[DllImport("kernel32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
+		internal static extern bool IsDebuggerPresent();
+
+		[DllImport("kernel32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
+		public static extern void OutputDebugString(string message);
+#endif
 	}
 }
