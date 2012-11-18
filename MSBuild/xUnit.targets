@@ -1,0 +1,43 @@
+<!--
+***********************************************************************************************
+xUnit.targets
+
+This file adds xUnit test functionality to builds.
+
+***********************************************************************************************
+-->
+
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+	<PropertyGroup>
+	  <xUnitVersion>1.9.1</xUnitVersion>
+		<xUnitRunnerAssembly>..\packages\xunit.$(xUnitVersion)\lib\net20\xunit.runner.msbuild.dll</xUnitRunnerAssembly>
+		<!-- Use msbuild ... /p:xUnitVerbose=true for Verbose unit test output-->
+		<xUnitVerbose Condition=" $(xUnitVerbose) == '' ">False</xUnitVerbose>
+	</PropertyGroup>
+
+	<UsingTask AssemblyFile="$(xUnitRunnerAssembly)"
+			TaskName="Xunit.Runner.MSBuild.xunit" />
+	
+	<!-- msbuild /t:Test [/p:xUnitVerbose=true]
+	
+	Runs all unit tests in the current target assembly.
+	-->
+	<Target Name="Test">
+		<PropertyGroup>
+			<xUnitLib>$(TargetDir)\xunit.dll</xUnitLib>
+		</PropertyGroup>
+		
+		<!-- Run build if $(TargetPath) doesn't exist; if it does exist, don't rebuild automatically.
+		In other words, tests are re-run on old builds. If you want a build, specify both targets, eg msbuild /t:build,test
+		-->
+		<CallTarget Targets="build" Condition=" !Exists($(TargetPath)) " />
+		
+		<!-- After a build, xunit.dll must be in the TargetDir.  If not, tests can't be run. -->
+		<Error Condition=" !Exists($(xUnitLib)) " Text="xUnit tests cannot be run without a NuGet dependency on xUnit." />
+
+		<xunit Assembly="$(TargetPath)" Verbose="$(xUnitVerbose)" />
+
+	</Target>
+
+</Project>
