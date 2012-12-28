@@ -103,6 +103,7 @@
     <Compile Include="Activity\ActivityRecord.cs" />
     <Compile Include="Activity\Collectors\IActivityCollector.cs" />
     <Compile Include="Config\ConfigChangedEventArgs.cs" />
+    <Compile Include="Interop\LogJamTraceListener.cs" />
     <Compile Include="Trace\Config\TraceConfig.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Trace\Collectors\DebuggerTraceCollector.cs" />
