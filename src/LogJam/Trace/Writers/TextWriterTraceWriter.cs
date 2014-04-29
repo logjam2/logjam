@@ -1,18 +1,16 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="DebuggerTraceWriter.cs" company="PrecisionDemand">
-// Copyright (c) 2014 PrecisionDemand.  All rights reserved.
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="TextWriterTraceWriter.cs">
+// Copyright (c) 2011-2014 logjam.codeplex.com.  
 // </copyright>
-// -----------------------------------------------------------------------
-
+// Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
+// you may not use this file except in compliance with the License.
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace LogJam.Trace.Writers
 {
-
 	using System;
-	using System.Diagnostics;
 	using System.Diagnostics.Contracts;
 	using System.IO;
-	using TraceLevel = LogJam.Trace.TraceLevel;
 
 	using LogJam.Trace.Formatters;
 
@@ -22,6 +20,7 @@ namespace LogJam.Trace.Writers
 	/// </summary>
 	public sealed class TextWriterTraceWriter : ITraceWriter, IDisposable
 	{
+
 		private bool _disposed;
 		private readonly ITraceFormatter _formatter;
 		private readonly TextWriter _writer;
@@ -54,7 +53,7 @@ namespace LogJam.Trace.Writers
 		{
 			if (! _disposed)
 			{
-				string formatted = _formatter.FormatTrace(DateTime.UtcNow, tracer.Name, traceLevel, message, details); 
+				string formatted = _formatter.FormatTrace(DateTime.UtcNow, tracer.Name, traceLevel, message, details);
 				try
 				{
 					_writer.WriteLine(formatted);

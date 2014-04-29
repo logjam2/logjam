@@ -609,8 +609,8 @@
 	<s:Boolean x:Key="/Default/CodeStyle/CSharpUsing/QualifiedUsingAtNestedScope/@EntryValue">True</s:Boolean>
 	
 	<s:String x:Key="/Default/CodeStyle/FileHeader/FileHeaderText/@EntryValue">--------------------------------------------------------------------------------------------------------------------&#xD;
-&lt;copyright file="$FILENAME$" company="Crim Consulting"&gt;&#xD;
-Copyright (c) 2011-$CURRENT_YEAR$ Crim Consulting.  &#xD;
+&lt;copyright file="$FILENAME$"&gt;&#xD;
+Copyright (c) 2011-$CURRENT_YEAR$ logjam.codeplex.com.  &#xD;
 &lt;/copyright&gt;&#xD;
 Licensed under the &lt;a href="http://logjam.codeplex.com/license"&gt;Apache License, Version 2.0&lt;/a&gt;;&#xD;
 you may not use this file except in compliance with the License.&#xD;

@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Version.cs" company="Crim Consulting">
-// Copyright (c) 2011-2014 Crim Consulting.  
+// <copyright file="Version.cs">
+// Copyright (c) 2011-2014 logjam.codeplex.com.  
 // </copyright>
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@ using System.Reflection;
 // associated with an assembly.
 
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Crim Consulting")]
+[assembly: AssemblyCompany("logjam.codeplex.com")]
 [assembly: AssemblyProduct("LogJam")]
 [assembly: AssemblyCopyright("Copyright © 2011-2014")]
 [assembly: AssemblyCulture("")]

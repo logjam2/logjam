@@ -1,10 +1,11 @@
-﻿// ------------------------------------------------------------------------------------------------------------
-// <copyright company="Crim Consulting" file="TracerUseCasesWithDefaultConfig.cs">
-// Copyright (c) 2011-2012 Crim Consulting.  
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="TracerUseCasesWithDefaultConfig.cs">
+// Copyright (c) 2011-2014 logjam.codeplex.com.  
 // </copyright>
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
-// ------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
+
 namespace LogJam.UnitTests.Trace
 {
 	using System;
@@ -12,6 +13,7 @@ namespace LogJam.UnitTests.Trace
 	using LogJam.Trace;
 
 	using Xunit;
+
 
 	/// <summary>
 	/// Exercise common <see cref="Tracer"/> use-cases using default configuration.

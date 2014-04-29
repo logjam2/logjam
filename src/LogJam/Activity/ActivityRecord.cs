@@ -1,14 +1,16 @@
-﻿// ------------------------------------------------------------------------------------------------------------
-// <copyright company="Crim Consulting" file="ActivityRecord.cs">
-// Copyright (c) 2011-2012 Crim Consulting.  
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="ActivityRecord.cs">
+// Copyright (c) 2011-2014 logjam.codeplex.com.  
 // </copyright>
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
-// ------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
+
 namespace LogJam.Trace
 {
 	using System;
 	using System.Diagnostics.Contracts;
+
 
 	/// <summary>
 	/// Base class for all activity records.
@@ -19,6 +21,7 @@ namespace LogJam.Trace
 	/// </remarks>
 	public abstract class ActivityRecord
 	{
+
 		private string _id;
 
 		#region Constructors and Destructors
@@ -125,5 +128,6 @@ namespace LogJam.Trace
 
 			return Guid.NewGuid().ToString();
 		}
+
 	}
 }

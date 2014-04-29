@@ -1,16 +1,18 @@
-﻿// ------------------------------------------------------------------------------------------------------------
-// <copyright company="Crim Consulting" file="TracerConfig.cs">
-// Copyright (c) 2011-2012 Crim Consulting.  
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="TracerConfig.cs">
+// Copyright (c) 2011-2014 logjam.codeplex.com.  
 // </copyright>
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
-// ------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
+
 namespace LogJam.Trace.Config
 {
-	using LogJam.Trace;
-	using LogJam.Util;
 	using System;
 	using System.Diagnostics.Contracts;
+
+	using LogJam.Util;
+
 
 	/// <summary>
 	/// A configuration element used to configure all <see cref="Tracer"/>s that match this <see cref="NamePrefix"/>.

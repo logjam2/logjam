@@ -1,19 +1,19 @@
-﻿// ------------------------------------------------------------------------------------------------------------
-// <copyright company="Crim Consulting" file="TraceManager.cs">
-// Copyright (c) 2011-2012 Crim Consulting.  
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="TraceManager.cs">
+// Copyright (c) 2011-2014 logjam.codeplex.com.  
 // </copyright>
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
-// ------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
+
 namespace LogJam.Trace
 {
 	using System;
 	using System.Collections.Generic;
-	using System.Diagnostics.CodeAnalysis;
-	using System.Diagnostics.Contracts;
 	using System.Threading;
 
 	using LogJam.Trace.Config;
+
 
 	/// <summary>
 	/// Entry point for everything related to tracing.
@@ -25,6 +25,7 @@ namespace LogJam.Trace
 		private static TraceManager s_instance;
 
 		#endregion
+
 		#region Instance fields
 
 		private readonly TraceManagerConfig _traceConfig = new TraceManagerConfig();
@@ -73,13 +74,7 @@ namespace LogJam.Trace
 		/// <value>
 		/// The config.
 		/// </value>
-		public TraceManagerConfig Config
-		{
-			get
-			{
-				return _traceConfig;
-			}
-		}
+		public TraceManagerConfig Config { get { return _traceConfig; } }
 
 		#endregion
 
@@ -114,7 +109,7 @@ namespace LogJam.Trace
 					else
 					{
 						// Return the existing Tracer
-						return (Tracer)objTracer;
+						return (Tracer) objTracer;
 					}
 				}
 
@@ -137,7 +132,7 @@ namespace LogJam.Trace
 			{
 				foreach (KeyValuePair<string, WeakReference> kvp in _tracers)
 				{
-					Tracer tracer = (Tracer)kvp.Value.Target;
+					Tracer tracer = (Tracer) kvp.Value.Target;
 					if (tracer == null)
 					{
 						_tracers.Remove(kvp.Key);
