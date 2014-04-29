@@ -13,7 +13,7 @@
     <description>$description$</description>
     <!--<releaseNotes>Summary of changes made in this release of the package.</releaseNotes>-->
     <copyright>Copyright 2011-2014</copyright>
-    <tags>Log Trace Tracing Logging</tags>
+    <tags>Log Trace Tracing Logging LogJam</tags>
 
 		<!-- Explicitly specify which assemblys are referenced when this project is referenced (to not link to the CodeContracts DLL). -->
 		<references>

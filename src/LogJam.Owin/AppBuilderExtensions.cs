@@ -1,12 +1,10 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="AppBuilderDiagnosticsExtensions.cs" company="Crim Consulting">
-// Copyright (c) 2011-2014 Crim Consulting.  
+// <copyright file="AppBuilderExtensions.cs">
+// Copyright (c) 2011-2014 logjam.codeplex.com.  
 // </copyright>
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
-
- // ReSharper disable once CheckNamespace
 
 namespace Owin
 {
@@ -55,10 +53,10 @@ namespace Owin
 			Contract.Requires<ArgumentNullException>(appBuilder != null);
 
 			var traceManager = new TraceManager();
-			
+
 			var traceOutput = appBuilder.Properties.Get<TextWriter>("host.TraceOutput");
 			if (traceOutput != null)
-			{	// Use the host.TraceOutput instead of the regular debug window
+			{ // Use the host.TraceOutput instead of the regular debug window
 				TracerConfig rootConfig = traceManager.Config.RootTracerConfig;
 				var traceWriter = new TextWriterTraceWriter(traceOutput);
 				var newRootConfig = new TracerConfig(rootConfig.NamePrefix, rootConfig.TraceSwitch, traceWriter);

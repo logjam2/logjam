@@ -1,10 +1,11 @@
-﻿// ------------------------------------------------------------------------------------------------------------
-// <copyright company="Crim Consulting" file="DebuggerTraceCollector.cs">
-// Copyright (c) 2011-2012 Crim Consulting.  
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="DebuggerTraceWriter.cs">
+// Copyright (c) 2011-2014 logjam.codeplex.com.  
 // </copyright>
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
-// ------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
+
 namespace LogJam.Trace.Writers
 {
 	using System;
@@ -14,6 +15,7 @@ namespace LogJam.Trace.Writers
 	using LogJam.Trace.Formatters;
 
 	using TraceLevel = LogJam.Trace.TraceLevel;
+
 
 	/// <summary>
 	/// An <see cref="ITraceWriter"/> that writes trace output to the debug window, if and when a debugger is attached.
@@ -47,13 +49,7 @@ namespace LogJam.Trace.Writers
 		/// <value>
 		/// The instance.
 		/// </value>
-		public static DebuggerTraceWriter Instance
-		{
-			get
-			{
-				return s_instance;
-			}
-		}
+		public static DebuggerTraceWriter Instance { get { return s_instance; } }
 
 		/// <summary>
 		/// Gets the formatter.
@@ -71,9 +67,7 @@ namespace LogJam.Trace.Writers
 		/// </value>
 		public bool IsActive
 		{
-			get
-			{
-				return true; // System.Diagnostics.Debugger.IsLogging();
+			get { return true; // System.Diagnostics.Debugger.IsLogging();
 			}
 		}
 
@@ -102,7 +96,7 @@ namespace LogJam.Trace.Writers
 			string debuggerMessage = Formatter.FormatTrace(traceTimestampUtc, tracer.Name, traceLevel, message, details);
 
 #if (PORTABLE)
-			// REVIEW: This isn't reliable - it is conditionally compiled in debug builds; but it's all that's available in the portable profile.
+	// REVIEW: This isn't reliable - it is conditionally compiled in debug builds; but it's all that's available in the portable profile.
 			Debug.WriteLine(debuggerMessage);
 #else
 			if (Debugger.IsLogging())
@@ -114,7 +108,7 @@ namespace LogJam.Trace.Writers
 			{
 				//Console.Out.WriteLine("OutputDebugString: " + debuggerMessage);
 				OutputDebugString(debuggerMessage);
-			} 
+			}
 #endif
 		}
 

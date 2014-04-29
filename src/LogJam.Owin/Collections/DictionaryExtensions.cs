@@ -1,12 +1,11 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="DictionaryExtensions.cs" company="Crim Consulting">
-// Copyright (c) 2011-2014 Crim Consulting.  
+// <copyright file="DictionaryExtensions.cs">
+// Copyright (c) 2011-2014 logjam.codeplex.com.  
 // </copyright>
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
- // ReSharper disable once CheckNamespace
 namespace System.Collections.Generic
 {
 	using System.Diagnostics.Contracts;

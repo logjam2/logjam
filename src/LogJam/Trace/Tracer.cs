@@ -1,16 +1,17 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Tracer.cs" company="Crim Consulting">
-// Copyright (c) 2011-2014 Crim Consulting.  
+// <copyright file="Tracer.cs">
+// Copyright (c) 2011-2014 logjam.codeplex.com.  
 // </copyright>
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
-using System;
-using System.Diagnostics.Contracts;
-
 namespace LogJam.Trace
 {
+	using System;
+	using System.Diagnostics.Contracts;
+
+
 	/// <summary>
 	/// API for logging trace messages.
 	/// </summary>
@@ -123,7 +124,10 @@ namespace LogJam.Trace
 		{
 			Contract.Requires<ArgumentNullException>(message != null);
 
-			if (_traceWriter.IsActive && _traceSwitch.IsEnabled(this, traceLevel)) _traceWriter.Write(this, traceLevel, message, exception);
+			if (_traceWriter.IsActive && _traceSwitch.IsEnabled(this, traceLevel))
+			{
+				_traceWriter.Write(this, traceLevel, message, exception);
+			}
 		}
 
 		/// <summary>

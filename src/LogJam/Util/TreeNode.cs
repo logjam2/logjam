@@ -1,16 +1,17 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="TreeNode.cs" company="Crim Consulting">
-// Copyright (c) 2011-2012 Crim Consulting.  
+// <copyright file="TreeNode.cs">
+// Copyright (c) 2011-2014 logjam.codeplex.com.  
 // </copyright>
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
+
 namespace LogJam.Util
 {
 	using System;
 	using System.Collections.Generic;
 	using System.Diagnostics.Contracts;
-	using System.Linq;
+
 
 	/// <summary>
 	/// A base class for an ordered tree structure containing homogeneous nodes of type <typeparamref name="T"/>.
@@ -39,10 +40,7 @@ namespace LogJam.Util
 		/// <value>
 		/// TODO The children.
 		/// </value>
-		public IEnumerable<T> Children
-		{
-			get { return _children; }
-		}
+		public IEnumerable<T> Children { get { return _children; } }
 
 		/// <summary>
 		/// Gets or sets the parent.
@@ -100,7 +98,7 @@ namespace LogJam.Util
 				for (int i = 0; i < _children.Count; ++i)
 				{
 					if (node.WouldBeDescendent(_children[i]))
-					{	// Child #i should be a descendent of node
+					{ // Child #i should be a descendent of node
 						node._children.Add(_children[i]);
 						_children.RemoveAt(i);
 						--i; // Cancel out increment
@@ -117,20 +115,20 @@ namespace LogJam.Util
 				// Convert the bitwise complement to a positive number, to determine the insert position.
 				position = ~position;
 				if (position > 0)
-				{	// Compare to position - 1
+				{ // Compare to position - 1
 					if (_children[position - 1].WouldBeDescendent(node))
-					{	// Make node a child of position - 1
+					{ // Make node a child of position - 1
 						_children[position - 1].InsertNode(node);
 						return Root;
 					}
 				}
 				if (position < _children.Count)
-				{	// Compare to position
+				{ // Compare to position
 					if (_children[position].WouldBeDescendent(node))
-					{	// Make node a child of position
+					{ // Make node a child of position
 						_children[position].InsertNode(node);
 						return Root;
-					}					
+					}
 				}
 
 				// Insert node as a child
@@ -138,7 +136,7 @@ namespace LogJam.Util
 				return Root;
 			}
 			else
-			{	// Not a descendent - push node up
+			{ // Not a descendent - push node up
 				if (Parent != null)
 				{ // Tell the parent to insert it
 					return Parent.InsertNode(node);
@@ -166,7 +164,7 @@ namespace LogJam.Util
 			foreach (T child in Children)
 			{
 				if (object.ReferenceEquals(node, child))
-				{	// Remove the child
+				{ // Remove the child
 					return _children.Remove(child);
 				}
 				else if (child.WouldBeDescendent(node))
@@ -198,10 +196,12 @@ namespace LogJam.Util
 		#endregion
 	}
 
+
 	[ContractClassFor(typeof(TreeNode<>))]
 	internal abstract class TreeNodeContract<T> : TreeNode<T>
-				where T : TreeNodeContract<T>
+		where T : TreeNodeContract<T>
 	{
+
 		public override bool WouldBeDescendent(T node)
 		{
 			Contract.Requires<ArgumentNullException>(node != null);
@@ -213,5 +213,6 @@ namespace LogJam.Util
 		{
 			throw new NotImplementedException();
 		}
+
 	}
 }

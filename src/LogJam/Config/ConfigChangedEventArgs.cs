@@ -1,13 +1,15 @@
-﻿// ------------------------------------------------------------------------------------------------------------
-// <copyright company="Crim Consulting" file="ConfigChangedEventArgs.cs">
-// Copyright (c) 2011-2012 Crim Consulting.  
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="ConfigChangedEventArgs.cs">
+// Copyright (c) 2011-2014 logjam.codeplex.com.  
 // </copyright>
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
-// ------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
+
 namespace LogJam.Trace.Config
 {
 	using System;
+
 
 	/// <summary>
 	/// <see cref="EventArgs"/> derived type for <see cref="ConfigChangeHandler"/> events.
@@ -39,13 +41,7 @@ namespace LogJam.Trace.Config
 		/// <value>
 		/// The config changed.
 		/// </value>
-		public T ConfigChanged
-		{
-			get
-			{
-				return _configChanged;
-			}
-		}
+		public T ConfigChanged { get { return _configChanged; } }
 
 		#endregion
 	}

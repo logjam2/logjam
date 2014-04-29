@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="NamePrefixTreeNode.cs" company="Crim Consulting">
-// Copyright (c) 2011-2012 Crim Consulting.  
+// <copyright file="NamePrefixTreeNode.cs">
+// Copyright (c) 2011-2014 logjam.codeplex.com.  
 // </copyright>
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -10,7 +10,7 @@ namespace LogJam.Util
 {
 	using System;
 	using System.Diagnostics.Contracts;
-	using System.Linq;
+
 
 	/// <summary>
 	/// A node in a tree where each node contains the NamePrefix of all its descendents.  In other words,
@@ -20,6 +20,7 @@ namespace LogJam.Util
 	public abstract class NamePrefixTreeNode<T> : TreeNode<T>
 		where T : NamePrefixTreeNode<T>
 	{
+
 		private string _namePrefix;
 
 		protected NamePrefixTreeNode(string namePrefix)
@@ -41,10 +42,7 @@ namespace LogJam.Util
 		/// </value>
 		public string NamePrefix
 		{
-			get
-			{
-				return _namePrefix;
-			}
+			get { return _namePrefix; }
 			protected set
 			{
 				Contract.Requires<ArgumentNullException>(value != null);
@@ -70,9 +68,7 @@ namespace LogJam.Util
 				return node.NamePrefix.Length > 0;
 			}
 
-			return (node.NamePrefix.Length > NamePrefix.Length)
-				   && node.NamePrefix.StartsWith(NamePrefix)
-				   && (node.NamePrefix[NamePrefix.Length] == '.');
+			return (node.NamePrefix.Length > NamePrefix.Length) && node.NamePrefix.StartsWith(NamePrefix) && (node.NamePrefix[NamePrefix.Length] == '.');
 		}
 
 		/// <summary>
@@ -100,17 +96,16 @@ namespace LogJam.Util
 
 			if (namePrefix.StartsWith(NamePrefix))
 			{
-				if ((namePrefix.Length == NamePrefix.Length)
-					&& namePrefix.Equals(NamePrefix))
+				if ((namePrefix.Length == NamePrefix.Length) && namePrefix.Equals(NamePrefix))
 				{
 					return (T) this;
 				}
-				
+
 				// Else look for matches in children
 				foreach (T child in Children)
 				{
 					if (namePrefix.StartsWith(child.NamePrefix))
-					{	// Delegate to this child
+					{ // Delegate to this child
 						return child.Find(namePrefix);
 					}
 				}
@@ -127,7 +122,7 @@ namespace LogJam.Util
 				else
 				{
 					throw new InvalidOperationException("Hit a null Parent.");
-				}				
+				}
 			}
 		}
 
@@ -151,7 +146,7 @@ namespace LogJam.Util
 				foreach (T child in Children)
 				{
 					if (name.StartsWith(child.NamePrefix))
-					{	// Delegate to this child
+					{ // Delegate to this child
 						return child.FindNearestParentOf(name);
 					}
 				}

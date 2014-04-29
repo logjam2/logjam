@@ -1,19 +1,19 @@
-﻿// ------------------------------------------------------------------------------------------------------------
-// <copyright company="Crim Consulting" file="TraceConfig.cs">
-// Copyright (c) 2011-2012 Crim Consulting.  
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="TraceManagerConfig.cs">
+// Copyright (c) 2011-2014 logjam.codeplex.com.  
 // </copyright>
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
-// ------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
+
 namespace LogJam.Trace.Config
 {
 	using System;
-	using System.Collections.Generic;
 	using System.Diagnostics.Contracts;
-	using System.Linq;
 
 	using LogJam.Trace.TraceSwitch;
 	using LogJam.Trace.Writers;
+
 
 	/// <summary>
 	/// Manages global configuration settings for the <c>LogJam.Trace</c> subsystem.
@@ -25,8 +25,7 @@ namespace LogJam.Trace.Config
 		/// <summary>
 		/// Fallback <see cref="TracerConfig"/>, use if all other configuration is deleted.
 		/// </summary>
-		private static readonly TracerConfig s_fallbackTracerConfig = new TracerConfig(
-			string.Empty, new ThresholdTraceSwitch(TraceLevel.Info), DebuggerTraceWriter.Instance);
+		private static readonly TracerConfig s_fallbackTracerConfig = new TracerConfig(string.Empty, new ThresholdTraceSwitch(TraceLevel.Info), DebuggerTraceWriter.Instance);
 
 		#endregion
 
@@ -35,8 +34,7 @@ namespace LogJam.Trace.Config
 		/// <summary>
 		/// The tree of all active <see cref="TracerConfig"/> instances.
 		/// </summary>
-		private readonly TracerConfig _rootTracerConfig = new TracerConfig(
-			string.Empty, new ThresholdTraceSwitch(TraceLevel.Info), DebuggerTraceWriter.Instance);
+		private readonly TracerConfig _rootTracerConfig = new TracerConfig(string.Empty, new ThresholdTraceSwitch(TraceLevel.Info), DebuggerTraceWriter.Instance);
 
 		#endregion
 
@@ -53,7 +51,6 @@ namespace LogJam.Trace.Config
 		/// The global config changed.
 		/// </summary>
 		//public event EventHandler<ConfigChangedEventArgs<TraceManagerConfig>> GlobalConfigChanged;
-
 		/// <summary>
 		/// The tracer config added.
 		/// </summary>
@@ -74,13 +71,7 @@ namespace LogJam.Trace.Config
 		/// <value>
 		/// The tracer config items.
 		/// </value>
-		public TracerConfig RootTracerConfig
-		{
-			get
-			{
-				return _rootTracerConfig;
-			}
-		}
+		public TracerConfig RootTracerConfig { get { return _rootTracerConfig; } }
 
 		#endregion
 

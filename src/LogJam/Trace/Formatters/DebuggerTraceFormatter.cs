@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="DebuggerTraceFormatter.cs" company="Crim Consulting">
-// Copyright (c) 2011-2012 Crim Consulting.  
+// <copyright file="DebuggerTraceFormatter.cs">
+// Copyright (c) 2011-2014 logjam.codeplex.com.  
 // </copyright>
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@ namespace LogJam.Trace.Formatters
 	using System.Text;
 
 	using LogJam.Trace.Util;
+
 
 	/// <summary>
 	/// The debugger trace formatter.
@@ -31,10 +32,7 @@ namespace LogJam.Trace.Formatters
 
 		public TimeZoneInfo OutputTimeZone
 		{
-			get
-			{
-				return _outputTimeZone;
-			}
+			get { return _outputTimeZone; }
 			set
 			{
 				Contract.Requires<ArgumentNullException>(value != null);
