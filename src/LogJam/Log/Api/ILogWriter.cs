@@ -22,7 +22,7 @@ namespace LogJam.Trace.Log.Api
 		/// <param name="entry">
 		/// The entry.
 		/// </param>
-		void Log(TEntry entry);
+		void Write(TEntry entry);
 
 		#endregion
 	}

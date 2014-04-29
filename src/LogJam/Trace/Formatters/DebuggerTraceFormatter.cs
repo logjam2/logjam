@@ -48,7 +48,7 @@ namespace LogJam.Trace.Formatters
 		#region Public Methods and Operators
 
 		/// <summary>
-		/// The format trace.
+		/// Formats the trace message for debugger windows
 		/// </summary>
 		/// <param name="timestampUtc"></param>
 		/// <param name="tracerName">
@@ -60,13 +60,13 @@ namespace LogJam.Trace.Formatters
 		/// <param name="message">
 		/// The message.
 		/// </param>
-		/// <param name="exception">
-		/// The exception.
+		/// <param name="details">
+		/// Trace message details, like an exception.
 		/// </param>
 		/// <returns>
 		/// The <see cref="string"/>.
 		/// </returns>
-		public string FormatTrace(DateTime timestampUtc, string tracerName, TraceLevel traceLevel, string message, Exception exception)
+		public string FormatTrace(DateTime timestampUtc, string tracerName, TraceLevel traceLevel, string message, object details)
 		{
 			StringBuilder sb = new StringBuilder(255);
 			int indentSpaces = 0;
@@ -78,6 +78,8 @@ namespace LogJam.Trace.Formatters
 
 			sb.Append(' ', indentSpaces);
 
+			sb.AppendFormat("{0,-7}\t", traceLevel);
+
 			if (IncludeTimestamp)
 			{
 #if PORTABLE
@@ -86,21 +88,15 @@ namespace LogJam.Trace.Formatters
 				DateTime outputTime = TimeZoneInfo.ConvertTimeFromUtc(timestampUtc, _outputTimeZone);
 #endif
 				// TODO: Implement own formatting to make this more efficient
-				sb.Append(outputTime.ToString("HH:mm:ss.fff "));
+				sb.Append(outputTime.ToString("HH:mm:ss.fff\t"));
 			}
 
-			sb.Append('[');
-			sb.Append(traceLevel);
-			sb.Append("] ");
-			sb.Append(tracerName);
-			sb.Append(" \t");
-
-			sb.Append(message);
+			sb.AppendFormat("{0,-50}     {1}", tracerName, message);
 			sb.EnsureEndsWith(Environment.NewLine);
 
-			if (exception != null)
+			if (details != null)
 			{
-				sb.AppendIndentLines(exception.ToString(), indentSpaces);
+				sb.AppendIndentLines(details.ToString(), indentSpaces);
 				sb.EnsureEndsWith(Environment.NewLine);
 			}
 

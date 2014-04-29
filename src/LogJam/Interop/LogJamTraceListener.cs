@@ -10,6 +10,9 @@ namespace LogJam.Interop
 {
 	using System;
 	using System.Diagnostics;
+	using System.Globalization;
+	using System.Text;
+
 
 	/// <summary>
 	/// A <see cref="TraceListener" /> implementation that allows <see cref="Trace"/> and <see cref="TraceSource"/> methods to write to <see cref="LogJam.Trace"/> classes.
@@ -158,9 +161,6 @@ namespace LogJam.Interop
 
 		// new write methods used by TraceSource
 
-		[
-		ComVisible(false)
-		]
 		public virtual void TraceData(TraceEventCache eventCache, String source, TraceEventType eventType, int id, object data)
 		{
 			if (Filter != null && !Filter.ShouldTrace(eventCache, source, eventType, id, null, null, data))
@@ -175,9 +175,6 @@ namespace LogJam.Interop
 			WriteFooter(eventCache);
 		}
 
-		[
-		ComVisible(false)
-		]
 		public virtual void TraceData(TraceEventCache eventCache, String source, TraceEventType eventType, int id, params object[] data)
 		{
 			if (Filter != null && !Filter.ShouldTrace(eventCache, source, eventType, id, null, null, null, data))
@@ -202,18 +199,12 @@ namespace LogJam.Interop
 			WriteFooter(eventCache);
 		}
 
-		[
-		ComVisible(false)
-		]
 		public virtual void TraceEvent(TraceEventCache eventCache, String source, TraceEventType eventType, int id)
 		{
 			TraceEvent(eventCache, source, eventType, id, String.Empty);
 		}
 
 		// All other TraceEvent methods come through this one.
-		[
-		ComVisible(false)
-		]
 		public virtual void TraceEvent(TraceEventCache eventCache, String source, TraceEventType eventType, int id, string message)
 		{
 			if (Filter != null && !Filter.ShouldTrace(eventCache, source, eventType, id, message))
@@ -225,9 +216,6 @@ namespace LogJam.Interop
 			WriteFooter(eventCache);
 		}
 
-		[
-		ComVisible(false)
-		]
 		public virtual void TraceEvent(TraceEventCache eventCache, String source, TraceEventType eventType, int id, string format, params object[] args)
 		{
 			if (Filter != null && !Filter.ShouldTrace(eventCache, source, eventType, id, format, args))
@@ -242,9 +230,6 @@ namespace LogJam.Interop
 			WriteFooter(eventCache);
 		}
 
-		[
-		ComVisible(false)
-		]
 		public virtual void TraceTransfer(TraceEventCache eventCache, String source, int id, string message, Guid relatedActivityId)
 		{
 			TraceEvent(eventCache, source, TraceEventType.Transfer, id, message + ", relatedActivityId=" + relatedActivityId.ToString());
@@ -255,8 +240,6 @@ namespace LogJam.Interop
 			Write(String.Format(CultureInfo.InvariantCulture, "{0} {1}: {2} : ", source, eventType.ToString(), id.ToString(CultureInfo.InvariantCulture)));
 		}
 
-		[ResourceExposure(ResourceScope.None)]
-		[ResourceConsumption(ResourceScope.Machine, ResourceScope.Machine)]
 		private void WriteFooter(TraceEventCache eventCache)
 		{
 			if (eventCache == null)

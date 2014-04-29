@@ -10,7 +10,6 @@ namespace LogJam.Activity.Collectors
 	using System;
 
 	using LogJam.Trace;
-	using LogJam.Trace.Collectors;
 
 	/// <summary>
 	/// Interface for activity collectors, which are notified when activities are started and ended.
@@ -24,7 +23,7 @@ namespace LogJam.Activity.Collectors
 		#region Public Properties
 
 		/// <summary>
-		/// Gets a value indicating whether this <see cref="ITraceCollector"/> should receive <see cref="Tracer"/> messages.
+		/// Gets a value indicating whether this <see cref="ITraceWriter"/> should receive <see cref="Tracer"/> messages.
 		/// </summary>
 		/// <value>
 		/// If <c>true</c>, this <c>ITraceCollector</c> should receive messages.  If <c>false</c>, none of the other 

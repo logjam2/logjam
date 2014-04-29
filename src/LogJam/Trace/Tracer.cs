@@ -1,17 +1,16 @@
-﻿// ------------------------------------------------------------------------------------------------------------
-// <copyright company="Crim Consulting" file="Tracer.cs">
-// Copyright (c) 2011-2012 Crim Consulting.  
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="Tracer.cs" company="Crim Consulting">
+// Copyright (c) 2011-2014 Crim Consulting.  
 // </copyright>
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
-// ------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
+
+using System;
+using System.Diagnostics.Contracts;
+
 namespace LogJam.Trace
 {
-	using System;
-	using System.Diagnostics.Contracts;
-
-	using LogJam.Trace.Collectors;
-
 	/// <summary>
 	/// API for logging trace messages.
 	/// </summary>
@@ -33,9 +32,8 @@ namespace LogJam.Trace
 
 		private readonly string _name;
 
-		private ITraceCollector _traceCollector;
-
 		private ITraceSwitch _traceSwitch;
+		private ITraceWriter _traceWriter;
 
 		#endregion
 
@@ -44,25 +42,23 @@ namespace LogJam.Trace
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Tracer"/> class.
 		/// </summary>
-		/// <param name="name">
-		/// N
-		/// The name.
-		/// </param>
+		/// <param name="name">The <see cref="Tracer"/> name.  Uniquely identifies a <see cref="Tracer"/> within an <see cref="ITracerFactory"/>.
+		/// Often is the class name or namespace name.</param>
 		/// <param name="traceSwitch">
 		/// The trace Switch.
 		/// </param>
-		/// <param name="traceCollector">
-		/// The message Collector.
+		/// <param name="traceWriter">
+		/// The <see cref="ITraceWriter"/>.
 		/// </param>
-		internal Tracer(string name, ITraceSwitch traceSwitch, ITraceCollector traceCollector)
+		internal Tracer(string name, ITraceSwitch traceSwitch, ITraceWriter traceWriter)
 		{
 			Contract.Requires<ArgumentException>(!string.IsNullOrWhiteSpace(name));
 			Contract.Requires<ArgumentNullException>(traceSwitch != null);
-			Contract.Requires<ArgumentNullException>(traceCollector != null);
+			Contract.Requires<ArgumentNullException>(traceWriter != null);
 
 			_name = name.Trim();
 			_traceSwitch = traceSwitch;
-			_traceCollector = traceCollector;
+			_traceWriter = traceWriter;
 		}
 
 		#endregion
@@ -70,447 +66,32 @@ namespace LogJam.Trace
 		#region Public Properties
 
 		/// <summary>
-		/// Gets the trace switch.
-		/// </summary>
-		/// <value>
-		/// TODO The trace switch.
-		/// </value>
-		public ITraceSwitch Switch
-		{
-			get
-			{
-				return _traceSwitch;
-			}
-		}
-
-		/// <summary>
-		/// Gets the collector.
-		/// </summary>
-		/// <value>
-		/// TODO The collector.
-		/// </value>
-		public ITraceCollector Collector
-		{
-			get
-			{
-				return _traceCollector;
-			}
-		}
-
-		/// <summary>
-		/// Gets a value indicating whether debug tracing is enabled.
-		/// </summary>
-		/// <value>
-		/// The is debug enabled.
-		/// </value>
-		public bool IsDebugEnabled
-		{
-			get
-			{
-				return IsTraceEnabled(TraceLevel.Debug);
-			}
-		}
-
-		/// <summary>
-		/// Gets a value indicating whether is error enabled.
-		/// </summary>
-		/// <value>
-		/// The is error enabled.
-		/// </value>
-		public bool IsErrorEnabled
-		{
-			get
-			{
-				return IsTraceEnabled(TraceLevel.Error);
-			}
-		}
-
-		/// <summary>
-		/// Gets a value indicating whether is info enabled.
-		/// </summary>
-		/// <value>
-		/// The is info enabled.
-		/// </value>
-		public bool IsInfoEnabled
-		{
-			get
-			{
-				return IsTraceEnabled(TraceLevel.Info);
-			}
-		}
-
-		public bool IsSevereEnabled
-		{
-			get
-			{
-				return IsTraceEnabled(TraceLevel.Severe);
-			}
-		}
-
-		/// <summary>
-		/// Gets a value indicating whether is verbose enabled.
-		/// </summary>
-		/// <value>
-		/// The is verbose enabled.
-		/// </value>
-		public bool IsVerboseEnabled
-		{
-			get
-			{
-				return IsTraceEnabled(TraceLevel.Verbose);
-			}
-		}
-
-		/// <summary>
-		/// Gets a value indicating whether is warn enabled.
-		/// </summary>
-		/// <value>
-		/// The is warn enabled.
-		/// </value>
-		public bool IsWarnEnabled
-		{
-			get
-			{
-				return IsTraceEnabled(TraceLevel.Warn);
-			}
-		}
-
-		/// <summary>
 		/// Gets the name.
 		/// </summary>
 		/// <value>
 		/// The name.
 		/// </value>
-		public string Name
-		{
-			get
-			{
-				return _name;
-			}
-		}
+		public string Name { get { return _name; } }
+
+		/// <summary>
+		/// Gets the <see cref="ITraceSwitch"/>.
+		/// </summary>
+		/// <value>
+		/// TODO The trace switch.
+		/// </value>
+		public ITraceSwitch Switch { get { return _traceSwitch; } }
+
+		/// <summary>
+		/// Gets the <see cref="ITraceWriter"/>.
+		/// </summary>
+		/// <value>
+		/// TODO The collector.
+		/// </value>
+		public ITraceWriter Writer { get { return _traceWriter; } }
 
 		#endregion
 
 		#region Public Methods and Operators
-
-		/// <summary>
-		/// The debug.
-		/// </summary>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		public void Debug(string message)
-		{
-			Trace(TraceLevel.Debug, null, message);
-		}
-
-		/// <summary>
-		/// The debug.
-		/// </summary>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		/// <param name="arg0">
-		/// The arg 0.
-		/// </param>
-		public void Debug(string message, object arg0)
-		{
-			Trace(TraceLevel.Debug, null, message, arg0);
-		}
-
-		/// <summary>
-		/// The debug.
-		/// </summary>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		/// <param name="arg0">
-		/// The arg 0.
-		/// </param>
-		/// <param name="arg1">
-		/// The arg 1.
-		/// </param>
-		public void Debug(string message, object arg0, object arg1)
-		{
-			Trace(TraceLevel.Debug, null, message, arg0, arg1);
-		}
-
-		/// <summary>
-		/// The debug.
-		/// </summary>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		/// <param name="arg0">
-		/// The arg 0.
-		/// </param>
-		/// <param name="arg1">
-		/// The arg 1.
-		/// </param>
-		/// <param name="arg2">
-		/// The arg 2.
-		/// </param>
-		public void Debug(string message, object arg0, object arg1, object arg2)
-		{
-			Trace(TraceLevel.Debug, null, message, arg0, arg1, arg2);
-		}
-
-		/// <summary>
-		/// The debug.
-		/// </summary>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		/// <param name="args">
-		/// The args.
-		/// </param>
-		public void Debug(string message, params object[] args)
-		{
-			Trace(TraceLevel.Debug, null, message, args);
-		}
-
-		/// <summary>
-		/// The error.
-		/// </summary>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		public void Error(string message)
-		{
-			Trace(TraceLevel.Error, null, message);
-		}
-
-		/// <summary>
-		/// The error.
-		/// </summary>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		/// <param name="arg0">
-		/// The arg 0.
-		/// </param>
-		public void Error(string message, object arg0)
-		{
-			Trace(TraceLevel.Error, null, message, arg0);
-		}
-
-		/// <summary>
-		/// The error.
-		/// </summary>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		/// <param name="arg0">
-		/// The arg 0.
-		/// </param>
-		/// <param name="arg1">
-		/// The arg 1.
-		/// </param>
-		public void Error(string message, object arg0, object arg1)
-		{
-			Trace(TraceLevel.Error, null, message, arg0, arg1);
-		}
-
-		/// <summary>
-		/// The error.
-		/// </summary>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		/// <param name="arg0">
-		/// The arg 0.
-		/// </param>
-		/// <param name="arg1">
-		/// The arg 1.
-		/// </param>
-		/// <param name="arg2">
-		/// The arg 2.
-		/// </param>
-		public void Error(string message, object arg0, object arg1, object arg2)
-		{
-			Trace(TraceLevel.Error, null, message, arg0, arg1, arg2);
-		}
-
-		/// <summary>
-		/// The error.
-		/// </summary>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		/// <param name="args">
-		/// The args.
-		/// </param>
-		public void Error(string message, params object[] args)
-		{
-			Trace(TraceLevel.Error, null, message, args);
-		}
-
-		/// <summary>
-		/// The error.
-		/// </summary>
-		/// <param name="exception">
-		/// The exception.
-		/// </param>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		public void Error(Exception exception, string message)
-		{
-			Trace(TraceLevel.Error, exception, message);
-		}
-
-		/// <summary>
-		/// The error.
-		/// </summary>
-		/// <param name="exception">
-		/// The exception.
-		/// </param>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		/// <param name="arg0">
-		/// The arg 0.
-		/// </param>
-		public void Error(Exception exception, string message, object arg0)
-		{
-			Trace(TraceLevel.Error, exception, message, arg0);
-		}
-
-		/// <summary>
-		/// The error.
-		/// </summary>
-		/// <param name="exception">
-		/// The exception.
-		/// </param>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		/// <param name="arg0">
-		/// The arg 0.
-		/// </param>
-		/// <param name="arg1">
-		/// The arg 1.
-		/// </param>
-		public void Error(Exception exception, string message, object arg0, object arg1)
-		{
-			Trace(TraceLevel.Error, exception, message, arg0, arg1);
-		}
-
-		/// <summary>
-		/// The error.
-		/// </summary>
-		/// <param name="exception">
-		/// The exception.
-		/// </param>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		/// <param name="arg0">
-		/// The arg 0.
-		/// </param>
-		/// <param name="arg1">
-		/// The arg 1.
-		/// </param>
-		/// <param name="arg2">
-		/// The arg 2.
-		/// </param>
-		public void Error(Exception exception, string message, object arg0, object arg1, object arg2)
-		{
-			Trace(TraceLevel.Error, exception, message, arg0, arg1, arg2);
-		}
-
-		/// <summary>
-		/// The error.
-		/// </summary>
-		/// <param name="exception">
-		/// The exception.
-		/// </param>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		/// <param name="args">
-		/// The args.
-		/// </param>
-		public void Error(Exception exception, string message, params object[] args)
-		{
-			Trace(TraceLevel.Error, exception, message, args);
-		}
-
-		/// <summary>
-		/// The info.
-		/// </summary>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		public void Info(string message)
-		{
-			Trace(TraceLevel.Info, null, message);
-		}
-
-		/// <summary>
-		/// The info.
-		/// </summary>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		/// <param name="arg0">
-		/// The arg 0.
-		/// </param>
-		public void Info(string message, object arg0)
-		{
-			Trace(TraceLevel.Info, null, message, arg0);
-		}
-
-		/// <summary>
-		/// The info.
-		/// </summary>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		/// <param name="arg0">
-		/// The arg 0.
-		/// </param>
-		/// <param name="arg1">
-		/// The arg 1.
-		/// </param>
-		public void Info(string message, object arg0, object arg1)
-		{
-			Trace(TraceLevel.Info, null, message, arg0, arg1);
-		}
-
-		/// <summary>
-		/// The info.
-		/// </summary>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		/// <param name="arg0">
-		/// The arg 0.
-		/// </param>
-		/// <param name="arg1">
-		/// The arg 1.
-		/// </param>
-		/// <param name="arg2">
-		/// The arg 2.
-		/// </param>
-		public void Info(string message, object arg0, object arg1, object arg2)
-		{
-			Trace(TraceLevel.Info, null, message, arg0, arg1, arg2);
-		}
-
-		/// <summary>
-		/// The info.
-		/// </summary>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		/// <param name="args">
-		/// The args.
-		/// </param>
-		public void Info(string message, params object[] args)
-		{
-			Trace(TraceLevel.Info, null, message, args);
-		}
 
 		/// <summary>
 		/// The is trace enabled.
@@ -523,7 +104,7 @@ namespace LogJam.Trace
 		/// </returns>
 		public bool IsTraceEnabled(TraceLevel traceLevel)
 		{
-			return _traceCollector.IsActive && _traceSwitch.IsEnabled(this, traceLevel);
+			return _traceWriter.IsActive && _traceSwitch.IsEnabled(this, traceLevel);
 		}
 
 		/// <summary>
@@ -542,10 +123,7 @@ namespace LogJam.Trace
 		{
 			Contract.Requires<ArgumentNullException>(message != null);
 
-			if (_traceCollector.IsActive && _traceSwitch.IsEnabled(this, traceLevel))
-			{
-				_traceCollector.Append(this, traceLevel, message, exception);
-			}
+			if (_traceWriter.IsActive && _traceSwitch.IsEnabled(this, traceLevel)) _traceWriter.Write(this, traceLevel, message, exception);
 		}
 
 		/// <summary>
@@ -567,10 +145,10 @@ namespace LogJam.Trace
 		{
 			Contract.Requires<ArgumentNullException>(message != null);
 
-			if (_traceCollector.IsActive && _traceSwitch.IsEnabled(this, traceLevel))
+			if (_traceWriter.IsActive && _traceSwitch.IsEnabled(this, traceLevel))
 			{
 				message = string.Format(message, arg0);
-				_traceCollector.Append(this, traceLevel, message, exception);
+				_traceWriter.Write(this, traceLevel, message, exception);
 			}
 		}
 
@@ -596,10 +174,10 @@ namespace LogJam.Trace
 		{
 			Contract.Requires<ArgumentNullException>(message != null);
 
-			if (_traceCollector.IsActive && _traceSwitch.IsEnabled(this, traceLevel))
+			if (_traceWriter.IsActive && _traceSwitch.IsEnabled(this, traceLevel))
 			{
 				message = string.Format(message, arg0, arg1);
-				_traceCollector.Append(this, traceLevel, message, exception);
+				_traceWriter.Write(this, traceLevel, message, exception);
 			}
 		}
 
@@ -628,10 +206,10 @@ namespace LogJam.Trace
 		{
 			Contract.Requires<ArgumentNullException>(message != null);
 
-			if (_traceCollector.IsActive && _traceSwitch.IsEnabled(this, traceLevel))
+			if (_traceWriter.IsActive && _traceSwitch.IsEnabled(this, traceLevel))
 			{
 				message = string.Format(message, arg0, arg1, arg2);
-				_traceCollector.Append(this, traceLevel, message, exception);
+				_traceWriter.Write(this, traceLevel, message, exception);
 			}
 		}
 
@@ -655,350 +233,16 @@ namespace LogJam.Trace
 			Contract.Requires<ArgumentNullException>(message != null);
 			Contract.Requires<ArgumentNullException>(args != null);
 
-			if (_traceCollector.IsActive && _traceSwitch.IsEnabled(this, traceLevel))
+			if (_traceWriter.IsActive && _traceSwitch.IsEnabled(this, traceLevel))
 			{
 				message = string.Format(message, args);
-				_traceCollector.Append(this, traceLevel, message, exception);
+				_traceWriter.Write(this, traceLevel, message, exception);
 			}
-		}
-
-		/// <summary>
-		/// The verbose.
-		/// </summary>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		public void Verbose(string message)
-		{
-			Trace(TraceLevel.Verbose, null, message);
-		}
-
-		/// <summary>
-		/// The verbose.
-		/// </summary>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		/// <param name="arg0">
-		/// The arg 0.
-		/// </param>
-		public void Verbose(string message, object arg0)
-		{
-			Trace(TraceLevel.Verbose, null, message, arg0);
-		}
-
-		/// <summary>
-		/// The verbose.
-		/// </summary>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		/// <param name="arg0">
-		/// The arg 0.
-		/// </param>
-		/// <param name="arg1">
-		/// The arg 1.
-		/// </param>
-		public void Verbose(string message, object arg0, object arg1)
-		{
-			Trace(TraceLevel.Verbose, null, message, arg0, arg1);
-		}
-
-		/// <summary>
-		/// The verbose.
-		/// </summary>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		/// <param name="arg0">
-		/// The arg 0.
-		/// </param>
-		/// <param name="arg1">
-		/// The arg 1.
-		/// </param>
-		/// <param name="arg2">
-		/// The arg 2.
-		/// </param>
-		public void Verbose(string message, object arg0, object arg1, object arg2)
-		{
-			Trace(TraceLevel.Verbose, null, message, arg0, arg1, arg2);
-		}
-
-		/// <summary>
-		/// The verbose.
-		/// </summary>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		/// <param name="args">
-		/// The args.
-		/// </param>
-		public void Verbose(string message, params object[] args)
-		{
-			Trace(TraceLevel.Verbose, null, message, args);
-		}
-
-		/// <summary>
-		/// The verbose.
-		/// </summary>
-		/// <param name="exception">
-		/// The exception.
-		/// </param>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		public void Verbose(Exception exception, string message)
-		{
-			Trace(TraceLevel.Verbose, exception, message);
-		}
-
-		/// <summary>
-		/// The verbose.
-		/// </summary>
-		/// <param name="exception">
-		/// The exception.
-		/// </param>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		/// <param name="arg0">
-		/// The arg 0.
-		/// </param>
-		public void Verbose(Exception exception, string message, object arg0)
-		{
-			Trace(TraceLevel.Verbose, exception, message, arg0);
-		}
-
-		/// <summary>
-		/// The verbose.
-		/// </summary>
-		/// <param name="exception">
-		/// The exception.
-		/// </param>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		/// <param name="arg0">
-		/// The arg 0.
-		/// </param>
-		/// <param name="arg1">
-		/// The arg 1.
-		/// </param>
-		public void Verbose(Exception exception, string message, object arg0, object arg1)
-		{
-			Trace(TraceLevel.Verbose, exception, message, arg0, arg1);
-		}
-
-		/// <summary>
-		/// The verbose.
-		/// </summary>
-		/// <param name="exception">
-		/// The exception.
-		/// </param>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		/// <param name="arg0">
-		/// The arg 0.
-		/// </param>
-		/// <param name="arg1">
-		/// The arg 1.
-		/// </param>
-		/// <param name="arg2">
-		/// The arg 2.
-		/// </param>
-		public void Verbose(Exception exception, string message, object arg0, object arg1, object arg2)
-		{
-			Trace(TraceLevel.Verbose, exception, message, arg0, arg1, arg2);
-		}
-
-		/// <summary>
-		/// The verbose.
-		/// </summary>
-		/// <param name="exception">
-		/// The exception.
-		/// </param>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		/// <param name="args">
-		/// The args.
-		/// </param>
-		public void Verbose(Exception exception, string message, params object[] args)
-		{
-			Trace(TraceLevel.Verbose, exception, message, args);
-		}
-
-		/// <summary>
-		/// The warn.
-		/// </summary>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		public void Warn(string message)
-		{
-			Trace(TraceLevel.Warn, null, message);
-		}
-
-		/// <summary>
-		/// The warn.
-		/// </summary>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		/// <param name="arg0">
-		/// The arg 0.
-		/// </param>
-		public void Warn(string message, object arg0)
-		{
-			Trace(TraceLevel.Warn, null, message, arg0);
-		}
-
-		/// <summary>
-		/// The warn.
-		/// </summary>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		/// <param name="arg0">
-		/// The arg 0.
-		/// </param>
-		/// <param name="arg1">
-		/// The arg 1.
-		/// </param>
-		public void Warn(string message, object arg0, object arg1)
-		{
-			Trace(TraceLevel.Warn, null, message, arg0, arg1);
-		}
-
-		/// <summary>
-		/// The warn.
-		/// </summary>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		/// <param name="arg0">
-		/// The arg 0.
-		/// </param>
-		/// <param name="arg1">
-		/// The arg 1.
-		/// </param>
-		/// <param name="arg2">
-		/// The arg 2.
-		/// </param>
-		public void Warn(string message, object arg0, object arg1, object arg2)
-		{
-			Trace(TraceLevel.Warn, null, message, arg0, arg1, arg2);
-		}
-
-		/// <summary>
-		/// The warn.
-		/// </summary>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		/// <param name="args">
-		/// The args.
-		/// </param>
-		public void Warn(string message, params object[] args)
-		{
-			Trace(TraceLevel.Warn, null, message, args);
-		}
-
-		/// <summary>
-		/// The warn.
-		/// </summary>
-		/// <param name="exception">
-		/// The exception.
-		/// </param>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		public void Warn(Exception exception, string message)
-		{
-			Trace(TraceLevel.Warn, exception, message);
-		}
-
-		/// <summary>
-		/// The warn.
-		/// </summary>
-		/// <param name="exception">
-		/// The exception.
-		/// </param>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		/// <param name="arg0">
-		/// The arg 0.
-		/// </param>
-		public void Warn(Exception exception, string message, object arg0)
-		{
-			Trace(TraceLevel.Warn, exception, message, arg0);
-		}
-
-		/// <summary>
-		/// The warn.
-		/// </summary>
-		/// <param name="exception">
-		/// The exception.
-		/// </param>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		/// <param name="arg0">
-		/// The arg 0.
-		/// </param>
-		/// <param name="arg1">
-		/// The arg 1.
-		/// </param>
-		public void Warn(Exception exception, string message, object arg0, object arg1)
-		{
-			Trace(TraceLevel.Warn, exception, message, arg0, arg1);
-		}
-
-		/// <summary>
-		/// The warn.
-		/// </summary>
-		/// <param name="exception">
-		/// The exception.
-		/// </param>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		/// <param name="arg0">
-		/// The arg 0.
-		/// </param>
-		/// <param name="arg1">
-		/// The arg 1.
-		/// </param>
-		/// <param name="arg2">
-		/// The arg 2.
-		/// </param>
-		public void Warn(Exception exception, string message, object arg0, object arg1, object arg2)
-		{
-			Trace(TraceLevel.Warn, exception, message, arg0, arg1, arg2);
-		}
-
-		/// <summary>
-		/// The warn.
-		/// </summary>
-		/// <param name="exception">
-		/// The exception.
-		/// </param>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		/// <param name="args">
-		/// The args.
-		/// </param>
-		public void Warn(Exception exception, string message, params object[] args)
-		{
-			Trace(TraceLevel.Warn, exception, message, args);
 		}
 
 		#endregion
 
-		#region Methods
+		#region Internal methods
 
 		/// <summary>
 		/// Configuration method called by <see cref="TraceManager"/> after when <see cref="TraceManager.RegisterTracer"/> is called,
@@ -1006,14 +250,14 @@ namespace LogJam.Trace
 		/// </summary>
 		/// <param name="traceSwitch">
 		/// </param>
-		/// <param name="traceCollector">
+		/// <param name="traceWriter">
 		/// </param>
-		internal void Configure(ITraceSwitch traceSwitch, ITraceCollector traceCollector)
+		internal void Configure(ITraceSwitch traceSwitch, ITraceWriter traceWriter)
 		{
 			// REVIEW: This is a lockless set - ok?
 			// The expectation is that these values are set infrequently, and it doesn't matter if the switch changes before the collector does
 			_traceSwitch = traceSwitch;
-			_traceCollector = traceCollector;
+			_traceWriter = traceWriter;
 		}
 
 		#endregion

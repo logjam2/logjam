@@ -31,7 +31,7 @@ namespace LogJam.UnitTests.Trace
 		/// </summary>
 		public TracerUseCasesWithDefaultConfig()
 		{
-			_tracer = TraceManager.GetTracer(GetType());
+			_tracer = TraceManager.Instance.TracerFor(this);
 		}
 
 		#endregion

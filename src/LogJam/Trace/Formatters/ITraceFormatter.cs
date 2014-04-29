@@ -17,7 +17,7 @@ namespace LogJam.Trace.Formatters
 		#region Public Methods and Operators
 
 		/// <summary>
-		/// The format trace.
+		/// Formats a trace message.
 		/// </summary>
 		/// <param name="timestampUtc"><see cref="DateTime"/> in UTC that the <see cref="LogJam.Trace.Tracer"/> method was called.</param>
 		/// <param name="tracerName">
@@ -29,13 +29,13 @@ namespace LogJam.Trace.Formatters
 		/// <param name="message">
 		/// The message.
 		/// </param>
-		/// <param name="exception">
-		/// The exception.
+		/// <param name="details">
+		/// Trace message details, like an exception.
 		/// </param>
 		/// <returns>
-		/// The <see cref="string"/>.
+		/// The formatted trace message.
 		/// </returns>
-		string FormatTrace(DateTime timestampUtc, string tracerName, TraceLevel traceLevel, string message, Exception exception);
+		string FormatTrace(DateTime timestampUtc, string tracerName, TraceLevel traceLevel, string message, object details);
 
 		#endregion
 	}
