@@ -29,7 +29,7 @@ namespace LogJam.UnitTests.Interop
 		/// </summary>
 		public TraceSourceUseCases()
 		{
-			ConfigurationManager.OpenMappedExeConfiguration()
+			//ConfigurationManager.OpenMappedExeConfiguration()
 			_traceSource = new TraceSource(GetType().FullName, SourceLevels.Information);
 		}
 

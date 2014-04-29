@@ -12,13 +12,13 @@ namespace LogJam.Trace.Config
 	using System.Diagnostics.Contracts;
 	using System.Linq;
 
-	using LogJam.Trace.Collectors;
 	using LogJam.Trace.TraceSwitch;
+	using LogJam.Trace.Writers;
 
 	/// <summary>
 	/// Manages global configuration settings for the <c>LogJam.Trace</c> subsystem.
 	/// </summary>
-	public sealed class TraceConfig
+	public sealed class TraceManagerConfig
 	{
 		#region Static Fields
 
@@ -26,7 +26,7 @@ namespace LogJam.Trace.Config
 		/// Fallback <see cref="TracerConfig"/>, use if all other configuration is deleted.
 		/// </summary>
 		private static readonly TracerConfig s_fallbackTracerConfig = new TracerConfig(
-			string.Empty, new ThresholdTraceSwitch(TraceLevel.Info), DebuggerTraceCollector.Instance);
+			string.Empty, new ThresholdTraceSwitch(TraceLevel.Info), DebuggerTraceWriter.Instance);
 
 		#endregion
 
@@ -36,13 +36,13 @@ namespace LogJam.Trace.Config
 		/// The tree of all active <see cref="TracerConfig"/> instances.
 		/// </summary>
 		private readonly TracerConfig _rootTracerConfig = new TracerConfig(
-			string.Empty, new ThresholdTraceSwitch(TraceLevel.Info), DebuggerTraceCollector.Instance);
+			string.Empty, new ThresholdTraceSwitch(TraceLevel.Info), DebuggerTraceWriter.Instance);
 
 		#endregion
 
 		#region Constructors and Destructors
 
-		internal TraceConfig()
+		internal TraceManagerConfig()
 		{}
 
 		#endregion
@@ -52,7 +52,7 @@ namespace LogJam.Trace.Config
 		/// <summary>
 		/// The global config changed.
 		/// </summary>
-		public event EventHandler<ConfigChangedEventArgs<TraceConfig>> GlobalConfigChanged;
+		public event EventHandler<ConfigChangedEventArgs<TraceManagerConfig>> GlobalConfigChanged;
 
 		/// <summary>
 		/// The tracer config added.

@@ -11,33 +11,56 @@ namespace LogJam.Trace
 	using System.Collections.Generic;
 	using System.Diagnostics.CodeAnalysis;
 	using System.Diagnostics.Contracts;
+	using System.Threading;
 
-	using LogJam.Trace.Collectors;
 	using LogJam.Trace.Config;
 
 	/// <summary>
-	/// Entry point for everything related to tracing and logging.
+	/// Entry point for everything related to tracing.
 	/// </summary>
-	public static class TraceManager
+	public class TraceManager : ITracerFactory
 	{
-		#region Static Fields
+		#region Static fields
 
-		private static readonly TraceConfig s_traceConfig = new TraceConfig();
-
-		private static readonly Dictionary<string, WeakReference> s_tracers = new Dictionary<string, WeakReference>(100);
+		private static TraceManager s_instance;
 
 		#endregion
+		#region Instance fields
+
+		private readonly TraceManagerConfig _traceConfig = new TraceManagerConfig();
+
+		private readonly Dictionary<string, WeakReference> _tracers = new Dictionary<string, WeakReference>(100);
+
+		#endregion
+
+		public static TraceManager Instance
+		{
+			get
+			{
+				if (s_instance != null)
+				{
+					return s_instance;
+				}
+
+				Interlocked.CompareExchange(ref s_instance, new TraceManager(), null);
+				return s_instance;
+			}
+		}
 
 		#region Constructors and Destructors
 
 		/// <summary>
-		/// Initializes static members of the <see cref="TraceManager"/> class.
+		/// Creates a new <see cref="TraceManager"/> instance.
 		/// </summary>
-		[SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline")]
-		static TraceManager()
+		public TraceManager()
 		{
-			s_traceConfig.TracerConfigAdded += OnTracerConfigAddedOrRemoved;
-			s_traceConfig.TracerConfigRemoved += OnTracerConfigAddedOrRemoved;
+			_traceConfig.TracerConfigAdded += OnTracerConfigAddedOrRemoved;
+			_traceConfig.TracerConfigRemoved += OnTracerConfigAddedOrRemoved;
+		}
+
+		public void Dispose()
+		{
+			// TODO: Add support for cleanup.
 		}
 
 		#endregion
@@ -50,11 +73,11 @@ namespace LogJam.Trace
 		/// <value>
 		/// The config.
 		/// </value>
-		public static TraceConfig Config
+		public TraceManagerConfig Config
 		{
 			get
 			{
-				return s_traceConfig;
+				return _traceConfig;
 			}
 		}
 
@@ -65,51 +88,28 @@ namespace LogJam.Trace
 		/// <summary>
 		/// The get tracer.
 		/// </summary>
-		/// <param name="type">
-		/// The type.
-		/// </param>
-		/// <returns>
-		/// The <see cref="Tracer"/>.
-		/// </returns>
-		public static Tracer GetTracer(Type type)
-		{
-			Contract.Requires<ArgumentNullException>(type != null);
-
-			// Convert generic types to their generic type definition - so the same
-			// Tracer is used for ArrayList<T> regardless of the type parameter T.
-			if (type.IsGenericType)
-			{
-				type = type.GetGenericTypeDefinition();
-			}
-
-			return GetTracer(type.FullName);
-		}
-
-		/// <summary>
-		/// The get tracer.
-		/// </summary>
 		/// <param name="name">
 		/// The name.
 		/// </param>
 		/// <returns>
 		/// The <see cref="Tracer"/>.
 		/// </returns>
-		public static Tracer GetTracer(string name)
+		public Tracer GetTracer(string name)
 		{
-			Contract.Requires<ArgumentException>(! string.IsNullOrWhiteSpace(name));
+			//Contract.Requires<ArgumentException>(! string.IsNullOrWhiteSpace(name));
 
 			name = name.Trim();
 
 			// Lookup the Tracer, or add a new one
 			WeakReference weakRefTracer;
-			lock (s_tracers)
+			lock (_tracers)
 			{
-				if (s_tracers.TryGetValue(name, out weakRefTracer))
+				if (_tracers.TryGetValue(name, out weakRefTracer))
 				{
 					object objTracer = weakRefTracer.Target;
 					if (objTracer == null)
 					{
-						s_tracers.Remove(name);
+						_tracers.Remove(name);
 					}
 					else
 					{
@@ -119,9 +119,9 @@ namespace LogJam.Trace
 				}
 
 				// Create a new Tracer and register it
-				TracerConfig tracerConfig = s_traceConfig.RootTracerConfig.FindNearestParentOf(name);
-				Tracer tracer = new Tracer(name, tracerConfig.TraceSwitch, tracerConfig.TraceCollector);
-				s_tracers[name] = new WeakReference(tracer);
+				TracerConfig tracerConfig = _traceConfig.RootTracerConfig.FindNearestParentOf(name);
+				Tracer tracer = new Tracer(name, tracerConfig.TraceSwitch, tracerConfig.TraceWriter);
+				_tracers[name] = new WeakReference(tracer);
 				return tracer;
 			}
 		}
@@ -130,17 +130,17 @@ namespace LogJam.Trace
 
 		#region Methods
 
-		private static List<Tracer> FindMatchingTracersFor(TracerConfig tracerConfig)
+		private List<Tracer> FindMatchingTracersFor(TracerConfig tracerConfig)
 		{
 			List<Tracer> matchingTracers = new List<Tracer>();
-			lock (s_tracers)
+			lock (_tracers)
 			{
-				foreach (KeyValuePair<string, WeakReference> kvp in s_tracers)
+				foreach (KeyValuePair<string, WeakReference> kvp in _tracers)
 				{
 					Tracer tracer = (Tracer)kvp.Value.Target;
 					if (tracer == null)
 					{
-						s_tracers.Remove(kvp.Key);
+						_tracers.Remove(kvp.Key);
 					}
 					else
 					{
@@ -155,15 +155,15 @@ namespace LogJam.Trace
 			return matchingTracers;
 		}
 
-		private static void OnTracerConfigAddedOrRemoved(object sender, ConfigChangedEventArgs<TracerConfig> e)
+		private void OnTracerConfigAddedOrRemoved(object sender, ConfigChangedEventArgs<TracerConfig> e)
 		{
 			// Re-configure each existing Tracer that prefix matches the TracerConfig being added or removed
 			foreach (Tracer tracer in FindMatchingTracersFor(e.ConfigChanged))
 			{
-				// REVIEW: It's probably best if TracerConfig TraceSwitch and TraceCollector are always populated
+				// REVIEW: It's probably best if TracerConfig TraceSwitch and TraceWriter are always populated
 				ITraceSwitch traceSwitch = e.ConfigChanged.TraceSwitch ?? tracer.Switch;
-				ITraceCollector traceCollector = e.ConfigChanged.TraceCollector ?? tracer.Collector;
-				tracer.Configure(traceSwitch, traceCollector);
+				ITraceWriter traceWriter = e.ConfigChanged.TraceWriter ?? tracer.Writer;
+				tracer.Configure(traceSwitch, traceWriter);
 			}
 		}
 

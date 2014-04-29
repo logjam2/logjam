@@ -7,12 +7,10 @@
 // ------------------------------------------------------------------------------------------------------------
 namespace LogJam.Trace.Config
 {
+	using LogJam.Trace;
+	using LogJam.Util;
 	using System;
 	using System.Diagnostics.Contracts;
-
-	using LogJam.Trace;
-	using LogJam.Trace.Collectors;
-	using LogJam.Util;
 
 	/// <summary>
 	/// A configuration element used to configure all <see cref="Tracer"/>s that match this <see cref="NamePrefix"/>.
@@ -35,21 +33,21 @@ namespace LogJam.Trace.Config
 		/// <param name="traceSwitch">
 		/// The <see cref="ITraceSwitch"/> instance used for matching <see cref="Tracer"/>s.
 		/// </param>
-		/// <param name="traceCollector">
-		/// The <see cref="ITraceCollector"/> instance used for matching <see cref="Tracer"/>s.
+		/// <param name="traceWriter">
+		/// The <see cref="ITraceWriter"/> instance used for matching <see cref="Tracer"/>s.
 		/// </param>
-		public TracerConfig(string namePrefix, ITraceSwitch traceSwitch, ITraceCollector traceCollector)
+		public TracerConfig(string namePrefix, ITraceSwitch traceSwitch, ITraceWriter traceWriter)
 		{
 			Contract.Requires<ArgumentNullException>(namePrefix != null);
 			Contract.Requires<ArgumentNullException>(traceSwitch != null);
-			Contract.Requires<ArgumentNullException>(traceCollector != null);
+			Contract.Requires<ArgumentNullException>(traceWriter != null);
 
 			// namePrefix cannot end with a '.' - strip them if present
 			namePrefix = namePrefix.TrimEnd('.', ' ');
 
 			NamePrefix = namePrefix;
 			TraceSwitch = traceSwitch;
-			TraceCollector = traceCollector;
+			TraceWriter = traceWriter;
 		}
 
 		#endregion
@@ -65,12 +63,12 @@ namespace LogJam.Trace.Config
 		public ITraceSwitch TraceSwitch { get; private set; }
 
 		/// <summary>
-		/// Gets the <see cref="ITraceCollector"/> instance used for matching <see cref="Tracer"/>s.
+		/// Gets the <see cref="ITraceWriter"/> instance used for matching <see cref="Tracer"/>s.
 		/// </summary>
 		/// <value>
 		/// The message collector.
 		/// </value>
-		public ITraceCollector TraceCollector { get; private set; }
+		public ITraceWriter TraceWriter { get; private set; }
 
 		#endregion
 
@@ -83,7 +81,7 @@ namespace LogJam.Trace.Config
 		public void CopySettingsFrom(TracerConfig other)
 		{
 			TraceSwitch = other.TraceSwitch;
-			TraceCollector = other.TraceCollector;
+			TraceWriter = other.TraceWriter;
 		}
 
 	}

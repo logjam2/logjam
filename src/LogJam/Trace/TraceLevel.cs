@@ -46,6 +46,12 @@ namespace LogJam.Trace
 		/// <summary>
 		/// Severe error - typically used for severe or critical errors.
 		/// </summary>
-		Severe
+		Severe,
+
+		/// <summary>
+		/// No trace output is propagated.
+		/// </summary>
+		Off
+
 	}
 }

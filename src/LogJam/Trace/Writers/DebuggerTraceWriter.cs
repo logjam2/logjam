@@ -5,36 +5,35 @@
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
 // ------------------------------------------------------------------------------------------------------------
-namespace LogJam.Trace.Collectors
+namespace LogJam.Trace.Writers
 {
 	using System;
 	using System.Diagnostics;
 	using System.Runtime.InteropServices;
-	using System.Runtime.Versioning;
 
 	using LogJam.Trace.Formatters;
 
 	using TraceLevel = LogJam.Trace.TraceLevel;
 
 	/// <summary>
-	/// An <see cref="ITraceCollector"/> that writes trace output to the debug window, if and when a debugger is attached.
+	/// An <see cref="ITraceWriter"/> that writes trace output to the debug window, if and when a debugger is attached.
 	/// </summary>
-	public class DebuggerTraceCollector : ITraceCollector
+	public class DebuggerTraceWriter : ITraceWriter
 	{
 		#region Static Fields
 
-		private static readonly DebuggerTraceCollector s_instance = new DebuggerTraceCollector();
+		private static readonly DebuggerTraceWriter s_instance = new DebuggerTraceWriter();
 
 		#endregion
 
 		#region Constructors and Destructors
 
-		private DebuggerTraceCollector()
+		private DebuggerTraceWriter()
 		{
-			Formatter = new DebuggerTraceFormatter() 
-							{
-				                IncludeTimestamp = true
-			                };
+			Formatter = new DebuggerTraceFormatter()
+			            {
+				            IncludeTimestamp = true
+			            };
 		}
 
 		#endregion
@@ -42,13 +41,13 @@ namespace LogJam.Trace.Collectors
 		#region Public Properties
 
 		/// <summary>
-		/// Gets the singleton <see cref="DebuggerTraceCollector"/> instance.  A singleton is used to prevent multiple <c>DebuggerTraceCollector</c>
+		/// Gets the singleton <see cref="DebuggerTraceWriter"/> instance.  A singleton is used to prevent multiple <c>DebuggerTraceCollector</c>
 		/// instances from writing to the debug window at the same time, thus intermixing text from multiple sources.
 		/// </summary>
 		/// <value>
 		/// The instance.
 		/// </value>
-		public static DebuggerTraceCollector Instance
+		public static DebuggerTraceWriter Instance
 		{
 			get
 			{
@@ -94,13 +93,13 @@ namespace LogJam.Trace.Collectors
 		/// <param name="message">
 		/// The message.
 		/// </param>
-		/// <param name="exception">
-		/// The exception.
+		/// <param name="details">
+		/// Trace message details, like an exception.
 		/// </param>
-		public void Append(Tracer tracer, TraceLevel traceLevel, string message, Exception exception)
+		public void Write(Tracer tracer, TraceLevel traceLevel, string message, object details = null)
 		{
 			DateTime traceTimestampUtc = DateTime.UtcNow;
-			string debuggerMessage = Formatter.FormatTrace(traceTimestampUtc, tracer.Name, traceLevel, message, exception);
+			string debuggerMessage = Formatter.FormatTrace(traceTimestampUtc, tracer.Name, traceLevel, message, details);
 
 #if (PORTABLE)
 			// REVIEW: This isn't reliable - it is conditionally compiled in debug builds; but it's all that's available in the portable profile.
