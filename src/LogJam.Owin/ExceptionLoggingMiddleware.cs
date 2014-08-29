@@ -29,6 +29,8 @@ namespace LogJam.Owin
 		private readonly bool _logUnhandled;
 		private bool _loggingFirstChance;
 
+		private static Boolean s_isMono = Type.GetType ("Mono.Runtime") != null;
+
 		public ExceptionLoggingMiddleware(OwinMiddleware next, Tracer tracer, Func<IOwinContext, string> messageFormatter = null, bool logFirstChance = false, bool logUnhandled = true)
 			: base(next)
 		{
@@ -40,7 +42,16 @@ namespace LogJam.Owin
 
 			if (logFirstChance)
 			{
-				AppDomain.CurrentDomain.FirstChanceException += TraceFirstChanceException;
+				if (!s_isMono)
+				{
+#if MONO
+					AppDomain.CurrentDomain.FirstChanceException += TraceFirstChanceException;
+#endif
+				}
+				else
+				{
+					_tracer.Warn ("FirstChanceException is unsupported on Mono");
+				}
 			}
 		}
 
