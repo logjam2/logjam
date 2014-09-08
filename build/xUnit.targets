@@ -9,7 +9,7 @@ Provides unit test build functionality using xunit.
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
 	<PropertyGroup>
-		<xUnitVersion Condition=" $(xUnitVersion) == '' ">1.9.1</xUnitVersion>
+		<xUnitVersion Condition=" $(xUnitVersion) == '' ">1.9.2</xUnitVersion>
 		<xUnitRunnerAssembly Condition=" $(xUnitRunnerAssembly) == '' ">$(PackagesDir)\xunit.$(xUnitVersion)\lib\net20\xunit.runner.msbuild.dll</xUnitRunnerAssembly>
 		<!-- Use msbuild ... /p:xUnitVerbose=true for Verbose test output-->
 		<!-- Use msbuild ... /p:ContinueOnxUnitFailures=true to continue the build even when tests fail. -->

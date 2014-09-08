@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<package >
+	<metadata>
+		<id>$id$</id>
+		<version>$version$</version>
+		<title>$title$</title>
+		<authors>$author$</authors>
+		<owners>$author$</owners>
+		<licenseUrl>https://logjam.codeplex.com/license</licenseUrl>
+		<projectUrl>https://logjam.codeplex.com/</projectUrl>
+		<!--<iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl>-->
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<description>$description$</description>
+		<!--<releaseNotes>Summary of changes made in this release of the package.</releaseNotes>-->
+		<copyright>Copyright 2011-2014</copyright>
+		<tags>Log Trace Tracing WebApi web-api Logging LogJam</tags>
+		<dependencies>
+			<dependency id="LogJam" version="$version$" />
+			<dependency id="LogJam.Owin" version="$version$" />
+		</dependencies>
+
+		<!-- Explicitly specify which assemblys are referenced when this project is referenced (to not link to the CodeContracts DLL). -->
+		<references>
+			<reference file="$id$.dll" />
+		</references>
+	</metadata>
+
+	<!-- Include the dll, code contracts, xml (xml docs). -->
+	<files>
+		<!-- DLLs and XML comments are implicitly added -->
+		<!-- Code-contracts reference assembly -->
+		<file src="$TargetDir$\CodeContracts\$id$.Contracts.*" target="lib\net45\CodeContracts" />
+	</files>
+
+</package>
