@@ -42,17 +42,20 @@ namespace LogJam.WebApi
 			TraceLevel traceLevel = ConvertToLogJamTraceLevel(level);
 			if (tracer.IsTraceEnabled(traceLevel))
 			{
-				StringBuilder sb = new StringBuilder();
-				long requestNum = request.GetRequestNumber();
-				if (requestNum > 0)
+				var sb = new StringBuilder();
+				if (request != null)
 				{
-					sb.Append(requestNum);
+					long requestNum = request.GetRequestNumber();
+					if (requestNum > 0)
+					{
+						sb.Append(requestNum);
+					}
+					else
+					{
+						sb.Append(request.RequestUri.OriginalString);
+					}
+					sb.Append(": ");
 				}
-				else
-				{
-					sb.Append(request.RequestUri.OriginalString);
-				}
-				sb.Append(": ");
 
 				var traceRecord = new System.Web.Http.Tracing.TraceRecord(request, category, level);
 				traceAction(traceRecord);
@@ -62,15 +65,18 @@ namespace LogJam.WebApi
 				Exception traceException = traceRecord.Exception;
 				if (traceException != null)
 				{
-					if (request.HasRequestExceptionBeenLogged(traceException))
+					if (request != null)
 					{
-						sb.AppendLine();
-						sb.Append("    (see previous exception)");
-						traceException = null;
-					}
-					else
-					{
-						request.LoggedRequestException(traceException);
+						if (request.HasRequestExceptionBeenLogged(traceException))
+						{
+							sb.AppendLine();
+							sb.Append("    (exception already logged)");
+							traceException = null;
+						}
+						else
+						{
+							request.LoggedRequestException(traceException);
+						}
 					}
 				}
 

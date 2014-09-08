@@ -40,7 +40,7 @@ namespace LogJam.Owin
 				return false;
 			}
 			string message = state as string;
-			if (message != null)
+			if ((message != null) || (exception != null))
 			{
 				_tracer.Trace(traceLevel, exception, message);
 			}
