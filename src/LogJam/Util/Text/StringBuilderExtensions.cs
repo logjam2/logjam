@@ -6,7 +6,7 @@
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace LogJam.Trace.Util
+namespace LogJam.Util.Text
 {
 	using System;
 	using System.Diagnostics.Contracts;

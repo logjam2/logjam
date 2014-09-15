@@ -1,0 +1,69 @@
+﻿[   // Example JSON Trace configuration file
+    {
+        // Text writer for errors
+        "LogWriter": {
+            "File": "error.%yyyymmdd%.log"
+        },
+        "Switches": {
+            "*": {
+                "Threshold": "Error"
+            }
+        }
+    },
+    {
+        // Text writer for everything except Web API traces
+        "LogWriter": {
+            "File": "trace.%yyyymmdd-hh%.log"
+        },
+        "Switches": {
+            "*": {
+                "Threshold": "Info"
+            },
+            "Microsoft.WebApi.*": {
+                "On": "false"
+            }
+        }
+    },
+    {
+        // Text writer for Web API traces
+        "LogWriter": {
+            "File": "webapi.%yyyymmdd-hh%.log"
+        },
+        "Switches": {
+            "Microsoft.WebApi.*": {
+                "Threshold": "Info"
+            }
+        }
+    },
+    {
+        // Debugger output
+        "LogWriter": {
+            "Target": "Debugger"
+        },
+        "Switches": {
+            "*": {
+                "Threshold": "Info"
+            },
+            "Microsoft.WebApi.*": {
+                "Threshold": "Warn"
+            }
+        }
+    },
+    {
+        // In-memory list
+        "LogWriter": {
+            "Target": "List",
+            "MaxSize": 4096,
+            "Synchronized": true
+        },
+        "Switches": {
+            "*": {
+                "Threshold": "Info"
+            },
+            "Microsoft.WebApi.*": {
+                "Threshold": "Warn"
+            }
+        }
+    }
+
+]

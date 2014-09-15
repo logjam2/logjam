@@ -8,40 +8,69 @@
 
 namespace LogJam.Trace.Config
 {
+	using LogJam.Trace.Formatters;
+	using LogJam.Trace.Switches;
+	using LogJam.Util;
 	using System;
+	using System.Collections.Generic;
 	using System.Diagnostics.Contracts;
+	using System.Linq;
 
-	using LogJam.Trace.TraceSwitch;
-	using LogJam.Trace.Writers;
+	using LogJam.Writers;
 
 
 	/// <summary>
-	/// Manages global configuration settings for the <c>LogJam.Trace</c> subsystem.
+	/// Holds the configuration settings for a <see cref="TraceManager"/> instance.
 	/// </summary>
-	public sealed class TraceManagerConfig
+	public sealed class TraceManagerConfig : IEquatable<TraceManagerConfig>
 	{
-		#region Static Fields
-
-		/// <summary>
-		/// Fallback <see cref="TracerConfig"/>, use if all other configuration is deleted.
-		/// </summary>
-		private static readonly TracerConfig s_fallbackTracerConfig = new TracerConfig(string.Empty, new ThresholdTraceSwitch(TraceLevel.Info), DebuggerTraceWriter.Instance);
-
-		#endregion
 
 		#region Fields
 
 		/// <summary>
-		/// The tree of all active <see cref="TracerConfig"/> instances.
+		/// Holds the configuration for <see cref="TraceWriter"/>s.
 		/// </summary>
-		private readonly TracerConfig _rootTracerConfig = new TracerConfig(string.Empty, new ThresholdTraceSwitch(TraceLevel.Info), DebuggerTraceWriter.Instance);
+		private readonly ISet<TraceWriterConfig> _traceWriterConfigs;
 
 		#endregion
 
 		#region Constructors and Destructors
 
-		internal TraceManagerConfig()
+		public TraceManagerConfig()
+			: this(CreateDefaultTraceWriterConfig())
 		{}
+
+		public TraceManagerConfig(TraceWriterConfig traceWriterConfig)
+		{
+			Contract.Requires<ArgumentNullException>(traceWriterConfig != null);
+
+			_traceWriterConfigs = new HashSet<TraceWriterConfig>();
+			_traceWriterConfigs.Add(traceWriterConfig);
+		}
+
+		public TraceManagerConfig(params TraceWriterConfig[] traceWriterConfigs)
+		{
+			Contract.Requires<ArgumentNullException>(traceWriterConfigs != null);
+			Contract.Requires<ArgumentException>(traceWriterConfigs.Length > 0);
+			Contract.Requires<ArgumentNullException>(traceWriterConfigs.All(config => config != null));
+
+			_traceWriterConfigs = new HashSet<TraceWriterConfig>(traceWriterConfigs);
+		}
+
+		/// <summary>
+		/// Returns a <see cref="TraceWriterConfig"/> containing default values - trace output is logged to the debugger.
+		/// </summary>
+		/// <returns></returns>
+		private static TraceWriterConfig CreateDefaultTraceWriterConfig()
+		{
+			return new TraceWriterConfig(new DebuggerLogWriterConfig<TraceEntry>(new DebuggerTraceFormatter()))
+			       {
+				       Switches =
+				       {
+					       { Tracer.All, new ThresholdTraceSwitch(TraceLevel.Info) }
+				       }
+			       };
+		}
 
 		#endregion
 
@@ -51,85 +80,61 @@ namespace LogJam.Trace.Config
 		/// The global config changed.
 		/// </summary>
 		//public event EventHandler<ConfigChangedEventArgs<TraceManagerConfig>> GlobalConfigChanged;
-		/// <summary>
-		/// The tracer config added.
-		/// </summary>
-		public event EventHandler<ConfigChangedEventArgs<TracerConfig>> TracerConfigAdded;
 
 		/// <summary>
-		/// The tracer config removed.
-		/// </summary>
-		public event EventHandler<ConfigChangedEventArgs<TracerConfig>> TracerConfigRemoved;
+		/// An event that is raised when a <see cref="TracerConfig"/> instance is added.
+		///// </summary>
+		//public event EventHandler<ConfigChangedEventArgs<TracerConfig>> TracerConfigAdded;
+
+		///// <summary>
+		///// An event that is raised when a <see cref="TracerConfig"/> instance is modified.
+		///// </summary>
+		//public event EventHandler<ConfigChangedEventArgs<TracerConfig>> TracerConfigChanged;
+
+		///// <summary>
+		///// An event that is raised when a <see cref="TracerConfig"/> instance is removed.
+		///// </summary>
+		//public event EventHandler<ConfigChangedEventArgs<TracerConfig>> TracerConfigRemoved;
 
 		#endregion
 
 		#region Public Properties
 
 		/// <summary>
-		/// Gets the tracer config items.
+		/// Gets the set of <see cref="TraceWriterConfig"/> objects that the <see cref="TraceManager"/> is configured from.
 		/// </summary>
-		/// <value>
-		/// The tracer config items.
-		/// </value>
-		public TracerConfig RootTracerConfig { get { return _rootTracerConfig; } }
+		public ISet<TraceWriterConfig> Writers
+		{
+			get { return _traceWriterConfigs; }
+		}
 
 		#endregion
 
 		#region Public Methods and Operators
 
-		/// <summary>
-		/// The add tracer config.
-		/// </summary>
-		/// <param name="tracerConfig">
-		/// The tracer config.
-		/// </param>
-		/// <exception cref="InvalidOperationException">
-		/// </exception>
-		public void AddTracerConfig(TracerConfig tracerConfig)
-		{
-			Contract.Requires<ArgumentNullException>(tracerConfig != null);
-			Contract.Requires<ArgumentException>(tracerConfig.NamePrefix.Length > 0, "Adding a root TracerConfig is not supported; one already exists.");
 
-			lock (_rootTracerConfig)
-			{
-				_rootTracerConfig.InsertNode(tracerConfig);
-			}
-
-			if (TracerConfigAdded != null)
-			{
-				TracerConfigAdded(this, new ConfigChangedEventArgs<TracerConfig>(tracerConfig));
-			}
-		}
-
-		/// <summary>
-		/// The remove tracer config.
-		/// </summary>
-		/// <param name="tracerConfig">
-		/// The tracer config.
-		/// </param>
-		public void RemoveTracerConfig(TracerConfig tracerConfig)
-		{
-			Contract.Requires<ArgumentNullException>(tracerConfig != null);
-			Contract.Requires<ArgumentException>(tracerConfig.NamePrefix.Length > 0, "Removing the root TracerConfig is not supported.");
-
-			lock (_rootTracerConfig)
-			{
-				if (!_rootTracerConfig.RemoveDescendent(tracerConfig))
-				{
-					return;
-				}
-			}
-
-			if (TracerConfigRemoved != null)
-			{
-				TracerConfigRemoved(this, new ConfigChangedEventArgs<TracerConfig>(tracerConfig));
-			}
-		}
 
 		#endregion
 
-		#region Methods
+		public bool Equals(TraceManagerConfig other)
+		{
+			if (other == null)
+			{
+				return false;
+			}
 
-		#endregion
+			return _traceWriterConfigs.SetEquals(other._traceWriterConfigs);
+		}
+
+		public override bool Equals(object obj)
+		{
+			return Equals(obj as TraceManagerConfig);
+		}
+
+		public override int GetHashCode()
+		{
+			return (_traceWriterConfigs != null ? _traceWriterConfigs.GetUnorderedCollectionHashCode() : 0);
+		}
+
 	}
 }

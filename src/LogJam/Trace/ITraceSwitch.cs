@@ -16,18 +16,17 @@ namespace LogJam.Trace
 		#region Public Methods and Operators
 
 		/// <summary>
-		/// The is message enabled.
+		/// Returns <c>true</c> if a trace message for <paramref name="tracerName"/>, in the current trace context (time, thread),
+		/// with <see cref="TraceLevel"/> equal to <paramref name="traceLevel"/>, should be logged.
 		/// </summary>
-		/// <param name="tracer">
-		/// The tracer.
-		/// </param>
+		/// <param name="tracerName">A <see cref="Tracer.Name"/>.</param>
 		/// <param name="traceLevel">
 		/// The trace level.
 		/// </param>
 		/// <returns>
 		/// The <see cref="bool"/>.
 		/// </returns>
-		bool IsEnabled(Tracer tracer, TraceLevel traceLevel);
+		bool IsEnabled(string tracerName, TraceLevel traceLevel);
 
 		#endregion
 	}

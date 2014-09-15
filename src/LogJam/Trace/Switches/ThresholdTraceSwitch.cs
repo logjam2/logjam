@@ -6,16 +6,16 @@
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace LogJam.Trace.TraceSwitch
+namespace LogJam.Trace.Switches
 {
 	/// <summary>
-	/// A <see cref="ITraceSwitch"/> that allows <see cref="Tracer"/> events that equal or exceed a fixed threshold.
+	/// An <see cref="ITraceSwitch"/> that allows <see cref="Tracer"/> events that equal or exceed a fixed threshold.
 	/// </summary>
 	public sealed class ThresholdTraceSwitch : ITraceSwitch
 	{
 		#region Fields
 
-		private readonly TraceLevel _threshold;
+		private TraceLevel _threshold;
 
 		#endregion
 
@@ -34,21 +34,16 @@ namespace LogJam.Trace.TraceSwitch
 
 		#endregion
 
+		public TraceLevel Threshold
+		{
+			get { return _threshold; } 
+			set { _threshold = value; } 			
+		}
+
 		#region Public Methods and Operators
 
-		/// <summary>
-		/// The is message enabled.
-		/// </summary>
-		/// <param name="tracer">
-		/// The tracer.
-		/// </param>
-		/// <param name="traceLevel">
-		/// The trace level.
-		/// </param>
-		/// <returns>
-		/// The <see cref="bool"/>.
-		/// </returns>
-		public bool IsEnabled(Tracer tracer, TraceLevel traceLevel)
+		/// <inheritdoc/>
+		public bool IsEnabled(string tracerName, TraceLevel traceLevel)
 		{
 			return traceLevel >= _threshold;
 		}

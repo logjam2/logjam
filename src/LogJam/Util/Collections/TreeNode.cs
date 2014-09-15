@@ -6,7 +6,7 @@
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace LogJam.Util
+namespace LogJam.Util.Collections
 {
 	using System;
 	using System.Collections.Generic;
@@ -15,7 +15,7 @@ namespace LogJam.Util
 
 	/// <summary>
 	/// A base class for an ordered tree structure containing homogeneous nodes of type <typeparamref name="T"/>.
-	/// The order of the tree structure is determined both by <see cref="WouldBeDescendent"/> and <see cref="Compare"/>.
+	/// The order of the tree structure is determined both by <see cref="WouldBeDescendent"/>, <see cref="Equals"/>, and <see cref="Compare"/>.
 	/// Children are maintained in sorted order using <see cref="Compare"/>.  In addition, each tree node is
 	/// placed in a depth of the tree such that its parent returns <c>true</c> from <see cref="WouldBeDescendent"/> when passed the node, the node's
 	/// <see cref="WouldBeDescendent"/> returns <c>true</c> when passed all it's children.
@@ -72,6 +72,8 @@ namespace LogJam.Util
 		}
 
 		#endregion
+
+		#region Public Methods and Operators
 
 		/// <summary>
 		/// Specifies whether <paramref name="node"/> should be a descendent or ancestor of this when added to the tree.
@@ -177,23 +179,18 @@ namespace LogJam.Util
 			return false;
 		}
 
-		#region Public Methods and Operators
-
 		/// <summary>
-		/// TODO The compare.
+		/// Compares <paramref name="x"/> and <paramref name="y"/>, return -1 is x is smaller than y, 0 if x and y are equal, and 1 if x is greater than y.
 		/// </summary>
-		/// <param name="x">
-		/// TODO The x.
-		/// </param>
-		/// <param name="y">
-		/// TODO The y.
-		/// </param>
+		/// <param name="x">A tree node</param>
+		/// <param name="y">A tree node</param>
 		/// <returns>
-		/// The <see cref="int"/>.
+		/// -1 is x is smaller than y, 0 if x and y are equal, and 1 if x is greater than y.
 		/// </returns>
 		public abstract int Compare(T x, T y);
 
 		#endregion
+
 	}
 
 

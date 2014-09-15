@@ -6,7 +6,7 @@
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace LogJam.Util
+namespace LogJam.Util.Collections
 {
 	using System;
 	using System.Diagnostics.Contracts;
@@ -21,16 +21,13 @@ namespace LogJam.Util
 		where T : NamePrefixTreeNode<T>
 	{
 
-		private string _namePrefix;
+		private readonly string _namePrefix;
 
 		protected NamePrefixTreeNode(string namePrefix)
 		{
-			_namePrefix = namePrefix;
-		}
+			Contract.Requires<ArgumentNullException>(namePrefix != null);
 
-		protected NamePrefixTreeNode()
-		{
-			_namePrefix = string.Empty;
+			_namePrefix = namePrefix;
 		}
 
 		/// <summary>
@@ -43,11 +40,6 @@ namespace LogJam.Util
 		public string NamePrefix
 		{
 			get { return _namePrefix; }
-			protected set
-			{
-				Contract.Requires<ArgumentNullException>(value != null);
-				_namePrefix = value;
-			}
 		}
 
 		#region Overrides of TreeNode<TracerConfig>

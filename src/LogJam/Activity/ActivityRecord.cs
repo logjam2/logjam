@@ -117,7 +117,7 @@ namespace LogJam.Trace
 		#endregion
 
 		/// <summary>
-		/// Create and returns a new activity ID.  May be overridden.
+		/// CreateLogWriter and returns a new activity ID.  May be overridden.
 		/// </summary>
 		/// <returns>
 		/// The <see cref="string"/>.

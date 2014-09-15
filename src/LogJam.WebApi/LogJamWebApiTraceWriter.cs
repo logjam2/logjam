@@ -17,7 +17,7 @@ namespace LogJam.WebApi
 
 
 	/// <summary>
-	/// A Web API ITraceWriter that writes all Web API trace output to LogJam <see cref="Tracer"/>s.
+	/// A Web API <see cref="ITraceWriter"/> that writes all Web API trace output to LogJam <see cref="Tracer"/>s.
 	/// </summary>
 	public sealed class LogJamWebApiTraceWriter : System.Web.Http.Tracing.ITraceWriter
 	{

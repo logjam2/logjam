@@ -10,15 +10,16 @@ namespace LogJam.Trace.Formatters
 {
 	using System;
 	using System.Diagnostics.Contracts;
+	using System.IO;
 	using System.Text;
 
-	using LogJam.Trace.Util;
+	using LogJam.Util.Text;
 
 
 	/// <summary>
 	/// The debugger trace formatter.
 	/// </summary>
-	public class DebuggerTraceFormatter : ITraceFormatter
+	public class DebuggerTraceFormatter : LogFormatter<TraceEntry>
 	{
 		#region Fields
 
@@ -26,10 +27,19 @@ namespace LogJam.Trace.Formatters
 
 		#endregion
 
+		public DebuggerTraceFormatter()
+		{}
+
 		#region Public Properties
 
+		/// <summary>
+		/// <c>true</c> to include the Timestamp when formatting <see cref="TraceEntry"/>s.
+		/// </summary>
 		public bool IncludeTimestamp { get; set; }
 
+		/// <summary>
+		/// Specifies the TimeZone to use when formatting the Timestamp for a <see cref="TraceEntry"/>.
+		/// </summary>
 		public TimeZoneInfo OutputTimeZone
 		{
 			get { return _outputTimeZone; }
@@ -46,59 +56,52 @@ namespace LogJam.Trace.Formatters
 		#region Public Methods and Operators
 
 		/// <summary>
-		/// Formats the trace message for debugger windows
+		/// Formats the trace entry for debugger windows
 		/// </summary>
-		/// <param name="timestampUtc"></param>
-		/// <param name="tracerName">
-		/// The tracer name.
-		/// </param>
-		/// <param name="traceLevel">
-		/// The trace level.
-		/// </param>
-		/// <param name="message">
-		/// The message.
-		/// </param>
-		/// <param name="details">
-		/// Trace message details, like an exception.
-		/// </param>
-		/// <returns>
-		/// The <see cref="string"/>.
-		/// </returns>
-		public string FormatTrace(DateTime timestampUtc, string tracerName, TraceLevel traceLevel, string message, object details)
+		public override void Format(ref TraceEntry traceEntry, TextWriter writer)
 		{
-			StringBuilder sb = new StringBuilder(255);
 			int indentSpaces = 0;
 
+			var sw = new StringWriter();
 			//if (TraceManager.Config.ActivityTracingEnabled)
 			//{
 			//	// Compute indent spaces based on current ActivityRecord scope
 			//}
 
-			sb.Append(' ', indentSpaces);
+			sw.Repeat(' ', indentSpaces);
 
-			sb.AppendFormat("{0,-7}\t", traceLevel);
+			sw.Write("{0,-7}\t", traceEntry.TraceLevel);
 
 			if (IncludeTimestamp)
 			{
 #if PORTABLE
 				DateTime outputTime = TimeZoneInfo.ConvertTime(timestampUtc, _outputTimeZone);
 #else
-				DateTime outputTime = TimeZoneInfo.ConvertTimeFromUtc(timestampUtc, _outputTimeZone);
+				DateTime outputTime = TimeZoneInfo.ConvertTimeFromUtc(traceEntry.TimestampUtc, _outputTimeZone);
 #endif
 				// TODO: Implement own formatting to make this more efficient
-				sb.Append(outputTime.ToString("HH:mm:ss.fff\t"));
+				sw.Write(outputTime.ToString("HH:mm:ss.fff\t"));
 			}
 
-			sb.AppendFormat("{0,-50}     {1}", tracerName, message);
-			sb.EnsureEndsWith(Environment.NewLine);
-
-			if (details != null)
+			var message = traceEntry.Message.Trim();
+			sw.Write("{0,-50}     {1}", traceEntry.TracerName, message);
+			if (! message.EndsWith(writer.NewLine))
 			{
-				sb.AppendIndentLines(details.ToString(), indentSpaces);
-				sb.EnsureEndsWith(Environment.NewLine);
+				sw.WriteLine();
 			}
 
-			return sb.ToString();
+			if (traceEntry.Details != null)
+			{
+				sw.Repeat(' ', indentSpaces);
+				string detailsMessage = traceEntry.Details.ToString();
+				sw.Write(detailsMessage);
+				if (! detailsMessage.EndsWith(writer.NewLine))
+				{
+					sw.WriteLine();
+				}
+			}
+
+			writer.Write(sw);
 		}
 
 		#endregion

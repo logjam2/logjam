@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+﻿// // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ITraceWriter.cs">
 // Copyright (c) 2011-2014 logjam.codeplex.com.  
 // </copyright>
@@ -6,50 +6,31 @@
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
+
 namespace LogJam.Trace
 {
 
 	/// <summary>
-	/// First collection point for trace messages created by <see cref="Tracer"/> instances.  All <c>Tracer</c> instances
-	/// forward their trace messages to an object that implements <c>ITraceCollector</c>.
+	/// Specializes <see cref="ILogWriter{TEntry}"/> for writing <see cref="TraceEntry"/>s.
 	/// </summary>
-	/// <remarks>
-	/// <c>ITraceCollector</c> implementations must be thread-safe.
-	/// </remarks>
-	public interface ITraceWriter
+	internal interface ITraceWriter : ILogWriter<TraceEntry>
 	{
-		#region Public Properties
 
 		/// <summary>
-		/// Gets a value indicating whether this <see cref="ITraceWriter"/> should receive <see cref="Tracer"/> messages.
+		/// Returns <c>true</c> if a trace message for the specified <paramref name="tracerName"/> and <paramref name="traceLevel"/> should
+		/// be written to this <see cref="ITraceWriter"/>.
 		/// </summary>
-		/// <value>
-		/// If <c>true</c>, this <c>ITraceCollector</c> should receive messages.  If <c>false</c>, none of the other 
-		/// <c>ITraceCollector</c> methods should be called.
-		/// </value>
-		bool IsActive { get; }
-
-		#endregion
-
-		#region Public Methods and Operators
+		/// <param name="tracerName">The <see cref="Tracer.Name"/> for a <see cref="Tracer"/> that received a <c>Tracer</c> call.</param>
+		/// <param name="traceLevel">The <see cref="TraceLevel"/> for a <see cref="Tracer"/> call.</param>
+		/// <returns></returns>
+		bool IsTraceEnabled(string tracerName, TraceLevel traceLevel);
 
 		/// <summary>
-		/// Write the specified trace message.
+		/// Converts the <see cref="ITraceWriter"/> to the array of <see cref="TraceWriter"/>s that it represents.
 		/// </summary>
-		/// <param name="tracer">
-		/// The tracer.
-		/// </param>
-		/// <param name="traceLevel">
-		/// The trace level.
-		/// </param>
-		/// <param name="message">
-		/// The trace message.
-		/// </param>
-		/// <param name="details">
-		/// Additional trace data, like an exception.
-		/// </param>
-		void Write(Tracer tracer, TraceLevel traceLevel, string message, object details);
+		/// <returns></returns>
+		TraceWriter[] ToTraceWriterArray();
 
-		#endregion
 	}
+
 }

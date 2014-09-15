@@ -15,8 +15,8 @@ namespace Owin
 
 	using LogJam.Owin;
 	using LogJam.Trace;
-	using LogJam.Trace.Config;
-	using LogJam.Trace.Writers;
+	using LogJam.Trace.Formatters;
+	using LogJam.Writers;
 
 	using Microsoft.Owin.Logging;
 
@@ -51,18 +51,21 @@ namespace Owin
 		public static ITracerFactory CreateDefaultTracerFactory(this IAppBuilder appBuilder)
 		{
 			Contract.Requires<ArgumentNullException>(appBuilder != null);
+			TraceManager traceManager;
 
-			var traceManager = new TraceManager();
-
+			// REVIEW: This may not be a good idea, since writing to host.TraceOutput seems to be slow...
 			var traceOutput = appBuilder.Properties.Get<TextWriter>("host.TraceOutput");
 			if (traceOutput != null)
 			{ // Use the host.TraceOutput instead of the regular debug window
-				TracerConfig rootConfig = traceManager.Config.RootTracerConfig;
-				var traceWriter = new TextWriterTraceWriter(traceOutput);
-				var newRootConfig = new TracerConfig(rootConfig.NamePrefix, rootConfig.TraceSwitch, traceWriter);
-				rootConfig.CopySettingsFrom(newRootConfig);
+				var traceWriter = new TextWriterLogWriter<TraceEntry>(traceOutput, new DebuggerTraceFormatter());
+				traceManager = new TraceManager(traceWriter);
+			}
+			else
+			{
+				traceManager = new TraceManager();
 			}
 
+			traceManager.Start();
 			return traceManager;
 		}
 

@@ -4,13 +4,14 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-
-namespace LogJam.Trace.Util
+namespace LogJam.Util
 {
+	using System;
+	using System.Collections;
+	using System.Collections.Generic;
+	using System.Diagnostics.Contracts;
+
+
 	/// <summary>
 	/// Wraps an <see cref="IEnumerable{T}"/>.  Used to prevent access to the underlying collection via casting.
 	/// </summary>

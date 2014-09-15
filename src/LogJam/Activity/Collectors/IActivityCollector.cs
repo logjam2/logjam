@@ -25,7 +25,7 @@ namespace LogJam.Activity.Collectors
 		#region Public Properties
 
 		/// <summary>
-		/// Gets a value indicating whether this <see cref="ITraceWriter"/> should receive <see cref="Tracer"/> messages.
+		/// Gets a value indicating whether this <see cref="ILogWriter{TEntry}"/> should receive <see cref="Tracer"/> messages.
 		/// </summary>
 		/// <value>
 		/// If <c>true</c>, this <c>ITraceCollector</c> should receive messages.  If <c>false</c>, none of the other 

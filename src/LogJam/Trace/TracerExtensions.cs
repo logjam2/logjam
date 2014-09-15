@@ -730,5 +730,172 @@ namespace LogJam.Trace
 			tracer.Trace(TraceLevel.Warn, exception, message, args);
 		}
 
+		/// <summary>
+		/// The Severe.
+		/// </summary>
+		/// <param name="message">
+		/// The message.
+		/// </param>
+		public static void Severe(this Tracer tracer, string message)
+		{
+			tracer.Trace(TraceLevel.Severe, null, message);
+		}
+
+		/// <summary>
+		/// The Severe.
+		/// </summary>
+		/// <param name="message">
+		/// The message.
+		/// </param>
+		/// <param name="arg0">
+		/// The arg 0.
+		/// </param>
+		public static void Severe(this Tracer tracer, string message, object arg0)
+		{
+			tracer.Trace(TraceLevel.Severe, null, message, arg0);
+		}
+
+		/// <summary>
+		/// The Severe.
+		/// </summary>
+		/// <param name="message">
+		/// The message.
+		/// </param>
+		/// <param name="arg0">
+		/// The arg 0.
+		/// </param>
+		/// <param name="arg1">
+		/// The arg 1.
+		/// </param>
+		public static void Severe(this Tracer tracer, string message, object arg0, object arg1)
+		{
+			tracer.Trace(TraceLevel.Severe, null, message, arg0, arg1);
+		}
+
+		/// <summary>
+		/// The Severe.
+		/// </summary>
+		/// <param name="message">
+		/// The message.
+		/// </param>
+		/// <param name="arg0">
+		/// The arg 0.
+		/// </param>
+		/// <param name="arg1">
+		/// The arg 1.
+		/// </param>
+		/// <param name="arg2">
+		/// The arg 2.
+		/// </param>
+		public static void Severe(this Tracer tracer, string message, object arg0, object arg1, object arg2)
+		{
+			tracer.Trace(TraceLevel.Severe, null, message, arg0, arg1, arg2);
+		}
+
+		/// <summary>
+		/// The Severe.
+		/// </summary>
+		/// <param name="message">
+		/// The message.
+		/// </param>
+		/// <param name="args">
+		/// The args.
+		/// </param>
+		public static void Severe(this Tracer tracer, string message, params object[] args)
+		{
+			tracer.Trace(TraceLevel.Severe, null, message, args);
+		}
+
+		/// <summary>
+		/// The Severe.
+		/// </summary>
+		/// <param name="exception">
+		/// The exception.
+		/// </param>
+		/// <param name="message">
+		/// The message.
+		/// </param>
+		public static void Severe(this Tracer tracer, Exception exception, string message)
+		{
+			tracer.Trace(TraceLevel.Severe, exception, message);
+		}
+
+		/// <summary>
+		/// The Severe.
+		/// </summary>
+		/// <param name="exception">
+		/// The exception.
+		/// </param>
+		/// <param name="message">
+		/// The message.
+		/// </param>
+		/// <param name="arg0">
+		/// The arg 0.
+		/// </param>
+		public static void Severe(this Tracer tracer, Exception exception, string message, object arg0)
+		{
+			tracer.Trace(TraceLevel.Severe, exception, message, arg0);
+		}
+
+		/// <summary>
+		/// The Severe.
+		/// </summary>
+		/// <param name="exception">
+		/// The exception.
+		/// </param>
+		/// <param name="message">
+		/// The message.
+		/// </param>
+		/// <param name="arg0">
+		/// The arg 0.
+		/// </param>
+		/// <param name="arg1">
+		/// The arg 1.
+		/// </param>
+		public static void Severe(this Tracer tracer, Exception exception, string message, object arg0, object arg1)
+		{
+			tracer.Trace(TraceLevel.Severe, exception, message, arg0, arg1);
+		}
+
+		/// <summary>
+		/// The Severe.
+		/// </summary>
+		/// <param name="exception">
+		/// The exception.
+		/// </param>
+		/// <param name="message">
+		/// The message.
+		/// </param>
+		/// <param name="arg0">
+		/// The arg 0.
+		/// </param>
+		/// <param name="arg1">
+		/// The arg 1.
+		/// </param>
+		/// <param name="arg2">
+		/// The arg 2.
+		/// </param>
+		public static void Severe(this Tracer tracer, Exception exception, string message, object arg0, object arg1, object arg2)
+		{
+			tracer.Trace(TraceLevel.Severe, exception, message, arg0, arg1, arg2);
+		}
+
+		/// <summary>
+		/// The Severe.
+		/// </summary>
+		/// <param name="exception">
+		/// The exception.
+		/// </param>
+		/// <param name="message">
+		/// The message.
+		/// </param>
+		/// <param name="args">
+		/// The args.
+		/// </param>
+		public static void Severe(this Tracer tracer, Exception exception, string message, params object[] args)
+		{
+			tracer.Trace(TraceLevel.Severe, exception, message, args);
+		}
+
 	}
 }
