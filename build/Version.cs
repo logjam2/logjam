@@ -36,4 +36,4 @@ using System.Reflection;
 
 // Semantic version (http://semver.org) . First 3 numbers must match first 3 numbers of AssemblyVersion and AssemblyFileVersion.
 
-[assembly: AssemblyInformationalVersion("0.5.2.7-beta")]
+[assembly: AssemblyInformationalVersion("0.5.2.8-beta")]
