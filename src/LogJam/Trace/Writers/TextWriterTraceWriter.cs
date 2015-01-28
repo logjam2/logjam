@@ -36,7 +36,7 @@ namespace LogJam.Trace.Writers
 
 			_disposed = false;
 			_formatter = traceFormatter;
-			_writer = writer;
+			_writer = TextWriter.Synchronized(writer);
 		}
 
 		/// <summary>
