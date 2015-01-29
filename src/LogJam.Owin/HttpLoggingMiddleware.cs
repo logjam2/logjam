@@ -92,15 +92,14 @@ namespace LogJam.Owin
 					response.Body = await FormatBodyStreamAsync(sb, response.Body);
 				}
 
-				// no await, complete writing asynchronously
 #pragma warning disable 4014
-				WriteAsync(traceOutput, sb);
+			    if (writeRequestTask != null)
+			    {
+			        await writeRequestTask;
+			    }
+
+				await WriteAsync(traceOutput, sb);
 			}
-			// No await
-			//if (writeRequestTask != null)
-			//{
-			//	await writeRequestTask;
-			//}
 #pragma warning restore 4014
 		}
 
