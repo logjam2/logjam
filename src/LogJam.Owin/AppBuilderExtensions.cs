@@ -57,6 +57,12 @@ namespace Owin
 			var traceOutput = appBuilder.Properties.Get<TextWriter>("host.TraceOutput");
 			if (traceOutput != null)
 			{ // Use the host.TraceOutput instead of the regular debug window
+
+				// Workaround for threading bugs:
+				traceOutput = TextWriter.Synchronized(traceOutput);
+				appBuilder.Properties["host.TraceOutput"] = traceOutput;
+
+
 				var traceWriter = new TextWriterLogWriter<TraceEntry>(traceOutput, new DebuggerTraceFormatter());
 				traceManager = new TraceManager(traceWriter);
 			}

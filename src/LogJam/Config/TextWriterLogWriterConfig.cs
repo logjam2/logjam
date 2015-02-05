@@ -13,6 +13,7 @@ namespace LogJam.Writers
 	using System.IO;
 
 	using LogJam.Config;
+	using LogJam.Format;
 	using LogJam.Util;
 
 

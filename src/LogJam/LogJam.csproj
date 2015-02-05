@@ -31,10 +31,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Newtonsoft.Json.6.0.5\lib\net40\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
@@ -44,12 +40,15 @@
     <Compile Include="Config\ILogWriterConfig.cs" />
     <Compile Include="Config\Json\JsonTypeHintAttribute.cs" />
     <Compile Include="Config\LogJamConfigTypes.cs" />
-    <Compile Include="Config\Json\ConfigTypeJsonConverter.cs" />
-    <Compile Include="Config\Json\JsonConfigContractResolver.cs" />
     <Compile Include="Config\LogManagerConfig.cs" />
     <Compile Include="Config\UseExistingLogWriterConfig.cs" />
+    <Compile Include="Config\UseExistingTextWriterConfig.cs" />
+    <Compile Include="Format\ActionFormatter.cs" />
+    <Compile Include="ILogDecoder.cs" />
+    <Compile Include="ILogEncoder.cs" />
     <Compile Include="ILogEntry.cs" />
     <Compile Include="ILogWriter.cs" />
+    <Compile Include="IMultiLogWriter.cs" />
     <Compile Include="IStartable.cs" />
     <Compile Include="LogJamNotStartedException.cs" />
     <Compile Include="LogJamStartException.cs" />
@@ -60,7 +59,7 @@
     <Compile Include="Trace\Config\SwitchList.cs" />
     <Compile Include="Trace\ConsoleTraceWriter.cs" />
     <Compile Include="Trace\ITraceWriter.cs" />
-    <Compile Include="Trace\MultiTraceWriter.cs" />
+    <Compile Include="Trace\FanOutTraceWriter.cs" />
     <Compile Include="Trace\NoOpTraceWriter.cs" />
     <Compile Include="Util\CollectionExtensions.cs" />
     <Compile Include="Util\EnumerableWrapper.cs" />
@@ -68,11 +67,11 @@
     <Compile Include="Util\KeyValuePairComparer.cs" />
     <Compile Include="Util\ListDictionary.cs" />
     <Compile Include="Util\Text\TextWriterExtensions.cs" />
-    <Compile Include="Writers\DebuggerLogWriterConfig.cs" />
-    <Compile Include="Writers\FileLogWriterConfig.cs" />
-    <Compile Include="Writers\MultiLogWriter.cs" />
-    <Compile Include="Writers\NoOpLogWriterConfig.cs" />
-    <Compile Include="Writers\ListLogWriterConfig.cs" />
+    <Compile Include="Config\DebuggerLogWriterConfig.cs" />
+    <Compile Include="Config\FileLogWriterConfig.cs" />
+    <Compile Include="Writers\FanOutLogWriter.cs" />
+    <Compile Include="Config\NoOpLogWriterConfig.cs" />
+    <Compile Include="Config\ListLogWriterConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\..\build\Version.cs">
       <Link>Properties\Version.cs</Link>
@@ -84,7 +83,8 @@
     <Compile Include="Writers\ListLogWriter.cs" />
     <Compile Include="Writers\NoOpLogWriter.cs" />
     <Compile Include="Writers\DelegatingLogWriter.cs" />
-    <Compile Include="Writers\TextWriterLogWriterConfig.cs" />
+    <Compile Include="Config\TextWriterLogWriterConfig.cs" />
+    <Compile Include="Writers\TextWriterMultiLogWriter.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Activity\ActivityRecord.cs" />
@@ -96,8 +96,8 @@
     <Compile Include="Trace\TraceEntry.cs" />
     <Compile Include="Trace\TracerFactoryExtensions.cs" />
     <Compile Include="Writers\DebuggerTextWriter.cs" />
-    <Compile Include="Trace\Formatters\DebuggerTraceFormatter.cs" />
-    <Compile Include="LogFormatter.cs" />
+    <Compile Include="Trace\Format\DebuggerTraceFormatter.cs" />
+    <Compile Include="Format\LogFormatter.cs" />
     <Compile Include="ILogWriterOfTEntry.cs" />
     <Compile Include="Trace\ITraceSwitch.cs" />
     <Compile Include="Trace\TraceManager.cs" />
@@ -116,7 +116,6 @@
   <ItemGroup>
     <None Include="LogJam.nuspec" />
     <None Include="LogJam.Portable.nuspec" />
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

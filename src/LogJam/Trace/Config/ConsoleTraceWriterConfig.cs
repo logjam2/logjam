@@ -10,6 +10,7 @@
 namespace LogJam.Trace.Config
 {
 	using LogJam.Config;
+	using LogJam.Format;
 	using LogJam.Trace.Formatters;
 
 

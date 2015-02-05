@@ -1,5 +1,5 @@
 ﻿// // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="NamePrefixTreeTests.cs">
+// <copyright file="ILogFormatter.cs">
 // Copyright (c) 2011-2014 logjam.codeplex.com.  
 // </copyright>
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
@@ -7,16 +7,18 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
-namespace LogJam.UnitTests.Util.Collections
+namespace LogJam
 {
-	using LogJam.Util.Collections;
+	using System.IO;
 
 
 	/// <summary>
-	/// Validates behavior of <see cref="NamePrefixTreeNode{T}"/>.
+	/// Encodes log entries for an output byte stream.
 	/// </summary>
-	public sealed class NamePrefixTreeTests
+	public interface ILogEncoder<in TEntry>
 	{
+
+		void EncodeEntry(TEntry entry, Stream stream);
 
 	}
 

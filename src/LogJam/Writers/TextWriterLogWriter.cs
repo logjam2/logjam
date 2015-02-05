@@ -12,6 +12,7 @@ namespace LogJam.Writers
 	using System.Diagnostics.Contracts;
 	using System.IO;
 
+	using LogJam.Format;
 	using LogJam.Trace;
 	using LogJam.Trace.Formatters;
 
@@ -19,7 +20,8 @@ namespace LogJam.Writers
 	/// <summary>
 	/// Formats and writes log entries to a <see cref="TextWriter"/>.
 	/// </summary>
-	public sealed class TextWriterLogWriter<TEntry> : ILogWriter<TEntry> where TEntry : ILogEntry
+	public sealed class TextWriterLogWriter<TEntry> : ILogWriter<TEntry>, IDisposable
+		where TEntry : ILogEntry
 	{
 
 		private bool _disposed;

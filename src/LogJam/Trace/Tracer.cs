@@ -226,7 +226,7 @@ namespace LogJam.Trace
 			}
 			else
 			{
-				newWriter = new MultiTraceWriter(traceWriters);
+				newWriter = new FanOutTraceWriter(traceWriters);
 			}
 
 			TraceWriter[] previousTraceWriters = _writer == null ? null : _writer.ToTraceWriterArray();

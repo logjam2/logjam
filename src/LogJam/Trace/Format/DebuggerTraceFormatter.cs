@@ -13,6 +13,7 @@ namespace LogJam.Trace.Formatters
 	using System.IO;
 	using System.Text;
 
+	using LogJam.Format;
 	using LogJam.Util.Text;
 
 

@@ -12,15 +12,18 @@ namespace LogJam
 
 
 	/// <summary>
-	/// Generic log writing interface.
+	/// Supports writing strongly-typed log entries to a log target.
 	/// </summary>
 	/// <typeparam name="TEntry">The base entry type supported by the log writer.</typeparam>
 	public interface ILogWriter<TEntry> : ILogWriter where TEntry : ILogEntry
 	{
+
 		/// <summary>
 		/// Writes <paramref name="entry"/> to the log target.
 		/// </summary>
 		/// <param name="entry">The log entry to write.</param>
 		void Write(ref TEntry entry);
+
 	}
+
 }

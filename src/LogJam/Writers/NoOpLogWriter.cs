@@ -22,9 +22,6 @@ namespace LogJam.Writers
 		public void Write(ref TEntry entry)
 		{}
 
-		public void Dispose()
-		{}
-
 	}
 
 }

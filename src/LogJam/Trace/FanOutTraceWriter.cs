@@ -1,5 +1,5 @@
 ﻿// // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="MultiTraceWriter.cs">
+// <copyright file="FanOutTraceWriter.cs">
 // Copyright (c) 2011-2014 logjam.codeplex.com.  
 // </copyright>
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
@@ -17,13 +17,13 @@ namespace LogJam.Trace
 	/// <summary>
 	/// Writes <see cref="TraceEntry"/>s to a series of <see cref="TraceWriter"/>s.
 	/// </summary>
-	/// <remarks><c>MultiTraceWriter</c> instances are immutable.</remarks>
-	internal sealed class MultiTraceWriter : MultiLogWriter<TraceEntry>, ITraceWriter
+	/// <remarks><c>FanOutTraceWriter</c> instances are immutable.</remarks>
+	internal sealed class FanOutTraceWriter : FanOutLogWriter<TraceEntry>, ITraceWriter
 	{
 
 		private readonly TraceWriter[] _traceWriters;
 
-		public MultiTraceWriter(params TraceWriter[] innerTraceWriters)
+		public FanOutTraceWriter(params TraceWriter[] innerTraceWriters)
 			: base(innerTraceWriters.Cast<ILogWriter<TraceEntry>>().ToArray())
 		{
 			_traceWriters = innerTraceWriters;

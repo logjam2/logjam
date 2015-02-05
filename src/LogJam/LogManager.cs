@@ -129,17 +129,19 @@ namespace LogJam
 						IStartable startableLogWriter = logWriter as IStartable;
 						if (startableLogWriter != null)
 						{
-							startableLogWriter.Start();
 							var tracer = SetupTracerFactory.TracerFor(startableLogWriter);
-							tracer.Info("Successfully started logwriter.");
+							tracer.Info("Starting {0} ...", logWriter);
+							startableLogWriter.Start();
+							tracer.Info("Successfully started {0}.", logWriter);
 						}
 					}
 					catch (Exception excp)
 					{
 						// TODO: Store initialization failure status
 						var tracer = SetupTracerFactory.TracerFor((object) logWriter ?? logWriterConfig);
-						tracer.Severe(excp, "Exception creating or Start()ing logwriter");
+						tracer.Severe(excp, "Exception creating or Start()ing logwriter from config: {0}", logWriterConfig);
 					}
+
 					_logWriters.Add(logWriterConfig, logWriter);
 					DisposeOnStop(logWriter);
 				}
@@ -200,7 +202,7 @@ namespace LogJam
 			}
 			else
 			{
-				return new MultiLogWriter<TEntry>(logWriters);
+				return new FanOutLogWriter<TEntry>(logWriters);
 			}
 		}
 

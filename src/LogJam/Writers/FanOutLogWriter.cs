@@ -1,5 +1,5 @@
 ﻿// // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="MultiLogWriter.cs">
+// <copyright file="FanOutLogWriter.cs">
 // Copyright (c) 2011-2014 logjam.codeplex.com.  
 // </copyright>
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
@@ -19,17 +19,18 @@ namespace LogJam.Writers
 	/// Base class for LogWriters that delegate to multiple downstream <see cref="ILogWriter{TEntry}"/> instances.
 	/// </summary>
 	/// <seealso cref="DelegatingLogWriter{TEntry}"/> for a delegating logwriter that writes to a single <see cref="ILogWriter{TEntry}"/> instance.
-	public class MultiLogWriter<TEntry> : ILogWriter<TEntry> where TEntry : ILogEntry
+	public class FanOutLogWriter<TEntry> : ILogWriter<TEntry>, IDisposable
+		where TEntry : ILogEntry
 	{
 
 		private readonly ILogWriter<TEntry>[] _innerLogWriters;
 		private bool _disposed = false;
 
 		/// <summary>
-		/// Creates a new <see cref="MultiLogWriter{TEntry}"/>.
+		/// Creates a new <see cref="FanOutLogWriter{TEntry}"/>.
 		/// </summary>
 		/// <param name="innerLogWriters">The inner <see cref="ILogWriter{TEntry}"/>s to delegate to.  May not be <c>null</c>.</param>
-		public MultiLogWriter(params ILogWriter<TEntry>[] innerLogWriters)
+		public FanOutLogWriter(params ILogWriter<TEntry>[] innerLogWriters)
 		{
 			Contract.Requires<ArgumentNullException>(innerLogWriters != null);
 			Contract.Requires<ArgumentException>(innerLogWriters.All(writer => writer != null));
@@ -43,14 +44,18 @@ namespace LogJam.Writers
 			{
 				foreach (var writer in _innerLogWriters)
 				{
-					writer.Dispose();
+					var disposable = writer as IDisposable;
+					if (disposable != null)
+					{
+						disposable.Dispose();
+					}
 				}
 				_disposed = true;
 			}
 		}
 
 		/// <summary>
-		/// Returns the inner <see cref="ILogWriter{TEntry}"/>s that this <c>MultiLogWriter</c>
+		/// Returns the inner <see cref="ILogWriter{TEntry}"/>s that this <c>FanOutLogWriter</c>
 		/// forwards to.
 		/// </summary>
 		public IEnumerable<ILogWriter<TEntry>> InnerLogWriters
@@ -64,7 +69,7 @@ namespace LogJam.Writers
 		{
 			foreach (var writer in _innerLogWriters)
 			{
-				writer.Dispose();
+				writer.Write(ref entry);
 			}
 		}
 

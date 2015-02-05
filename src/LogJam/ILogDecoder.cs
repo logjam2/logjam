@@ -1,5 +1,5 @@
 ﻿// // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="LogJamStartException.cs">
+// <copyright file="ILogDecoder.cs">
 // Copyright (c) 2011-2014 logjam.codeplex.com.  
 // </copyright>
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
@@ -9,23 +9,20 @@
 
 namespace LogJam
 {
-	using System;
+	using System.IO;
 
 
 	/// <summary>
-	/// Thrown when LogJam could not be successfully started.
+	/// Parses log entries from an input byte stream.
 	/// </summary>
-	public sealed class LogJamStartException : Exception
+	public interface ILogDecoder<out TEntry>
 	{
-
-		internal LogJamStartException(string message, Exception innerException)
-			: base(message, innerException)
-		{}
-
-		internal LogJamStartException(string message)
-			: base(message)
-		{}
-
+		/// <summary>
+		/// Parses a <typeparam name="TEntry"/> from <paramref name="stream"/> and returns it.
+		/// </summary>
+		/// <param name="stream"></param>
+		/// <returns>The next <typeparam name="TEntry"/> that can be read from <paramref name="stream"/></returns>
+		TEntry DecodeEntry(Stream stream);
 	}
 
 }

@@ -16,8 +16,9 @@ namespace LogJam.Writers
 	/// <summary>
 	/// Base class for LogWriters that delegate to a downstream <see cref="ILogWriter{TEntry}"/> instance.
 	/// </summary>
-	/// <seealso cref="MultiLogWriter{TEntry}"/> for a delegating logwriter that writes to multiple <see cref="ILogWriter{TEntry}"/> instances.
-	public abstract class DelegatingLogWriter<TEntry> : ILogWriter<TEntry> where TEntry : ILogEntry
+	/// <seealso cref="FanOutLogWriter{TEntry}"/> for a delegating logwriter that writes to multiple <see cref="ILogWriter{TEntry}"/> instances.
+	public abstract class DelegatingLogWriter<TEntry> : ILogWriter<TEntry>, IDisposable
+		where TEntry : ILogEntry
 	{
 
 		private readonly ILogWriter<TEntry> _innerLogWriter;

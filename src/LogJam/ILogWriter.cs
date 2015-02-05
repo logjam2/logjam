@@ -16,7 +16,7 @@ namespace LogJam
 	/// Untyped log writer interface.
 	/// </summary>
 	/// <seealso cref="ILogWriter{TEntry}"/>.
-	public interface ILogWriter : IDisposable
+	public interface ILogWriter
 	{
 		/// <summary>
 		/// Returns <c>true</c> if this <see cref="ILogWriter"/> can write entries to its target.

@@ -8,14 +8,14 @@
 
 namespace LogJam.Trace
 {
-	using Newtonsoft.Json;
-	using Newtonsoft.Json.Converters;
+	//using Newtonsoft.Json;
+	//using Newtonsoft.Json.Converters;
 
 
 	/// <summary>
 	/// The different types of trace messages that can be logged.
 	/// </summary>
-	[JsonConverter(typeof(StringEnumConverter))]
+	//[JsonConverter(typeof(StringEnumConverter))]
 	public enum TraceLevel : byte
 	{
 

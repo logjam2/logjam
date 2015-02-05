@@ -9,7 +9,9 @@
 
 namespace LogJam.UnitTests.Trace
 {
+	using LogJam.Config;
 	using LogJam.Config.Json;
+	using LogJam.Format;
 	using LogJam.Trace;
 	using LogJam.Trace.Config;
 	using LogJam.Trace.Formatters;
@@ -238,7 +240,7 @@ namespace LogJam.UnitTests.Trace
 		{ }
 
 		[Fact]
-		public void MultipleTraceLogWritersCanExistForSameNamePrefixWithDifferentSwitchThresholds()
+		public void MultipleTraceLogWritersForSameNamePrefixWithDifferentSwitchThresholds()
 		{
 			var allListLogWriter = new ListLogWriter<TraceEntry>();
 			var errorListLogWriter = new ListLogWriter<TraceEntry>();
@@ -273,6 +275,26 @@ namespace LogJam.UnitTests.Trace
 				Assert.Equal(2, errorListLogWriter.Count);
 				Assert.Equal(4, allListLogWriter.Count);
 			}
+		}
+
+		[Fact]
+		public void CustomTraceFormatting()
+		{
+			// Text output is written here
+			StringWriter traceOutput = new StringWriter();
+
+			// Can either use a FormatAction, or subclass LogFormatter<TEntry>.  Here we're using a FormatAction.
+			// Note that subclassing LogFormatter<TEntry> provides a slightly more efficient code-path.
+			FormatAction<TraceEntry> format = (traceEntry, textWriter) => textWriter.WriteLine(traceEntry.TraceLevel);
+
+			using (var traceManager = new TraceManager(new UseExistingTextWriterConfig<TraceEntry>(traceOutput, format)))
+			{
+				var tracer = traceManager.TracerFor(this);
+				tracer.Info("m");
+				tracer.Error("m");
+			}
+
+			Assert.Equal("Info\r\nError\r\n", traceOutput.ToString());
 		}
 
 		public static IEnumerable<object[]> TestTraceManagerConfigs

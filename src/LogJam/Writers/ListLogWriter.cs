@@ -91,11 +91,6 @@ namespace LogJam.Writers
 
 		#endregion
 
-		public void Dispose()
-		{
-			Stop();
-		}
-
 		public IEnumerator<TEntry> GetEnumerator()
 		{
 			IEnumerable<TEntry> enumerable;

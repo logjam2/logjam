@@ -21,7 +21,7 @@ namespace LogJam.Trace
 	/// <see cref="ITraceSwitch"/> allows the write.
 	/// </summary>
 	/// <remarks><c>TraceWriter</c> instances are thread-safe.</remarks>
-	/// <seealso cref="MultiTraceWriter"/>
+	/// <seealso cref="FanOutTraceWriter"/>
 	internal sealed class TraceWriter : DelegatingLogWriter<TraceEntry>, ITraceWriter
 	{
 		private readonly ITraceSwitch _traceSwitch;
