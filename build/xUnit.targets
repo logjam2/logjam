@@ -43,7 +43,7 @@ Provides unit test build functionality using xunit.
 			<XUnitConfigFile Include="$(MSBuildProjectDirectory)*.xunit" />
 		</ItemGroup> -->
 
-		<xunit Assembly="$(TargetPath)" Verbose="$(xUnitVerbose)" ContinueOnError="$(ContinueOnxUnitFailures)" />
+		<xunit Assemblies="$(TargetPath)" Verbose="$(xUnitVerbose)" ContinueOnError="$(ContinueOnxUnitFailures)" />
 
 	</Target>
 
