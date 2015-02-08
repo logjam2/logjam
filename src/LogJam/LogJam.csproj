@@ -89,7 +89,6 @@
   <ItemGroup>
     <Compile Include="Activity\ActivityRecord.cs" />
     <Compile Include="Activity\Collectors\IActivityCollector.cs" />
-    <Compile Include="Config\ConfigChangedEventArgs.cs" />
     <Compile Include="Trace\Config\TraceManagerConfig.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Trace\ITracerFactory.cs" />
