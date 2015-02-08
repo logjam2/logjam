@@ -13,11 +13,14 @@ using System.Reflection;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly: AssemblyConfiguration("")]
+#if DEBUG
+[assembly: AssemblyConfiguration("Debug")]
+#else
+[assembly: AssemblyConfiguration("Release")]
+#endif
 [assembly: AssemblyCompany("logjam.codeplex.com")]
 [assembly: AssemblyProduct("LogJam")]
-[assembly: AssemblyCopyright("Copyright © 2011-2014")]
-[assembly: AssemblyCulture("")]
+[assembly: AssemblyCopyright("Copyright © 2011-2015")]
 [assembly: CLSCompliant(true)]
 
 // Version information for an assembly consists of the following four values:
@@ -31,9 +34,9 @@ using System.Reflection;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 
-[assembly: AssemblyVersion("0.5.2.0")]
-[assembly: AssemblyFileVersion("0.5.2.0")]
+[assembly: AssemblyVersion("0.8.0.0")]
+[assembly: AssemblyFileVersion("0.8.0.0")]
 
 // Semantic version (http://semver.org) . First 3 numbers must match first 3 numbers of AssemblyVersion and AssemblyFileVersion.
 
-[assembly: AssemblyInformationalVersion("0.5.2.9-beta")]
+[assembly: AssemblyInformationalVersion("0.8.0-beta")]
