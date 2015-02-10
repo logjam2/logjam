@@ -9,7 +9,9 @@
 
 namespace LogJam.Config
 {
+	using System;
 	using System.Collections.Generic;
+	using System.Diagnostics.Contracts;
 
 
 	/// <summary>
@@ -36,10 +38,21 @@ namespace LogJam.Config
 		}
 
 		/// <summary>
+		/// Creates a new <see cref="LogManagerConfig"/> using the specified <paramref name="logWriterConfigs"/>.
+		/// </summary>
+		public LogManagerConfig(params ILogWriterConfig[] logWriterConfigs)
+		{
+			Contract.Requires<ArgumentNullException>(logWriterConfigs != null);
+
+			_logWriterConfigs = new HashSet<ILogWriterConfig>(logWriterConfigs);
+		}
+
+		/// <summary>
 		/// Returns the set of <see cref="ILogWriterConfig"/> instances stored in this <see cref="LogManagerConfig"/>.
 		/// </summary>
 		public ISet<ILogWriterConfig> Writers
 		{ get { return _logWriterConfigs; } }
+
 	}
 
 }

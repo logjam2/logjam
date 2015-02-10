@@ -9,13 +9,16 @@
 
 namespace LogJam
 {
+	using System.Collections;
+	using System.Collections.Generic;
+
 	using LogJam.Writers;
 
 
 	/// <summary>
 	/// Supports multiplexing multiple strongly-typed log writers to a single log target.
 	/// </summary>
-	public interface IMultiLogWriter : ILogWriter
+	public interface IMultiLogWriter : ILogWriter, IEnumerable<ILogWriter>
 	{
 
 		/// <summary>

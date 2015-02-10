@@ -47,7 +47,7 @@ namespace LogJam.Format
 		/// </summary>
 		/// <param name="formatAction">A <see cref="FormatAction{TEntry}"/></param>
 		/// <returns>A <see cref="LogFormatter{TEntry}"/> that calls <paramref name="formatAction"/> to format text.</returns>
-		public static implicit operator LogFormatter<TEntry>(FormatAction<TEntry> formatAction)
+		public static explicit operator LogFormatter<TEntry>(FormatAction<TEntry> formatAction)
 		{
 			Contract.Requires<ArgumentNullException>(formatAction != null);
 

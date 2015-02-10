@@ -71,16 +71,20 @@ namespace LogJam.WebApi
 						{
 							sb.AppendLine();
 							sb.Append("    (exception already logged)");
-							traceException = null;
+							tracer.Trace(traceLevel, sb.ToString());
 						}
 						else
 						{
 							request.LoggedRequestException(traceException);
+							tracer.Trace(traceLevel, traceException, sb.ToString());
 						}
 					}
 				}
+				else
+				{
+					tracer.Trace(traceLevel, sb.ToString());
+				}
 
-				tracer.Trace(traceLevel, traceException, sb.ToString());
 			}
 		}
 

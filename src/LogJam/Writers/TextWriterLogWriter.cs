@@ -20,6 +20,7 @@ namespace LogJam.Writers
 	/// <summary>
 	/// Formats and writes log entries to a <see cref="TextWriter"/>.
 	/// </summary>
+	/// <seealso cref="TextWriterMultiLogWriter"/>
 	public sealed class TextWriterLogWriter<TEntry> : ILogWriter<TEntry>, IDisposable
 		where TEntry : ILogEntry
 	{
@@ -80,16 +81,19 @@ namespace LogJam.Writers
 
 		public void Dispose()
 		{
-			if (! _disposed)
+			lock (this)
 			{
-				try
+				if (! _disposed)
 				{
-					_writer.Dispose();
-				}
-				catch (ObjectDisposedException)
-				{}
+					try
+					{
+						_writer.Dispose();
+					}
+					catch (ObjectDisposedException)
+					{}
 
-				_disposed = true;
+					_disposed = true;
+				}
 			}
 		}
 

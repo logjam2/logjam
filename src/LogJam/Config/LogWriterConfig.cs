@@ -31,9 +31,6 @@ namespace LogJam.Config
 		public virtual bool Synchronized { get { return _synchronized; } set { _synchronized = value; } }
 
 		/// <inheritdoc />
-		public Type BaseEntryType { get { return typeof(TEntry); } }
-
-		/// <inheritdoc />
 		public ILogWriter CreateILogWriter()
 		{
 			return CreateLogWriter();

@@ -75,6 +75,7 @@
   <ItemGroup>
     <Compile Include="Config\Json\ConfigTypeJsonConverter.cs" />
     <Compile Include="Config\Json\JsonConfigContractResolver.cs" />
+    <Compile Include="Examples\Timer.cs" />
     <Compile Include="LogManagerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\..\..\build\Version.cs">

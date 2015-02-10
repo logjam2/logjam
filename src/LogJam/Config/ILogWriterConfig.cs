@@ -23,10 +23,10 @@ namespace LogJam.Config
 		/// </summary>
 		bool Synchronized { get; set; }
 
-		/// <summary>
-		/// Returns the <see cref="ILogWriter{TEntry}"/> <c>TEntry</c> type for the logwriter returned from <see cref="CreateILogWriter"/>.
-		/// </summary>
-		Type BaseEntryType { get; }
+		///// <summary>
+		///// Returns the <see cref="ILogWriter{TEntry}"/> <c>TEntry</c> type for the logwriter returned from <see cref="CreateILogWriter"/>.
+		///// </summary>
+		//Type BaseEntryType { get; }
 
 		/// <summary>
 		/// Creates and returns a new <see cref="ILogWriter"/> using the configured settings.

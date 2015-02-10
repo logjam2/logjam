@@ -59,17 +59,20 @@ namespace LogJam.Trace.Formatters
 		/// <summary>
 		/// Formats the trace entry for debugger windows
 		/// </summary>
-		public override void Format(ref TraceEntry traceEntry, TextWriter writer)
+		public override string Format(ref TraceEntry traceEntry)
 		{
 			int indentSpaces = 0;
 
 			var sw = new StringWriter();
+			var newLine = sw.NewLine;
+			var newLineLength = newLine.Length;
+
 			//if (TraceManager.Config.ActivityTracingEnabled)
 			//{
 			//	// Compute indent spaces based on current ActivityRecord scope
 			//}
 
-			sw.Repeat(' ', indentSpaces);
+			//sw.Repeat(' ', indentSpaces);
 
 			sw.Write("{0,-7}\t", traceEntry.TraceLevel);
 
@@ -86,23 +89,28 @@ namespace LogJam.Trace.Formatters
 
 			var message = traceEntry.Message.Trim();
 			sw.Write("{0,-50}     {1}", traceEntry.TracerName, message);
-			if (! message.EndsWith(writer.NewLine))
+			if (!message.EndsWith(newLine))
 			{
 				sw.WriteLine();
 			}
 
 			if (traceEntry.Details != null)
 			{
-				sw.Repeat(' ', indentSpaces);
+				//sw.Repeat(' ', indentSpaces);
 				string detailsMessage = traceEntry.Details.ToString();
 				sw.Write(detailsMessage);
-				if (! detailsMessage.EndsWith(writer.NewLine))
+				if (!detailsMessage.EndsWith(newLine))
 				{
 					sw.WriteLine();
 				}
 			}
 
-			writer.Write(sw);
+			return sw.ToString();
+		}
+
+		public override void Format(ref TraceEntry traceEntry, TextWriter writer)
+		{
+			writer.Write(Format(ref traceEntry));
 		}
 
 		#endregion

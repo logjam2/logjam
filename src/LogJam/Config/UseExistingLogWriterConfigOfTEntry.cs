@@ -35,7 +35,7 @@ namespace LogJam.Config
 		}
 
 		public override ILogWriter<TEntry> CreateLogWriter()
-		{
+		{	
 			return _logWriter;
 		}
 

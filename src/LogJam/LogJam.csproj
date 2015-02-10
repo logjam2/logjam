@@ -41,11 +41,12 @@
     <Compile Include="Config\Json\JsonTypeHintAttribute.cs" />
     <Compile Include="Config\LogJamConfigTypes.cs" />
     <Compile Include="Config\LogManagerConfig.cs" />
-    <Compile Include="Config\UseExistingLogWriterConfig.cs" />
+    <Compile Include="Config\UseExistingILogWriterConfig.cs" />
+    <Compile Include="Config\UseExistingLogWriterConfigOfTEntry.cs" />
     <Compile Include="Config\UseExistingTextWriterConfig.cs" />
     <Compile Include="Format\ActionFormatter.cs" />
-    <Compile Include="ILogDecoder.cs" />
-    <Compile Include="ILogEncoder.cs" />
+    <Compile Include="Encode\ILogDecoder.cs" />
+    <Compile Include="Encode\ILogEncoder.cs" />
     <Compile Include="ILogEntry.cs" />
     <Compile Include="ILogWriter.cs" />
     <Compile Include="IMultiLogWriter.cs" />
@@ -105,9 +106,7 @@
     <Compile Include="Trace\TraceLevel.cs" />
     <Compile Include="Trace\TracerExtensions.cs" />
     <Compile Include="Writers\TextWriterLogWriter.cs" />
-    <Compile Include="Util\Collections\NamePrefixTreeNode.cs" />
     <Compile Include="Util\Text\StringBuilderExtensions.cs" />
-    <Compile Include="Util\Collections\TreeNode.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Interop\" />

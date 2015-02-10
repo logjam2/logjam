@@ -9,16 +9,13 @@
 
 namespace LogJam
 {
-	using System.Collections.Generic;
-	using System.Linq;
-
 	using LogJam.Config;
 	using LogJam.Trace;
-	using LogJam.Trace.Config;
-	using LogJam.Trace.Switches;
 	using LogJam.Writers;
 	using System;
+	using System.Collections.Generic;
 	using System.Diagnostics.Contracts;
+	using System.Linq;
 	using System.Threading;
 
 
@@ -77,22 +74,38 @@ namespace LogJam
 		/// Creates a new <see cref="LogManager"/> instance using default configuration.
 		/// </summary>
 		public LogManager()
-			: this(new SetupTracerFactory(), new LogManagerConfig())
+			: this(new LogManagerConfig())
 		{}
 
 		/// <summary>
-		/// Creates a new <see cref="LogManager"/> instance using the specified <paramref name="setupTracerFactory"/> for logging LogJam operations.
+		/// Creates a new <see cref="LogManager"/> instance using the specified <paramref name="logManagerConfig"/> for configuration, and an optional <paramref name="setupTracerFactory"/> for logging LogJam setup and internal operations.
 		/// </summary>
+		/// <param name="logManagerConfig">The <see cref="LogManagerConfig"/> that describes how this <see cref="LogManager"/> should be setup.</param>
 		/// <param name="setupTracerFactory">The <see cref="LogJam.SetupTracerFactory"/> to use for tracking internal operations.</param>
-		public LogManager(SetupTracerFactory setupTracerFactory, LogManagerConfig logManagerConfig)
+		public LogManager(LogManagerConfig logManagerConfig, SetupTracerFactory setupTracerFactory = null)
 		{
-			Contract.Requires<ArgumentNullException>(setupTracerFactory != null);
 			Contract.Requires<ArgumentNullException>(logManagerConfig != null);
 
-			_setupTracerFactory = setupTracerFactory;
+			_setupTracerFactory = setupTracerFactory ?? new SetupTracerFactory();
 			_config = logManagerConfig;
 			_logWriters = new Dictionary<ILogWriterConfig, ILogWriter>();
 		}
+
+		/// <summary>
+		/// Creates a new <see cref="LogManager"/> instance using the specified <paramref name="logWriterConfigs"/> to configure logging.
+		/// </summary>
+		/// <param name="logWriterConfigs">A set of 1 or more <see cref="ILogWriterConfig"/> instances to use to configure log writers.</param>
+		public LogManager(params ILogWriterConfig[] logWriterConfigs)
+			: this(new LogManagerConfig(logWriterConfigs))
+		{}
+
+		/// <summary>
+		/// Creates a new <see cref="LogManager"/> instance using the specified <paramref name="logWriters"/>.
+		/// </summary>
+		/// <param name="logWriters">A set of 1 or more <see cref="ILogWriter"/> instances to include in the <see cref="LogManager"/>.</param>
+		public LogManager(params ILogWriter[] logWriters)
+			: this(logWriters.Select(logWriter => (ILogWriterConfig) new UseExistingLogWriterConfig(logWriter)).ToArray())
+		{}
 
 		#endregion
 
@@ -149,7 +162,7 @@ namespace LogJam
 		}
 
 		/// <summary>
-		/// Stops all 
+		/// Stops all log writers managed by this <see cref="LogManager"/>.
 		/// </summary>
 		protected override void InternalStop()
 		{
@@ -180,7 +193,10 @@ namespace LogJam
 
 			lock (this)
 			{
-				return _logWriters.Values.OfType<ILogWriter<TEntry>>();
+				// Return all logwriters of the specified type
+				return _logWriters.Values.OfType<ILogWriter<TEntry>>()
+					// In addition to all logwriters of the specified type, that are obtained from IMultiLogWriters
+					.Concat(_logWriters.Values.OfType<IMultiLogWriter>().SelectMany(m => m).OfType<ILogWriter<TEntry>>());
 			}
 		}
 
@@ -231,12 +247,21 @@ namespace LogJam
 			{	// This occurs when logWriter.Start() fails.  In this case, the desired behavior is to return a functioning logwriter.
 				return new NoOpLogWriter<TEntry>();
 			}
+			
 			ILogWriter<TEntry> typedLogWriter = logWriter as ILogWriter<TEntry>;
-			if (typedLogWriter == null)
+			if (typedLogWriter != null)
 			{
-				throw new InvalidCastException("LogWriter type " + logWriter.GetType().Name + " could not be cast to " + typeof(ILogWriter<TEntry>).Name);
+				return typedLogWriter;
 			}
-			return typedLogWriter;
+
+			IMultiLogWriter multiLogWriter = logWriter as IMultiLogWriter;
+			if ((multiLogWriter != null) &&
+				multiLogWriter.GetLogWriter(out typedLogWriter))
+			{
+				return typedLogWriter;
+			}
+
+			throw new InvalidCastException("LogWriter type " + logWriter.GetType().Name + " could not be converted to " + typeof(ILogWriter<TEntry>).Name);
 		}
 
 	}

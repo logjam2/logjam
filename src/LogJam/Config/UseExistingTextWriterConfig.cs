@@ -40,6 +40,13 @@ namespace LogJam.Config
 			Formatter = logFormatter;
 		}
 
+		public UseExistingTextWriterConfig(TextWriter textWriter, FormatAction<TEntry> formatAction)
+			: this(textWriter, (LogFormatter<TEntry>) formatAction)
+		{
+			Contract.Requires<ArgumentNullException>(textWriter != null);
+			Contract.Requires<ArgumentNullException>(formatAction != null);
+		}
+
 		public UseExistingTextWriterConfig()
 		{}
 

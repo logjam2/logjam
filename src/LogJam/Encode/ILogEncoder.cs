@@ -1,5 +1,5 @@
 ﻿// // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ILogDecoder.cs">
+// <copyright file="ILogFormatter.cs">
 // Copyright (c) 2011-2014 logjam.codeplex.com.  
 // </copyright>
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
@@ -7,22 +7,20 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
-namespace LogJam
+namespace LogJam.Encode
 {
 	using System.IO;
 
 
 	/// <summary>
-	/// Parses log entries from an input byte stream.
+	/// Encodes log entries for an output byte stream.
 	/// </summary>
-	public interface ILogDecoder<out TEntry>
+	public interface ILogEncoder<TEntry>
+		where TEntry : ILogEntry
 	{
-		/// <summary>
-		/// Parses a <typeparam name="TEntry"/> from <paramref name="stream"/> and returns it.
-		/// </summary>
-		/// <param name="stream"></param>
-		/// <returns>The next <typeparam name="TEntry"/> that can be read from <paramref name="stream"/></returns>
-		TEntry DecodeEntry(Stream stream);
+
+		void EncodeEntry(ref TEntry entry, Stream stream);
+
 	}
 
 }

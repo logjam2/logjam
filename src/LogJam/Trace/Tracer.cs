@@ -105,6 +105,23 @@ namespace LogJam.Trace
 			_writer.Write(ref traceEntry);
 		}
 
+		public void Trace(TraceLevel traceLevel, string message)
+		{
+			Contract.Requires<ArgumentNullException>(message != null);
+
+			if (IsTraceEnabled(traceLevel))
+			{
+				TraceEntry traceEntry = new TraceEntry()
+				{
+					TimestampUtc = DateTime.UtcNow,
+					TracerName = Name,
+					TraceLevel = traceLevel,
+					Message = message
+				};
+				WriteTraceEntry(ref traceEntry);
+			}
+		}
+
 		public void Trace(TraceLevel traceLevel, object details, string message)
 		{
 			Contract.Requires<ArgumentNullException>(message != null);
@@ -121,6 +138,13 @@ namespace LogJam.Trace
 				                        };
 				WriteTraceEntry(ref traceEntry);
 			}
+		}
+
+		public void Trace(TraceLevel traceLevel, Exception exception, string message)
+		{
+			Contract.Requires<ArgumentNullException>(message != null);
+
+			Trace(traceLevel, (object) exception, message);
 		}
 
 		public void Trace(TraceLevel traceLevel, Exception exception, string message, object arg0)
