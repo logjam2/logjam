@@ -41,7 +41,7 @@
     <Compile Include="Config\Json\JsonTypeHintAttribute.cs" />
     <Compile Include="Config\LogJamConfigTypes.cs" />
     <Compile Include="Config\LogManagerConfig.cs" />
-    <Compile Include="Config\UseExistingILogWriterConfig.cs" />
+    <Compile Include="Config\UseExistingLogWriterConfig.cs" />
     <Compile Include="Config\UseExistingLogWriterConfigOfTEntry.cs" />
     <Compile Include="Config\UseExistingTextWriterConfig.cs" />
     <Compile Include="Format\ActionFormatter.cs" />
