@@ -111,13 +111,7 @@ namespace LogJam.Trace
 
 			if (IsTraceEnabled(traceLevel))
 			{
-				TraceEntry traceEntry = new TraceEntry()
-				{
-					TimestampUtc = DateTime.UtcNow,
-					TracerName = Name,
-					TraceLevel = traceLevel,
-					Message = message
-				};
+				TraceEntry traceEntry = new TraceEntry(Name, traceLevel, message);
 				WriteTraceEntry(ref traceEntry);
 			}
 		}
@@ -128,14 +122,7 @@ namespace LogJam.Trace
 
 			if (IsTraceEnabled(traceLevel))
 			{
-				TraceEntry traceEntry = new TraceEntry()
-				                        {
-					                        TimestampUtc = DateTime.UtcNow,
-					                        TracerName = Name,
-					                        TraceLevel = traceLevel,
-					                        Message = message,
-											Details = details
-				                        };
+				TraceEntry traceEntry = new TraceEntry(Name, traceLevel, message, details);
 				WriteTraceEntry(ref traceEntry);
 			}
 		}
@@ -154,14 +141,7 @@ namespace LogJam.Trace
 			if (IsTraceEnabled(traceLevel))
 			{
 				message = string.Format(message, arg0);
-				TraceEntry traceEntry = new TraceEntry()
-				{
-					TimestampUtc = DateTime.UtcNow,
-					TracerName = Name,
-					TraceLevel = traceLevel,
-					Message = message,
-					Details = exception
-				};
+				TraceEntry traceEntry = new TraceEntry(Name, traceLevel, message, exception);
 				WriteTraceEntry(ref traceEntry);
 			}
 		}
@@ -173,14 +153,7 @@ namespace LogJam.Trace
 			if (IsTraceEnabled(traceLevel))
 			{
 				message = string.Format(message, arg0, arg1);
-				TraceEntry traceEntry = new TraceEntry()
-				{
-					TimestampUtc = DateTime.UtcNow,
-					TracerName = Name,
-					TraceLevel = traceLevel,
-					Message = message,
-					Details = exception
-				};
+				TraceEntry traceEntry = new TraceEntry(Name, traceLevel, message, exception);
 				WriteTraceEntry(ref traceEntry);
 			}
 		}
@@ -192,14 +165,7 @@ namespace LogJam.Trace
 			if (IsTraceEnabled(traceLevel))
 			{
 				message = string.Format(message, arg0, arg1, arg2);
-				TraceEntry traceEntry = new TraceEntry()
-				{
-					TimestampUtc = DateTime.UtcNow,
-					TracerName = Name,
-					TraceLevel = traceLevel,
-					Message = message,
-					Details = exception
-				};
+				TraceEntry traceEntry = new TraceEntry(Name, traceLevel, message, exception);
 				WriteTraceEntry(ref traceEntry);
 			}
 		}
@@ -212,14 +178,7 @@ namespace LogJam.Trace
 			if (IsTraceEnabled(traceLevel))
 			{
 				message = string.Format(message, args);
-				TraceEntry traceEntry = new TraceEntry()
-				{
-					TimestampUtc = DateTime.UtcNow,
-					TracerName = Name,
-					TraceLevel = traceLevel,
-					Message = message,
-					Details = exception
-				};
+				TraceEntry traceEntry = new TraceEntry(Name, traceLevel, message, exception);
 				WriteTraceEntry(ref traceEntry);
 			}
 		}

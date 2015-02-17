@@ -13,6 +13,8 @@ namespace LogJam.Config
 	using System.Collections.Generic;
 	using System.Diagnostics.Contracts;
 
+	using LogJam.Writer;
+
 
 	/// <summary>
 	/// Holds the configuration settings for a <see cref="LogManager"/> instance.

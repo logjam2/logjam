@@ -16,7 +16,7 @@ namespace LogJam.UnitTests
 
 	using LogJam.Format;
 	using LogJam.Trace;
-	using LogJam.Writers;
+	using LogJam.Writer;
 
 	using Xunit;
 
@@ -71,15 +71,16 @@ namespace LogJam.UnitTests
 			// Log output written here
 			var stringWriter = new StringWriter();
 
+			var setupTracerFactory = new SetupTracerFactory();
 			FormatAction<Timer.StartRecord> formatStart = (startRecord, writer) => writer.WriteLine(">{0}", startRecord.TimingId);
 			FormatAction<Timer.StopRecord> formatStop = (stopRecord, writer) => writer.WriteLine("<{0} {1}", stopRecord.TimingId, stopRecord.ElapsedTime);
-			var multiLogWriter = new TextWriterMultiLogWriter(stringWriter, false)
-				.AddFormat<Timer.StartRecord>(formatStart)
-				.AddFormat<Timer.StopRecord>(formatStop);
+			var multiLogWriter = new TextWriterMultiLogWriter(stringWriter, false, setupTracerFactory)
+				.AddFormat(formatStart)
+				.AddFormat(formatStop);
 
 			using (var logManager = new LogManager(multiLogWriter))
 			{
-				// Timer logs starts and stops
+				// Timer test class logs starts and stops
 				var timer = new Timer("test timer", logManager);
 				var timing1 = timer.Start();
 				Thread.Sleep(15);

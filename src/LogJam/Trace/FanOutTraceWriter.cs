@@ -11,7 +11,7 @@ namespace LogJam.Trace
 {
 	using System.Linq;
 
-	using LogJam.Writers;
+	using LogJam.Writer;
 
 
 	/// <summary>

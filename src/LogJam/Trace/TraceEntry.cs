@@ -20,31 +20,40 @@ namespace LogJam.Trace
 		/// <summary>
 		/// When the trace entry was created, using UTC timezone.
 		/// </summary>
-		public DateTime TimestampUtc;
+		public readonly DateTime TimestampUtc;
 
 		/// <summary>
 		/// The <see cref="Tracer.Name"/> that was the source of this <c>TraceEntry</c>.
 		/// </summary>
-		public string TracerName;
+		public readonly string TracerName;
 
 		/// <summary>
 		/// The <see cref="TraceLevel"/> for this <c>TraceEntry</c>.
 		/// </summary>
-		public TraceLevel TraceLevel;
+		public readonly TraceLevel TraceLevel;
 
 		/// <summary>
 		/// The trace message - may be multiline.
 		/// </summary>
-		public string Message;
+		public readonly string Message;
 
 		/// <summary>
 		/// Additional trace message metadata - eg an <see cref="Exception"/>.
 		/// </summary>
-		public object Details;
+		public readonly object Details;
 
 		public override string ToString()
 		{
 			return string.Format("{0,-7}  {1,-50}  {2}", TraceLevel, TracerName, Message);
+		}
+
+		public TraceEntry(string tracerName, TraceLevel traceLevel, string message, object details = null)
+		{
+			TimestampUtc = DateTime.UtcNow;
+			TracerName = tracerName;
+			TraceLevel = traceLevel;
+			Message = message;
+			Details = details;
 		}
 
 	}

@@ -23,7 +23,7 @@ namespace LogJam.Util
 	/// but with support for <see cref="IDictionary{TKey,TValue}"/> operations.
 	/// <para>This collection is not thread-safe.</para>
 	/// </remarks>
-	internal class ListDictionary<TKey, TValue> : List<KeyValuePair<TKey, TValue>>, IDictionary<TKey, TValue>, IEquatable<IDictionary<TKey, TValue>>
+	public class ListDictionary<TKey, TValue> : List<KeyValuePair<TKey, TValue>>, IDictionary<TKey, TValue>, IEquatable<IDictionary<TKey, TValue>>
 	{
 
 		private static KeyValuePairComparer<TKey, TValue> s_comparer = new KeyValuePairComparer<TKey, TValue>();

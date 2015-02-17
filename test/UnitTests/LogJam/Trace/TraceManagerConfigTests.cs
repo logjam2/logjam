@@ -14,9 +14,10 @@ namespace LogJam.UnitTests.Trace
 	using LogJam.Format;
 	using LogJam.Trace;
 	using LogJam.Trace.Config;
-	using LogJam.Trace.Formatters;
+	using LogJam.Trace.Format;
 	using LogJam.Trace.Switches;
-	using LogJam.Writers;
+	using LogJam.Util;
+	using LogJam.Writer;
 	using Newtonsoft.Json;
 	using System;
 	using System.Collections.Generic;
@@ -129,7 +130,7 @@ namespace LogJam.UnitTests.Trace
 
 				Assert.Single(listLogWriter);
 				TraceEntry traceEntry = listLogWriter.First();
-				Assert.Equal(GetType().FullName, traceEntry.TracerName);
+				Assert.Equal(GetType().GetCSharpName(), traceEntry.TracerName);
 				Assert.Equal(TraceLevel.Info, traceEntry.TraceLevel);
 			}
 		}

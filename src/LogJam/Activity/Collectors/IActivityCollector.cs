@@ -11,6 +11,7 @@ namespace LogJam.Activity.Collectors
 	using System;
 
 	using LogJam.Trace;
+	using LogJam.Writer;
 
 
 	/// <summary>

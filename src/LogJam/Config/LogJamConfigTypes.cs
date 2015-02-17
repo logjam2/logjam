@@ -15,9 +15,9 @@ namespace LogJam.Config
 	using System.Linq;
 
 	using LogJam.Trace.Config;
-	using LogJam.Trace.Formatters;
+	using LogJam.Trace.Format;
 	using LogJam.Trace.Switches;
-	using LogJam.Writers;
+	using LogJam.Writer;
 
 
 	/// <summary>

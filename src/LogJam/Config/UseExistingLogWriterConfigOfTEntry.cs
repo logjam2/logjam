@@ -12,6 +12,8 @@ namespace LogJam.Config
 	using System;
 	using System.Diagnostics.Contracts;
 
+	using LogJam.Writer;
+
 
 	/// <summary>
 	/// A <see cref="LogWriterConfig{TEntry}"/> that always returns the <see cref="ILogWriter{TEntry}"/> that is passed in.

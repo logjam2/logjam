@@ -7,7 +7,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
-namespace LogJam.Writers
+namespace LogJam.Writer
 {
 	using System;
 	using System.IO;

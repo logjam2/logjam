@@ -11,7 +11,8 @@ namespace LogJam.Trace.Config
 {
 	using LogJam.Config;
 	using LogJam.Format;
-	using LogJam.Trace.Formatters;
+	using LogJam.Trace.Format;
+	using LogJam.Writer;
 
 
 	/// <summary>

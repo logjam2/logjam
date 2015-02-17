@@ -10,19 +10,33 @@
 namespace LogJam
 {
 	using System;
+	using System.Diagnostics.Contracts;
+
+	using LogJam.Writer;
 
 
 	/// <summary>
 	/// Thrown when an <see cref="ILogWriter{TEntry}"/> failed to write to a log.
 	/// </summary>
-	public sealed class LogWriterException : Exception
+	public sealed class LogWriterException : LogJamException
 	{
 
 		private readonly ILogWriter _logWriter;
 
 		public LogWriterException(string message, Exception innerException, ILogWriter logWriter)
+			: base(message, innerException, logWriter)
 		{
-			
+			Contract.Requires<ArgumentNullException>(logWriter != null);
+
+			_logWriter = logWriter;
+		}
+
+		public LogWriterException(string message, ILogWriter logWriter)
+			: base(message, logWriter)
+		{
+			Contract.Requires<ArgumentNullException>(logWriter != null);
+
+			_logWriter = logWriter;
 		}
 
 	}

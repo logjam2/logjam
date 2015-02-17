@@ -31,6 +31,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
@@ -48,16 +49,17 @@
     <Compile Include="Encode\ILogDecoder.cs" />
     <Compile Include="Encode\ILogEncoder.cs" />
     <Compile Include="ILogEntry.cs" />
-    <Compile Include="ILogWriter.cs" />
-    <Compile Include="IMultiLogWriter.cs" />
+    <Compile Include="LogJamException.cs" />
+    <Compile Include="LogEntryExtensions.cs" />
+    <Compile Include="Writer\ILogWriter.cs" />
+    <Compile Include="Writer\IMultiLogWriter.cs" />
     <Compile Include="IStartable.cs" />
-    <Compile Include="LogJamNotStartedException.cs" />
     <Compile Include="LogJamStartException.cs" />
     <Compile Include="SetupTracerFactory.cs" />
     <Compile Include="LogManager.cs" />
     <Compile Include="LogWriterException.cs" />
     <Compile Include="Trace\Config\ConsoleTraceWriterConfig.cs" />
-    <Compile Include="Trace\Config\SwitchList.cs" />
+    <Compile Include="Trace\Config\SwitchSet.cs" />
     <Compile Include="Trace\ConsoleTraceWriter.cs" />
     <Compile Include="Trace\ITraceWriter.cs" />
     <Compile Include="Trace\FanOutTraceWriter.cs" />
@@ -67,10 +69,13 @@
     <Compile Include="Util\EqualityUtil.cs" />
     <Compile Include="Util\KeyValuePairComparer.cs" />
     <Compile Include="Util\ListDictionary.cs" />
+    <Compile Include="Util\ReflectionUtil.cs" />
+    <Compile Include="Util\StartableExtensions.cs" />
     <Compile Include="Util\Text\TextWriterExtensions.cs" />
     <Compile Include="Config\DebuggerLogWriterConfig.cs" />
     <Compile Include="Config\FileLogWriterConfig.cs" />
-    <Compile Include="Writers\FanOutLogWriter.cs" />
+    <Compile Include="Writer\BackgroundMultiLogWriter.cs" />
+    <Compile Include="Writer\FanOutLogWriter.cs" />
     <Compile Include="Config\NoOpLogWriterConfig.cs" />
     <Compile Include="Config\ListLogWriterConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -81,11 +86,13 @@
     <Compile Include="Trace\Config\TraceWriterConfig.cs" />
     <Compile Include="Trace\Switches\OnOffTraceSwitch.cs" />
     <Compile Include="Trace\TraceWriter.cs" />
-    <Compile Include="Writers\ListLogWriter.cs" />
-    <Compile Include="Writers\NoOpLogWriter.cs" />
-    <Compile Include="Writers\DelegatingLogWriter.cs" />
+    <Compile Include="Writer\IQueueLogWriterOfTEntry.cs" />
+    <Compile Include="Writer\ListLogWriter.cs" />
+    <Compile Include="Writer\MultiLogWriter.cs" />
+    <Compile Include="Writer\NoOpLogWriter.cs" />
+    <Compile Include="Writer\ProxyLogWriter.cs" />
     <Compile Include="Config\TextWriterLogWriterConfig.cs" />
-    <Compile Include="Writers\TextWriterMultiLogWriter.cs" />
+    <Compile Include="Writer\TextWriterMultiLogWriter.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Activity\ActivityRecord.cs" />
@@ -95,17 +102,17 @@
     <Compile Include="Trace\ITracerFactory.cs" />
     <Compile Include="Trace\TraceEntry.cs" />
     <Compile Include="Trace\TracerFactoryExtensions.cs" />
-    <Compile Include="Writers\DebuggerTextWriter.cs" />
+    <Compile Include="Writer\DebuggerTextWriter.cs" />
     <Compile Include="Trace\Format\DebuggerTraceFormatter.cs" />
     <Compile Include="Format\LogFormatter.cs" />
-    <Compile Include="ILogWriterOfTEntry.cs" />
+    <Compile Include="Writer\ILogWriterOfTEntry.cs" />
     <Compile Include="Trace\ITraceSwitch.cs" />
     <Compile Include="Trace\TraceManager.cs" />
     <Compile Include="Trace\Tracer.cs" />
     <Compile Include="Trace\Switches\ThresholdTraceSwitch.cs" />
     <Compile Include="Trace\TraceLevel.cs" />
     <Compile Include="Trace\TracerExtensions.cs" />
-    <Compile Include="Writers\TextWriterLogWriter.cs" />
+    <Compile Include="Writer\TextWriterLogWriter.cs" />
     <Compile Include="Util\Text\StringBuilderExtensions.cs" />
   </ItemGroup>
   <ItemGroup>

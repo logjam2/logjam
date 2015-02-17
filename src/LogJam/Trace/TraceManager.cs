@@ -17,7 +17,7 @@ namespace LogJam.Trace
 	using LogJam.Config;
 	using LogJam.Trace.Config;
 	using LogJam.Trace.Switches;
-	using LogJam.Writers;
+	using LogJam.Writer;
 
 
 	/// <summary>
@@ -105,6 +105,16 @@ namespace LogJam.Trace
 		public TraceManager(ILogWriter<TraceEntry> logWriter, ITraceSwitch traceSwitch = null, string tracerNamePrefix = Tracer.All)
 			: this(new UseExistingLogWriterConfig<TraceEntry>(logWriter), traceSwitch, tracerNamePrefix)
 		{}
+
+		/// <summary>
+		/// Creates a new <see cref="TraceManager"/> configured to use <paramref name="logWriter"/> and
+		/// <paramref name="traceSwitch"/> for all <see cref="Tracer"/>s.
+		/// </summary>
+		/// <param name="logWriter">The <see cref="ILogWriter{TEntry}"/> to use.</param>
+		/// <param name="switches">Defines the trace switches to use with <paramref name="logWriter"/>.</param>
+		public TraceManager(ILogWriter<TraceEntry> logWriter, SwitchSet switches)
+			: this(new TraceWriterConfig(logWriter, switches))
+		{ }
 
 		/// <summary>
 		/// Creates a new <see cref="TraceManager"/> configured to use <paramref name="logWriter"/> and trace

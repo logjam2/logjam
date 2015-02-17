@@ -11,7 +11,8 @@ namespace LogJam
 {
 	using LogJam.Config;
 	using LogJam.Trace;
-	using LogJam.Writers;
+	using LogJam.Util;
+	using LogJam.Writer;
 	using System;
 	using System.Collections.Generic;
 	using System.Diagnostics.Contracts;
@@ -139,21 +140,15 @@ namespace LogJam
 					try
 					{
 						logWriter = logWriterConfig.CreateILogWriter();
-						IStartable startableLogWriter = logWriter as IStartable;
-						if (startableLogWriter != null)
-						{
-							var tracer = SetupTracerFactory.TracerFor(startableLogWriter);
-							tracer.Info("Starting {0} ...", logWriter);
-							startableLogWriter.Start();
-							tracer.Info("Successfully started {0}.", logWriter);
-						}
 					}
 					catch (Exception excp)
 					{
 						// TODO: Store initialization failure status
-						var tracer = SetupTracerFactory.TracerFor((object) logWriter ?? logWriterConfig);
-						tracer.Severe(excp, "Exception creating or Start()ing logwriter from config: {0}", logWriterConfig);
+						var tracer = SetupTracerFactory.TracerFor(logWriterConfig);
+						tracer.Severe(excp, "Exception creating logwriter from config: {0}", logWriterConfig);
 					}
+
+					(logWriter as IStartable).SafeStart(SetupTracerFactory);
 
 					_logWriters.Add(logWriterConfig, logWriter);
 					DisposeOnStop(logWriter);
@@ -168,14 +163,7 @@ namespace LogJam
 		{
 			lock (this)
 			{
-				foreach (var logWriter in _logWriters.Values)
-				{
-					var startableLogWriter = logWriter as IStartable;
-					if (startableLogWriter != null)
-					{
-						startableLogWriter.Stop();
-					}
-				}
+				_logWriters.SafeStop(SetupTracerFactory);
 				_logWriters.Clear();
 			}
 		}
@@ -195,7 +183,7 @@ namespace LogJam
 			{
 				// Return all logwriters of the specified type
 				return _logWriters.Values.OfType<ILogWriter<TEntry>>()
-					// In addition to all logwriters of the specified type, that are obtained from IMultiLogWriters
+					// In addition, get all logwriters of the specified type, that are obtained from IMultiLogWriters
 					.Concat(_logWriters.Values.OfType<IMultiLogWriter>().SelectMany(m => m).OfType<ILogWriter<TEntry>>());
 			}
 		}

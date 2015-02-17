@@ -13,7 +13,7 @@ namespace LogJam.Trace
 	using System.Diagnostics.Contracts;
 	using System.Threading;
 
-	using LogJam.Writers;
+	using LogJam.Writer;
 
 
 	/// <summary>
@@ -22,7 +22,7 @@ namespace LogJam.Trace
 	/// </summary>
 	/// <remarks><c>TraceWriter</c> instances are thread-safe.</remarks>
 	/// <seealso cref="FanOutTraceWriter"/>
-	internal sealed class TraceWriter : DelegatingLogWriter<TraceEntry>, ITraceWriter
+	internal sealed class TraceWriter : ProxyLogWriter<TraceEntry>, ITraceWriter
 	{
 		private readonly ITraceSwitch _traceSwitch;
 		private readonly ITracerFactory _setupTracerFactory;

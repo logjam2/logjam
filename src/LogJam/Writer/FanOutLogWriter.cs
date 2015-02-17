@@ -7,7 +7,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
-namespace LogJam.Writers
+namespace LogJam.Writer
 {
 	using System;
 	using System.Collections.Generic;
@@ -16,9 +16,9 @@ namespace LogJam.Writers
 
 
 	/// <summary>
-	/// Base class for LogWriters that delegate to multiple downstream <see cref="ILogWriter{TEntry}"/> instances.
+	/// Base class for LogWriters that write each entry to multiple downstream <see cref="ILogWriter{TEntry}"/> instances.
 	/// </summary>
-	/// <seealso cref="DelegatingLogWriter{TEntry}"/> for a delegating logwriter that writes to a single <see cref="ILogWriter{TEntry}"/> instance.
+	/// <seealso cref="ProxyLogWriter{TEntry}"/> for a similar logwriter that writes each entry to a single <see cref="ILogWriter{TEntry}"/> instance.
 	public class FanOutLogWriter<TEntry> : ILogWriter<TEntry>, IDisposable
 		where TEntry : ILogEntry
 	{

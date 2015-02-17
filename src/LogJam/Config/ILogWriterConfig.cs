@@ -11,6 +11,8 @@ namespace LogJam.Config
 {
 	using System;
 
+	using LogJam.Writer;
+
 
 	/// <summary>
 	/// The non-generic interface that all <see cref="LogWriterConfig{TEntry}"/> instances implement.

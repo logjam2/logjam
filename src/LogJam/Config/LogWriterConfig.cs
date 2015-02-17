@@ -13,6 +13,7 @@ namespace LogJam.Config
 
 	using LogJam.Trace;
 	using LogJam.Trace.Config;
+	using LogJam.Writer;
 
 
 	/// <summary>

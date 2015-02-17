@@ -6,10 +6,8 @@
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace LogJam
+namespace LogJam.Writer
 {
-	using System;
-
 
 	/// <summary>
 	/// Supports writing strongly-typed log entries to a log target.

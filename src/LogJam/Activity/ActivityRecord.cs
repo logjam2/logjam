@@ -11,6 +11,8 @@ namespace LogJam.Trace
 	using System;
 	using System.Diagnostics.Contracts;
 
+	using LogJam.Util;
+
 
 	/// <summary>
 	/// Base class for all activity records.
@@ -31,7 +33,7 @@ namespace LogJam.Trace
 		/// </summary>
 		protected ActivityRecord()
 		{
-			SourceName = GetType().FullName;
+			SourceName = GetType().GetCSharpName();
 		}
 
 		/// <summary>

@@ -18,7 +18,7 @@ namespace LogJam.Trace.Config
 
 	using LogJam.Config;
 	using LogJam.Util;
-	using LogJam.Writers;
+	using LogJam.Writer;
 
 
 	/// <summary>
@@ -28,7 +28,7 @@ namespace LogJam.Trace.Config
 	{
 
 		private LogWriterConfig<TraceEntry> _tracelogWriterConfig;
-		private readonly SwitchList _switches = new SwitchList();
+		private readonly SwitchSet _switches;
 
 		/// <summary>
 		/// Creates a new <see cref="TraceWriterConfig"/> using all default values.
@@ -36,20 +36,22 @@ namespace LogJam.Trace.Config
 		/// used.
 		/// </summary>
 		public TraceWriterConfig()
-		{ }
+		{
+			_switches = new SwitchSet();
+		}
 
-		public TraceWriterConfig(LogWriterConfig<TraceEntry> logWriterConfig)
+		public TraceWriterConfig(LogWriterConfig<TraceEntry> logWriterConfig, SwitchSet switches = null)
 		{
 			Contract.Requires<ArgumentNullException>(logWriterConfig != null);
 
 			_tracelogWriterConfig = logWriterConfig;
+			_switches = switches ?? new SwitchSet();
 		}
 
-		public TraceWriterConfig(ILogWriter<TraceEntry> logWriter)
+		public TraceWriterConfig(ILogWriter<TraceEntry> logWriter, SwitchSet switches = null)
+			: this(new UseExistingLogWriterConfig<TraceEntry>(logWriter), switches)
 		{
 			Contract.Requires<ArgumentNullException>(logWriter != null);
-
-			_tracelogWriterConfig = new UseExistingLogWriterConfig<TraceEntry>(logWriter);
 		}
 
 		[DataMember(Name = "LogWriter")]
@@ -73,12 +75,12 @@ namespace LogJam.Trace.Config
 			}
 		}
 
-		public IDictionary<string, ITraceSwitch> Switches
+		public SwitchSet Switches
 		{
 			get { return _switches; }	
 		}
 
-		internal SwitchList GetSwitchList()
+		internal SwitchSet GetSwitchList()
 		{
 			return _switches;
 		}

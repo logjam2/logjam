@@ -11,7 +11,7 @@ namespace LogJam.Config
 {
 
 	using LogJam.Config.Json;
-	using LogJam.Writers;
+	using LogJam.Writer;
 
 
 	/// <summary>

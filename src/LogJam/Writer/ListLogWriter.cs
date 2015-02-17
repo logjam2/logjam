@@ -7,7 +7,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
-namespace LogJam.Writers
+namespace LogJam.Writer
 {
 	using System.Collections;
 	using System.Collections.Generic;
@@ -25,6 +25,12 @@ namespace LogJam.Writers
 		private readonly bool _isSynchronized;
 		private bool _isStarted = false;
 
+		/// <summary>
+		/// Creates a new <see cref="ListLogWriter{TEntry}"/>.
+		/// </summary>
+		/// <param name="synchronize">If set to <c>true</c> (the default), writes are synchronized, meaning entries are only added to
+		/// the list one thread at a time using a <c>lock</c>.  If <c>false</c>, writes are not synchronized by this class, so another 
+		/// mechanism must be used to synchronize writes from multiple threads.</param>
 		public ListLogWriter(bool synchronize = true)
 		{
 			_entryList = new List<TEntry>();
@@ -49,15 +55,18 @@ namespace LogJam.Writers
 		/// <param name="entry">A <typeparamref name="TEntry"/>.</param>
 		public void Write(ref TEntry entry)
 		{
-			if (_isStarted)
+			if (! _isSynchronized)
 			{
-				if (! _isSynchronized)
+				if (_isStarted)
 				{
 					_entryList.Add(entry);
 				}
-				else
+			}
+			else
+			{
+				lock (this)
 				{
-					lock (this)
+					if (_isStarted)
 					{
 						_entryList.Add(entry);
 					}
@@ -124,7 +133,10 @@ namespace LogJam.Writers
 		/// </summary>
 		public void Clear()
 		{
-			_entryList.Clear();
+			lock (this)
+			{
+				_entryList.Clear();
+			}
 		}
 	}
 

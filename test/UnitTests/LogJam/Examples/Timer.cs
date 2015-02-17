@@ -12,6 +12,8 @@ namespace LogJam.UnitTests.Examples
 	using System;
 	using System.Threading;
 
+	using LogJam.Writer;
+
 
 	/// <summary>
 	/// Provides timings and logs timing records - this isn't intended as an awesome timer implementation, just

@@ -7,10 +7,8 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
-namespace LogJam
+namespace LogJam.Writer
 {
-	using System;
-
 
 	/// <summary>
 	/// Untyped log writer interface.

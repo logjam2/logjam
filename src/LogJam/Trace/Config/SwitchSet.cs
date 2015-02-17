@@ -1,5 +1,5 @@
 ﻿// // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="SwitchList.cs">
+// <copyright file="SwitchSet.cs">
 // Copyright (c) 2011-2015 logjam.codeplex.com.  
 // </copyright>
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
@@ -9,6 +9,9 @@
 
 namespace LogJam.Trace.Config
 {
+	using System;
+	using System.Diagnostics.Contracts;
+
 	using LogJam.Util;
 
 
@@ -16,7 +19,7 @@ namespace LogJam.Trace.Config
 	/// Holds the switches for a <see cref="TraceWriterConfig"/> as a set of key-value pairs,
 	/// where the key is a name prefix, and the value is a <see cref="ITraceSwitch"/>.
 	/// </summary>
-	internal sealed class SwitchList : ListDictionary<string, ITraceSwitch>
+	public sealed class SwitchSet : ListDictionary<string, ITraceSwitch>
 	{
 
 		/// <summary>
@@ -44,6 +47,29 @@ namespace LogJam.Trace.Config
 			}
 
 			return bestMatchLength >= 0;
+		}
+
+		/// <summary>
+		/// Adds a <paramref name="traceSwitch"/> associated with the specified <paramref name="tracerType"/>.
+		/// </summary>
+		/// <param name="tracerType">The <see cref="Type"/> to associate <paramref name="traceSwitch"/> with.</param>
+		/// <param name="traceSwitch">An <see cref="ITraceSwitch"/>.</param>
+		public void Add(Type tracerType, ITraceSwitch traceSwitch)
+		{
+			Contract.Requires<ArgumentNullException>(tracerType != null);
+			Contract.Requires<ArgumentNullException>(traceSwitch != null);
+
+			string tracerName = tracerType.GetCSharpName();
+			if (tracerType.IsGenericTypeDefinition)
+			{	// Remove everything after the open generic bracket - to match all generic types.
+				int ichBracket = tracerName.IndexOf('<');
+				if (ichBracket > 0)
+				{
+					tracerName = tracerName.Substring(0, ichBracket + 1);
+				}
+			}
+
+			Add(tracerName, traceSwitch);
 		}
 
 	}

@@ -11,10 +11,13 @@ namespace LogJam
 {
 	using System.Collections;
 	using System.Collections.Generic;
+	using System.IO;
 
+	using LogJam.Format;
 	using LogJam.Trace;
+	using LogJam.Trace.Format;
 	using LogJam.Trace.Switches;
-	using LogJam.Writers;
+	using LogJam.Writer;
 
 
 	/// <summary>

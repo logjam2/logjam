@@ -15,8 +15,11 @@ namespace LogJam.UnitTests.Trace
 	using LogJam.Config;
 	using LogJam.Trace;
 	using LogJam.Trace.Config;
+	using LogJam.Trace.Format;
 	using LogJam.Trace.Switches;
-	using LogJam.Writers;
+	using LogJam.UnitTests.Common;
+	using LogJam.UnitTests.Examples;
+	using LogJam.Writer;
 
 	using Xunit;
 
@@ -26,6 +29,7 @@ namespace LogJam.UnitTests.Trace
 	/// </summary>
 	public sealed class TracerTests
 	{
+
 		/// <summary>
 		/// Shows reasonable use for tracing to stdout in unit tests.
 		/// </summary>
@@ -41,14 +45,15 @@ namespace LogJam.UnitTests.Trace
 			}
 
 			// Or, trace everything for the class under test, and info for everything else
-			using (var traceManager = new TraceManager(new TraceWriterConfig(new ConsoleTraceWriter())
-			{
-				Switches =
-														   {
-															   { Tracer.All, new ThresholdTraceSwitch(TraceLevel.Info)},
-															   { GetType().FullName, new OnOffTraceSwitch(true)}
-														   }
-			}))
+			var config = new TraceWriterConfig(new ConsoleTraceWriter())
+			             {
+				             Switches =
+				             {
+					             { Tracer.All, new ThresholdTraceSwitch(TraceLevel.Info) },
+					             { GetType(), new OnOffTraceSwitch(true) }
+				             }
+			             };
+			using (var traceManager = new TraceManager(config))
 			{
 				traceManager.Start();
 				var tracer = traceManager.TracerFor(this);
@@ -106,7 +111,7 @@ namespace LogJam.UnitTests.Trace
 			                      {
 				                      Switches =
 				                      {
-					                      { GetType().FullName, new OnOffTraceSwitch(true) }
+					                      { GetType(), new OnOffTraceSwitch(true) }
 				                      }
 			                      };
 			config.Writers.Add(listTraceConfig);
@@ -173,25 +178,112 @@ namespace LogJam.UnitTests.Trace
 			Assert.Equal(2, traceManager.SetupTraces.Count(traceEntry => traceEntry.TraceLevel >= TraceLevel.Error && traceEntry.Details != null));
 		}
 
+		/// <summary>
+		/// Ensures that TracerNames for generic types are consistent and readable
+		/// </summary>
+		[Fact]
+		public void TracerNamesForGenericTypes()
+		{
+			var tracerFactory = new SetupTracerFactory();
 
-		private class ExceptionThrowingLogWriter<TEntry> : ILogWriter<TEntry>, IDisposable where TEntry : ILogEntry
+			// TextWriterLogWriter<MessageEntry> handling (generic type parameter)
+			var tracer1 = tracerFactory.GetTracer(typeof(TextWriterLogWriter<MessageEntry>));
+			Console.WriteLine(tracer1.Name);
+			var tracer2 = tracerFactory.GetTracer(typeof(TextWriterLogWriter<>));
+			Console.WriteLine(tracer2.Name);
+			var tracer3 = tracerFactory.TracerFor(new TextWriterLogWriter<MessageEntry>(Console.Out, new MessageEntry.Formatter(), false, false));
+			Console.WriteLine(tracer3.Name);
+			var tracer4 = tracerFactory.TracerFor<TextWriterLogWriter<MessageEntry>>();
+			Console.WriteLine(tracer4.Name);
+			var tracer5 = tracerFactory.GetTracer(typeof(TextWriterLogWriter<MessageEntry>).GetGenericTypeDefinition());
+			Console.WriteLine(tracer5.Name);
+
+			// PrivateClass.TestLogWriter<MessageEntry> handling (inner class + generic type parameter)
+			tracer1 = tracerFactory.GetTracer(typeof(PrivateClass.TestLogWriter<MessageEntry>));
+			Console.WriteLine(tracer1.Name);
+			tracer2 = tracerFactory.GetTracer(typeof(PrivateClass.TestLogWriter<>));
+			Console.WriteLine(tracer2.Name);
+			tracer3 = tracerFactory.TracerFor(new PrivateClass.TestLogWriter<MessageEntry>());
+			Console.WriteLine(tracer3.Name);
+			tracer4 = tracerFactory.TracerFor<PrivateClass.TestLogWriter<MessageEntry>>();
+			Console.WriteLine(tracer4.Name);
+			tracer5 = tracerFactory.GetTracer(typeof(PrivateClass.TestLogWriter<MessageEntry>).GetGenericTypeDefinition());
+			Console.WriteLine(tracer5.Name);
+		}
+
+		[Fact]
+		public void EnableTracingForAllGenericTypesWithSameGenericTypeDefinition()
+		{
+			var traceConfig = new TraceWriterConfig(new ListLogWriter<TraceEntry>())
+			                  {
+				                  Switches =
+				                  {
+					                  { typeof(PrivateClass.TestLogWriter<>), new OnOffTraceSwitch(true) }
+				                  }
+			                  };
+
+			using (var traceManager = new TraceManager(traceConfig))
+			{
+				var tracer = traceManager.TracerFor(this);
+				Assert.False(tracer.IsInfoEnabled());
+
+				tracer = traceManager.GetTracer(typeof(PrivateClass.TestLogWriter<>));
+				Assert.True(tracer.IsInfoEnabled());
+
+				tracer = traceManager.TracerFor<PrivateClass.TestLogWriter<MessageEntry>>();
+				Assert.True(tracer.IsInfoEnabled());
+
+				tracer = traceManager.TracerFor<PrivateClass.TestLogWriter<TraceEntry>>();
+				Assert.True(tracer.IsInfoEnabled());
+			}
+		}
+
+		[Fact]
+		public void EnableTracingForSpecificGenericType()
+		{
+			var traceConfig = new TraceWriterConfig(new ListLogWriter<TraceEntry>())
+			                  {
+				                  Switches =
+				                  {
+					                  { typeof(PrivateClass.TestLogWriter<MessageEntry>), new OnOffTraceSwitch(true) }
+				                  }
+			                  };
+			using (var traceManager = new TraceManager(traceConfig))
+			{
+				var tracer = traceManager.TracerFor(this);
+				Assert.False(tracer.IsInfoEnabled());
+
+				tracer = traceManager.GetTracer(typeof(PrivateClass.TestLogWriter<>));
+				Assert.False(tracer.IsInfoEnabled());
+
+				tracer = traceManager.TracerFor<PrivateClass.TestLogWriter<MessageEntry>>();
+				Assert.True(tracer.IsInfoEnabled());
+
+				tracer = traceManager.TracerFor<PrivateClass.TestLogWriter<TraceEntry>>();
+				Assert.False(tracer.IsInfoEnabled());
+			}
+		}
+
+		/// <summary>
+		/// Used just to test <see cref="Tracer"/> naming in <see cref="TracerTests.TracerNamesForGenericTypes"/>
+		/// </summary>
+// ReSharper disable once ClassNeverInstantiated.Local
+		private class PrivateClass
 		{
 
-			public int CountExceptionsThrown = 0;
-
-			public bool Enabled { get { return true; } }
-			public bool IsSynchronized { get { return true; } }
-
-			public void Write(ref TEntry entry)
+			internal class TestLogWriter<TEntry> : ILogWriter<TEntry>
+				where TEntry : ILogEntry
 			{
-				CountExceptionsThrown++;
-				throw new ApplicationException();
-			}
 
-			public void Dispose()
-			{
-				CountExceptionsThrown++;
-				throw new ApplicationException();
+				public void Write(ref TEntry entry)
+				{
+					throw new NotImplementedException();
+				}
+
+				public bool Enabled { get { return true; } }
+
+				public bool IsSynchronized { get { return true; } }
+
 			}
 
 		}

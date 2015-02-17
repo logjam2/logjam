@@ -6,6 +6,7 @@
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
+// ReSharper disable once CheckNamespace
 namespace Owin
 {
 	using System;
@@ -15,8 +16,8 @@ namespace Owin
 
 	using LogJam.Owin;
 	using LogJam.Trace;
-	using LogJam.Trace.Formatters;
-	using LogJam.Writers;
+	using LogJam.Trace.Format;
+	using LogJam.Writer;
 
 	using Microsoft.Owin.Logging;
 

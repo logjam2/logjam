@@ -7,7 +7,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
-namespace LogJam.Writers
+namespace LogJam.Writer
 {
 	using LogJam.Config;
 	using LogJam.Util;

@@ -6,15 +6,13 @@
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace LogJam.Trace.Formatters
+namespace LogJam.Trace.Format
 {
 	using System;
 	using System.Diagnostics.Contracts;
 	using System.IO;
-	using System.Text;
 
 	using LogJam.Format;
-	using LogJam.Util.Text;
 
 
 	/// <summary>

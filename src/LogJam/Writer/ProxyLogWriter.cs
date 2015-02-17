@@ -1,5 +1,5 @@
 ﻿// // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="DelegatingLogWriter.cs">
+// <copyright file="ProxyLogWriter.cs">
 // Copyright (c) 2011-2014 logjam.codeplex.com.  
 // </copyright>
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
@@ -7,17 +7,17 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
-namespace LogJam.Writers
+namespace LogJam.Writer
 {
 	using System;
 	using System.Diagnostics.Contracts;
 
 
 	/// <summary>
-	/// Base class for LogWriters that delegate to a downstream <see cref="ILogWriter{TEntry}"/> instance.
+	/// Base class for LogWriters that write each entry to a downstream <see cref="ILogWriter{TEntry}"/> instance.
 	/// </summary>
-	/// <seealso cref="FanOutLogWriter{TEntry}"/> for a delegating logwriter that writes to multiple <see cref="ILogWriter{TEntry}"/> instances.
-	public abstract class DelegatingLogWriter<TEntry> : ILogWriter<TEntry>, IDisposable
+	/// <seealso cref="FanOutLogWriter{TEntry}"/> for a logwriter that writes to multiple downstream <see cref="ILogWriter{TEntry}"/> instances.
+	public abstract class ProxyLogWriter<TEntry> : ILogWriter<TEntry>, IDisposable
 		where TEntry : ILogEntry
 	{
 
@@ -25,10 +25,10 @@ namespace LogJam.Writers
 		private bool _disposed = false;
 
 		/// <summary>
-		/// Creates a new <see cref="DelegatingLogWriter{TEntry}"/>.
+		/// Creates a new <see cref="ProxyLogWriter{TEntry}"/>.
 		/// </summary>
-		/// <param name="innerLogWriter">The inner <see cref="ILogWriter{TEntry}"/> to delegate to.  May not be <c>null</c>.</param>
-		protected DelegatingLogWriter(ILogWriter<TEntry> innerLogWriter)
+		/// <param name="innerLogWriter">The inner <see cref="ILogWriter{TEntry}"/> to delegate to.  Must not be <c>null</c>.</param>
+		protected ProxyLogWriter(ILogWriter<TEntry> innerLogWriter)
 		{
 			Contract.Requires<ArgumentNullException>(innerLogWriter != null);
 
@@ -49,7 +49,7 @@ namespace LogJam.Writers
 		}
 
 		/// <summary>
-		/// Returns the inner <see cref="ILogWriter{TEntry}"/> that this <c>DelegatingLogWriter</c>
+		/// Returns the inner <see cref="ILogWriter{TEntry}"/> that this <c>ProxyLogWriter</c>
 		/// forwards to.
 		/// </summary>
 		public ILogWriter<TEntry> InnerLogWriter
@@ -65,6 +65,7 @@ namespace LogJam.Writers
 		{
 			InnerLogWriter.Write(ref entry);
 		}
+
 
 	}
 

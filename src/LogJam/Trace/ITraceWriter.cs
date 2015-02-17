@@ -9,6 +9,8 @@
 
 namespace LogJam.Trace
 {
+	using LogJam.Writer;
+
 
 	/// <summary>
 	/// Specializes <see cref="ILogWriter{TEntry}"/> for writing <see cref="TraceEntry"/>s.

@@ -7,12 +7,9 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
-namespace LogJam
+namespace LogJam.Writer
 {
-	using System.Collections;
 	using System.Collections.Generic;
-
-	using LogJam.Writers;
 
 
 	/// <summary>

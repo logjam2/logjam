@@ -14,7 +14,7 @@ namespace LogJam.Config
 	using System.IO;
 
 	using LogJam.Format;
-	using LogJam.Writers;
+	using LogJam.Writer;
 
 
 	/// <summary>
@@ -69,7 +69,7 @@ namespace LogJam.Config
 		{
 			if (_textWriterHasBeenUsed)
 			{
-				throw new LogJamStartException("UseExistingTextWriterConfig cannot reuse the TextWriter - it has probably been disposed.");
+				throw new LogJamStartException("UseExistingTextWriterConfig cannot reuse the TextWriter - it has probably been disposed.", _textWriter);
 			}
 
 			_textWriterHasBeenUsed = true;

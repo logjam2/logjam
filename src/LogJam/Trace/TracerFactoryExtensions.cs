@@ -11,6 +11,8 @@ namespace LogJam.Trace
 	using System;
 	using System.Diagnostics.Contracts;
 
+	using LogJam.Util;
+
 
 	/// <summary>
 	/// Extension methods for <see cref="ITracerFactory"/>.
@@ -23,14 +25,14 @@ namespace LogJam.Trace
 			Contract.Requires<ArgumentNullException>(tracerFactory != null);
 			Contract.Requires<ArgumentNullException>(type != null);
 
-			// Convert generic types to their generic type definition - so the same
+			// ? Convert generic types to their generic type definition - so the same
 			// Tracer is used for ArrayList<T> regardless of the type parameter T.
-			if (type.IsGenericType)
-			{
-				type = type.GetGenericTypeDefinition();
-			}
+			//if (type.IsGenericType)
+			//{
+			//	type = type.GetGenericTypeDefinition();
+			//}
 
-			return tracerFactory.GetTracer(type.FullName);
+			return tracerFactory.GetTracer(type.GetCSharpName());
 		}
 
 		public static Tracer TracerFor(this ITracerFactory tracerFactory, object traceSource)
@@ -38,14 +40,14 @@ namespace LogJam.Trace
 			Contract.Requires<ArgumentNullException>(tracerFactory != null);
 			Contract.Requires<ArgumentNullException>(traceSource != null);
 
-			return tracerFactory.GetTracer(traceSource.GetType().FullName);
+			return tracerFactory.GetTracer(traceSource.GetType());
 		}
 
 		public static Tracer TracerFor<T>(this ITracerFactory tracerFactory)
 		{
 			Contract.Requires<ArgumentNullException>(tracerFactory != null);
 
-			return tracerFactory.GetTracer(typeof(T).FullName);
+			return tracerFactory.GetTracer(typeof(T));
 		}
 
 	}

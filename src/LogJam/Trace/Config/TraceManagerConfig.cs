@@ -8,7 +8,7 @@
 
 namespace LogJam.Trace.Config
 {
-	using LogJam.Trace.Formatters;
+	using LogJam.Trace.Format;
 	using LogJam.Trace.Switches;
 	using LogJam.Util;
 	using System;
@@ -16,7 +16,7 @@ namespace LogJam.Trace.Config
 	using System.Diagnostics.Contracts;
 	using System.Linq;
 
-	using LogJam.Writers;
+	using LogJam.Writer;
 
 
 	/// <summary>

@@ -15,15 +15,15 @@ namespace LogJam
 	/// <summary>
 	/// Thrown when LogJam could not be successfully started.
 	/// </summary>
-	public sealed class LogJamStartException : Exception
+	public sealed class LogJamStartException : LogJamException
 	{
 
-		internal LogJamStartException(string message, Exception innerException)
-			: base(message, innerException)
+		internal LogJamStartException(string message, Exception innerException, object source)
+			: base(message, innerException, source)
 		{}
 
-		internal LogJamStartException(string message)
-			: base(message)
+		internal LogJamStartException(string message, object source)
+			: base(message, source)
 		{}
 
 	}

@@ -7,62 +7,45 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
-namespace LogJam.Writers
+namespace LogJam.Writer
 {
+	using LogJam.Format;
+	using LogJam.Trace;
 	using System;
-	using System.Collections;
-	using System.Collections.Generic;
 	using System.Diagnostics.Contracts;
 	using System.IO;
 	using System.Threading;
-
-	using LogJam.Format;
 
 
 	/// <summary>
 	/// Supports writing multiple log entry types to a <see cref="TextWriter"/>.
 	/// </summary>
 	/// <seealso cref="TextWriterLogWriter{TEntry}"/>
-	public class TextWriterMultiLogWriter : IMultiLogWriter, IStartable, IDisposable
+	public class TextWriterMultiLogWriter : MultiLogWriter
 	{
 
-		private bool _disposed;
-		private bool _isStarted;
 		private readonly TextWriter _textWriter;
-		private readonly bool _isSynchronized;
 		private readonly string _newLine;
-
-		private readonly Dictionary<Type, ILogWriter> _typedLogWriters;
 
 		/// <summary>
 		/// Creates a new <see cref="TextWriterMultiLogWriter"/>.
 		/// </summary>
 		/// <param name="textWriter">The <see cref="TextWriter"/> to write formatted log output to.</param>
 		/// <param name="synchronize">Set to <c>true</c> if all logging operations should be synchronized.</param>
-		public TextWriterMultiLogWriter(TextWriter textWriter, bool synchronize)
+		/// <param name="setupTracerFactory">The <see cref="ITracerFactory"/> to use for logging setup operations.</param>
+		public TextWriterMultiLogWriter(TextWriter textWriter, bool synchronize, ITracerFactory setupTracerFactory)
+			: base(synchronize, setupTracerFactory)
 		{
 			Contract.Requires<ArgumentNullException>(textWriter != null);
 
-			_disposed = false;
 			_textWriter = textWriter;
-			_isSynchronized = synchronize;
-			_isStarted = true;
 			_newLine = textWriter.NewLine;
-
-			_typedLogWriters = new Dictionary<Type, ILogWriter>();
 		}
 
-		public void Dispose()
+		protected override void Dispose(bool disposing)
 		{
-			lock(this)
-			{
-				_isStarted = false;
-				if (!_disposed)
-				{
-					_disposed = true;
-					_textWriter.Dispose();
-				}
-			}
+			base.Dispose(true);
+			_textWriter.Dispose();
 		}
 
 		/// <summary>
@@ -77,12 +60,8 @@ namespace LogJam.Writers
 		{
 			Contract.Requires<ArgumentNullException>(entryFormatter != null);
 
-			lock (this)
-			{
-				// Throws if a formatter has already been added for the same TEntry
-				_typedLogWriters.Add(typeof(TEntry), new InnerLogWriter<TEntry>(this, entryFormatter));
-				return this;
-			}
+			AddLogWriter(new InnerLogWriter<TEntry>(this, entryFormatter));
+			return this;
 		}
 
 		/// <summary>
@@ -100,72 +79,18 @@ namespace LogJam.Writers
 			return AddFormat((LogFormatter<TEntry>) formatAction);
 		}
 
-		#region IMultiLogWriter
-
-		public bool Enabled { get { return _isStarted; } }
-
-		public bool IsSynchronized { get { return _isSynchronized; } }
-
-		public bool GetLogWriter<TEntry>(out ILogWriter<TEntry> logWriter) where TEntry : ILogEntry
-		{
-			ILogWriter untypedLogWriter;
-			if (_typedLogWriters.TryGetValue(typeof(TEntry), out untypedLogWriter))
-			{
-				logWriter = (ILogWriter<TEntry>) untypedLogWriter;
-				return true;
-			}
-			else
-			{
-				logWriter = new NoOpLogWriter<TEntry>();
-				return false;
-			}
-		}
-
-		public IEnumerator<ILogWriter> GetEnumerator()
-		{
-			return _typedLogWriters.Values.GetEnumerator();
-		}
-
-		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return GetEnumerator();
-		}
-
-		#endregion
-		#region IStartable
-
-		public void Start()
-		{
-			lock (this)
-			{
-				if (! _disposed)
-				{
-					_isStarted = true;
-				}
-			}
-		}
-
-		public void Stop()
-		{
-			_isStarted = false;
-		}
-
-		public bool IsStarted { get { return _isStarted; } }
-
-		#endregion
-
 		private void WriteFormattedEntry(string formattedEntry)
 		{
 			bool lockTaken = false;
 			bool includeNewLine = ! formattedEntry.EndsWith(_newLine);
-			if (_isSynchronized)
+			if (IsSynchronized)
 			{
 				Monitor.Enter(this, ref lockTaken);
 			}
 
 			try
 			{
-				if (_isStarted)
+				if (Enabled)
 				{
 					if (includeNewLine)
 					{

@@ -6,15 +6,13 @@
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace LogJam.Writers
+namespace LogJam.Writer
 {
 	using System;
 	using System.Diagnostics.Contracts;
 	using System.IO;
 
 	using LogJam.Format;
-	using LogJam.Trace;
-	using LogJam.Trace.Formatters;
 
 
 	/// <summary>
@@ -25,23 +23,27 @@ namespace LogJam.Writers
 		where TEntry : ILogEntry
 	{
 
-		private bool _disposed;
-		private readonly LogFormatter<TEntry> _formatter;
 		private readonly TextWriter _writer;
+		private readonly LogFormatter<TEntry> _formatter;
+		private readonly bool _disposeWriter;
+		private bool _disposed;
 
 		/// <summary>
 		/// Creates a new <see cref="TextWriterLogWriter{TEntry}"/>.
 		/// </summary>
 		/// <param name="writer">The <see cref="TextWriter"/> to write formatted log output to.</param>
 		/// <param name="formatter">The <see cref="LogFormatter{TEntry}"/> used to format log entries.</param>
-		public TextWriterLogWriter(TextWriter writer, LogFormatter<TEntry> formatter)
+		/// <param name="autoFlush">Whether to call <see cref="System.IO.TextWriter.Flush"/> after every entry is written.</param>
+		/// <param name="disposeWriter">Whether to dispose <paramref name="writer"/> when the <c>TextWriterLogWriter</c> is disposed.</param>
+		public TextWriterLogWriter(TextWriter writer, LogFormatter<TEntry> formatter, bool autoFlush = true, bool disposeWriter = true)
 		{
 			Contract.Requires<ArgumentNullException>(writer != null);
 			Contract.Requires<ArgumentNullException>(formatter != null);
 
-			_disposed = false;
-			_formatter = formatter;
 			_writer = writer;
+			_formatter = formatter;
+			_disposeWriter = disposeWriter;
+			_disposed = false;
 		}
 
 		/// <summary>
@@ -60,6 +62,11 @@ namespace LogJam.Writers
 		/// </value>
 		internal TextWriter TextWriter { get { return _writer; } }
 
+		/// <summary>
+		/// Whether to call <see cref="System.IO.TextWriter.Flush"/> after every entry is written.
+		/// </summary>
+		public bool AutoFlush { get; set; }
+
 		public bool Enabled { get { return !_disposed; } }
 
 		public bool IsSynchronized { get { return false; } }
@@ -71,6 +78,10 @@ namespace LogJam.Writers
 				try
 				{
 					_formatter.Format(ref entry, _writer);
+					if (AutoFlush)
+					{
+						_writer.Flush();
+					}
 				}
 				catch (ObjectDisposedException)
 				{
@@ -85,12 +96,17 @@ namespace LogJam.Writers
 			{
 				if (! _disposed)
 				{
-					try
+					_writer.Flush();
+
+					if (_disposeWriter)
 					{
-						_writer.Dispose();
+						try
+						{
+							_writer.Dispose();
+						}
+						catch (ObjectDisposedException)
+						{}
 					}
-					catch (ObjectDisposedException)
-					{}
 
 					_disposed = true;
 				}
