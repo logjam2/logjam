@@ -325,7 +325,7 @@ namespace LogJam.UnitTests.Writer
 
 			// maxQueueLength+2 is the number of sleeps to wait for - the queue is full, +2 is for Stop() + Dispose() sleeps
 			// 1.3 is just a tolerance for thread-related delays
-			Assert.True((stopwatch.ElapsedMilliseconds < (maxQueueLength + 2) * opDelayMs * 1.3) || _inDebugger); 
+			Assert.True((stopwatch.ElapsedMilliseconds < (maxQueueLength + 2) * opDelayMs * 1.5) || _inDebugger, "Took longer than expected: " + stopwatch.ElapsedMilliseconds); 
 		}
 
 		[Fact]
