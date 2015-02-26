@@ -21,31 +21,62 @@ namespace LogJam.Writer
 	/// Supports writing multiple log entry types to a <see cref="TextWriter"/>.
 	/// </summary>
 	/// <seealso cref="TextWriterLogWriter{TEntry}"/>
-	public class TextWriterMultiLogWriter : MultiLogWriter
+	public class TextWriterMultiLogWriter : MultiLogWriter, IBufferingLogWriter
 	{
 
 		private readonly TextWriter _textWriter;
+		private readonly bool _disposeWriter;
 		private readonly string _newLine;
+
+		/// <summary>
+		/// Holds the function that is used to determine whether to flush the buffers or not.
+		/// </summary>
+		private Func<bool> _flushPredicate;
 
 		/// <summary>
 		/// Creates a new <see cref="TextWriterMultiLogWriter"/>.
 		/// </summary>
 		/// <param name="textWriter">The <see cref="TextWriter"/> to write formatted log output to.</param>
-		/// <param name="synchronize">Set to <c>true</c> if all logging operations should be synchronized.</param>
 		/// <param name="setupTracerFactory">The <see cref="ITracerFactory"/> to use for logging setup operations.</param>
-		public TextWriterMultiLogWriter(TextWriter textWriter, bool synchronize, ITracerFactory setupTracerFactory)
+		/// <param name="synchronize">Set to <c>true</c> if all logging operations should be synchronized.</param>
+		/// <param name="disposeWriter">Whether to dispose <paramref name="writer"/> when the <c>TextWriterLogWriter</c> is disposed.</param>
+		/// <param name="flushPredicate">A function that is used to determine whether to flush the buffers or not.  If <c>null</c>,
+		/// a predicate is used to cause buffers to be flushed after every write.</param>
+		public TextWriterMultiLogWriter(TextWriter textWriter, ITracerFactory setupTracerFactory, bool synchronize = true, bool disposeWriter = true, Func<bool> flushPredicate = null)
 			: base(synchronize, setupTracerFactory)
 		{
 			Contract.Requires<ArgumentNullException>(textWriter != null);
 
 			_textWriter = textWriter;
+			_disposeWriter = disposeWriter;
 			_newLine = textWriter.NewLine;
+
+			// Default to "always flush" if not specified.
+			_flushPredicate = flushPredicate ?? BufferingLogWriter.AlwaysFlush;
+		}
+
+		/// @inheritdoc
+		public Func<bool> FlushPredicate
+		{
+			get { return _flushPredicate; }
+			set
+			{
+				if (IsStarted)
+				{
+					throw new LogJamSetupException("FlushPredicate cannot be set after logwriter is started.", this);
+				}
+				_flushPredicate = value;
+			}
 		}
 
 		protected override void Dispose(bool disposing)
 		{
 			base.Dispose(true);
-			_textWriter.Dispose();
+			_textWriter.Flush();
+			if (_disposeWriter)
+			{
+				_textWriter.Dispose();
+			}
 		}
 
 		/// <summary>
@@ -81,25 +112,30 @@ namespace LogJam.Writer
 
 		private void WriteFormattedEntry(string formattedEntry)
 		{
+			if (! Enabled)
+			{
+				return;
+			}
+
 			bool lockTaken = false;
 			bool includeNewLine = ! formattedEntry.EndsWith(_newLine);
 			if (IsSynchronized)
 			{
 				Monitor.Enter(this, ref lockTaken);
 			}
-
 			try
 			{
-				if (Enabled)
+				if (includeNewLine)
 				{
-					if (includeNewLine)
-					{
-						_textWriter.WriteLine(formattedEntry);
-					}
-					else
-					{
-						_textWriter.Write(formattedEntry);
-					}
+					_textWriter.WriteLine(formattedEntry);
+				}
+				else
+				{
+					_textWriter.Write(formattedEntry);
+				}
+				if (_flushPredicate())
+				{
+					_textWriter.Flush();
 				}
 			}
 			finally
@@ -141,6 +177,7 @@ namespace LogJam.Writer
 			public bool IsSynchronized { get { return _parent.IsSynchronized; } }
 
 		}
+
 	}
 
 }

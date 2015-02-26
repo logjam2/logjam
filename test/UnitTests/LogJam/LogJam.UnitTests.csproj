@@ -95,6 +95,7 @@
     <Compile Include="Trace\TraceManagerConfigTests.cs" />
     <Compile Include="Trace\TraceManagerTests.cs" />
     <Compile Include="Writer\BackgroundMultiLogWriterUnitTests.cs" />
+    <Compile Include="Writer\TextWriterMultiLogWriterUnitTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Trace\TracerTests.cs" />

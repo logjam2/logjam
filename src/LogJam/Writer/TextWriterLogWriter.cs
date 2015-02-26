@@ -11,20 +11,23 @@ namespace LogJam.Writer
 	using System;
 	using System.Diagnostics.Contracts;
 	using System.IO;
+	using System.Threading;
 
 	using LogJam.Format;
+	using LogJam.Util;
 
 
 	/// <summary>
 	/// Formats and writes log entries to a <see cref="TextWriter"/>.
 	/// </summary>
 	/// <seealso cref="TextWriterMultiLogWriter"/>
-	public sealed class TextWriterLogWriter<TEntry> : ILogWriter<TEntry>, IDisposable
+	public sealed class TextWriterLogWriter<TEntry> : BufferingLogWriter, ILogWriter<TEntry>, IDisposable
 		where TEntry : ILogEntry
 	{
 
 		private readonly TextWriter _writer;
 		private readonly LogFormatter<TEntry> _formatter;
+		private readonly bool _isSynchronized;
 		private readonly bool _disposeWriter;
 		private bool _disposed;
 
@@ -33,25 +36,26 @@ namespace LogJam.Writer
 		/// </summary>
 		/// <param name="writer">The <see cref="TextWriter"/> to write formatted log output to.</param>
 		/// <param name="formatter">The <see cref="LogFormatter{TEntry}"/> used to format log entries.</param>
-		/// <param name="autoFlush">Whether to call <see cref="System.IO.TextWriter.Flush"/> after every entry is written.</param>
+		/// <param name="synchronize">Set to <c>true</c> to synchronize writes to <paramref name="writer"/>.</param>
 		/// <param name="disposeWriter">Whether to dispose <paramref name="writer"/> when the <c>TextWriterLogWriter</c> is disposed.</param>
-		public TextWriterLogWriter(TextWriter writer, LogFormatter<TEntry> formatter, bool autoFlush = true, bool disposeWriter = true)
+		/// <param name="flushPredicate">A function that is used to determine whether to flush the buffers or not.  If <c>null</c>,
+		/// a predicate is used to cause buffers to be flushed after every write.</param>
+		public TextWriterLogWriter(TextWriter writer, LogFormatter<TEntry> formatter, bool synchronize = true, bool disposeWriter = true, Func<bool> flushPredicate = null)
+			: base(flushPredicate)
 		{
 			Contract.Requires<ArgumentNullException>(writer != null);
 			Contract.Requires<ArgumentNullException>(formatter != null);
 
 			_writer = writer;
 			_formatter = formatter;
+			_isSynchronized = synchronize;
 			_disposeWriter = disposeWriter;
 			_disposed = false;
 		}
 
 		/// <summary>
-		/// Gets the formatter.
+		/// Returns the <see cref="LogFormatter{TEntry}"/> used to format the text written to <see cref="TextWriter"/>.
 		/// </summary>
-		/// <value>
-		/// The formatter.
-		/// </value>
 		public LogFormatter<TEntry> Formatter { get { return _formatter; } }
 
 		/// <summary>
@@ -62,23 +66,24 @@ namespace LogJam.Writer
 		/// </value>
 		internal TextWriter TextWriter { get { return _writer; } }
 
-		/// <summary>
-		/// Whether to call <see cref="System.IO.TextWriter.Flush"/> after every entry is written.
-		/// </summary>
-		public bool AutoFlush { get; set; }
+		public override bool Enabled { get { return !_disposed && IsStarted; } }
 
-		public bool Enabled { get { return !_disposed; } }
+		public override bool IsSynchronized { get { return _isSynchronized; } }
 
-		public bool IsSynchronized { get { return false; } }
-
+		/// @inheritdoc
 		public void Write(ref TEntry entry)
 		{
-			if (! _disposed)
+			if (Enabled)
 			{
+				bool lockTaken = false;
+				if (_isSynchronized)
+				{
+					Monitor.Enter(this, ref lockTaken);
+				}
 				try
 				{
 					_formatter.Format(ref entry, _writer);
-					if (AutoFlush)
+					if (FlushPredicate())
 					{
 						_writer.Flush();
 					}
@@ -86,6 +91,13 @@ namespace LogJam.Writer
 				catch (ObjectDisposedException)
 				{
 					_disposed = true;
+				}
+				finally
+				{
+					if (lockTaken)
+					{
+						Monitor.Exit(this);
+					}
 				}
 			}
 		}

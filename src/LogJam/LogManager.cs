@@ -176,15 +176,14 @@ namespace LogJam
 		/// <remarks>Even if Start() wasn't 100% successful, we still return any logwriters that were successfully started.</remarks>
 		public IEnumerable<ILogWriter<TEntry>> GetLogWriters<TEntry>() where TEntry : ILogEntry
 		{
-			// Even if Start() wasn't 100% successful, we still return any logwriters that were successfully started.
+			// Even if Start() wasn't 100% successful, we still return any logwriters that are available.
 			EnsureStarted();
 
 			lock (this)
 			{
-				// Return all logwriters of the specified type
-				return _logWriters.Values.OfType<ILogWriter<TEntry>>()
-					// In addition, get all logwriters of the specified type, that are obtained from IMultiLogWriters
-					.Concat(_logWriters.Values.OfType<IMultiLogWriter>().SelectMany(m => m).OfType<ILogWriter<TEntry>>());
+				var listLogWriters = new List<ILogWriter<TEntry>>();
+				_logWriters.Values.FindLogWritersByType(listLogWriters);
+				return listLogWriters;
 			}
 		}
 

@@ -50,7 +50,15 @@
     <Compile Include="Encode\ILogEncoder.cs" />
     <Compile Include="ILogEntry.cs" />
     <Compile Include="LogJamException.cs" />
-    <Compile Include="LogEntryExtensions.cs" />
+    <Compile Include="LogJamCollectionExtensions.cs" />
+    <Compile Include="LogJamSetupException.cs" />
+    <Compile Include="Util\Startable.cs" />
+    <Compile Include="Writer\BufferingLogWriter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Writer\IBufferingLogWriter.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Writer\ILogWriter.cs" />
     <Compile Include="Writer\IMultiLogWriter.cs" />
     <Compile Include="IStartable.cs" />

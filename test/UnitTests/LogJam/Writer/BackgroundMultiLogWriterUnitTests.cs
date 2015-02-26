@@ -9,6 +9,10 @@
 
 namespace LogJam.UnitTests.Writer
 {
+	using System.IO;
+	using System.Threading;
+
+	using LogJam.Format;
 	using LogJam.Trace;
 	using LogJam.Trace.Format;
 	using LogJam.UnitTests.Common;
@@ -22,6 +26,8 @@ namespace LogJam.UnitTests.Writer
 	using System.Threading.Tasks;
 
 	using Xunit;
+
+	using Timer = LogJam.UnitTests.Examples.Timer;
 
 
 	/// <summary>
@@ -276,7 +282,7 @@ namespace LogJam.UnitTests.Writer
 		public void ExceedingQueueSizeBlocksLogging()
 		{
 			// Slow log writer - starting, stopping, disposing, writing an entry, all take at least 10ms each.
-			const int opDelayMs = 5;
+			const int opDelayMs = 10;
 			const int maxQueueLength = 10;
 			const int countBlockingWrites = 4;
 			var slowLogWriter = new SlowTestLogWriter<MessageEntry>(opDelayMs, false);
@@ -302,7 +308,7 @@ namespace LogJam.UnitTests.Writer
 					stopwatch.Stop();
 					long elapsedMilliseconds = stopwatch.ElapsedMilliseconds;
 					Console.WriteLine("Blocking write #{0}: {1}ms", i, elapsedMilliseconds);
-					Assert.True((elapsedMilliseconds >= opDelayMs) || _inDebugger, "Expect blocking until 1 element is written");
+					Assert.True((elapsedMilliseconds >= opDelayMs) || i == 0 || _inDebugger, "Expect blocking until 1 element is written");
 					Assert.True((i == 0) || (elapsedMilliseconds < 2 * opDelayMs) || _inDebugger, "First write may be delayed; after that blocking should only occur for the duration of writing 1 entry.");
 				}
 
@@ -325,13 +331,14 @@ namespace LogJam.UnitTests.Writer
 		{
 			var setupTracerFactory = new SetupTracerFactory();
 			var innerLogWriter = new ExceptionThrowingLogWriter<MessageEntry>();
-			var backgroundMultiLogWriter = new BackgroundMultiLogWriter(setupTracerFactory);
-			var queueWriter = backgroundMultiLogWriter.CreateProxyWriterFor(innerLogWriter);
+			var backgroundMultiLogWriter = new BackgroundMultiLogWriter(setupTracerFactory, innerLogWriter);
+			ILogWriter<MessageEntry> logWriter;
+			Assert.True(backgroundMultiLogWriter.GetLogWriter(out logWriter));
 
 			using (backgroundMultiLogWriter)
 			{
 				backgroundMultiLogWriter.Start();
-				LogTestMessages(queueWriter, 6);
+				LogTestMessages(logWriter, 6);
 			}
 
 			Console.WriteLine("Setup messages:");
@@ -382,6 +389,43 @@ namespace LogJam.UnitTests.Writer
 			Assert.True(SetupTracerFactory.Any(traceEntry => (traceEntry.TraceLevel == TraceLevel.Error) && (traceEntry.Message.StartsWith("In finalizer "))));
 		}
 
+		/// <summary>
+		/// Exercises a <see cref="TextWriterMultiLogWriter"/> behind a <see cref="BackgroundMultiLogWriter"/>.
+		/// </summary>
+		/// <seealso cref="TextWriterMultiLogWriterUnitTests.MultiLogWriterToText" />, which is only different by a line or two.
+		[Fact]
+		public void BackgroundMultiLogWriterToText()
+		{
+			// Log output written here on the background thread
+			var stringWriter = new StringWriter();
+
+			var setupTracerFactory = new SetupTracerFactory();
+			FormatAction<Timer.StartRecord> formatStart = (startRecord, writer) => writer.WriteLine(">{0}", startRecord.TimingId);
+			FormatAction<Timer.StopRecord> formatStop = (stopRecord, writer) => writer.WriteLine("<{0} {1}", stopRecord.TimingId, stopRecord.ElapsedTime);
+			var multiLogWriter = new TextWriterMultiLogWriter(stringWriter, setupTracerFactory, false)
+				.AddFormat(formatStart)
+				.AddFormat(formatStop);
+			var backgroundMultiLogWriter = new BackgroundMultiLogWriter(setupTracerFactory, multiLogWriter);
+
+			using (var logManager = new LogManager(backgroundMultiLogWriter))
+			{
+				// Timer test class logs starts and stops
+				Timer.RestartTimingIds();
+				var timer = new Timer("test timer", logManager);
+				var timing1 = timer.Start();
+				Thread.Sleep(15);
+				timing1.Stop();
+				var timing2 = timer.Start();
+				Thread.Sleep(10);
+				timing2.Stop();
+			}
+
+			string logOutput = stringWriter.ToString();
+			Console.WriteLine(logOutput);
+
+			Assert.Contains(">2\r\n<2 00:00:00.", logOutput);
+			Assert.Contains(">3\r\n<3 00:00:00.", logOutput);
+		}
 	}
 
 }

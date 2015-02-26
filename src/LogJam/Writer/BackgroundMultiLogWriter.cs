@@ -12,7 +12,6 @@ namespace LogJam.Writer
 	using System.Collections.Generic;
 	using System.Diagnostics;
 	using System.Diagnostics.Contracts;
-	using System.Linq;
 	using System.Threading;
 
 	using LogJam.Trace;
@@ -36,9 +35,7 @@ namespace LogJam.Writer
 		private readonly ITracerFactory _setupTracerFactory;
 		private readonly Tracer _tracer;
 
-		// The log writers that are wrapped, and are invoked in the background thread.
-		private readonly ISet<ILogWriter> _innerLogWriters;
-		// The proxy writers wrapping the _innerLogWriters
+		// The proxy writers wrapping the inner LogWriters
 		private readonly List<ILogWriter> _proxyWriters;
 		// Queued actions to invoke on the background thread.
 		private readonly ConcurrentQueue<Action> _backgroundActionQueue;
@@ -55,12 +52,36 @@ namespace LogJam.Writer
 			_setupTracerFactory = setupTracerFactory;
 			_tracer = setupTracerFactory.TracerFor(this);
 
-			_innerLogWriters = new HashSet<ILogWriter>();
 			_proxyWriters = new List<ILogWriter>();
 			_backgroundActionQueue = new ConcurrentQueue<Action>();
 
 			_isDisposed = false;
 			_backgroundThread = null;
+		}
+
+		internal BackgroundMultiLogWriter(ITracerFactory setupTracerFactory, params ILogWriter[] logWriters)
+			: this(setupTracerFactory)
+		{
+			Contract.Requires<ArgumentNullException>(setupTracerFactory != null);
+			Contract.Requires<ArgumentNullException>(logWriters != null);
+
+			foreach (ILogWriter logWriter in logWriters)
+			{
+				if (logWriter is IMultiLogWriter)
+				{
+					CreateProxyWriterFor((IMultiLogWriter) logWriter);
+				}
+				else
+				{
+					// Use reflection to handle generic ILogWriter<> forms
+					Type[] typeArgs = logWriter.GetType().GetGenericTypeArgumentsFor(typeof(ILogWriter<>));
+					if ((typeArgs == null) || (typeArgs.Length != 1))
+					{
+						throw new LogJamSetupException("LogWriter type not supported in constructor: " + logWriter.GetType().GetCSharpName(), this);
+					}
+					this.InvokeGenericMethod(typeArgs, "CreateProxyWriterFor", logWriter, DefaultMaxQueueLength);
+				}
+			}
 		}
 
 		/// <summary>
@@ -92,7 +113,6 @@ namespace LogJam.Writer
 				OperationNotSupportedWhenStarted("CreateProxyWriterFor(ILogWriter<TEntry>)");
 
 				var proxyLogWriter = CreateBlockingQueueLogWriter(innerLogWriter, maxQueueLength);
-				_innerLogWriters.Add(innerLogWriter);
 				_proxyWriters.Add(proxyLogWriter);
 				return proxyLogWriter;
 			}
@@ -114,14 +134,18 @@ namespace LogJam.Writer
 				EnsureNotDisposed();
 				OperationNotSupportedWhenStarted("CreateProxyWriterFor(IMultiLogWriter)");
 
-				// Use dynamic for run-time generic type resolution
-				var multiLogWriter = new MultiLogWriter(true, _setupTracerFactory);
-				foreach (dynamic logWriter in innerMultiWriter)
+				var multiLogWriter = new MultiLogWriterProxy(innerMultiWriter, _backgroundActionQueue, _setupTracerFactory);
+				foreach (ILogWriter logWriter in innerMultiWriter)
 				{
-					multiLogWriter.AddLogWriter(CreateBlockingQueueLogWriter(logWriter, maxQueueLength));
+					Type[] typeArgs = logWriter.GetType().GetGenericTypeArgumentsFor(typeof(ILogWriter<>));
+					if ((typeArgs == null) || (typeArgs.Length != 1))
+					{
+						throw new LogJamSetupException("LogWriter type not supported in IMultiLogWriter: " + logWriter.GetType().GetCSharpName(), this);
+					}
+					object blockingQueueLogWriter = this.InvokeGenericMethod(typeArgs, "CreateBlockingQueueLogWriter", logWriter, maxQueueLength);
+					multiLogWriter.InvokeGenericMethod(typeArgs, "AddLogWriter", blockingQueueLogWriter);
 				}
 
-				_innerLogWriters.Add(innerMultiWriter);
 				_proxyWriters.Add(multiLogWriter);
 				return multiLogWriter;
 			}
@@ -133,16 +157,14 @@ namespace LogJam.Writer
 		{
 			lock (this)
 			{
-				// Return all logwriters of the specified type
-				ILogWriter<TEntry>[] logWriters = _proxyWriters.OfType<ILogWriter<TEntry>>()
-					// In addition, get all logwriters of the specified type, that are obtained from IMultiLogWriters
-					.Concat(_proxyWriters.OfType<IMultiLogWriter>().SelectMany(m => m).OfType<ILogWriter<TEntry>>()).ToArray();
-				if (logWriters.Length == 1)
+				var logWriters = new List<ILogWriter<TEntry>>();
+				_proxyWriters.FindLogWritersByType(logWriters);
+				if (logWriters.Count == 1)
 				{
 					logWriter = logWriters[0];
 					return true;
 				}
-				else if (logWriters.Length == 0)
+				else if (logWriters.Count == 0)
 				{
 					logWriter = null;
 					return false;
@@ -278,6 +300,60 @@ namespace LogJam.Writer
 			void StopInnerWriter();
 
 			void DisposeInnerWriter();
+		}
+
+
+		/// <summary>
+		/// A proxy <see cref="IMultiLogWriter"/> that can be accessed in the foreground thread, but that queues Start() and 
+		/// Stop() operations to the background thread.
+		/// </summary>
+		private class MultiLogWriterProxy : MultiLogWriter
+		{
+
+			// The IMultiLogWriter that is accessed only on the background thread
+			private readonly IMultiLogWriter _innerMultiLogWriter;
+			// References parent._backgroundActionQueue
+			private readonly ConcurrentQueue<Action> _backgroundActionQueue;
+
+			internal MultiLogWriterProxy(IMultiLogWriter innerMultiLogWriter, ConcurrentQueue<Action> backgroundActionQueue, ITracerFactory setupTracerFactory)
+				: base(false, setupTracerFactory)
+			{
+				Contract.Requires<ArgumentNullException>(innerMultiLogWriter != null);
+				Contract.Requires<ArgumentNullException>(backgroundActionQueue != null);
+				Contract.Requires<ArgumentNullException>(setupTracerFactory != null);
+
+				_innerMultiLogWriter = innerMultiLogWriter;
+				_backgroundActionQueue = backgroundActionQueue;
+			}
+
+			public override bool IsSynchronized { get { return true; } }
+
+			private void QueueBackgroundAction(Action backgroundAction)
+			{
+				_backgroundActionQueue.Enqueue(backgroundAction);
+			}
+
+			protected override void InternalStart()
+			{
+				QueueBackgroundAction(() => _innerMultiLogWriter.SafeStart(SetupTracerFactory));
+				
+				base.InternalStart();
+			}
+
+			protected override void InternalStop()
+			{
+				base.InternalStop();
+
+				QueueBackgroundAction(() => _innerMultiLogWriter.SafeStop(SetupTracerFactory));
+			}
+
+			protected override void Dispose(bool disposing)
+			{
+				base.Dispose(disposing);
+
+				QueueBackgroundAction(() => _innerMultiLogWriter.SafeDispose(SetupTracerFactory));
+			}
+
 		}
 
 		/// <summary>

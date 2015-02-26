@@ -27,6 +27,11 @@ namespace LogJam.UnitTests.Examples
 		private readonly ILogWriter<StartRecord> _startWriter;
 		private readonly ILogWriter<StopRecord> _stopWriter;
 
+		public static void RestartTimingIds()
+		{
+			s_nextTimingId = 1;
+		}
+
 		public Timer(string name, LogManager logManager)
 		{
 			Name = name;

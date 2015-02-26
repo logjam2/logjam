@@ -13,6 +13,7 @@ namespace LogJam.Util
 	using System.CodeDom.Compiler;
 	using System.Diagnostics.Contracts;
 	using System.Linq;
+	using System.Reflection;
 
 
 	/// <summary>
@@ -43,7 +44,7 @@ namespace LogJam.Util
 
 			if (parameterizedType.IsInterface)
 			{
-				var matchingInterfaces = objectType.GetInterfaces().Where(interfaceType => interfaceType.GetGenericTypeDefinition() == parameterizedType).ToArray();
+				var matchingInterfaces = objectType.GetInterfaces().Where(interfaceType => interfaceType.IsGenericType && interfaceType.GetGenericTypeDefinition() == parameterizedType).ToArray();
 				if (matchingInterfaces.Length == 0)
 				{
 					return null;
@@ -72,6 +73,25 @@ namespace LogJam.Util
 			}
 		}
 
+		internal static object InvokeGenericMethod(this object objThis, Type[] typeArgs, string methodName, params object[] args)
+		{
+			Contract.Requires<ArgumentNullException>(objThis != null);
+			Contract.Requires<ArgumentNullException>(typeArgs != null);
+			Contract.Requires<ArgumentException>(! string.IsNullOrEmpty(methodName));
+
+			var genericMethodInfo =
+				objThis.GetType()
+				       .GetMember(methodName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+				       .OfType<MethodInfo>()
+				       .SingleOrDefault(mi => mi.IsGenericMethodDefinition && mi.GetGenericArguments().Length == typeArgs.Length);
+			if (genericMethodInfo == null)
+			{
+				throw new MissingMemberException(objThis.GetType().GetCSharpName(), methodName);
+			}
+
+			var methodInfo = genericMethodInfo.MakeGenericMethod(typeArgs);
+			return methodInfo.Invoke(objThis, args);
+		}
 	}
 
 }

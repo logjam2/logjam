@@ -14,6 +14,7 @@ namespace LogJam.Util
 	using System.Diagnostics.Contracts;
 
 	using LogJam.Trace;
+	using LogJam.Writer;
 
 
 	/// <summary>
@@ -73,6 +74,15 @@ namespace LogJam.Util
 			}
 		}
 
+		internal static void SafeStart(this IMultiLogWriter multiLogWriter, ITracerFactory tracerFactory)
+		{
+			Contract.Requires<ArgumentNullException>(multiLogWriter != null);
+			Contract.Requires<ArgumentNullException>(tracerFactory != null);
+
+			SafeStart(multiLogWriter as IStartable, tracerFactory);
+			SafeStart((IEnumerable) multiLogWriter, tracerFactory);
+		}
+
 		internal static void SafeStop(this IStartable startable, Tracer tracer)
 		{
 			Contract.Requires<ArgumentNullException>(tracer != null);
@@ -121,6 +131,15 @@ namespace LogJam.Util
 			}
 		}
 
+		internal static void SafeStop(this IMultiLogWriter multiLogWriter, ITracerFactory tracerFactory)
+		{
+			Contract.Requires<ArgumentNullException>(multiLogWriter != null);
+			Contract.Requires<ArgumentNullException>(tracerFactory != null);
+
+			SafeStop((IEnumerable) multiLogWriter, tracerFactory);
+			SafeStop(multiLogWriter as IStartable, tracerFactory);
+		}
+
 		internal static void SafeDispose(this IDisposable disposable, Tracer tracer)
 		{
 			Contract.Requires<ArgumentNullException>(tracer != null);
@@ -164,6 +183,15 @@ namespace LogJam.Util
 			{
 				SafeDispose(o as IDisposable, tracerFactory);
 			}
+		}
+
+		internal static void SafeDispose(this IMultiLogWriter multiLogWriter, ITracerFactory tracerFactory)
+		{
+			Contract.Requires<ArgumentNullException>(multiLogWriter != null);
+			Contract.Requires<ArgumentNullException>(tracerFactory != null);
+
+			SafeDispose((IEnumerable) multiLogWriter, tracerFactory);
+			SafeDispose(multiLogWriter as IDisposable, tracerFactory);
 		}
 
 	}

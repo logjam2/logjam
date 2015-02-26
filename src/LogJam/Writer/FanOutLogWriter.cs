@@ -38,6 +38,18 @@ namespace LogJam.Writer
 			_innerLogWriters = innerLogWriters;
 		}
 
+		/// <summary>
+		/// Creates a new <see cref="FanOutLogWriter{TEntry}"/>.
+		/// </summary>
+		/// <param name="innerLogWriters">The inner <see cref="ILogWriter{TEntry}"/>s to delegate to.  May not be <c>null</c>.</param>
+		public FanOutLogWriter(IEnumerable<ILogWriter<TEntry>> innerLogWriters)
+		{
+			Contract.Requires<ArgumentNullException>(innerLogWriters != null);
+			Contract.Requires<ArgumentException>(innerLogWriters.All(writer => writer != null));
+
+			_innerLogWriters = innerLogWriters.ToArray();
+		}
+		
 		public virtual void Dispose()
 		{
 			if (! _disposed)

@@ -22,12 +22,11 @@ namespace LogJam.Writer
 	/// A collection of typed log writers.  For any given entry type, there can be at most one corresponding <see cref="ILogWriter{TEntry}"/>.
 	/// </summary>
 	/// <seealso cref="TextWriterMultiLogWriter"/>
-	public class MultiLogWriter : IMultiLogWriter, IStartable, IDisposable
+	public class MultiLogWriter : Startable, IMultiLogWriter, IDisposable
 	{
 		private readonly bool _isSynchronized;
 		private readonly ITracerFactory _setupTracerFactory;
 		private bool _disposed;
-		private bool _isStarted;
 
 		private readonly Dictionary<Type, ILogWriter> _typedLogWriters;
 
@@ -42,7 +41,6 @@ namespace LogJam.Writer
 			_setupTracerFactory = setupTracerFactory;
 
 			_disposed = false;
-			_isStarted = true;
 			_typedLogWriters = new Dictionary<Type, ILogWriter>();
 		}
 
@@ -58,6 +56,10 @@ namespace LogJam.Writer
 			where TEntry : ILogEntry
 		{
 			Contract.Requires<ArgumentNullException>(logWriter != null);
+			if (IsStarted)
+			{
+				throw new LogJamSetupException("New log writers cannot be added after starting.", this);
+			}
 
 			lock (this)
 			{
@@ -67,9 +69,9 @@ namespace LogJam.Writer
 
 		public void Dispose()
 		{
+			Stop();
 			lock (this)
 			{
-				_isStarted = false;
 				if (! _disposed)
 				{
 					_disposed = true;
@@ -77,6 +79,7 @@ namespace LogJam.Writer
 					Dispose(true);
 				}
 			}
+			GC.SuppressFinalize(this);
 		}
 
 		/// <summary>
@@ -95,22 +98,25 @@ namespace LogJam.Writer
 
 		#region IMultiLogWriter
 
-		public bool Enabled { get { return _isStarted; } }
+		public bool Enabled { get { return IsStarted; } }
 
 		public virtual bool IsSynchronized { get { return _isSynchronized; } }
 
 		public bool GetLogWriter<TEntry>(out ILogWriter<TEntry> logWriter) where TEntry : ILogEntry
 		{
-			ILogWriter untypedLogWriter;
-			if (_typedLogWriters.TryGetValue(typeof(TEntry), out untypedLogWriter))
+			lock (this)
 			{
-				logWriter = (ILogWriter<TEntry>) untypedLogWriter;
-				return true;
-			}
-			else
-			{
-				logWriter = new NoOpLogWriter<TEntry>();
-				return false;
+				ILogWriter untypedLogWriter;
+				if (_typedLogWriters.TryGetValue(typeof(TEntry), out untypedLogWriter))
+				{
+					logWriter = (ILogWriter<TEntry>) untypedLogWriter;
+					return true;
+				}
+				else
+				{
+					logWriter = new NoOpLogWriter<TEntry>();
+					return false;
+				}
 			}
 		}
 
@@ -125,34 +131,27 @@ namespace LogJam.Writer
 		}
 
 		#endregion
-		#region IStartable
+		#region Startable overrides
 
 		public virtual void Start()
 		{
-			lock (this)
+			if (_disposed)
 			{
-				if (_disposed)
-				{
-					throw new ObjectDisposedException(GetType().GetCSharpName());
-				}
-
-				_isStarted = true;
-
-				InnerLogWriters.SafeStart(SetupTracerFactory);
+				throw new ObjectDisposedException(GetType().GetCSharpName());
 			}
+
+			base.Start();
 		}
 
-		public virtual void Stop()
+		protected override void InternalStart()
 		{
-			lock (this)
-			{
-				_isStarted = false;
-
-				InnerLogWriters.SafeStop(SetupTracerFactory);
-			}
+			InnerLogWriters.SafeStart(SetupTracerFactory);
 		}
 
-		public bool IsStarted { get { return _isStarted; } }
+		protected override void InternalStop()
+		{
+			InnerLogWriters.SafeStop(SetupTracerFactory);
+		}
 
 		#endregion
 	}
