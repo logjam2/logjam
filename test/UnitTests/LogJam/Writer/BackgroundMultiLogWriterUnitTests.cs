@@ -298,7 +298,7 @@ namespace LogJam.UnitTests.Writer
 				LogTestMessages(queueLogWriter, maxQueueLength);
 				stopwatch.Stop();
 				Console.WriteLine("First {0} writes took: {1}ms", maxQueueLength, stopwatch.ElapsedMilliseconds);
-				Assert.True(_inDebugger || (stopwatch.ElapsedMilliseconds < opDelayMs), "Log writing should be fast, until the queue is filled.");
+				Assert.True(_inDebugger || (stopwatch.ElapsedMilliseconds <= opDelayMs), "Log writing should be fast, until the queue is filled.");
 
 				// Next writes block, since we've filled the queue
 				for (int i = 0; i < countBlockingWrites; ++i)
