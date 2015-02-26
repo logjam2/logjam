@@ -282,7 +282,7 @@ namespace LogJam.UnitTests.Writer
 		public void ExceedingQueueSizeBlocksLogging()
 		{
 			// Slow log writer - starting, stopping, disposing, writing an entry, all take at least 10ms each.
-			const int opDelayMs = 20;
+			const int opDelayMs = 30;
 			const int maxQueueLength = 10;
 			const int countBlockingWrites = 4;
 			var slowLogWriter = new SlowTestLogWriter<MessageEntry>(opDelayMs, false);
