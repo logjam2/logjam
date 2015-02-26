@@ -122,7 +122,7 @@ namespace LogJam
 					{
 						disposable.Dispose();
 					}
-					catch (ObjectDisposedException disposedException)
+					catch (ObjectDisposedException)
 					{ } // No need to log this
 					catch (Exception exception)
 					{

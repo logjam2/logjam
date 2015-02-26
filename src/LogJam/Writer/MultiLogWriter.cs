@@ -133,7 +133,7 @@ namespace LogJam.Writer
 		#endregion
 		#region Startable overrides
 
-		public virtual void Start()
+		public override void Start()
 		{
 			if (_disposed)
 			{
