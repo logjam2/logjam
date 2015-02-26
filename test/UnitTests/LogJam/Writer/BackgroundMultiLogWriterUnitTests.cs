@@ -102,7 +102,7 @@ namespace LogJam.UnitTests.Writer
 			var stopwatch = new Stopwatch();
 
 			// Slow log writer - starting, stopping, disposing, writing an entry, all take at least 10ms each.
-			const int operationDelayMs = 10;
+			const int operationDelayMs = 20;
 			const int parallelThreads = 8;
 			const int messagesPerThread = 6;
 			var slowLogWriter = new SlowTestLogWriter<MessageEntry>(operationDelayMs, false);
@@ -112,7 +112,7 @@ namespace LogJam.UnitTests.Writer
 			stopwatch.Start();
 			SetupBackgroundMessageWriter(slowLogWriter, out backgroundMultiLogWriter, out queueLogWriter);
 			stopwatch.Stop();
-			Assert.True((stopwatch.ElapsedMilliseconds < operationDelayMs) || _inDebugger, "Starting should be fast, slowLogWriter start delay should occur on background thread.");
+			Assert.True((stopwatch.ElapsedMilliseconds < operationDelayMs) || _inDebugger, "Starting should be fast, slowLogWriter start delay should occur on background thread.  Elapsed: " + stopwatch.ElapsedMilliseconds);
 			Console.WriteLine("Created + started BackgroundMultiLogWriter in {0}", stopwatch.Elapsed);
 
 			using (backgroundMultiLogWriter)
@@ -282,7 +282,7 @@ namespace LogJam.UnitTests.Writer
 		public void ExceedingQueueSizeBlocksLogging()
 		{
 			// Slow log writer - starting, stopping, disposing, writing an entry, all take at least 10ms each.
-			const int opDelayMs = 10;
+			const int opDelayMs = 20;
 			const int maxQueueLength = 10;
 			const int countBlockingWrites = 4;
 			var slowLogWriter = new SlowTestLogWriter<MessageEntry>(opDelayMs, false);
@@ -308,7 +308,7 @@ namespace LogJam.UnitTests.Writer
 					stopwatch.Stop();
 					long elapsedMilliseconds = stopwatch.ElapsedMilliseconds;
 					Console.WriteLine("Blocking write #{0}: {1}ms", i, elapsedMilliseconds);
-					Assert.True((elapsedMilliseconds >= opDelayMs) || i == 0 || _inDebugger, "Expect blocking until 1 element is written");
+					Assert.True((elapsedMilliseconds >= opDelayMs) || i == 0 || _inDebugger, "Expect blocking until 1 element is written - elapsed: " + elapsedMilliseconds);
 					Assert.True((i == 0) || (elapsedMilliseconds < 2 * opDelayMs) || _inDebugger, "First write may be delayed; after that blocking should only occur for the duration of writing 1 entry.");
 				}
 
