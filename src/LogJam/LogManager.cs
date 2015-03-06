@@ -115,7 +115,7 @@ namespace LogJam
 		/// </summary>
 		public LogManagerConfig Config { get { return _config; } }
 
-		internal override ITracerFactory SetupTracerFactory { get { return _setupTracerFactory; } }
+		public override SetupTracerFactory SetupTracerFactory { get { return _setupTracerFactory; } }
 
 		/// <summary>
 		/// Returns the collection of <see cref="TraceEntry"/>s logged through <see cref="SetupTracerFactory"/>.

@@ -7,6 +7,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
+// ReSharper disable once CheckNamespace
 namespace LogJam.UnitTests.Common
 {
 	using System;
@@ -17,7 +18,7 @@ namespace LogJam.UnitTests.Common
 	/// <summary>
 	/// A <see cref="ILogWriter{TEntry}"/> that throws exceptions when writing and disposing.
 	/// </summary>
-	internal class ExceptionThrowingLogWriter<TEntry> : ILogWriter<TEntry>, IDisposable where TEntry : ILogEntry
+	public class ExceptionThrowingLogWriter<TEntry> : ILogWriter<TEntry>, IDisposable where TEntry : ILogEntry
 	{
 
 		public int CountExceptionsThrown = 0;

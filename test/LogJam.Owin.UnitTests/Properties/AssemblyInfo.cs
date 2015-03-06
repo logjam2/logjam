@@ -9,7 +9,5 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-[assembly: AssemblyTitle("LogJam")]
-[assembly: AssemblyDescription("LogJam main library")]
-
-[assembly: InternalsVisibleTo("LogJam.Internal.UnitTests")]
+[assembly: AssemblyTitle("LogJam.Owin.UnitTests")]
+[assembly: AssemblyDescription("Unit tests for the LogJam.Owin integration project.")]

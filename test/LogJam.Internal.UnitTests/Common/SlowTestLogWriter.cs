@@ -6,7 +6,7 @@
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
-
+// ReSharper disable once CheckNamespace
 namespace LogJam.UnitTests.Common
 {
 	using System.Threading;
@@ -15,7 +15,7 @@ namespace LogJam.UnitTests.Common
 	/// <summary>
 	/// Fakes consistent slow logging to verify proper handling of slow log writers by LogJam.
 	/// </summary>
-	internal sealed class SlowTestLogWriter<TEntry> : TestLogWriter<TEntry>
+	public sealed class SlowTestLogWriter<TEntry> : TestLogWriter<TEntry>
 		where TEntry : ILogEntry
 	{
 

@@ -12,12 +12,23 @@ be imported into csproj files using:
 
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" >
 
-	<!-- Standard shared settings for all projects. -->
+	<!-- Standard shared settings for all projects, unless overridden. -->
 	<PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+
 		<TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
 		<FileAlignment>512</FileAlignment>
-		<CodeContractsAssemblyMode>1</CodeContractsAssemblyMode>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
 
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
+    <PackagesDir Condition="$(PackagesDir) == ''">$(SolutionDir)packages</PackagesDir>
+		
+		<CodeContractsAssemblyMode>1</CodeContractsAssemblyMode>
 		<RunCodeAnalysis>false</RunCodeAnalysis>
 		<CodeContractsEnableRuntimeChecking>True</CodeContractsEnableRuntimeChecking>
 		<CodeContractsRuntimeOnlyPublicSurface>False</CodeContractsRuntimeOnlyPublicSurface>
@@ -54,8 +65,26 @@ be imported into csproj files using:
 		<CodeContractsReferenceAssembly>Build</CodeContractsReferenceAssembly>
 		<CodeContractsAnalysisWarningLevel>0</CodeContractsAnalysisWarningLevel>
 	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-		<CodeContractsRuntimeCheckingLevel>ReleaseRequires</CodeContractsRuntimeCheckingLevel>
-	</PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
 
+		<CodeContractsRuntimeCheckingLevel>ReleaseRequires</CodeContractsRuntimeCheckingLevel>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="$(SolutionDir)build\Version.cs">
+      <Link>Properties\Version.cs</Link>
+    </Compile>
+  </ItemGroup>
+  
 </Project>

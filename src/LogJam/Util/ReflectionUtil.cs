@@ -19,7 +19,7 @@ namespace LogJam.Util
 	/// <summary>
 	/// Reflection utility methods.
 	/// </summary>
-	internal static class ReflectionUtil
+	public static class ReflectionUtil
 	{
 		private static CodeDomProvider csharpCodeDomProvider = CodeDomProvider.CreateProvider("CSharp");
 

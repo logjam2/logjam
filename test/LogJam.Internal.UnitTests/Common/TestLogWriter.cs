@@ -6,7 +6,7 @@
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
-
+// ReSharper disable once CheckNamespace
 namespace LogJam.UnitTests.Common
 {
 	using System;
@@ -22,7 +22,7 @@ namespace LogJam.UnitTests.Common
 	/// A test <see cref="ILogWriter{TEntry}"/>, similar to <see cref="ListLogWriter{TEntry}"/>, but with additional 
 	/// features for unit testing.
 	/// </summary>
-	internal class TestLogWriter<TEntry> :  ILogWriter<TEntry>, IEnumerable<TEntry>, IEnumerable, IStartable, IDisposable
+	public class TestLogWriter<TEntry> :  ILogWriter<TEntry>, IEnumerable<TEntry>, IEnumerable, IStartable, IDisposable
 		where TEntry : ILogEntry
 	{
 

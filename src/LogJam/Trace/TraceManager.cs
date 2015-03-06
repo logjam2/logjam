@@ -343,7 +343,7 @@ namespace LogJam.Trace
 		#endregion
 		#region BaseLogJamManager overrides
 
-		internal override ITracerFactory SetupTracerFactory { get { return LogManager.SetupTracerFactory; } }
+		public override SetupTracerFactory SetupTracerFactory { get { return LogManager.SetupTracerFactory; } }
 
 		public override IEnumerable<TraceEntry> SetupTraces { get { return LogManager.SetupTraces; } }
 

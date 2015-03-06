@@ -7,6 +7,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
+// ReSharper disable once CheckNamespace
 namespace LogJam.UnitTests.Examples
 {
 	using System;
@@ -91,7 +92,7 @@ namespace LogJam.UnitTests.Examples
 		/// <summary>
 		/// Records a timer start.
 		/// </summary>
-		internal struct StartRecord : ILogEntry
+		public struct StartRecord : ILogEntry
 		{
 
 			public long TimingId;
@@ -103,7 +104,7 @@ namespace LogJam.UnitTests.Examples
 		/// <summary>
 		/// Records a timer stop.
 		/// </summary>
-		internal struct StopRecord : ILogEntry
+		public struct StopRecord : ILogEntry
 		{
 
 			public long TimingId;

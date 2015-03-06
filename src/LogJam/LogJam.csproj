@@ -3,35 +3,12 @@
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Import Project="..\..\build\CsprojCommon.targets" />
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{43F154AD-AA27-48B3-BA07-D02C92BE4F45}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>LogJam</RootNamespace>
     <AssemblyName>LogJam</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\LogJam.xml</DocumentationFile>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\$(Configuration)\LogJam.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
@@ -52,6 +29,7 @@
     <Compile Include="LogJamException.cs" />
     <Compile Include="LogJamCollectionExtensions.cs" />
     <Compile Include="LogJamSetupException.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Util\Startable.cs" />
     <Compile Include="Writer\BufferingLogWriter.cs">
       <SubType>Code</SubType>
@@ -86,10 +64,6 @@
     <Compile Include="Writer\FanOutLogWriter.cs" />
     <Compile Include="Config\NoOpLogWriterConfig.cs" />
     <Compile Include="Config\ListLogWriterConfig.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="..\..\build\Version.cs">
-      <Link>Properties\Version.cs</Link>
-    </Compile>
     <Compile Include="Config\LogWriterConfig.cs" />
     <Compile Include="Trace\Config\TraceWriterConfig.cs" />
     <Compile Include="Trace\Switches\OnOffTraceSwitch.cs" />

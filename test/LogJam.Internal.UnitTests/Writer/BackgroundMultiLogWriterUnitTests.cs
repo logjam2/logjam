@@ -7,27 +7,26 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
-namespace LogJam.UnitTests.Writer
+namespace LogJam.Internal.UnitTests.Writer
 {
+	using System;
+	using System.Diagnostics;
+	using System.Diagnostics.Contracts;
 	using System.IO;
+	using System.Linq;
 	using System.Threading;
+	using System.Threading.Tasks;
 
 	using LogJam.Format;
-	using LogJam.Trace;
-	using LogJam.Trace.Format;
 	using LogJam.UnitTests.Common;
 	using LogJam.UnitTests.Examples;
+	using Timer = LogJam.UnitTests.Examples.Timer;
+	using LogJam.Trace.Format;
 	using LogJam.Writer;
-
-	using System;
-	using System.Diagnostics.Contracts;
-	using Stopwatch = System.Diagnostics.Stopwatch;
-	using System.Linq;
-	using System.Threading.Tasks;
 
 	using Xunit;
 
-	using Timer = LogJam.UnitTests.Examples.Timer;
+	using TraceLevel = LogJam.Trace.TraceLevel;
 
 
 	/// <summary>
@@ -324,7 +323,7 @@ namespace LogJam.UnitTests.Writer
 			Assert.True(stopwatch.ElapsedMilliseconds > maxQueueLength * opDelayMs, "Dispose writes all queued entries");
 
 			// maxQueueLength+2 is the number of sleeps to wait for - the queue is full, +2 is for Stop() + Dispose() sleeps
-			// 1.3 is just a tolerance for thread-related delays
+			// 1.5 is just a tolerance for thread-related delays
 			Assert.True((stopwatch.ElapsedMilliseconds < (maxQueueLength + 2) * opDelayMs * 1.5) || _inDebugger, "Took longer than expected: " + stopwatch.ElapsedMilliseconds); 
 		}
 

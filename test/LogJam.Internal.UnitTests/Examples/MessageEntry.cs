@@ -6,7 +6,7 @@
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
-
+// ReSharper disable once CheckNamespace
 namespace LogJam.UnitTests.Examples
 {
 	using System;
@@ -18,7 +18,7 @@ namespace LogJam.UnitTests.Examples
 	/// <summary>
 	/// A simple, logentry struct.
 	/// </summary>
-	internal struct MessageEntry : ILogEntry
+	public struct MessageEntry : ILogEntry
 	{
 
 		public readonly DateTime Timestamp;
@@ -54,7 +54,7 @@ namespace LogJam.UnitTests.Examples
 		/// <summary>
 		/// Default <see cref="LogFormatter{TEntry}"/> for <see cref="MessageEntry"/>.
 		/// </summary>
-		internal class Formatter : LogFormatter<MessageEntry>
+		public class Formatter : LogFormatter<MessageEntry>
 		{
 
 			public override void Format(ref MessageEntry entry, TextWriter textWriter)

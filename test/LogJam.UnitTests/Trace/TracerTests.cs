@@ -127,7 +127,7 @@ namespace LogJam.UnitTests.Trace
 			// restart to reset config
 			TraceManager.Instance.Start();
 
-			TraceManagerConfigTests.AssertEquivalentToDefaultTraceManagerConfig(TraceManager.Instance);
+			LogJam.Internal.UnitTests.Trace.TraceManagerConfigTests.AssertEquivalentToDefaultTraceManagerConfig(TraceManager.Instance);
 
 			// Now tracing goes to the debug window only, but not to the list
 			tracer.Info("Not logged to list, but logged to debug out.");

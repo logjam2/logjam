@@ -35,7 +35,7 @@ namespace LogJam
 		/// A special <see cref="ITracerFactory"/> that returns <see cref="Tracer"/>s for managing configuration,
 		/// setup, shutdown, and exceptions during logging.
 		/// </summary>
-		internal abstract ITracerFactory SetupTracerFactory { get; }
+		public abstract SetupTracerFactory SetupTracerFactory { get; }
 
 		/// <summary>
 		/// Returns the collection of <see cref="TraceEntry"/>s logged through <see cref="SetupTracerFactory"/>.
