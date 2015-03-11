@@ -14,6 +14,7 @@ namespace LogJam.Writer
 
 	using LogJam.Config;
 	using LogJam.Format;
+	using LogJam.Trace;
 	using LogJam.Util;
 
 
@@ -49,7 +50,7 @@ namespace LogJam.Writer
 		/// <returns></returns>
 		protected abstract TextWriter CreateTextWriter();
 
-		public override ILogWriter<TEntry> CreateLogWriter()
+		public override ILogWriter<TEntry> CreateLogWriter(ITracerFactory setupTracerFactory)
 		{
 			if (Formatter == null)
 			{

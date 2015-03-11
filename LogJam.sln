@@ -5,6 +5,7 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{F89C3372-408F-4F99-A7BF-D2818C959F50}"
 	ProjectSection(SolutionItems) = preProject
+		API.md = API.md
 		docs\TODO.md = docs\TODO.md
 	EndProjectSection
 EndProject

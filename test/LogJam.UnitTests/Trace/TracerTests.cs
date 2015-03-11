@@ -22,6 +22,7 @@ namespace LogJam.UnitTests.Trace
 	using LogJam.Writer;
 
 	using Xunit;
+	using Xunit.Extensions;
 
 
 	/// <summary>
@@ -94,10 +95,14 @@ namespace LogJam.UnitTests.Trace
 		}
 
 		/// <summary>
-		/// Shows how to verify tracing for a class under test
+		/// Shows how to verify tracing for a class under test; and how to re-use the global <see cref="TraceManager.Instance"/>.
 		/// </summary>
-		[Fact]
-		public void UnitTestTracingWithGlobalTraceManager()
+		[Theory]
+		[InlineData(ConfigForm.Fluent)]
+		[InlineData(ConfigForm.ObjectGraph)]
+		[InlineData(ConfigForm.Fluent)]
+		[InlineData(ConfigForm.ObjectGraph)]
+		public void UnitTestTracingWithGlobalTraceManager(ConfigForm configForm)
 		{
 			// It can occur that the Tracer was obtained before the test starts
 			Tracer tracer = TraceManager.Instance.TracerFor(this);
@@ -107,16 +112,32 @@ namespace LogJam.UnitTests.Trace
 
 			// Add the list TraceWriter only for this class
 			TraceManagerConfig config = TraceManager.Instance.Config;
-			var listTraceConfig = new TraceWriterConfig(listWriter)
-			                      {
-				                      Switches =
+			TraceWriterConfig listTraceConfig;
+			if (configForm == ConfigForm.ObjectGraph)
+			{
+				listTraceConfig = new TraceWriterConfig(listWriter)
 				                      {
-					                      { GetType(), new OnOffTraceSwitch(true) }
-				                      }
-			                      };
-			config.Writers.Add(listTraceConfig);
+					                      Switches =
+					                      {
+						                      { GetType(), new OnOffTraceSwitch(true) }
+					                      }
+				                      };
+				config.Writers.Add(listTraceConfig);
+			}
+			else if (configForm == ConfigForm.Fluent)
+			{
+				listTraceConfig = config.UseLogWriter(listWriter, GetType(), new OnOffTraceSwitch(true));
+			}
+			else
+			{
+				throw new NotImplementedException();
+			}
+
 			// restart to load config and assign writers
 			TraceManager.Instance.Start();
+
+			// Ensure start didn't result in any errors
+			Assert.Empty(TraceManager.Instance.SetupTraces.Where(te => te.TraceLevel >= TraceLevel.Warn));
 
 			tracer.Info("Info message");
 			tracer.Debug("Debug message");

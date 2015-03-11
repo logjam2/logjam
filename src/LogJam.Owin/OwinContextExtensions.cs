@@ -10,9 +10,14 @@
 namespace Microsoft.Owin
 {
 	using System;
+	using System.Collections.Generic;
 	using System.Diagnostics.Contracts;
 
+	using LogJam;
+	using LogJam.Config;
 	using LogJam.Owin;
+	using LogJam.Owin.Http;
+	using LogJam.Trace;
 
 
 	/// <summary>
@@ -22,6 +27,9 @@ namespace Microsoft.Owin
 	{
 
 		private const string c_lastLoggedExceptionKey = "LogJam.Owin.LastLoggedException";
+
+		internal const string TracerFactoryKey = "LogJam.TracerFactory";
+		internal const string LogManagerKey = "LogJam.LogManager";
 
 		/// <summary>
 		/// Returns the request number (ordinal) for the request described by <paramref name="owinContext"/>.  For each
@@ -64,6 +72,54 @@ namespace Microsoft.Owin
 
 			var lastLoggedException = owinContext.Get<Exception>(c_lastLoggedExceptionKey);
 			return ReferenceEquals(exception, lastLoggedException);
+		}
+
+		/// <summary>
+		/// Retrieves the <see cref="ITracerFactory"/> from the <paramref name="owinContext"/>.
+		/// </summary>
+		/// <param name="owinContext">An <see cref="IOwinContext"/> for the current request.</param>
+		/// <returns></returns>
+		public static ITracerFactory GetTracerFactory(this IOwinContext owinContext)
+		{
+			Contract.Requires<ArgumentNullException>(owinContext != null);
+			Contract.Ensures(Contract.Result<ITracerFactory>() != null);
+
+			ITracerFactory tracerFactory = owinContext.Environment.Get<ITracerFactory>(TracerFactoryKey);
+			if (tracerFactory != null)
+			{
+				return tracerFactory;
+			}
+
+			// If not set (eg AppBuilderExtensions.SetTracerFactory() wasn't called), return the global instance
+			return TraceManager.Instance;
+		}
+
+		/// <summary>
+		/// Stores <paramref name="logManager"/> in the <paramref name="owinContext"/>.
+		/// </summary>
+		/// <param name="owinContext">An <see cref="IOwinContext"/> for the current request.</param>
+		/// <param name="logManager">The <see cref="LogManager"/> to store.</param>
+		/// <returns></returns>
+		internal static void SetLogManager(this IOwinContext owinContext, LogManager logManager)
+		{
+			Contract.Requires<ArgumentNullException>(owinContext != null);
+			Contract.Requires<ArgumentNullException>(logManager != null);
+
+			owinContext.Environment.Add(LogManagerKey, logManager);
+		}
+
+		/// <summary>
+		/// Stores <paramref name="tracerFactory"/> in the <paramref name="owinContext"/>.
+		/// </summary>
+		/// <param name="owinContext">An <see cref="IOwinContext"/> for the current request.</param>
+		/// <param name="tracerFactory">The <see cref="ITracerFactory"/> to store.</param>
+		/// <returns></returns>
+		internal static void SetTracerFactory(this IOwinContext owinContext, ITracerFactory tracerFactory)
+		{
+			Contract.Requires<ArgumentNullException>(owinContext != null);
+			Contract.Requires<ArgumentNullException>(tracerFactory != null);
+
+			owinContext.Environment.Add(TracerFactoryKey, tracerFactory);
 		}
 
 	}

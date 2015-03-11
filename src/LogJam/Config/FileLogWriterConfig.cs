@@ -10,6 +10,7 @@
 namespace LogJam.Writer
 {
 	using LogJam.Config;
+	using LogJam.Trace;
 	using LogJam.Util;
 
 
@@ -22,7 +23,7 @@ namespace LogJam.Writer
 
 		public string File { get; set; }
 
-		public override ILogWriter<TEntry> CreateLogWriter()
+		public override ILogWriter<TEntry> CreateLogWriter(ITracerFactory setupTracerFactory)
 		{
 			throw new System.NotImplementedException();
 		}

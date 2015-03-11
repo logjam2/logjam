@@ -20,8 +20,6 @@ namespace LogJam.UnitTests
 
 	using Xunit;
 
-	using Timer = LogJam.UnitTests.Examples.Timer;
-
 
 	/// <summary>
 	/// Unit tests for <see cref="LogManager"/>.

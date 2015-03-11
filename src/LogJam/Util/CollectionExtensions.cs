@@ -131,7 +131,7 @@ namespace LogJam.Util
 			int hashCode = 0;
 			foreach (KeyValuePair<TKey, TValue> kvp in dictionary)
 			{
-				hashCode = EqualityUtil.CombineHashCodes(hashCode, EqualityUtil.CombineHashCodes(kvp.Key.GetHashCode(), kvp.Value.GetHashCode()));
+				hashCode = EqualityUtil.CombineHashCodes(hashCode, EqualityUtil.CombineHashCodes(kvp.Key.Hash(), kvp.Value.Hash()));
 			}
 			return hashCode;
 		}

@@ -139,7 +139,7 @@ namespace LogJam
 					ILogWriter logWriter = null;
 					try
 					{
-						logWriter = logWriterConfig.CreateILogWriter();
+						logWriter = logWriterConfig.CreateILogWriter(SetupTracerFactory);
 					}
 					catch (Exception excp)
 					{
@@ -150,7 +150,16 @@ namespace LogJam
 
 					(logWriter as IStartable).SafeStart(SetupTracerFactory);
 
-					_logWriters.Add(logWriterConfig, logWriter);
+					try
+					{
+						_logWriters.Add(logWriterConfig, logWriter);
+					}
+					catch (ArgumentException argException)
+					{	// Occurs when the logWriterConfig already exists - this shouldn't happen
+						var tracer = SetupTracerFactory.TracerFor(logWriterConfig);
+						tracer.Severe("LogWriterConfig {0} is already active.  Skipping it...", logWriterConfig);
+					}
+
 					DisposeOnStop(logWriter);
 				}
 			}

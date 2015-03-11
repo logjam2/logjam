@@ -42,7 +42,7 @@ namespace LogJam.Writer
 		/// <param name="disposeWriter">Whether to dispose <paramref name="writer"/> when the <c>TextWriterLogWriter</c> is disposed.</param>
 		/// <param name="flushPredicate">A function that is used to determine whether to flush the buffers or not.  If <c>null</c>,
 		/// a predicate is used to cause buffers to be flushed after every write.</param>
-		public TextWriterMultiLogWriter(TextWriter textWriter, ITracerFactory setupTracerFactory, bool synchronize = true, bool disposeWriter = true, Func<bool> flushPredicate = null)
+		public TextWriterMultiLogWriter(TextWriter textWriter, ITracerFactory setupTracerFactory, bool synchronize = false, bool disposeWriter = true, Func<bool> flushPredicate = null)
 			: base(synchronize, setupTracerFactory)
 		{
 			Contract.Requires<ArgumentNullException>(textWriter != null);

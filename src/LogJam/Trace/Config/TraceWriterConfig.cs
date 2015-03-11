@@ -27,7 +27,7 @@ namespace LogJam.Trace.Config
 	public sealed class TraceWriterConfig : IEquatable<TraceWriterConfig>
 	{
 
-		private LogWriterConfig<TraceEntry> _tracelogWriterConfig;
+		private ILogWriterConfig _tracelogWriterConfig;
 		private readonly SwitchSet _switches;
 
 		/// <summary>
@@ -40,7 +40,7 @@ namespace LogJam.Trace.Config
 			_switches = new SwitchSet();
 		}
 
-		public TraceWriterConfig(LogWriterConfig<TraceEntry> logWriterConfig, SwitchSet switches = null)
+		public TraceWriterConfig(ILogWriterConfig logWriterConfig, SwitchSet switches = null)
 		{
 			Contract.Requires<ArgumentNullException>(logWriterConfig != null);
 
@@ -48,18 +48,18 @@ namespace LogJam.Trace.Config
 			_switches = switches ?? new SwitchSet();
 		}
 
-		public TraceWriterConfig(ILogWriter<TraceEntry> logWriter, SwitchSet switches = null)
-			: this(new UseExistingLogWriterConfig<TraceEntry>(logWriter), switches)
+		public TraceWriterConfig(ILogWriter logWriter, SwitchSet switches = null)
+			: this(new UseExistingLogWriterConfig(logWriter), switches)
 		{
 			Contract.Requires<ArgumentNullException>(logWriter != null);
 		}
 
 		[DataMember(Name = "LogWriter")]
-		public LogWriterConfig<TraceEntry> LogWriterConfig
+		public ILogWriterConfig LogWriterConfig
 		{
 			get
 			{
-				Contract.Ensures(Contract.Result<LogWriterConfig<TraceEntry>>() != null);
+				Contract.Ensures(Contract.Result<ILogWriterConfig>() != null);
 				if (_tracelogWriterConfig == null)
 				{
 					_tracelogWriterConfig = new NoOpLogWriterConfig<TraceEntry>();
@@ -78,11 +78,6 @@ namespace LogJam.Trace.Config
 		public SwitchSet Switches
 		{
 			get { return _switches; }	
-		}
-
-		internal SwitchSet GetSwitchList()
-		{
-			return _switches;
 		}
 
 		public bool Equals(TraceWriterConfig other)

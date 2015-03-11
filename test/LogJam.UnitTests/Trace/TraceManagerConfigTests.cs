@@ -33,13 +33,34 @@ namespace LogJam.UnitTests.Trace
 	/// </summary>
 	public sealed class TraceManagerConfigTests
 	{
-		[Fact]
-		public void TraceWithTimestampsToConsole()
+		[Theory]
+		[InlineData(ConfigForm.ObjectGraph)]
+		[InlineData(ConfigForm.Fluent)]
+		public void TraceWithTimestampsToConsole(ConfigForm configForm)
 		{
-			using (var traceManager = new TraceManager(new ConsoleTraceWriterConfig()
+			TraceManager traceManager;
+			if (configForm == ConfigForm.ObjectGraph)
+			{
+				traceManager = new TraceManager(new ConsoleTraceWriterConfig()
 			                                           {
 				                                           Formatter = new DebuggerTraceFormatter() { IncludeTimestamp = true }
-			                                           }))
+			                                           });
+			}
+			else if (configForm == ConfigForm.Fluent)
+			{
+				var config = new TraceManagerConfig();
+				config.TraceToConsole(traceFormatter: new DebuggerTraceFormatter()
+				                                      {
+					                                      IncludeTimestamp = true
+				                                      });
+				traceManager = new TraceManager(config);
+			}
+			else
+			{
+				throw new NotImplementedException();
+			}
+
+			using (traceManager)
 			{
 				var tracer = traceManager.TracerFor(this);
 				Assert.True(tracer.IsInfoEnabled());
@@ -58,7 +79,7 @@ namespace LogJam.UnitTests.Trace
 		public void NoTraceWritersConfiguredWorks()
 		{
 			var traceManagerConfig = new TraceManagerConfig();
-			traceManagerConfig.Writers.Clear();
+			Assert.Empty(traceManagerConfig.Writers);
 			using (var traceManager = new TraceManager(traceManagerConfig))
 			{
 				traceManager.Start();

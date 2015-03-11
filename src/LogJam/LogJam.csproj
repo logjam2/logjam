@@ -19,8 +19,9 @@
     <Compile Include="Config\Json\JsonTypeHintAttribute.cs" />
     <Compile Include="Config\LogJamConfigTypes.cs" />
     <Compile Include="Config\LogManagerConfig.cs" />
+    <Compile Include="Config\LogManagerConfigFluentExtensions.cs" />
+    <Compile Include="Config\TextWriterMultiLogWriterConfig.cs" />
     <Compile Include="Config\UseExistingLogWriterConfig.cs" />
-    <Compile Include="Config\UseExistingLogWriterConfigOfTEntry.cs" />
     <Compile Include="Config\UseExistingTextWriterConfig.cs" />
     <Compile Include="Format\ActionFormatter.cs" />
     <Compile Include="Encode\ILogDecoder.cs" />
@@ -30,6 +31,7 @@
     <Compile Include="LogJamCollectionExtensions.cs" />
     <Compile Include="LogJamSetupException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Trace\Config\TraceManagerConfigFluentExtensions.cs" />
     <Compile Include="Util\Startable.cs" />
     <Compile Include="Writer\BufferingLogWriter.cs">
       <SubType>Code</SubType>
@@ -62,7 +64,7 @@
     <Compile Include="Config\FileLogWriterConfig.cs" />
     <Compile Include="Writer\BackgroundMultiLogWriter.cs" />
     <Compile Include="Writer\FanOutLogWriter.cs" />
-    <Compile Include="Config\NoOpLogWriterConfig.cs" />
+    <Compile Include="Config\NoOpLogWriterConfigOfTEntry.cs" />
     <Compile Include="Config\ListLogWriterConfig.cs" />
     <Compile Include="Config\LogWriterConfig.cs" />
     <Compile Include="Trace\Config\TraceWriterConfig.cs" />
@@ -71,7 +73,8 @@
     <Compile Include="Writer\IQueueLogWriterOfTEntry.cs" />
     <Compile Include="Writer\ListLogWriter.cs" />
     <Compile Include="Writer\MultiLogWriter.cs" />
-    <Compile Include="Writer\NoOpLogWriter.cs" />
+    <Compile Include="Writer\NoOpLogWriterOfTEntry.cs" />
+    <Compile Include="Writer\NoOpMultiLogWriter.cs" />
     <Compile Include="Writer\ProxyLogWriter.cs" />
     <Compile Include="Config\TextWriterLogWriterConfig.cs" />
     <Compile Include="Writer\TextWriterMultiLogWriter.cs" />

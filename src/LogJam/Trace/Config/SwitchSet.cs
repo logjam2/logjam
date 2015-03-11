@@ -38,7 +38,7 @@ namespace LogJam.Trace.Config
 			{
 				if (kvp.Key.Length > bestMatchLength)
 				{
-					if (tracerName.StartsWith(kvp.Key))
+					if (tracerName.StartsWith(kvp.Key) && (kvp.Value != null))
 					{
 						bestMatchLength = kvp.Key.Length;
 						traceSwitch = kvp.Value;

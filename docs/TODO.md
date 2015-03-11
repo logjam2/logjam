@@ -1,5 +1,7 @@
 # LogJam TODO
 
+1. Update OWIN logging, add unit tests and perf test for OWIN setup
+1. Rename ILogWriter<TEntry> -> IEntryWriter<TEntry>, and IMultiLogWriter -> ILogWriter.  All log writers have 0 or more entrywriters within them.  Some LogWriters can only support one type.
 1. Add LogJamComponent, so the tree of components can be walked
   * Rewrite SafeStart() to use the new tree
   * Decide on approach for async start of children, IE BackgroundMultiLogWriter
@@ -9,7 +11,6 @@
 3. Add flush support, so buffering log writers can be flushed on command.
   * Support periodic flushing eg every .5s (more efficient than "always flush")
 4. Make background logging multi log writer support periodic flushing, eg every 20ms by default.  Also support flushing from foreground delegated to background thread.
-1. Update OWIN logging, add unit tests and perf test for OWIN setup
 5. Add colorizing log formatter, colorized consolelogwriter
 
 1. Add LogJam.XUnit2 - with logwriter and formatter for unit tests

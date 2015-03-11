@@ -12,6 +12,7 @@ namespace LogJam.Config
 	using System;
 	using System.Diagnostics.Contracts;
 
+	using LogJam.Trace;
 	using LogJam.Writer;
 
 
@@ -44,7 +45,7 @@ namespace LogJam.Config
 			set { throw new NotImplementedException("Can't set the synchronization of an existing ILogWriter."); }
 		}
 
-		public ILogWriter CreateILogWriter()
+		public ILogWriter CreateILogWriter(ITracerFactory setupTracerFactory)
 		{
 			return _logWriter;
 		}

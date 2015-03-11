@@ -62,7 +62,7 @@ namespace LogJam.Trace
 		/// Creates a new <see cref="TraceManager"/> instance using default configuration.
 		/// </summary>
 		public TraceManager()
-			: this(new TraceManagerConfig())
+			: this(TraceManagerConfig.Default)
 		{
 			// TODO: Check for local or remote config?
 		}
@@ -76,7 +76,7 @@ namespace LogJam.Trace
 		/// <c>null</c>, all <see cref="Tracer"/> calls of severity <see cref="TraceLevel.Info"/> or higher are written.</param>
 		/// <param name="tracerNamePrefix">The <see cref="Tracer.Name"/> prefix to use.  Tracing will not occur if the
 		/// <c>Tracer.Name</c> doesn't match this prefix.  By default, <see cref="Tracer.All"/> is used.</param>
-		public TraceManager(LogWriterConfig<TraceEntry> logWriterConfig, ITraceSwitch traceSwitch = null, string tracerNamePrefix = Tracer.All)
+		public TraceManager(ILogWriterConfig logWriterConfig, ITraceSwitch traceSwitch = null, string tracerNamePrefix = Tracer.All)
 		{
 			Contract.Requires<ArgumentNullException>(logWriterConfig != null);
 
@@ -102,8 +102,8 @@ namespace LogJam.Trace
 		/// <c>null</c>, all <see cref="Tracer"/> calls of severity <see cref="TraceLevel.Info"/> or higher are written.</param>
 		/// <param name="tracerNamePrefix">The <see cref="Tracer.Name"/> prefix to use.  Tracing will not occur if the
 		/// <c>Tracer.Name</c> doesn't match this prefix.  By default, <see cref="Tracer.All"/> is used.</param>
-		public TraceManager(ILogWriter<TraceEntry> logWriter, ITraceSwitch traceSwitch = null, string tracerNamePrefix = Tracer.All)
-			: this(new UseExistingLogWriterConfig<TraceEntry>(logWriter), traceSwitch, tracerNamePrefix)
+		public TraceManager(ILogWriter logWriter, ITraceSwitch traceSwitch = null, string tracerNamePrefix = Tracer.All)
+			: this(new UseExistingLogWriterConfig(logWriter), traceSwitch, tracerNamePrefix)
 		{}
 
 		/// <summary>
@@ -112,7 +112,7 @@ namespace LogJam.Trace
 		/// </summary>
 		/// <param name="logWriter">The <see cref="ILogWriter{TEntry}"/> to use.</param>
 		/// <param name="switches">Defines the trace switches to use with <paramref name="logWriter"/>.</param>
-		public TraceManager(ILogWriter<TraceEntry> logWriter, SwitchSet switches)
+		public TraceManager(ILogWriter logWriter, SwitchSet switches)
 			: this(new TraceWriterConfig(logWriter, switches))
 		{ }
 
@@ -124,8 +124,8 @@ namespace LogJam.Trace
 		/// <param name="traceThreshold">The minimum <see cref="TraceLevel"/> that will be logged.</param>
 		/// <param name="tracerNamePrefix">The <see cref="Tracer.Name"/> prefix to use.  Tracing will not occur if the
 		/// <c>Tracer.Name</c> doesn't match this prefix.  By default, <see cref="Tracer.All"/> is used.</param>
-		public TraceManager(ILogWriter<TraceEntry> logWriter, TraceLevel traceThreshold, string tracerNamePrefix = Tracer.All)
-			: this(new UseExistingLogWriterConfig<TraceEntry>(logWriter), new ThresholdTraceSwitch(traceThreshold))
+		public TraceManager(ILogWriter logWriter, TraceLevel traceThreshold, string tracerNamePrefix = Tracer.All)
+			: this(new UseExistingLogWriterConfig(logWriter), new ThresholdTraceSwitch(traceThreshold))
 		{ }
 
 		/// <summary>
@@ -322,7 +322,7 @@ namespace LogJam.Trace
 			foreach (var traceWriterTuple in _activeTraceLogWriters)
 			{
 				ITraceSwitch traceSwitch;
-				if (traceWriterTuple.Item1.GetSwitchList().FindBestMatchingSwitch(tracerName, out traceSwitch))
+				if (traceWriterTuple.Item1.Switches.FindBestMatchingSwitch(tracerName, out traceSwitch))
 				{
 					traceWriters.Add(new TraceWriter(traceSwitch, traceWriterTuple.Item2, SetupTracerFactory));
 				}

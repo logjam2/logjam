@@ -1,5 +1,5 @@
 ﻿// // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="LogJamSetupException.cs">
+// <copyright file="ConfigForm.cs">
 // Copyright (c) 2011-2015 logjam.codeplex.com.  
 // </copyright>
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
@@ -7,25 +7,18 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
-namespace LogJam
+namespace LogJam.UnitTests
 {
-	using System;
-
 
 	/// <summary>
-	/// Signifies an error in a setup operation.
+	/// Defines the different config forms that can be exercised by a test.
 	/// </summary>
-	public class LogJamSetupException : LogJamException
+	public enum ConfigForm
 	{
-
-		protected internal LogJamSetupException(string message, object source)
-			: base(message, source)
-		{}
-
-		protected internal LogJamSetupException(string message, Exception innerException, object source)
-			: base(message, innerException, source)
-		{}
-
+		ObjectGraph,
+		Fluent,
+		XmlFile,
+		JsonFile
 	}
 
 }

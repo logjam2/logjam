@@ -21,7 +21,7 @@ namespace LogJam.Owin
 	/// <summary>
 	/// Middleware that logs exceptions that are passed up the Owin stack.
 	/// </summary>
-	public sealed class ExceptionLoggingMiddleware : OwinMiddleware
+	internal sealed class ExceptionLoggingMiddleware : OwinMiddleware
 	{
 
 		private readonly Tracer _tracer;

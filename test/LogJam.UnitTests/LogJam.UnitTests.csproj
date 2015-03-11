@@ -72,8 +72,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConfigForm.cs" />
     <Compile Include="Config\Json\ConfigTypeJsonConverter.cs" />
     <Compile Include="Config\Json\JsonConfigContractResolver.cs" />
+    <Compile Include="Config\LogManagerConfigTests.cs" />
     <Compile Include="LogManagerTests.cs" />
     <Compile Include="Config\Json\JsonTypeConverterProblem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -17,6 +17,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestOutputLogWriter.cs" />
+    <Compile Include="TestOutputTraceFormatter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

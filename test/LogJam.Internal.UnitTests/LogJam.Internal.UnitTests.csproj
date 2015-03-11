@@ -20,12 +20,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
     <Compile Include="Common\ExceptionThrowingLogWriter.cs" />
     <Compile Include="Common\SlowTestLogWriter.cs" />
     <Compile Include="Common\TestLogWriter.cs" />
     <Compile Include="Examples\MessageEntry.cs" />
-    <Compile Include="Examples\Timer.cs" />
+    <Compile Include="Examples\LoggingTimer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Trace\TraceManagerConfigTests.cs" />
     <Compile Include="Writer\BackgroundMultiLogWriterUnitTests.cs" />

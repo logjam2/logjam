@@ -1,5 +1,5 @@
 ﻿// // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="LogJamSetupException.cs">
+// <copyright file="FormatterHelper.cs">
 // Copyright (c) 2011-2015 logjam.codeplex.com.  
 // </copyright>
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
@@ -7,25 +7,31 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
-namespace LogJam
+namespace LogJam.Owin.Http
 {
-	using System;
+	using System.IO;
+
+	using Microsoft.Owin;
 
 
 	/// <summary>
-	/// Signifies an error in a setup operation.
+	/// Helper methods for log formatting.
 	/// </summary>
-	public class LogJamSetupException : LogJamException
+	internal static class FormatterHelper
 	{
 
-		protected internal LogJamSetupException(string message, object source)
-			: base(message, source)
-		{}
-
-		protected internal LogJamSetupException(string message, Exception innerException, object source)
-			: base(message, innerException, source)
-		{}
-
+		internal static void FormatHeaders(TextWriter textWriter, IReadableStringCollection headerDictionary)
+		{
+			foreach (var header in headerDictionary)
+			{
+				foreach (string value in header.Value)
+				{
+					textWriter.Write(header.Key);
+					textWriter.Write(": ");
+					textWriter.WriteLine(value);
+				}
+			}
+		}
 	}
 
 }

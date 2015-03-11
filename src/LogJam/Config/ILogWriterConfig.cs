@@ -11,6 +11,7 @@ namespace LogJam.Config
 {
 	using System;
 
+	using LogJam.Trace;
 	using LogJam.Writer;
 
 
@@ -23,18 +24,15 @@ namespace LogJam.Config
 		/// Sets or gets whether the <see cref="ILogWriter{TEntry}"/> returned from <see cref="CreateILogWriter"/> should have its
 		/// writes synchronized or not.
 		/// </summary>
+		// TODO: Remove, move to LogManagerConfig?
 		bool Synchronized { get; set; }
-
-		///// <summary>
-		///// Returns the <see cref="ILogWriter{TEntry}"/> <c>TEntry</c> type for the logwriter returned from <see cref="CreateILogWriter"/>.
-		///// </summary>
-		//Type BaseEntryType { get; }
 
 		/// <summary>
 		/// Creates and returns a new <see cref="ILogWriter"/> using the configured settings.
 		/// </summary>
+		/// <param name="setupTracerFactory">An <see cref="ITracerFactory"/> for tracing information about logging setup.</param>
 		/// <returns>A new <see cref="ILogWriter"/> using the configured settings.</returns>
-		ILogWriter CreateILogWriter();
+		ILogWriter CreateILogWriter(ITracerFactory setupTracerFactory);
 	}
 
 }

@@ -56,6 +56,7 @@ namespace LogJam.Writer
 			where TEntry : ILogEntry
 		{
 			Contract.Requires<ArgumentNullException>(logWriter != null);
+
 			if (IsStarted)
 			{
 				throw new LogJamSetupException("New log writers cannot be added after starting.", this);

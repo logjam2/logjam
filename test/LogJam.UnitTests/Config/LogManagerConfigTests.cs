@@ -1,5 +1,5 @@
 ﻿// // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="LogJamSetupException.cs">
+// <copyright file="LogManagerConfigTests.cs">
 // Copyright (c) 2011-2015 logjam.codeplex.com.  
 // </copyright>
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
@@ -7,24 +7,14 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
-namespace LogJam
+namespace LogJam.UnitTests.Config
 {
-	using System;
-
 
 	/// <summary>
-	/// Signifies an error in a setup operation.
+	/// Exercises <see cref="LogManagerConfig"/>.
 	/// </summary>
-	public class LogJamSetupException : LogJamException
+	public sealed class LogManagerConfigTests
 	{
-
-		protected internal LogJamSetupException(string message, object source)
-			: base(message, source)
-		{}
-
-		protected internal LogJamSetupException(string message, Exception innerException, object source)
-			: base(message, innerException, source)
-		{}
 
 	}
 

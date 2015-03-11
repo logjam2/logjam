@@ -40,18 +40,26 @@ namespace LogJam.Util
 			return FindIndex(kvp => Equals(kvp.Key, key));
 		}
 
+		private void RequireNotNull(TKey key)
+		{
+			if (key == null)
+			{
+				throw new ArgumentNullException("key");
+			}
+		}
+
 		#region IDictionary
 
 		public bool ContainsKey(TKey key)
 		{
-			Contract.Assert(key != null);
+			RequireNotNull(key);
 
 			return this.Any(kvp => Equals(kvp.Key, key));
 		}
 
 		public void Add(TKey key, TValue value)
 		{
-			Contract.Assert(key != null);
+			RequireNotNull(key);
 
 			if (ContainsKey(key))
 			{
@@ -62,7 +70,7 @@ namespace LogJam.Util
 
 		public bool Remove(TKey key)
 		{
-			Contract.Assert(key != null);
+			RequireNotNull(key);
 
 			int index = IndexOf(key);
 			if (index >= 0)
@@ -75,7 +83,7 @@ namespace LogJam.Util
 
 		public bool TryGetValue(TKey key, out TValue value)
 		{
-			Contract.Assert(key != null);
+			RequireNotNull(key);
 
 			int index = IndexOf(key);
 			if (index >= 0)
@@ -94,7 +102,7 @@ namespace LogJam.Util
 		{
 			get
 			{
-				Contract.Assert(key != null);
+				RequireNotNull(key);
 
 				int index = IndexOf(key);
 				if (index >= 0)
@@ -108,7 +116,7 @@ namespace LogJam.Util
 			}
 			set
 			{
-				Contract.Assert(key != null);
+				RequireNotNull(key);
 
 				int index = IndexOf(key);
 				if (index >= 0)

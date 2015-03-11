@@ -20,7 +20,6 @@ namespace LogJam.Internal.UnitTests.Writer
 	using LogJam.Format;
 	using LogJam.UnitTests.Common;
 	using LogJam.UnitTests.Examples;
-	using Timer = LogJam.UnitTests.Examples.Timer;
 	using LogJam.Trace.Format;
 	using LogJam.Writer;
 
@@ -401,8 +400,8 @@ namespace LogJam.Internal.UnitTests.Writer
 			var stringWriter = new StringWriter();
 
 			var setupTracerFactory = new SetupTracerFactory();
-			FormatAction<Timer.StartRecord> formatStart = (startRecord, writer) => writer.WriteLine(">{0}", startRecord.TimingId);
-			FormatAction<Timer.StopRecord> formatStop = (stopRecord, writer) => writer.WriteLine("<{0} {1}", stopRecord.TimingId, stopRecord.ElapsedTime);
+			FormatAction<LoggingTimer.StartRecord> formatStart = (startRecord, writer) => writer.WriteLine(">{0}", startRecord.TimingId);
+			FormatAction<LoggingTimer.StopRecord> formatStop = (stopRecord, writer) => writer.WriteLine("<{0} {1}", stopRecord.TimingId, stopRecord.ElapsedTime);
 			var multiLogWriter = new TextWriterMultiLogWriter(stringWriter, setupTracerFactory, false)
 				.AddFormat(formatStart)
 				.AddFormat(formatStop);
@@ -410,9 +409,9 @@ namespace LogJam.Internal.UnitTests.Writer
 
 			using (var logManager = new LogManager(backgroundMultiLogWriter))
 			{
-				// Timer test class logs starts and stops
-				Timer.RestartTimingIds();
-				var timer = new Timer("test timer", logManager);
+				// LoggingTimer test class logs starts and stops
+				LoggingTimer.RestartTimingIds();
+				var timer = new LoggingTimer("test LoggingTimer", logManager);
 				var timing1 = timer.Start();
 				Thread.Sleep(15);
 				timing1.Stop();

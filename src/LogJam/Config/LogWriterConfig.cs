@@ -17,7 +17,7 @@ namespace LogJam.Config
 
 
 	/// <summary>
-	/// Base class for holding log writer configuration.
+	/// Base class for holding configuration of logwriters that write a single entry type, <typeparamref name="TEntry"/>.
 	/// </summary>
 	/// <see cref="TraceWriterConfig.LogWriterConfig"/>
 	public abstract class LogWriterConfig<TEntry> : ILogWriterConfig where TEntry : ILogEntry
@@ -32,16 +32,17 @@ namespace LogJam.Config
 		public virtual bool Synchronized { get { return _synchronized; } set { _synchronized = value; } }
 
 		/// <inheritdoc />
-		public ILogWriter CreateILogWriter()
+		public ILogWriter CreateILogWriter(ITracerFactory setupTracerFactory)
 		{
-			return CreateLogWriter();
+			return CreateLogWriter(setupTracerFactory);
 		}
 
 		/// <summary>
 		/// Creates and returns a new <see cref="ILogWriter{TEntry}"/> using the configured settings.
 		/// </summary>
+		/// <param name="setupTracerFactory">An <see cref="ITracerFactory"/> for tracing information about logging setup.</param>
 		/// <returns>A new <see cref="ILogWriter{TEntry}"/> using the configured settings.</returns>
-		public abstract ILogWriter<TEntry> CreateLogWriter();
+		public abstract ILogWriter<TEntry> CreateLogWriter(ITracerFactory setupTracerFactory);
 
 		public virtual bool Equals(ILogWriterConfig other)
 		{

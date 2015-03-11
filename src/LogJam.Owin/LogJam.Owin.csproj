@@ -25,7 +25,14 @@
     <Compile Include="AppBuilderExtensions.cs" />
     <Compile Include="Collections\DictionaryExtensions.cs" />
     <Compile Include="ExceptionLoggingMiddleware.cs" />
-    <Compile Include="HttpLoggingMiddleware.cs" />
+    <Compile Include="Http\FormatterHelper.cs" />
+    <Compile Include="Http\HttpLoggingMiddleware.cs" />
+    <Compile Include="Http\HttpRequestEntry.cs" />
+    <Compile Include="Http\HttpRequestFormatter.cs" />
+    <Compile Include="Http\HttpResponseEntry.cs" />
+    <Compile Include="Http\HttpResponseFormatter.cs" />
+    <Compile Include="LogJamManagerMiddleware.cs" />
+    <Compile Include="LogJamOwinSetupException.cs" />
     <Compile Include="OwinContextExtensions.cs" />
     <Compile Include="OwinLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

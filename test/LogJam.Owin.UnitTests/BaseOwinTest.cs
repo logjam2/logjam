@@ -1,0 +1,104 @@
+﻿// // --------------------------------------------------------------------------------------------------------------------
+// <copyright file="BaseOwinTest.cs">
+// Copyright (c) 2011-2015 logjam.codeplex.com.  
+// </copyright>
+// Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
+// you may not use this file except in compliance with the License.
+// --------------------------------------------------------------------------------------------------------------------
+
+
+namespace LogJam.Owin.UnitTests
+{
+	using System;
+	using System.Diagnostics.Contracts;
+	using System.IO;
+	using System.Net;
+
+	using global::Owin;
+
+	using LogJam.Config;
+	using LogJam.Owin.Http;
+	using LogJam.Trace;
+	using LogJam.Trace.Config;
+	using LogJam.Trace.Format;
+	using LogJam.Trace.Switches;
+	using LogJam.Writer;
+
+	using Microsoft.Owin;
+	using Microsoft.Owin.Testing;
+
+
+	/// <summary>
+	/// Common OWIN test logic.
+	/// </summary>
+	public abstract class BaseOwinTest
+	{
+		protected readonly PathString ExceptionPath = new PathString("/exception");
+		protected readonly PathString TracePath = new PathString("/trace");
+		protected readonly PathString LogJamStatusPath = new PathString("/logjam/status");
+
+		protected TestServer CreateTestServer(TextWriter logTarget, bool backgroundThreadLogging = true)
+		{
+			Contract.Requires<ArgumentNullException>(logTarget != null);
+
+			string appName = GetType().FullName;
+
+			return TestServer.Create(appBuilder =>
+			{
+				appBuilder.Properties["host.AppName"] = appName;
+
+				// Configure logging
+				var textLogConfig = appBuilder.GetLogManagerConfig().UseMultiTextWriter(logTarget)
+				                              .Format(new DebuggerTraceFormatter())
+				                              .Format(new HttpRequestFormatter())
+				                              .Format(new HttpResponseFormatter());
+				appBuilder.GetLogManagerConfig().ProxyWritingToBackgroundThread(backgroundThreadLogging, textLogConfig);
+				appBuilder.GetTraceManagerConfig().TraceTo(textLogConfig, Tracer.All, new OnOffTraceSwitch(true));
+				appBuilder.LogHttpRequests(textLogConfig);
+				appBuilder.UseOwinTracerLogging();
+				appBuilder.TraceExceptions(logFirstChance: false, logUnhandled: true);
+
+				// Request handling
+				appBuilder.Use(async (owinContext, next) =>
+				{
+					IOwinRequest req = owinContext.Request;
+					IOwinResponse res = owinContext.Response;
+
+					if (req.Path == ExceptionPath)
+					{
+						throw new Exception("Expected exception thrown from /exception URL");
+					}
+					else if (req.Path == TracePath)
+					{
+						string requestUri = req.Uri.ToString();
+						string strTraceCount = req.Query["traceCount"];
+						int traceCount = 3;
+						int.TryParse(strTraceCount, out traceCount);
+
+						var tracer = owinContext.GetTracerFactory().TracerFor(this);
+						for (int i = 0; i < traceCount; ++i)
+						{
+							tracer.Verbose("{0} #{1}", requestUri, i);
+						}
+					}
+					else if (req.Path == LogJamStatusPath)
+					{
+						res.StatusCode = (int) HttpStatusCode.OK;
+						res.ContentType = "text/plain";
+						var sw = new StringWriter();
+						traceManager.SetupTraces.WriteEntriesTo(sw, new DebuggerTraceFormatter() { IncludeTimestamp = true});
+						res.Write(sw.ToString());
+					}
+					else
+					{
+						await next();
+					}
+				});
+
+				logTarget.WriteLine("TestAuthServer configuration complete.");
+			});
+		}
+
+	}
+
+}

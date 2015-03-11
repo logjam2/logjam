@@ -83,6 +83,7 @@ namespace LogJam
 				{
 					InternalStart();
 					_isStarted = true;
+					_isStopped = false;
 					tracer.Info(className + " started.");
 				}
 				catch (Exception startException)

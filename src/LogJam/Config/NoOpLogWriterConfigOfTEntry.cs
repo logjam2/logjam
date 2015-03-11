@@ -11,6 +11,7 @@ namespace LogJam.Writer
 {
 	using LogJam.Config;
 	using LogJam.Config.Json;
+	using LogJam.Trace;
 
 
 	/// <summary>
@@ -20,7 +21,7 @@ namespace LogJam.Writer
 	public class NoOpLogWriterConfig<TEntry> : LogWriterConfig<TEntry> where TEntry : ILogEntry
 	{
 
-		public override ILogWriter<TEntry> CreateLogWriter()
+		public override ILogWriter<TEntry> CreateLogWriter(ITracerFactory setupTracerFactory)
 		{
 			return new NoOpLogWriter<TEntry>();
 		}

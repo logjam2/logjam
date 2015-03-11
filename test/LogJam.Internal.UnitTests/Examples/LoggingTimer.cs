@@ -1,5 +1,5 @@
 ﻿// // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Timer.cs">
+// <copyright file="LoggingTimer.cs">
 // Copyright (c) 2011-2015 logjam.codeplex.com.  
 // </copyright>
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
@@ -20,7 +20,7 @@ namespace LogJam.UnitTests.Examples
 	/// Provides timings and logs timing records - this isn't intended as an awesome timer implementation, just
 	/// something to test logging multiple record types to a <see cref="IMultiLogWriter"/>.
 	/// </summary>
-	public sealed class Timer
+	public sealed class LoggingTimer
 	{
 
 		private static long s_nextTimingId = 1;
@@ -33,7 +33,7 @@ namespace LogJam.UnitTests.Examples
 			s_nextTimingId = 1;
 		}
 
-		public Timer(string name, LogManager logManager)
+		public LoggingTimer(string name, LogManager logManager)
 		{
 			Name = name;
 			_startWriter = logManager.GetLogWriter<StartRecord>();
@@ -49,16 +49,16 @@ namespace LogJam.UnitTests.Examples
 		}
 
 		/// <summary>
-		/// Tracks timing since <see cref="Timer.Start"/> was called.
+		/// Tracks timing since <see cref="LoggingTimer.Start"/> was called.
 		/// </summary>
 		public struct Timing
 		{
-			private readonly Timer _parentTimer;
+			private readonly LoggingTimer _parentTimer;
 			private readonly long _id;
 			private readonly DateTime _startDateTime;
 			private DateTime? _stopDateTime;
 
-			internal Timing(Timer timer, long timingId)
+			internal Timing(LoggingTimer timer, long timingId)
 			{
 				_parentTimer = timer;
 				_id = timingId;
@@ -97,7 +97,7 @@ namespace LogJam.UnitTests.Examples
 
 			public long TimingId;
 			public DateTime StartDateTime;
-			public Timer Timer;
+			public LoggingTimer Timer;
 
 		}
 
@@ -110,7 +110,7 @@ namespace LogJam.UnitTests.Examples
 			public long TimingId;
 			public DateTime StopDateTime;
 			public TimeSpan ElapsedTime;
-			public Timer Timer;
+			public LoggingTimer Timer;
 		}
 	}
 

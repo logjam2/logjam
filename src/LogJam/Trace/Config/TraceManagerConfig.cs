@@ -36,9 +36,18 @@ namespace LogJam.Trace.Config
 
 		#region Constructors and Destructors
 
+		public static TraceManagerConfig Default
+		{
+			get { return new TraceManagerConfig(CreateDefaultTraceWriterConfig()); }
+		}
+
+		/// <summary>
+		/// Empty configuration, no traces written.
+		/// </summary>
 		public TraceManagerConfig()
-			: this(CreateDefaultTraceWriterConfig())
-		{}
+		{
+			_traceWriterConfigs = new HashSet<TraceWriterConfig>();
+		}
 
 		public TraceManagerConfig(TraceWriterConfig traceWriterConfig)
 		{

@@ -32,7 +32,7 @@ namespace LogJam.Trace.Config
 		/// </summary>
 		public LogFormatter<TraceEntry> Formatter { get; set; }
 
-		public override ILogWriter<TraceEntry> CreateLogWriter()
+		public override ILogWriter<TraceEntry> CreateLogWriter(ITracerFactory setupTracerFactory)
 		{
 			return new ConsoleTraceWriter(UseColor, Formatter);
 		}
