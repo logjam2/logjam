@@ -37,7 +37,7 @@ namespace LogJam.Owin.UnitTests
 		protected readonly PathString TracePath = new PathString("/trace");
 		protected readonly PathString LogJamStatusPath = new PathString("/logjam/status");
 
-		protected TestServer CreateTestServer(TextWriter logTarget, bool backgroundThreadLogging = true)
+		protected TestServer CreateTestServer(TextWriter logTarget, SetupLog setupLog, bool backgroundThreadLogging = true)
 		{
 			Contract.Requires<ArgumentNullException>(logTarget != null);
 
@@ -47,15 +47,22 @@ namespace LogJam.Owin.UnitTests
 			{
 				appBuilder.Properties["host.AppName"] = appName;
 
+				// Use the specified setupLog
+				appBuilder.RegisterLogManager(setupLog);
+
 				// Configure logging
-				var textLogConfig = appBuilder.GetLogManagerConfig().UseMultiTextWriter(logTarget)
-				                              .Format(new DebuggerTraceFormatter())
+				var textLogConfig = appBuilder.GetLogManagerConfig().UseTextWriter(logTarget)
+				                              .Format(new DebuggerTraceFormatter() { IncludeTimestamp = true})
 				                              .Format(new HttpRequestFormatter())
 				                              .Format(new HttpResponseFormatter());
-				appBuilder.GetLogManagerConfig().ProxyWritingToBackgroundThread(backgroundThreadLogging, textLogConfig);
+				textLogConfig.BackgroundLogging = backgroundThreadLogging;
 				appBuilder.GetTraceManagerConfig().TraceTo(textLogConfig, Tracer.All, new OnOffTraceSwitch(true));
 				appBuilder.LogHttpRequests(textLogConfig);
 				appBuilder.UseOwinTracerLogging();
+
+				// Run the ExceptionLoggingMiddleware _after_ the Owin.Diagnostics.Error page, which will result in exceptions being 
+				// logged twice, and results in the Owin.Diagnostis.Error page converting the Exception into a response
+				appBuilder.UseErrorPage();
 				appBuilder.TraceExceptions(logFirstChance: false, logUnhandled: true);
 
 				// Request handling
@@ -86,7 +93,8 @@ namespace LogJam.Owin.UnitTests
 						res.StatusCode = (int) HttpStatusCode.OK;
 						res.ContentType = "text/plain";
 						var sw = new StringWriter();
-						traceManager.SetupTraces.WriteEntriesTo(sw, new DebuggerTraceFormatter() { IncludeTimestamp = true});
+						LogManager logManager = owinContext.GetLogManager();
+						logManager.SetupLog.WriteEntriesTo(sw, new DebuggerTraceFormatter() { IncludeTimestamp = true });
 						res.Write(sw.ToString());
 					}
 					else
@@ -97,6 +105,12 @@ namespace LogJam.Owin.UnitTests
 
 				logTarget.WriteLine("TestAuthServer configuration complete.");
 			});
+		}
+
+		protected void IssueTraceRequest(TestServer testServer, int traceCount)
+		{
+			var task = testServer.CreateRequest("/trace?traceCount=" + traceCount).GetAsync();
+			var response = task.Result; // Wait for the call to complete
 		}
 
 	}

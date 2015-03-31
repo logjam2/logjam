@@ -21,7 +21,6 @@ using System.Reflection;
 [assembly: AssemblyCompany("logjam.codeplex.com")]
 [assembly: AssemblyProduct("LogJam")]
 [assembly: AssemblyCopyright("Copyright © 2011-2015")]
-[assembly: CLSCompliant(true)]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -34,9 +33,9 @@ using System.Reflection;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 
-[assembly: AssemblyVersion("0.8.0.0")]
-[assembly: AssemblyFileVersion("0.8.0.0")]
+[assembly: AssemblyVersion("0.9.0.0")]
+[assembly: AssemblyFileVersion("0.9.0.0")]
 
 // Semantic version (http://semver.org). Assembly version changes less than the semver; semver must increment for every release.
 
-[assembly: AssemblyInformationalVersion("0.8.2-beta")]
+[assembly: AssemblyInformationalVersion("0.9.0-beta")]

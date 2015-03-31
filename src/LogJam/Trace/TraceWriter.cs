@@ -17,12 +17,12 @@ namespace LogJam.Trace
 
 
 	/// <summary>
-	/// Writes <see cref="TraceEntry"/>s to a <see cref="ILogWriter{TEntry}"/>, only if the
+	/// Writes <see cref="TraceEntry"/>s to a <see cref="IEntryWriter{TEntry}"/>, only if the
 	/// <see cref="ITraceSwitch"/> allows the write.
 	/// </summary>
 	/// <remarks><c>TraceWriter</c> instances are thread-safe.</remarks>
 	/// <seealso cref="FanOutTraceWriter"/>
-	internal sealed class TraceWriter : ProxyLogWriter<TraceEntry>, ITraceWriter
+	internal sealed class TraceWriter : ProxyEntryWriter<TraceEntry>, ITraceWriter
 	{
 		private readonly ITraceSwitch _traceSwitch;
 		private readonly ITracerFactory _setupTracerFactory;
@@ -30,13 +30,13 @@ namespace LogJam.Trace
 		private long _countWritingExceptions;
 
 		/// <summary>
-		/// Creates a new <see cref="TraceWriter"/> using the specified <paramref name="traceSwitch"/> and <paramref name="traceLogWriter"/>.
+		/// Creates a new <see cref="TraceWriter"/> using the specified <paramref name="traceSwitch"/> and <paramref name="traceEntryWriter"/>.
 		/// </summary>
 		/// <param name="traceSwitch"></param>
-		/// <param name="traceLogWriter"></param>
+		/// <param name="traceEntryWriter"></param>
 		/// <param name="setupTracerFactory">The <see cref="ITracerFactory"/> to use to report exceptions.  If <c>null</c>, logging exceptions are not reported.</param>
-		public TraceWriter(ITraceSwitch traceSwitch, ILogWriter<TraceEntry> traceLogWriter, ITracerFactory setupTracerFactory)
-			: base(traceLogWriter)
+		public TraceWriter(ITraceSwitch traceSwitch, IEntryWriter<TraceEntry> traceEntryWriter, ITracerFactory setupTracerFactory)
+			: base(traceEntryWriter)
 		{
 			Contract.Requires<ArgumentNullException>(traceSwitch != null);
 
@@ -48,7 +48,7 @@ namespace LogJam.Trace
 		/// <inheritdoc />
 		public bool IsTraceEnabled(string tracerName, TraceLevel traceLevel)
 		{
-			return InnerLogWriter.Enabled && _traceSwitch.IsEnabled(tracerName, traceLevel);
+			return InnerEntryWriter.Enabled && _traceSwitch.IsEnabled(tracerName, traceLevel);
 		}
 
 		public TraceWriter[] ToTraceWriterArray()
@@ -63,7 +63,7 @@ namespace LogJam.Trace
 			{
 				try
 				{
-					InnerLogWriter.Write(ref entry);
+					InnerEntryWriter.Write(ref entry);
 				}
 				catch (Exception excp)
 				{
@@ -72,7 +72,7 @@ namespace LogJam.Trace
 						// TODO: Replace this with status polling
 						if (_setupTracerFactory != null)
 						{
-							_setupTracerFactory.TracerFor(this).Error(excp, "At least one exception occurred while writing trace entyrs to " + InnerLogWriter);
+							_setupTracerFactory.TracerFor(this).Error(excp, "At least one exception occurred while writing trace entyrs to " + InnerEntryWriter);
 						}
 					}
 				}

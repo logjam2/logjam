@@ -11,6 +11,8 @@ namespace LogJam.UnitTests.Common
 {
 	using System.Threading;
 
+	using LogJam.Trace;
+
 
 	/// <summary>
 	/// Fakes consistent slow logging to verify proper handling of slow log writers by LogJam.
@@ -19,8 +21,8 @@ namespace LogJam.UnitTests.Common
 		where TEntry : ILogEntry
 	{
 
-		internal SlowTestLogWriter(int msDelay, bool synchronize)
-			: base(synchronize)
+		public SlowTestLogWriter(ITracerFactory setupTracerFactory, int msDelay, bool synchronize)
+			: base(setupTracerFactory, synchronize)
 		{
 			WriteEntryDelayMs = msDelay;
 			StartDelayMs = msDelay;
@@ -28,23 +30,23 @@ namespace LogJam.UnitTests.Common
 			DisposeDelayMs = msDelay;
 		}
 
-		internal int WriteEntryDelayMs { get; set; }
-		internal int StartDelayMs { get; set; }
-		internal int StopDelayMs { get; set; }
-		internal int DisposeDelayMs { get; set; }
+		public int WriteEntryDelayMs { get; set; }
+		public int StartDelayMs { get; set; }
+		public int StopDelayMs { get; set; }
+		public int DisposeDelayMs { get; set; }
 
-		public override void Start()
+		protected override void InternalStart()
 		{
 			Thread.Sleep(StartDelayMs);
-			base.Start();
+			base.InternalStart();
 		}
 
-		public override void Stop()
+		protected override void InternalStop()
 		{
 			if (IsStarted)
 			{
 				Thread.Sleep(StopDelayMs);
-				base.Stop();
+				base.InternalStop();
 			}
 		}
 
@@ -57,12 +59,11 @@ namespace LogJam.UnitTests.Common
 			}
 		}
 
-		public override void Dispose()
+		protected override void Dispose(bool isDisposing)
 		{
-			if (! IsDisposed)
+			if (isDisposing)
 			{
 				Thread.Sleep(DisposeDelayMs);
-				base.Dispose();
 			}
 		}
 

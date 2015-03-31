@@ -41,10 +41,11 @@ namespace LogJam.UnitTests.Trace
 			TraceManager traceManager;
 			if (configForm == ConfigForm.ObjectGraph)
 			{
-				traceManager = new TraceManager(new ConsoleTraceWriterConfig()
-			                                           {
-				                                           Formatter = new DebuggerTraceFormatter() { IncludeTimestamp = true }
-			                                           });
+				var config = new ConsoleLogWriterConfig().Format(new DebuggerTraceFormatter()
+				                                                 {
+					                                                 IncludeTimestamp = true
+				                                                 });
+				traceManager = new TraceManager(config);
 			}
 			else if (configForm == ConfigForm.Fluent)
 			{
@@ -65,11 +66,24 @@ namespace LogJam.UnitTests.Trace
 				var tracer = traceManager.TracerFor(this);
 				Assert.True(tracer.IsInfoEnabled());
 				Assert.False(tracer.IsVerboseEnabled());
+
+				Assert.True(traceManager.IsStarted);
+				Assert.True(traceManager.LogManager.IsStarted);
+				Assert.False(traceManager.IsStopped);
+				Assert.False(traceManager.LogManager.IsStopped);
+				Assert.True(traceManager.IsHealthy);
+
 				//Assert.Single(tracer.Writers);
-				//Assert.IsType<DebuggerLogWriter>(tracer.Writers[0].InnerLogWriter);
+				//Assert.IsType<DebuggerLogWriter>(tracer.Writers[0].innerEntryWriter);
 				tracer.Info("Info message to console");
 				tracer.Debug("Debug message not written to console");
 			}
+
+			Assert.False(traceManager.IsStarted);
+			Assert.False(traceManager.LogManager.IsStarted);
+			Assert.True(traceManager.IsStopped);
+			Assert.True(traceManager.LogManager.IsStopped);
+			Assert.True(traceManager.IsHealthy);
 		}
 
 		/// <summary>
@@ -109,8 +123,9 @@ namespace LogJam.UnitTests.Trace
 		[Fact]
 		public void RootLogWriterCanBeSetOnInitialization()
 		{
+			var setupTracerFactory = new SetupLog();
 			// Trace output is written to this guy
-			var listLogWriter = new ListLogWriter<TraceEntry>();
+			var listLogWriter = new ListLogWriter<TraceEntry>(setupTracerFactory);
 			using (var traceManager = new TraceManager(listLogWriter))
 			{
 				traceManager.Start();
@@ -125,9 +140,11 @@ namespace LogJam.UnitTests.Trace
 		}
 
 		[Fact]
-		public void RootThresholdCanBeModifiedAfterLogging()
+		public void RootThresholdCanBeModifiedAfterTracing()
 		{
-			var listLogWriter = new ListLogWriter<TraceEntry>();
+			var setupTracerFactory = new SetupLog();
+			var listLogWriter = new ListLogWriter<TraceEntry>(setupTracerFactory);
+
 			// Start with threshold == Info
 			var traceSwitch = new ThresholdTraceSwitch(TraceLevel.Info);
 			using (var traceManager = new TraceManager(listLogWriter, traceSwitch))
@@ -152,7 +169,7 @@ namespace LogJam.UnitTests.Trace
 		}
 
 		//[Fact]
-		//public void RootLogWriterCanBeReplacedAfterLogging()
+		//public void RootLogWriterCanBeReplacedAfterTracing()
 		//{
 		//	// First log entry is written here
 		//	var initialList = new ListLogWriter<TraceEntry>();
@@ -178,7 +195,7 @@ namespace LogJam.UnitTests.Trace
 		//}
 
 		//[Fact]
-		//public void RootLogWriterCanBeAddedAfterLogging()
+		//public void RootLogWriterCanBeAddedAfterTracing()
 		//{
 		//	var initialList = new ListLogWriter<TraceEntry>();
 		//	var secondList = new ListLogWriter<TraceEntry>();
@@ -232,8 +249,9 @@ namespace LogJam.UnitTests.Trace
 		[Fact]
 		public void MultipleTraceLogWritersForSameNamePrefixWithDifferentSwitchThresholds()
 		{
-			var allListLogWriter = new ListLogWriter<TraceEntry>();
-			var errorListLogWriter = new ListLogWriter<TraceEntry>();
+			var setupTracerFactory = new SetupLog();
+			var allListLogWriter = new ListLogWriter<TraceEntry>(setupTracerFactory);
+			var errorListLogWriter = new ListLogWriter<TraceEntry>(setupTracerFactory);
 
 			var traceWriterConfigAll = new TraceWriterConfig(allListLogWriter)
 			                         {
@@ -249,7 +267,7 @@ namespace LogJam.UnitTests.Trace
 					                         { "LogJam.UnitTests", new ThresholdTraceSwitch(TraceLevel.Error) }
 				                         }
 			                         };
-			using (var traceManager = new TraceManager(new TraceManagerConfig(traceWriterConfigAll, traceWriterConfigErrors)))
+			using (var traceManager = new TraceManager(new TraceManagerConfig(traceWriterConfigAll, traceWriterConfigErrors), setupTracerFactory))
 			{
 				var tracer = traceManager.TracerFor(this);
 				var fooTracer = traceManager.GetTracer("foo");
@@ -277,7 +295,7 @@ namespace LogJam.UnitTests.Trace
 			// Note that subclassing LogFormatter<TEntry> provides a slightly more efficient code-path.
 			FormatAction<TraceEntry> format = (traceEntry, textWriter) => textWriter.WriteLine(traceEntry.TraceLevel);
 
-			using (var traceManager = new TraceManager(new UseExistingTextWriterConfig<TraceEntry>(traceOutput, format)))
+			using (var traceManager = new TraceManager(new TextWriterLogWriterConfig(traceOutput).Format(format)))
 			{
 				var tracer = traceManager.TracerFor(this);
 				tracer.Info("m");
@@ -304,7 +322,7 @@ namespace LogJam.UnitTests.Trace
 					},
 					new TraceWriterConfig()
 					{
-						LogWriterConfig = new DebuggerLogWriterConfig<TraceEntry>(),
+						LogWriterConfig = new DebuggerLogWriterConfig(),
 						Switches =
 						{
 							{ Tracer.All, new ThresholdTraceSwitch(TraceLevel.Info) },
@@ -343,6 +361,71 @@ namespace LogJam.UnitTests.Trace
 			TraceManagerConfig deserializedConfig = (TraceManagerConfig) xmlSerializer.Deserialize(new StringReader(xml));
 
 			Assert.Equal(traceManagerConfig, deserializedConfig);
+		}
+
+		[Fact]
+		public void ConfigCanBeChangedAfterStarting()
+		{
+			var setupTracerFactory = new SetupLog();
+			var logWriter = new ListLogWriter<TraceEntry>(setupTracerFactory);
+
+			var config = new TraceManagerConfig();
+			// TODO: Rename to tracerConfig?
+			var traceWriterConfig = config.UseLogWriter(logWriter, "A"); // Only logs for tracer A
+
+			TraceManager traceManager;
+			using (traceManager = new TraceManager(config, setupTracerFactory))
+			{
+				var tracerA = traceManager.GetTracer("A");
+				var tracerB = traceManager.GetTracer("B");
+
+				Assert.True(traceManager.IsStarted);
+				Assert.True(traceManager.LogManager.IsStarted);
+
+				Assert.True(tracerA.IsInfoEnabled());
+				Assert.False(tracerB.IsInfoEnabled());
+
+				// Not yet implemented - this works if you add a new TraceWriterConfig, below
+				// Option 1: Change the config
+				traceWriterConfig.Switches.Add("B", new OnOffTraceSwitch(true));
+				traceManager.Start(); // Explicit restart required
+
+				Assert.True(tracerB.IsInfoEnabled());
+				Assert.True(tracerB.IsDebugEnabled());
+
+				// For option 2, see the next test: AddNewTracerConfigToSameWriterAfterStarting
+			}
+		}
+
+		[Fact]
+		public void AddNewTracerConfigToSameWriterAfterStarting()
+		{
+			var setupTracerFactory = new SetupLog();
+			var logWriter = new ListLogWriter<TraceEntry>(setupTracerFactory);
+
+			var config = new TraceManagerConfig();
+			config.UseLogWriter(logWriter, "A"); // Only logs for tracer A
+
+			TraceManager traceManager;
+			using (traceManager = new TraceManager(config, setupTracerFactory))
+			{
+				var tracerA = traceManager.GetTracer("A");
+				var tracerB = traceManager.GetTracer("B");
+				Assert.True(traceManager.IsStarted);
+
+				Assert.True(tracerA.IsInfoEnabled());
+				Assert.False(tracerB.IsInfoEnabled());
+
+				// For option 1, see the previous test: ConfigCanBeChangedAfterStarting
+
+				// Option 2: Add a new TraceWriterConfig, and restart, to enable B
+				config.UseLogWriter(logWriter, "B", new OnOffTraceSwitch(true));
+				Assert.False(tracerB.IsInfoEnabled()); // before the restart, tracerB is disabled
+				traceManager.Start();
+
+				Assert.True(tracerB.IsInfoEnabled());
+				Assert.True(tracerB.IsDebugEnabled());
+			}
 		}
 
 	}

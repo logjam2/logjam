@@ -18,11 +18,13 @@ namespace LogJam.Encode
 	public interface ILogDecoder<TEntry>
 		where TEntry : ILogEntry
 	{
+
 		/// <summary>
-		/// Parses a <typeparam name="TEntry"/> from <paramref name="stream"/> and returns it.
+		/// Parses a <typeparamref name="TEntry"/> from <paramref name="stream"/> and returns it.
 		/// </summary>
 		/// <param name="stream"></param>
-		/// <returns>The next <typeparam name="TEntry"/> that can be read from <paramref name="stream"/></returns>
+		/// <param name="logEntry"></param>
+		/// <returns>The next <typeparamref name="TEntry"/> that can be read from <paramref name="stream"/></returns>
 		void DecodeEntry(Stream stream, out TEntry logEntry);
 
 	}

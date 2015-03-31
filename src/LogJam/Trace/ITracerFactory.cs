@@ -18,7 +18,7 @@ namespace LogJam.Trace
 	{
 
 		/// <summary>
-		/// Returns a <see cref="Tracer"/> for tracing messages associated with <see cref="name"/>.
+		/// Returns a <see cref="Tracer"/> for tracing messages associated with <paramref name="name"/>.
 		/// </summary>
 		/// <param name="name">A name for the tracer, often the class name or namespace containing the logic being traced.  Can also be a category.</param>
 		/// <returns>A <see cref="Tracer"/>.</returns>

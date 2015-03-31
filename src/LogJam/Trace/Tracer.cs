@@ -52,7 +52,7 @@ namespace LogJam.Trace
 		/// </summary>
 		/// <param name="name">The <see cref="Tracer"/> name.  Uniquely identifies a <see cref="Tracer"/> within an <see cref="ITracerFactory"/>.
 		/// Often is the class name or namespace name.</param>
-		/// <param name="traceWriter">
+		/// <param name="traceWriters">
 		/// The <see cref="TraceWriter"/>s to attach to this <c>Tracer</c>.
 		/// </param>
 		internal Tracer(string name, TraceWriter[] traceWriters)

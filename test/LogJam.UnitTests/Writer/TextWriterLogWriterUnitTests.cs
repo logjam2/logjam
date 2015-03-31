@@ -1,5 +1,5 @@
 ﻿// // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="TextWriterMultiLogWriterUnitTests.cs">
+// <copyright file="TextWriterLogWriterUnitTests.cs">
 // Copyright (c) 2011-2015 logjam.codeplex.com.  
 // </copyright>
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
@@ -21,9 +21,9 @@ namespace LogJam.UnitTests.Writer
 
 
 	/// <summary>
-	/// Exercises <see cref="TextWriterMultiLogWriter"/>.
+	/// Exercises <see cref="TextWriterLogWriter"/>.
 	/// </summary>
-	public sealed class TextWriterMultiLogWriterUnitTests
+	public sealed class TextWriterLogWriterUnitTests
 	{
 
 		[Fact]
@@ -32,10 +32,10 @@ namespace LogJam.UnitTests.Writer
 			// Log output written here
 			var stringWriter = new StringWriter();
 
-			var setupTracerFactory = new SetupTracerFactory();
+			var setupTracerFactory = new SetupLog();
 			FormatAction<LoggingTimer.StartRecord> formatStart = (startRecord, writer) => writer.WriteLine(">{0}", startRecord.TimingId);
 			FormatAction<LoggingTimer.StopRecord> formatStop = (stopRecord, writer) => writer.WriteLine("<{0} {1}", stopRecord.TimingId, stopRecord.ElapsedTime);
-			var multiLogWriter = new TextWriterMultiLogWriter(stringWriter, setupTracerFactory)
+			var multiLogWriter = new TextWriterLogWriter(stringWriter, setupTracerFactory)
 				.AddFormat(formatStart)
 				.AddFormat(formatStop);
 

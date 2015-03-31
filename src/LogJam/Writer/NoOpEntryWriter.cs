@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="NoOpLogWriter.cs">
+// <copyright file="NoOpEntryWriter.cs">
 // Copyright (c) 2011-2014 logjam.codeplex.com.  
 // </copyright>
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
@@ -8,16 +8,20 @@
 
 namespace LogJam.Writer
 {
+	using System;
+	using System.Diagnostics.Contracts;
+
 
 	/// <summary>
-	/// An <see cref="ILogWriter{TEntry}"/> that does nothing.
+	/// An <see cref="IEntryWriter{TEntry}"/> that does nothing.
 	/// </summary>
-	public sealed class NoOpLogWriter<TEntry> : ILogWriter<TEntry> where TEntry : ILogEntry
+	public sealed class NoOpEntryWriter<TEntry> : IEntryWriter<TEntry> where TEntry : ILogEntry
 	{
 
-		public bool Enabled { get { return false; } }
+		public NoOpEntryWriter()
+		{}
 
-		public bool IsSynchronized { get { return true; } }
+		public bool Enabled { get { return false; } }
 
 		public void Write(ref TEntry entry)
 		{}

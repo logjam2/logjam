@@ -16,9 +16,9 @@ namespace LogJam.Writer
 
 
 	/// <summary>
-	/// Base class for log writers that write to buffers.
+	/// Shared functionality for log writers that write to buffers.
 	/// </summary>
-	public abstract class BufferingLogWriter : Startable, IBufferingLogWriter
+	public static class BufferingLogWriter
 	{
 
 		/// <summary>
@@ -32,46 +32,6 @@ namespace LogJam.Writer
 		/// </summary>
 		public static readonly Func<bool> NeverFlush = () => false;
 
-
-
-		/// <summary>
-		/// Holds the function that is used to determine whether to flush the buffers or not.
-		/// </summary>
-		private Func<bool> _flushPredicate;
- 
-
-		/// <summary>
-		/// Initializes the <see cref="BufferingLogWriter"/> state.
-		/// </summary>
-		/// <param name="flushPredicate">A function that is used to determine whether to flush the buffers or not.  If <c>null</c>,
-		/// a predicate is used to cause buffers to be flushed after every write.</param>
-		protected BufferingLogWriter(Func<bool> flushPredicate = null)
-		{
-			// Default to "always flush" if not specified.
-			_flushPredicate = flushPredicate ?? AlwaysFlush;
-		}
-
-		/// @inheritdoc
-		public Func<bool> FlushPredicate
-		{
-			get { return _flushPredicate; }
-			set
-			{
-				if (IsStarted)
-				{
-					throw new LogJamSetupException("FlushPredicate cannot be set after logwriter is started.", this);
-				}
-				_flushPredicate = value;
-			}
-		}
-
-		/// @inheritdoc
-		public virtual bool Enabled { get { return IsStarted; } }
-
-		/// <summary>
-		/// Must be overridden by subclasses.
-		/// </summary>
-		public abstract bool IsSynchronized { get; }
 
 	}
 

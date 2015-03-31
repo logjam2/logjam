@@ -18,36 +18,48 @@ namespace LogJam.Config
 
 	/// <summary>
 	/// An <see cref="ILogWriterConfig"/> that always returns the <see cref="ILogWriter"/> that is passed in.
-	/// Supports creating an <see cref="ILogWriter"/>, then passing that into configuration methods.  Note that once
-	/// the <see cref="ILogWriter"/> is disposed, it can't be created or used again.
+	/// Supports creating an <see cref="ILogWriter"/>, then passing that into configuration methods.
 	/// </summary>
-	/// <seealso cref="UseExistingLogWriterConfig{TEntry}">Similar but holds strongly-typed <seealso cref="ILogWriter{TEntry}"/> instances.</seealso>
 	public class UseExistingLogWriterConfig : ILogWriterConfig
 	{
 
 		private readonly ILogWriter _logWriter;
 
 		/// <summary>
-		/// Creates a new <see cref="UseExistingLogWriterConfig{TEntry}"/> instance, which will result in
+		/// Creates a new <see cref="UseExistingLogWriterConfig"/> instance, which will result in
 		/// log entries being written to <paramref name="logWriter"/>.
 		/// </summary>
 		/// <param name="logWriter"></param>
-		public UseExistingLogWriterConfig(ILogWriter logWriter)
+		/// <param name="disposeOnStop">Set to <c>true</c> to dispose <paramref name="logWriter"/> when the 
+		/// <see cref="LogManager"/> is stopped.  By default <c>disposeOnStop</c> is false.</param>
+		public UseExistingLogWriterConfig(ILogWriter logWriter, bool disposeOnStop = false)
 		{
 			Contract.Requires<ArgumentNullException>(logWriter != null);
 
 			_logWriter = logWriter;
+			DisposeOnStop = disposeOnStop;
 		}
 
 		public bool Synchronized
 		{
 			get { return _logWriter.IsSynchronized; }
-			set { throw new NotImplementedException("Can't set the synchronization of an existing ILogWriter."); }
+			set { throw new NotImplementedException("Can't set the synchronization of an existing IEntryWriter."); }
 		}
 
-		public ILogWriter CreateILogWriter(ITracerFactory setupTracerFactory)
+		public bool DisposeOnStop { get; set; }
+
+		public bool BackgroundLogging { get; set; }
+
+		internal ILogWriter LogWriter { get { return _logWriter; } }
+
+		public ILogWriter CreateLogWriter(ITracerFactory setupTracerFactory)
 		{
 			return _logWriter;
+		}
+
+		public override bool Equals(object obj)
+		{
+			return Equals(obj as ILogWriterConfig);
 		}
 
 		public bool Equals(ILogWriterConfig other)
@@ -63,9 +75,8 @@ namespace LogJam.Config
 
 		public override int GetHashCode()
 		{
-			return base.GetHashCode() ^ _logWriter.GetHashCode();
+			return _logWriter.GetHashCode();
 		}
-
 
 	}
 

@@ -55,6 +55,11 @@ namespace LogJam.Config
 		public ISet<ILogWriterConfig> Writers
 		{ get { return _logWriterConfigs; } }
 
+		public void Clear()
+		{
+			_logWriterConfigs.Clear();
+		}
+
 	}
 
 }

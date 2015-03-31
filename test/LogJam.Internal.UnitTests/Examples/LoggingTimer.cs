@@ -25,8 +25,8 @@ namespace LogJam.UnitTests.Examples
 
 		private static long s_nextTimingId = 1;
 
-		private readonly ILogWriter<StartRecord> _startWriter;
-		private readonly ILogWriter<StopRecord> _stopWriter;
+		private readonly IEntryWriter<StartRecord> _startWriter;
+		private readonly IEntryWriter<StopRecord> _stopWriter;
 
 		public static void RestartTimingIds()
 		{
@@ -36,8 +36,8 @@ namespace LogJam.UnitTests.Examples
 		public LoggingTimer(string name, LogManager logManager)
 		{
 			Name = name;
-			_startWriter = logManager.GetLogWriter<StartRecord>();
-			_stopWriter = logManager.GetLogWriter<StopRecord>();
+			_startWriter = logManager.GetEntryWriter<StartRecord>();
+			_stopWriter = logManager.GetEntryWriter<StopRecord>();
 		}
 
 		public string Name { get; private set; }

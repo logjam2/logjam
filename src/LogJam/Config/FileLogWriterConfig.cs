@@ -7,23 +7,23 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
-namespace LogJam.Writer
+namespace LogJam.Config
 {
-	using LogJam.Config;
 	using LogJam.Trace;
 	using LogJam.Util;
+	using LogJam.Writer;
 
 
 	/// <summary>
 	/// Configures a log writer that writes to the specified <see cref="File"/>.
 	/// </summary>
-	public sealed class FileLogWriterConfig<TEntry> : LogWriterConfig<TEntry> where TEntry : ILogEntry
+	public sealed class FileLogWriterConfig : LogWriterConfig
 	{
 		public string Directory { get; set; }
 
 		public string File { get; set; }
 
-		public override ILogWriter<TEntry> CreateLogWriter(ITracerFactory setupTracerFactory)
+		public override ILogWriter CreateLogWriter(ITracerFactory setupTracerFactory)
 		{
 			throw new System.NotImplementedException();
 		}
@@ -34,7 +34,7 @@ namespace LogJam.Writer
 			{
 				return false;
 			}
-			var otherSameType = other as FileLogWriterConfig<TEntry>;
+			var otherSameType = other as FileLogWriterConfig;
 			if (otherSameType == null)
 			{
 				return false;

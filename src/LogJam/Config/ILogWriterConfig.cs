@@ -16,23 +16,35 @@ namespace LogJam.Config
 
 
 	/// <summary>
-	/// The non-generic interface that all <see cref="LogWriterConfig{TEntry}"/> instances implement.
+	/// Base interface for types that configure <see cref="ILogWriter"/>s.  Note that an <see cref="ILogWriterConfig"/>
+	/// acts as a factory for an <c>ILogWriter</c>.
 	/// </summary>
 	public interface ILogWriterConfig : IEquatable<ILogWriterConfig>
 	{
 		/// <summary>
-		/// Sets or gets whether the <see cref="ILogWriter{TEntry}"/> returned from <see cref="CreateILogWriter"/> should have its
+		/// Sets or gets whether the <see cref="ILogWriter"/> returned from <see cref="CreateLogWriter"/> should have its
 		/// writes synchronized or not.
 		/// </summary>
-		// TODO: Remove, move to LogManagerConfig?
+		// TODO: Remove, move to LogManagerConfig as a global setting?
 		bool Synchronized { get; set; }
+
+		/// <summary>
+		/// Sets or gets whether log writes should be queued from the logging thread, and written on a single background thread.
+		/// </summary>
+		bool BackgroundLogging { get; set; }
+
+		/// <summary>
+		/// Sets or gets whether the <see cref="ILogWriter"/> created by <see cref="CreateLogWriter"/> should be disposed
+		/// when the <see cref="LogManager"/> is stopped.
+		/// </summary>
+		bool DisposeOnStop { get; set; }
 
 		/// <summary>
 		/// Creates and returns a new <see cref="ILogWriter"/> using the configured settings.
 		/// </summary>
 		/// <param name="setupTracerFactory">An <see cref="ITracerFactory"/> for tracing information about logging setup.</param>
 		/// <returns>A new <see cref="ILogWriter"/> using the configured settings.</returns>
-		ILogWriter CreateILogWriter(ITracerFactory setupTracerFactory);
+		ILogWriter CreateLogWriter(ITracerFactory setupTracerFactory);
 	}
 
 }

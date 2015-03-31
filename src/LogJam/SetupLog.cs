@@ -1,5 +1,5 @@
 ﻿// // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="SetupTracerFactory.cs">
+// <copyright file="SetupLog.cs">
 // Copyright (c) 2011-2014 logjam.codeplex.com.  
 // </copyright>
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
@@ -9,45 +9,40 @@
 
 namespace LogJam
 {
-	using System.Collections;
-	using System.Collections.Generic;
-	using System.IO;
-
-	using LogJam.Format;
 	using LogJam.Trace;
-	using LogJam.Trace.Format;
 	using LogJam.Trace.Switches;
 	using LogJam.Writer;
+	using System.Collections;
+	using System.Collections.Generic;
 
 
 	/// <summary>
 	/// Default <see cref="ITracerFactory"/> for tracking logjam configuration, startup, shutdown, logging exceptions, and other status.
 	/// </summary>
-	public sealed class SetupTracerFactory : ITracerFactory, IEnumerable<TraceEntry>
+	public sealed class SetupLog : ITracerFactory, IEnumerable<TraceEntry>, IEntryWriter<TraceEntry>
 	{
 		private readonly Dictionary<string, Tracer> _tracers;
-		private readonly ListLogWriter<TraceEntry> _listLogWriter;
+		private readonly List<TraceEntry> _listEntries;
 		private readonly TraceWriter _traceWriter;
 		private readonly TraceWriter[] _traceWriters;
 
 		/// <summary>
-		/// Creates a new <see cref="SetupTracerFactory"/> instance which records all status entries.
+		/// Creates a new <see cref="SetupLog"/> instance which records all status entries.
 		/// </summary>
-		public SetupTracerFactory()
+		public SetupLog()
 			: this(new OnOffTraceSwitch(true))
 		{}
 
 		/// <summary>
-		/// Creates a new <see cref="SetupTracerFactory"/> instance which records status entries according to <paramref name="statusTraceSwitch"/>.
+		/// Creates a new <see cref="SetupLog"/> instance which records status entries according to <paramref name="statusTraceSwitch"/>.
 		/// </summary>
 		/// <param name="statusTraceSwitch"></param>
-		public SetupTracerFactory(ITraceSwitch statusTraceSwitch)
+		public SetupLog(ITraceSwitch statusTraceSwitch)
 		{
 			_tracers = new Dictionary<string, Tracer>();
-			_listLogWriter = new ListLogWriter<TraceEntry>(true);
-			_listLogWriter.Start(); // It's always started/enabled.
-			_traceWriter = new TraceWriter(statusTraceSwitch, _listLogWriter, null);
-			_traceWriters = new TraceWriter[] { _traceWriter };
+			_listEntries = new List<TraceEntry>();
+			_traceWriter = new TraceWriter(statusTraceSwitch, this, null);
+			_traceWriters = new[] { _traceWriter };
 		}
 
 		public void Dispose()
@@ -79,7 +74,7 @@ namespace LogJam
 
 		public IEnumerator<TraceEntry> GetEnumerator()
 		{
-			return _listLogWriter.GetEnumerator();
+			return _listEntries.GetEnumerator();
 		}
 
 		IEnumerator IEnumerable.GetEnumerator()
@@ -87,6 +82,26 @@ namespace LogJam
 			return GetEnumerator();
 		}
 
+		public bool Enabled { get { return true; } }
+
+		public void Write(ref TraceEntry entry)
+		{
+			lock (_listEntries)
+			{
+				_listEntries.Add(entry);				
+			}
+		}
+
+		/// <summary>
+		/// Clears all the accumulated trace entries.
+		/// </summary>
+		public void Clear()
+		{
+			lock (_listEntries)
+			{
+				_listEntries.Clear();
+			}
+		}
 	}
 
 }

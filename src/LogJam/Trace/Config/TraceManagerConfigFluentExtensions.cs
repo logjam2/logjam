@@ -26,12 +26,55 @@ namespace LogJam.Trace.Config
 	{
 
 		/// <summary>
+		/// Trace to the logwriter configured by <paramref name="logWriterConfig"/>.
+		/// </summary>
+		/// <param name="config"></param>
+		/// <param name="logWriterConfig"></param>
+		/// <param name="switchSet"></param>
+		/// <returns></returns>
+		public static TraceWriterConfig TraceTo(this TraceManagerConfig config, LogWriterConfig logWriterConfig, SwitchSet switchSet)
+		{
+			Contract.Requires<ArgumentNullException>(config != null);
+			Contract.Requires<ArgumentNullException>(logWriterConfig != null);
+			Contract.Requires<ArgumentNullException>(switchSet != null);
+
+			var traceWriterConfig = new TraceWriterConfig(logWriterConfig, switchSet);
+			config.Writers.Add(traceWriterConfig);
+			return traceWriterConfig;
+		}
+
+		/// <summary>
+		/// Trace to the logwriter configured by <paramref name="logWriterConfig"/>.
+		/// </summary>
+		/// <param name="config"></param>
+		/// <param name="logWriterConfig"></param>
+		/// <param name="tracerName"></param>
+		/// <param name="traceSwitch"></param>
+		/// <returns></returns>
+		public static TraceWriterConfig TraceTo(this TraceManagerConfig config, LogWriterConfig logWriterConfig, string tracerName = Tracer.All, ITraceSwitch traceSwitch = null)
+		{
+			Contract.Requires<ArgumentNullException>(config != null);
+			Contract.Requires<ArgumentNullException>(logWriterConfig != null);
+			Contract.Requires<ArgumentNullException>(tracerName != null);
+
+			if (traceSwitch == null)
+			{
+				traceSwitch = TraceManagerConfig.CreateDefaultTraceSwitch();
+			}
+			var switches = new SwitchSet()
+			               {
+				               { tracerName, traceSwitch }
+			               };
+			return TraceTo(config, logWriterConfig, switches);
+		}
+
+		/// <summary>
 		/// Use an existing <paramref name="logWriter"/> along with the specified <paramref name="switchSet"/>.
 		/// </summary>
 		/// <param name="config"></param>
 		/// <param name="logWriter"></param>
 		/// <param name="switchSet"></param>
-		public static TraceWriterConfig UseLogWriter(this TraceManagerConfig config, ILogWriter<TraceEntry> logWriter, SwitchSet switchSet)
+		public static TraceWriterConfig UseLogWriter(this TraceManagerConfig config, ILogWriter logWriter, SwitchSet switchSet)
 		{
 			Contract.Requires<ArgumentNullException>(config != null);
 			Contract.Requires<ArgumentNullException>(logWriter != null);
@@ -42,7 +85,7 @@ namespace LogJam.Trace.Config
 			return traceWriterConfig;
 		}
 
-		public static TraceWriterConfig UseLogWriter(this TraceManagerConfig config, ILogWriter<TraceEntry> logWriter, Type type, ITraceSwitch traceSwitch = null)
+		public static TraceWriterConfig UseLogWriter(this TraceManagerConfig config, ILogWriter logWriter, Type type, ITraceSwitch traceSwitch = null)
 		{
 			Contract.Requires<ArgumentNullException>(config != null);
 			Contract.Requires<ArgumentNullException>(logWriter != null);
@@ -50,7 +93,7 @@ namespace LogJam.Trace.Config
 
 			if (traceSwitch == null)
 			{
-				traceSwitch = new ThresholdTraceSwitch(TraceLevel.Info);
+				traceSwitch = TraceManagerConfig.CreateDefaultTraceSwitch();
 			}
 			var switches = new SwitchSet()
 			               {
@@ -59,7 +102,7 @@ namespace LogJam.Trace.Config
 			return UseLogWriter(config, logWriter, switches);
 		}
 
-		public static TraceWriterConfig UseLogWriter(this TraceManagerConfig config, ILogWriter<TraceEntry> logWriter, string tracerName = Tracer.All, ITraceSwitch traceSwitch = null)
+		public static TraceWriterConfig UseLogWriter(this TraceManagerConfig config, ILogWriter logWriter, string tracerName = Tracer.All, ITraceSwitch traceSwitch = null)
 		{
 			Contract.Requires<ArgumentNullException>(config != null);
 			Contract.Requires<ArgumentNullException>(logWriter != null);
@@ -67,7 +110,7 @@ namespace LogJam.Trace.Config
 
 			if (traceSwitch == null)
 			{
-				traceSwitch = new ThresholdTraceSwitch(TraceLevel.Info);
+				traceSwitch = TraceManagerConfig.CreateDefaultTraceSwitch();
 			}
 			var switches = new SwitchSet()
 			               {
@@ -86,7 +129,7 @@ namespace LogJam.Trace.Config
 				traceFormatter = new DebuggerTraceFormatter();
 			}
 
-			var traceWriterConfig = new TraceWriterConfig(new ConsoleTraceWriterConfig(), switchSet);
+			var traceWriterConfig = new TraceWriterConfig(new ConsoleLogWriterConfig().Format(traceFormatter), switchSet);
 			config.Writers.Add(traceWriterConfig);
 			return traceWriterConfig;			
 		}
@@ -98,7 +141,7 @@ namespace LogJam.Trace.Config
 
 			if (traceSwitch == null)
 			{
-				traceSwitch = new ThresholdTraceSwitch(TraceLevel.Info);
+				traceSwitch = TraceManagerConfig.CreateDefaultTraceSwitch();
 			}
 			var switches = new SwitchSet()
 			               {
@@ -106,6 +149,38 @@ namespace LogJam.Trace.Config
 			               };
 			return TraceToConsole(config, switches, traceFormatter);
 		}
+
+		public static TraceWriterConfig TraceToDebugger(this TraceManagerConfig config, SwitchSet switchSet, LogFormatter<TraceEntry> traceFormatter = null)
+		{
+			Contract.Requires<ArgumentNullException>(config != null);
+			Contract.Requires<ArgumentNullException>(switchSet != null);
+
+			if (traceFormatter == null)
+			{
+				traceFormatter = new DebuggerTraceFormatter();
+			}
+
+			var traceWriterConfig = new TraceWriterConfig(new DebuggerLogWriterConfig().Format(traceFormatter), switchSet);
+			config.Writers.Add(traceWriterConfig);
+			return traceWriterConfig;			
+		}
+
+		public static TraceWriterConfig TraceToDebugger(this TraceManagerConfig config, string tracerName = Tracer.All, ITraceSwitch traceSwitch = null, LogFormatter<TraceEntry> traceFormatter = null)
+		{
+			Contract.Requires<ArgumentNullException>(config != null);
+			Contract.Requires<ArgumentNullException>(tracerName != null);
+
+			if (traceSwitch == null)
+			{
+				traceSwitch = TraceManagerConfig.CreateDefaultTraceSwitch();
+			}
+			var switches = new SwitchSet()
+			               {
+				               { tracerName, traceSwitch }
+			               };
+			return TraceToDebugger(config, switches, traceFormatter);
+		}
+		
 	}
 
 }

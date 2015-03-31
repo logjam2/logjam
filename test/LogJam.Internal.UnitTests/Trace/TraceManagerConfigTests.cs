@@ -48,10 +48,10 @@ namespace LogJam.Internal.UnitTests.Trace
 			// Walk the Tracer object to ensure everything is as expected for default configuration
 			Assert.IsType<TraceWriter>(tracer.Writer);
 			var traceWriter = (TraceWriter) tracer.Writer;
-			Assert.IsType<TextWriterLogWriter<TraceEntry>>(traceWriter.InnerLogWriter);
-			var logWriter = (TextWriterLogWriter<TraceEntry>) traceWriter.InnerLogWriter;
-			Assert.IsType<DebuggerTraceFormatter>(logWriter.Formatter);
-			Assert.IsType<DebuggerTextWriter>(logWriter.TextWriter);
+			Assert.IsType<TextWriterLogWriter.InnerEntryWriter<TraceEntry>>(traceWriter.InnerEntryWriter);
+			var entryWriter = (TextWriterLogWriter.InnerEntryWriter<TraceEntry>) traceWriter.InnerEntryWriter;
+			Assert.IsType<DebuggerTraceFormatter>(entryWriter.Formatter);
+			Assert.IsType<DebuggerTextWriter>(entryWriter.Parent.InternalTextWriter);
 		}
 
 	}

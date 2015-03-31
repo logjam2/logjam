@@ -8,6 +8,7 @@
 
 namespace LogJam.Trace.Config
 {
+	using LogJam.Config;
 	using LogJam.Trace.Format;
 	using LogJam.Trace.Switches;
 	using LogJam.Util;
@@ -36,9 +37,14 @@ namespace LogJam.Trace.Config
 
 		#region Constructors and Destructors
 
-		public static TraceManagerConfig Default
+		/// <summary>
+		/// Creates and returns a new <see cref="TraceManagerConfig"/> with default trace configuration,
+		/// which means trace output is logged to the debugger.
+		/// </summary>
+		/// <returns></returns>
+		public static TraceManagerConfig Default()
 		{
-			get { return new TraceManagerConfig(CreateDefaultTraceWriterConfig()); }
+			return new TraceManagerConfig(CreateDefaultTraceWriterConfig());
 		}
 
 		/// <summary>
@@ -70,15 +76,20 @@ namespace LogJam.Trace.Config
 		/// Returns a <see cref="TraceWriterConfig"/> containing default values - trace output is logged to the debugger.
 		/// </summary>
 		/// <returns></returns>
-		private static TraceWriterConfig CreateDefaultTraceWriterConfig()
+		public static TraceWriterConfig CreateDefaultTraceWriterConfig()
 		{
-			return new TraceWriterConfig(new DebuggerLogWriterConfig<TraceEntry>(new DebuggerTraceFormatter()))
+			return new TraceWriterConfig(new DebuggerLogWriterConfig().Format(new DebuggerTraceFormatter()))
 			       {
 				       Switches =
 				       {
-					       { Tracer.All, new ThresholdTraceSwitch(TraceLevel.Info) }
+					       { Tracer.All, CreateDefaultTraceSwitch() }
 				       }
 			       };
+		}
+
+		internal static ITraceSwitch CreateDefaultTraceSwitch()
+		{
+			return new ThresholdTraceSwitch(TraceLevel.Info);
 		}
 
 		#endregion
@@ -143,6 +154,11 @@ namespace LogJam.Trace.Config
 		public override int GetHashCode()
 		{
 			return (_traceWriterConfigs != null ? _traceWriterConfigs.GetUnorderedCollectionHashCode() : 0);
+		}
+
+		public void Clear()
+		{
+			_traceWriterConfigs.Clear();
 		}
 
 	}

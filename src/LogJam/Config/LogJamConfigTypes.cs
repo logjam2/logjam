@@ -36,10 +36,10 @@ namespace LogJam.Config
 			                                                       typeof(ThresholdTraceSwitch),
 			                                                       typeof(OnOffTraceSwitch),
 			                                                       typeof(DebuggerTraceFormatter),
-			                                                       typeof(DebuggerLogWriterConfig<>),
+			                                                       typeof(DebuggerLogWriterConfig),
 			                                                       typeof(ListLogWriterConfig<>),
-			                                                       typeof(NoOpLogWriterConfig<>),
-																   typeof(ConsoleTraceWriterConfig)
+			                                                       typeof(NoOpLogWriterConfig),
+																   typeof(ConsoleLogWriterConfig)
 		                                                       };
 
 		static LogJamConfigTypes()

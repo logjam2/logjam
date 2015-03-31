@@ -12,27 +12,31 @@ namespace LogJam.UnitTests.Common
 {
 	using System;
 
+	using LogJam.Trace;
 	using LogJam.Writer;
 
 
 	/// <summary>
-	/// A <see cref="ILogWriter{TEntry}"/> that throws exceptions when writing and disposing.
+	/// A <see cref="IEntryWriter{TEntry}"/> that throws exceptions when writing and disposing.
 	/// </summary>
-	public class ExceptionThrowingLogWriter<TEntry> : ILogWriter<TEntry>, IDisposable where TEntry : ILogEntry
+	public class ExceptionThrowingLogWriter<TEntry> : SingleEntryTypeLogWriter<TEntry>, IDisposable where TEntry : ILogEntry
 	{
 
 		public int CountExceptionsThrown = 0;
 
-		public bool Enabled { get { return true; } }
-		public bool IsSynchronized { get { return true; } }
+		public ExceptionThrowingLogWriter(ITracerFactory setupTracerFactory)
+			: base(setupTracerFactory)
+		{}
 
-		public void Write(ref TEntry entry)
+		public override bool IsSynchronized { get { return true; } }
+
+		public override void Write(ref TEntry entry)
 		{
 			CountExceptionsThrown++;
 			throw new ApplicationException();
 		}
 
-		public void Dispose()
+		protected override void Dispose(bool isDisposing)
 		{
 			CountExceptionsThrown++;
 			throw new ApplicationException();

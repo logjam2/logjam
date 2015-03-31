@@ -25,6 +25,7 @@ namespace LogJam.Owin
 	internal sealed class LogJamManagerMiddleware : OwinMiddleware, IDisposable
 	{
 
+		private readonly bool _enabled;
 		private readonly LogManager _logManager;
 		private readonly TraceManager _traceManager;
 
@@ -35,23 +36,37 @@ namespace LogJam.Owin
 			Contract.Requires<ArgumentNullException>(logManager != null);
 			Contract.Requires<ArgumentNullException>(traceManager != null);
 
+			_enabled = (logManager.Config.Writers.Count > 0) || (traceManager.Config.Writers.Count > 0);
 			_logManager = logManager;
 			_traceManager = traceManager;
-			_traceManager.Start();
+
+			if (_enabled)
+			{
+				_traceManager.Start(); // Starts both TraceManager and LogManager.
+			}
 		}
 
 		public override Task Invoke(IOwinContext owinContext)
 		{
-			owinContext.SetLogManager(_logManager);
-			owinContext.SetTracerFactory(_traceManager);
+			if (_enabled)
+			{
+				owinContext.SetLogManager(_logManager);
+				owinContext.SetTracerFactory(_traceManager);
+			}
 
 			return Next.Invoke(owinContext);
 		}
 
 		public void Dispose()
 		{
-			_logManager.Stop();
-			_traceManager.Stop();
+			if (_enabled)
+			{
+				var tracer = _traceManager.SetupTracerFactory.TracerFor(this);
+				tracer.Debug("Shutting down LogJamManagerMiddleware...");
+
+				_logManager.Stop();
+				_traceManager.Stop();
+			}
 		}
 
 	}

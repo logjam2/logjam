@@ -19,12 +19,12 @@ namespace LogJam.Config
 	/// Log writer configuration that creates a <see cref="ListLogWriter{TEntry}"/>
 	/// </summary>
 	[JsonTypeHint("Target", "List")]
-	public class ListLogWriterConfig<TEntry> : LogWriterConfig<TEntry> where TEntry : ILogEntry
+	public class ListLogWriterConfig<TEntry> : LogWriterConfig where TEntry : ILogEntry
 	{
 
-		public override ILogWriter<TEntry> CreateLogWriter(ITracerFactory setupTracerFactory)
+		public override ILogWriter CreateLogWriter(ITracerFactory setupTracerFactory)
 		{
-			return new ListLogWriter<TEntry>(Synchronized);
+			return new ListLogWriter<TEntry>(setupTracerFactory, Synchronized);
 		}
 
 	}

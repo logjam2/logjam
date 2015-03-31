@@ -38,7 +38,7 @@ namespace LogJam.UnitTests.Trace
 		public void ShowRecommendedUnitTestTraceManager()
 		{
 			// Default threshold: Info
-			using (var traceManager = new TraceManager(new ConsoleTraceWriter()))
+			using (var traceManager = new TraceManager(new ConsoleLogWriterConfig()))
 			{
 				var tracer = traceManager.TracerFor(this);
 				tracer.Info("By default info is enabled");
@@ -46,7 +46,7 @@ namespace LogJam.UnitTests.Trace
 			}
 
 			// Or, trace everything for the class under test, and info for everything else
-			var config = new TraceWriterConfig(new ConsoleTraceWriter())
+			var config = new TraceWriterConfig(new ConsoleLogWriterConfig())
 			             {
 				             Switches =
 				             {
@@ -68,7 +68,8 @@ namespace LogJam.UnitTests.Trace
 		[Fact]
 		public void TracingCanBeVerifiedUsingListLogWriter()
 		{
-			var listWriter = new ListLogWriter<TraceEntry>();
+			var setupTracerFactory = new SetupLog();
+			var listWriter = new ListLogWriter<TraceEntry>(setupTracerFactory);
 
 			// Default threshold: Info for everything
 			Tracer tracer;
@@ -104,11 +105,22 @@ namespace LogJam.UnitTests.Trace
 		[InlineData(ConfigForm.ObjectGraph)]
 		public void UnitTestTracingWithGlobalTraceManager(ConfigForm configForm)
 		{
+			// In a real app you probably don't have to reset the LogManager + TraceManager before configuring
+			LogManager.Instance.Reset(true);
+			TraceManager.Instance.Reset(true);
+			Assert.Same(LogManager.Instance, TraceManager.Instance.LogManager);
+			Assert.Empty(LogManager.Instance.Config.Writers);
+			Assert.Empty(TraceManager.Instance.Config.Writers);
+
+			// Add the default Tracer config (traces to debugger)
+			TraceManager.Instance.Config.TraceToDebugger();
+
 			// It can occur that the Tracer was obtained before the test starts
 			Tracer tracer = TraceManager.Instance.TracerFor(this);
 
 			// Traces sent to this list
-			var listWriter = new ListLogWriter<TraceEntry>();
+			var setupTracerFactory = TraceManager.Instance.SetupTracerFactory;
+			var listWriter = new ListLogWriter<TraceEntry>(setupTracerFactory);
 
 			// Add the list TraceWriter only for this class
 			TraceManagerConfig config = TraceManager.Instance.Config;
@@ -137,7 +149,7 @@ namespace LogJam.UnitTests.Trace
 			TraceManager.Instance.Start();
 
 			// Ensure start didn't result in any errors
-			Assert.Empty(TraceManager.Instance.SetupTraces.Where(te => te.TraceLevel >= TraceLevel.Warn));
+			Assert.True(TraceManager.Instance.IsHealthy);
 
 			tracer.Info("Info message");
 			tracer.Debug("Debug message");
@@ -158,11 +170,13 @@ namespace LogJam.UnitTests.Trace
 		[Fact]
 		public void LogWriterExceptionsDontPropagate()
 		{
-			var exceptionLogWriter = new ExceptionThrowingLogWriter<TraceEntry>();
-			var listLogWriter = new ListLogWriter<TraceEntry>();
+			var setupTracerFactory = new SetupLog();
+			var exceptionLogWriter = new ExceptionThrowingLogWriter<TraceEntry>(setupTracerFactory);
+			var listLogWriter = new ListLogWriter<TraceEntry>(setupTracerFactory);
 			var traceManagerConfig = new TraceManagerConfig(
-				new TraceWriterConfig(exceptionLogWriter)
+				new TraceWriterConfig()
 				{
+					LogWriterConfig = new UseExistingLogWriterConfig(exceptionLogWriter, disposeOnStop: true),
 					Switches =
 					{
 						{ Tracer.All, new OnOffTraceSwitch(true)}
@@ -170,13 +184,14 @@ namespace LogJam.UnitTests.Trace
 				},
 				new TraceWriterConfig(listLogWriter)
 				{
+					LogWriterConfig = new UseExistingLogWriterConfig(listLogWriter, disposeOnStop: true),
 					Switches =
 					{
 						{ Tracer.All, new OnOffTraceSwitch(true)}
 					}
 				});
 
-			var traceManager = new TraceManager(traceManagerConfig);
+			var traceManager = new TraceManager(traceManagerConfig, setupTracerFactory);
 			using (traceManager)
 			{
 				traceManager.Start();
@@ -188,15 +203,15 @@ namespace LogJam.UnitTests.Trace
 				Assert.Equal(2, listLogWriter.Count());
 				Assert.Equal(2, exceptionLogWriter.CountExceptionsThrown);
 
-				// First write exception is reported in SetupTraces
-				// TODO: Replace logging to SetupTraces with TraceWriter reporting its current status
-				Assert.Equal(1, traceManager.SetupTraces.Count(traceEntry => traceEntry.TraceLevel >= TraceLevel.Error && traceEntry.Details != null));
+				// First write exception is reported in SetupLog
+				// TODO: Replace logging to SetupLog with TraceWriter reporting its current status
+				Assert.Equal(1, traceManager.SetupLog.Count(traceEntry => traceEntry.TraceLevel >= TraceLevel.Error && traceEntry.Details != null));
 			}
 
 			Assert.Equal(3, exceptionLogWriter.CountExceptionsThrown);
 
-			// Exceptions should be reported in the SetupTraces
-			Assert.Equal(2, traceManager.SetupTraces.Count(traceEntry => traceEntry.TraceLevel >= TraceLevel.Error && traceEntry.Details != null));
+			// Exceptions should be reported in the SetupLog
+			Assert.Equal(2, traceManager.SetupLog.Count(traceEntry => traceEntry.TraceLevel >= TraceLevel.Error && traceEntry.Details != null));
 		}
 
 		/// <summary>
@@ -205,56 +220,57 @@ namespace LogJam.UnitTests.Trace
 		[Fact]
 		public void TracerNamesForGenericTypes()
 		{
-			var tracerFactory = new SetupTracerFactory();
+			var tracerFactory = new SetupLog();
 
-			// TextWriterLogWriter<MessageEntry> handling (generic type parameter)
-			var tracer1 = tracerFactory.GetTracer(typeof(TextWriterLogWriter<MessageEntry>));
+			// ListLogWriter<MessageEntry> handling (generic type parameter)
+			var tracer1 = tracerFactory.GetTracer(typeof(ListLogWriter<MessageEntry>));
 			Console.WriteLine(tracer1.Name);
-			var tracer2 = tracerFactory.GetTracer(typeof(TextWriterLogWriter<>));
+			var tracer2 = tracerFactory.GetTracer(typeof(ListLogWriter<>));
 			Console.WriteLine(tracer2.Name);
-			var tracer3 = tracerFactory.TracerFor(new TextWriterLogWriter<MessageEntry>(Console.Out, new MessageEntry.Formatter(), false, false));
+			var tracer3 = tracerFactory.TracerFor(new ListLogWriter<MessageEntry>(new SetupLog()));
 			Console.WriteLine(tracer3.Name);
-			var tracer4 = tracerFactory.TracerFor<TextWriterLogWriter<MessageEntry>>();
+			var tracer4 = tracerFactory.TracerFor<ListLogWriter<MessageEntry>>();
 			Console.WriteLine(tracer4.Name);
-			var tracer5 = tracerFactory.GetTracer(typeof(TextWriterLogWriter<MessageEntry>).GetGenericTypeDefinition());
+			var tracer5 = tracerFactory.GetTracer(typeof(ListLogWriter<MessageEntry>).GetGenericTypeDefinition());
 			Console.WriteLine(tracer5.Name);
 
 			// PrivateClass.TestLogWriter<MessageEntry> handling (inner class + generic type parameter)
-			tracer1 = tracerFactory.GetTracer(typeof(PrivateClass.TestLogWriter<MessageEntry>));
+			tracer1 = tracerFactory.GetTracer(typeof(PrivateClass.TestEntryWriter<MessageEntry>));
 			Console.WriteLine(tracer1.Name);
-			tracer2 = tracerFactory.GetTracer(typeof(PrivateClass.TestLogWriter<>));
+			tracer2 = tracerFactory.GetTracer(typeof(PrivateClass.TestEntryWriter<>));
 			Console.WriteLine(tracer2.Name);
-			tracer3 = tracerFactory.TracerFor(new PrivateClass.TestLogWriter<MessageEntry>());
+			tracer3 = tracerFactory.TracerFor(new PrivateClass.TestEntryWriter<MessageEntry>());
 			Console.WriteLine(tracer3.Name);
-			tracer4 = tracerFactory.TracerFor<PrivateClass.TestLogWriter<MessageEntry>>();
+			tracer4 = tracerFactory.TracerFor<PrivateClass.TestEntryWriter<MessageEntry>>();
 			Console.WriteLine(tracer4.Name);
-			tracer5 = tracerFactory.GetTracer(typeof(PrivateClass.TestLogWriter<MessageEntry>).GetGenericTypeDefinition());
+			tracer5 = tracerFactory.GetTracer(typeof(PrivateClass.TestEntryWriter<MessageEntry>).GetGenericTypeDefinition());
 			Console.WriteLine(tracer5.Name);
 		}
 
 		[Fact]
 		public void EnableTracingForAllGenericTypesWithSameGenericTypeDefinition()
 		{
-			var traceConfig = new TraceWriterConfig(new ListLogWriter<TraceEntry>())
+			var setupTracerFactory = new SetupLog();
+			var traceConfig = new TraceWriterConfig(new ListLogWriter<TraceEntry>(setupTracerFactory))
 			                  {
 				                  Switches =
 				                  {
-					                  { typeof(PrivateClass.TestLogWriter<>), new OnOffTraceSwitch(true) }
+					                  { typeof(PrivateClass.TestEntryWriter<>), new OnOffTraceSwitch(true) }
 				                  }
 			                  };
 
-			using (var traceManager = new TraceManager(traceConfig))
+			using (var traceManager = new TraceManager(traceConfig, setupTracerFactory))
 			{
 				var tracer = traceManager.TracerFor(this);
 				Assert.False(tracer.IsInfoEnabled());
 
-				tracer = traceManager.GetTracer(typeof(PrivateClass.TestLogWriter<>));
+				tracer = traceManager.GetTracer(typeof(PrivateClass.TestEntryWriter<>));
 				Assert.True(tracer.IsInfoEnabled());
 
-				tracer = traceManager.TracerFor<PrivateClass.TestLogWriter<MessageEntry>>();
+				tracer = traceManager.TracerFor<PrivateClass.TestEntryWriter<MessageEntry>>();
 				Assert.True(tracer.IsInfoEnabled());
 
-				tracer = traceManager.TracerFor<PrivateClass.TestLogWriter<TraceEntry>>();
+				tracer = traceManager.TracerFor<PrivateClass.TestEntryWriter<TraceEntry>>();
 				Assert.True(tracer.IsInfoEnabled());
 			}
 		}
@@ -262,25 +278,26 @@ namespace LogJam.UnitTests.Trace
 		[Fact]
 		public void EnableTracingForSpecificGenericType()
 		{
-			var traceConfig = new TraceWriterConfig(new ListLogWriter<TraceEntry>())
+			var setupTracerFactory = new SetupLog();
+			var traceConfig = new TraceWriterConfig(new ListLogWriter<TraceEntry>(setupTracerFactory))
 			                  {
 				                  Switches =
 				                  {
-					                  { typeof(PrivateClass.TestLogWriter<MessageEntry>), new OnOffTraceSwitch(true) }
+					                  { typeof(PrivateClass.TestEntryWriter<MessageEntry>), new OnOffTraceSwitch(true) }
 				                  }
 			                  };
-			using (var traceManager = new TraceManager(traceConfig))
+			using (var traceManager = new TraceManager(traceConfig, setupTracerFactory))
 			{
 				var tracer = traceManager.TracerFor(this);
 				Assert.False(tracer.IsInfoEnabled());
 
-				tracer = traceManager.GetTracer(typeof(PrivateClass.TestLogWriter<>));
+				tracer = traceManager.GetTracer(typeof(PrivateClass.TestEntryWriter<>));
 				Assert.False(tracer.IsInfoEnabled());
 
-				tracer = traceManager.TracerFor<PrivateClass.TestLogWriter<MessageEntry>>();
+				tracer = traceManager.TracerFor<PrivateClass.TestEntryWriter<MessageEntry>>();
 				Assert.True(tracer.IsInfoEnabled());
 
-				tracer = traceManager.TracerFor<PrivateClass.TestLogWriter<TraceEntry>>();
+				tracer = traceManager.TracerFor<PrivateClass.TestEntryWriter<TraceEntry>>();
 				Assert.False(tracer.IsInfoEnabled());
 			}
 		}
@@ -292,7 +309,7 @@ namespace LogJam.UnitTests.Trace
 		private class PrivateClass
 		{
 
-			internal class TestLogWriter<TEntry> : ILogWriter<TEntry>
+			internal class TestEntryWriter<TEntry> : IEntryWriter<TEntry>
 				where TEntry : ILogEntry
 			{
 
@@ -302,8 +319,6 @@ namespace LogJam.UnitTests.Trace
 				}
 
 				public bool Enabled { get { return true; } }
-
-				public bool IsSynchronized { get { return true; } }
 
 			}
 

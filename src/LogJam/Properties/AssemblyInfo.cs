@@ -6,6 +6,7 @@
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
+using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -13,3 +14,6 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyDescription("LogJam main library")]
 
 [assembly: InternalsVisibleTo("LogJam.Internal.UnitTests")]
+
+// Shoot to be CLS compliant for logjam library.
+[assembly: CLSCompliant(true)]

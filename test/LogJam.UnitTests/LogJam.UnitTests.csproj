@@ -81,7 +81,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Trace\TraceManagerConfigTests.cs" />
     <Compile Include="Trace\TraceManagerTests.cs" />
-    <Compile Include="Writer\TextWriterMultiLogWriterUnitTests.cs" />
+    <Compile Include="Writer\TextWriterLogWriterUnitTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Trace\TracerTests.cs" />

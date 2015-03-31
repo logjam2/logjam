@@ -6,8 +6,11 @@
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
+using System;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 
 [assembly: AssemblyTitle("LogJam.Internal.UnitTests")]
 [assembly: AssemblyDescription("LogJam unit tests that require internal access.")]
+
+// Unit test projects don't need to be CLS compliant
+[assembly: CLSCompliant(false)]

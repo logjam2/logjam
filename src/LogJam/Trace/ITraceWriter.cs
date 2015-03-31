@@ -13,9 +13,9 @@ namespace LogJam.Trace
 
 
 	/// <summary>
-	/// Specializes <see cref="ILogWriter{TEntry}"/> for writing <see cref="TraceEntry"/>s.
+	/// Specializes <see cref="IEntryWriter{TEntry}"/> for writing <see cref="TraceEntry"/>s.
 	/// </summary>
-	internal interface ITraceWriter : ILogWriter<TraceEntry>
+	internal interface ITraceWriter : IEntryWriter<TraceEntry>
 	{
 
 		/// <summary>

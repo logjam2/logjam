@@ -10,6 +10,7 @@
 namespace LogJam.Writer
 {
 	using System;
+	using System.Collections.Generic;
 	using System.Diagnostics.Contracts;
 
 
@@ -33,8 +34,6 @@ namespace LogJam.Writer
 	internal abstract class BufferingLogWriterContract : IBufferingLogWriter
 	{
 
-		public bool Enabled { get { throw new NotImplementedException(); } }
-
 		public bool IsSynchronized { get { throw new NotImplementedException(); } }
 
 		public Func<bool> FlushPredicate
@@ -50,6 +49,16 @@ namespace LogJam.Writer
 				throw new NotImplementedException();
 			}
 		}
+
+		#region Not in contract
+		public bool TryGetEntryWriter<TEntry>(out IEntryWriter<TEntry> entryWriter) where TEntry : ILogEntry
+		{
+			throw new NotImplementedException();
+		}
+
+		public IEnumerable<KeyValuePair<Type, object>> EntryWriters { get { throw new NotImplementedException(); } }
+
+		#endregion
 
 	}
 

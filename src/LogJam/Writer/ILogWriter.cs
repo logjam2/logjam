@@ -1,5 +1,5 @@
 ﻿// // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ILogWriter.cs">
+// <copyright file="IEntryWriter.cs">
 // Copyright (c) 2011-2014 logjam.codeplex.com.  
 // </copyright>
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
@@ -9,28 +9,63 @@
 
 namespace LogJam.Writer
 {
+	using System;
+	using System.Collections.Generic;
+	using System.Diagnostics.Contracts;
+
 
 	/// <summary>
-	/// Untyped log writer interface.
+	/// A log writer writes to one or more log targets.
 	/// </summary>
-	/// <seealso cref="ILogWriter{TEntry}"/>.
+	/// <seealso cref="IEntryWriter{TEntry}"/>.
+	[ContractClass(typeof(LogWriterContract))]
 	public interface ILogWriter
 	{
 		/// <summary>
-		/// Returns <c>true</c> if this <see cref="ILogWriter"/> can write entries to its target.
-		/// </summary>
-		/// <value>
-		/// If <c>true</c>, this <c>ILogWriter</c> can write entries.  If <c>false</c>, <see cref="ILogWriter{TEntry}.Write"/> should not be called.
-		/// </value>
-		bool Enabled { get; }
-
-		/// <summary>
-		/// Returns <c>true</c> if calls to this object's methods and properties are synchronized.
+		/// Returns <c>true</c> if calls to this object's methods and its <see cref="IEntryWriter{TEntry}"/>s are synchronized.
 		/// </summary>
 		/// <value>
 		/// If <c>true</c>, calls on this object are threadsafe.  If <c>false</c>, thread-safety is not guaranteed.
 		/// </value>
 		bool IsSynchronized { get; }
+
+		/// <summary>
+		/// Returns an <see cref="IEntryWriter{TEntry}"/> if one exists for base entry type <typeparamref name="TEntry"/>.
+		/// </summary>
+		/// <typeparam name="TEntry">The log entry type.</typeparam>
+		/// <returns></returns>
+		bool TryGetEntryWriter<TEntry>(out IEntryWriter<TEntry> entryWriter)
+			 where TEntry : ILogEntry;
+
+		/// <summary>
+		/// Returns the set of <see cref="IEntryWriter{TEntry}"/>s available for this <c>ILogWriter</c>.
+		/// </summary>
+		/// <returns></returns>
+		IEnumerable<KeyValuePair<Type, object>> EntryWriters { get; }
+
+	}
+
+
+	[ContractClassFor(typeof(ILogWriter))]
+	internal abstract class LogWriterContract : ILogWriter
+	{
+
+		public bool IsSynchronized { get { throw new System.NotImplementedException(); } }
+
+		public bool TryGetEntryWriter<TEntry>(out IEntryWriter<TEntry> entryWriter) where TEntry : ILogEntry
+		{
+			throw new System.NotImplementedException();
+		}
+
+		public IEnumerable<KeyValuePair<Type, object>> EntryWriters
+		{
+			get
+			{
+				Contract.Ensures(Contract.Result<IEnumerable<KeyValuePair<Type, object>>>() != null);
+
+				throw new NotImplementedException();
+			}
+		}
 
 	}
 

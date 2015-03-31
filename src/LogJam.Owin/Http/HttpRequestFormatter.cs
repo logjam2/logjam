@@ -24,6 +24,7 @@ namespace LogJam.Owin.Http
 		{
 			textWriter.WriteLine("{0}>\t{1:HH:mm:ss.fff}\t{2}\t{3}", entry.RequestNumber, entry.RequestStarted, entry.Method, entry.Uri);
 			FormatterHelper.FormatHeaders(textWriter, entry.RequestHeaders);
+			textWriter.WriteLine(); // Extra line break for readability
 		}
 
 	}

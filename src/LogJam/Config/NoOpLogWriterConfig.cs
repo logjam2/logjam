@@ -7,39 +7,23 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
-namespace LogJam.Writer
+namespace LogJam.Config
 {
-	using LogJam.Config;
 	using LogJam.Config.Json;
 	using LogJam.Trace;
+	using LogJam.Writer;
 
 
 	/// <summary>
-	/// Log writer configuration that creates a <see cref="NoOpLogWriter{TEntry}"/>
+	/// Log writer configuration that creates a <see cref="NoOpEntryWriter{TEntry}"/>
 	/// </summary>
 	[JsonTypeHint("Target", "null")]
-	public class NoOpLogWriterConfig<TEntry> : LogWriterConfig<TEntry> where TEntry : ILogEntry
+	public class NoOpLogWriterConfig : LogWriterConfig
 	{
 
-		public override ILogWriter<TEntry> CreateLogWriter(ITracerFactory setupTracerFactory)
+		public override ILogWriter CreateLogWriter(ITracerFactory setupTracerFactory)
 		{
-			return new NoOpLogWriter<TEntry>();
-		}
-
-		public override bool Equals(ILogWriterConfig other)
-		{
-			var otherSameType = other as NoOpLogWriterConfig<TEntry>;
-			if (otherSameType == null)
-			{
-				return false;
-			}
-
-			return true;
-		}
-
-		public override int GetHashCode()
-		{
-			return GetType().GetHashCode();
+			return new NoOpLogWriter(setupTracerFactory);
 		}
 
 	}

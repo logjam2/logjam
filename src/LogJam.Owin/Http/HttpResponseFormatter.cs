@@ -24,8 +24,9 @@ namespace LogJam.Owin.Http
 		public override void Format(ref HttpResponseEntry entry, TextWriter textWriter)
 		{
 			textWriter.WriteLine("{0}<\tResponse:   \t{1}\t{2}\t   {3:ss\\.fff}s", entry.RequestNumber, entry.Method, entry.Uri, entry.Ttfb);
-			textWriter.WriteLine("HTTP {0}\t{1}", entry.HttpStatusCode, entry.HttpReasonPhrase);
+			textWriter.WriteLine("HTTP/1.1 {0}\t{1}", entry.HttpStatusCode, entry.HttpReasonPhrase);
 			FormatterHelper.FormatHeaders(textWriter, entry.ResponseHeaders);
+			textWriter.WriteLine(); // Extra line break for readability
 		}
 
 	}

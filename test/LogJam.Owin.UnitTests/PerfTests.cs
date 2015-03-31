@@ -10,13 +10,18 @@
 namespace LogJam.Owin.UnitTests
 {
 	using System;
+	using System.Diagnostics;
 	using System.IO;
 	using System.Linq;
+	using System.Threading;
 	using System.Threading.Tasks;
 
 	using Microsoft.Owin.Testing;
 
+	using Xunit;
 	using Xunit.Extensions;
+
+	using TraceLevel = LogJam.Trace.TraceLevel;
 
 
 	/// <summary>
@@ -26,22 +31,39 @@ namespace LogJam.Owin.UnitTests
 	{
 
 		[Theory]
-		[InlineData(5, 100, 3)]
-		[InlineData(50, 100, 30)]
+		[InlineData(4, 1000, 0)]
+		[InlineData(4, 1000, 0)]
+		[InlineData(4, 1000, 10)]
+		//[InlineData(40, 1000, 30)]
 		public void ParallelTraceTest(int threads, int requestsPerThread, int tracesPerRequest)
 		{
+			var setupLog = new SetupLog();
+			Stopwatch overallStopwatch = Stopwatch.StartNew();
+
 			// Test logging to TextWriter.Null - which should have no perf overhead
-			using (TestServer testServer = CreateTestServer(TextWriter.Null))
+			using (TestServer testServer = CreateTestServer(TextWriter.Null, setupLog))
 			{
 
-				Action testCalls = () =>
-				                   {
-					                   var task = testServer.CreateRequest("/trace?traceCount=" + tracesPerRequest).GetAsync();
-					                   var response = task.Result; // Wait for the call to complete
-				                   };
+				Action testThread = () =>
+				                    {
+										int threadId = Thread.CurrentThread.ManagedThreadId;
+										Console.WriteLine("{0}: Starting requests on thread {1}", overallStopwatch.Elapsed, threadId);
+										var stopWatch = Stopwatch.StartNew();
 
-				Parallel.Invoke(Enumerable.Repeat(testCalls, threads).ToArray());
+					                    for (int i = 0; i < requestsPerThread; ++i)
+					                    {
+						                    IssueTraceRequest(testServer, tracesPerRequest);
+					                    }
+										stopWatch.Stop();
+
+										Console.WriteLine("{0}: Completed {1} requests on thread {2} in {3}", overallStopwatch.Elapsed, requestsPerThread, threadId, stopWatch.Elapsed);
+				                    };
+
+				Parallel.Invoke(Enumerable.Repeat(testThread, threads).ToArray());
 			}
+
+			Assert.NotEmpty(setupLog);
+			Assert.False(setupLog.HasAnyExceeding(TraceLevel.Info));
 		}
 
 	}

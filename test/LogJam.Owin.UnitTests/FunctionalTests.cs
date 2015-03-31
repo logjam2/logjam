@@ -11,6 +11,9 @@ namespace LogJam.Owin.UnitTests
 {
 	using System;
 	using System.IO;
+	using System.Linq;
+
+	using LogJam.Trace;
 
 	using Microsoft.Owin.Testing;
 
@@ -25,27 +28,34 @@ namespace LogJam.Owin.UnitTests
 		[Fact]
 		public void SingleRequestWithTracing()
 		{
+			var setupLog = new SetupLog();
 			var stringWriter = new StringWriter();
-			using (TestServer testServer = CreateTestServer(stringWriter))
+			using (TestServer testServer = CreateTestServer(stringWriter, setupLog))
 			{
-				var task = testServer.CreateRequest("/trace?traceCount=" + 2).GetAsync();
-				var response = task.Result; // Wait for the call to complete
+				IssueTraceRequest(testServer, 2);
 			}
 
 			Console.WriteLine(stringWriter);
+
+			Assert.NotEmpty(setupLog);
+			Assert.False(setupLog.HasAnyExceeding(TraceLevel.Info));
 		}
 
 		[Fact]
 		public void ExceptionTracing()
 		{
+			var setupLog = new SetupLog();
 			var stringWriter = new StringWriter();
-			using (TestServer testServer = CreateTestServer(stringWriter))
+			using (TestServer testServer = CreateTestServer(stringWriter, setupLog))
 			{
 				var task = testServer.CreateRequest("/exception").GetAsync();
 				var response = task.Result; // Wait for the call to complete
 			}
 
 			Console.WriteLine(stringWriter);
+
+			Assert.NotEmpty(setupLog);
+			Assert.False(setupLog.HasAnyExceeding(TraceLevel.Info));
 		}
 
 	}

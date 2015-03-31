@@ -18,13 +18,13 @@ namespace LogJam.Trace
 	/// Writes <see cref="TraceEntry"/>s to a series of <see cref="TraceWriter"/>s.
 	/// </summary>
 	/// <remarks><c>FanOutTraceWriter</c> instances are immutable.</remarks>
-	internal sealed class FanOutTraceWriter : FanOutLogWriter<TraceEntry>, ITraceWriter
+	internal sealed class FanOutTraceWriter : FanOutEntryWriter<TraceEntry>, ITraceWriter
 	{
 
 		private readonly TraceWriter[] _traceWriters;
 
 		public FanOutTraceWriter(params TraceWriter[] innerTraceWriters)
-			: base(innerTraceWriters.Cast<ILogWriter<TraceEntry>>().ToArray())
+			: base(innerTraceWriters.Cast<IEntryWriter<TraceEntry>>().ToArray())
 		{
 			_traceWriters = innerTraceWriters;
 		}

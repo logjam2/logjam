@@ -97,8 +97,7 @@ namespace LogJam.WebApi
 				case System.Web.Http.Tracing.TraceLevel.Debug:
 					return TraceLevel.Debug;
 				case System.Web.Http.Tracing.TraceLevel.Info:
-					return TraceLevel.Info;
-					// Info is used promiscuously in Web API - thus we maybe should switch it to Verbose.  Alternatively we could make it easy to filter out the categories.
+					// Info is used promiscuously in Web API - thus we switch it to Verbose.
 					return TraceLevel.Verbose;
 				case System.Web.Http.Tracing.TraceLevel.Warn:
 					return TraceLevel.Warn;

@@ -13,8 +13,10 @@ namespace LogJam
 	using System.Collections.Generic;
 	using System.Diagnostics.Contracts;
 	using System.IO;
+	using System.Linq;
 
 	using LogJam.Format;
+	using LogJam.Internal;
 	using LogJam.Trace;
 	using LogJam.Writer;
 
@@ -39,78 +41,113 @@ namespace LogJam
 			Contract.Requires<ArgumentNullException>(textWriter != null);
 			Contract.Requires<ArgumentNullException>(logFormatter != null);
 
-			var logWriter = new TextWriterLogWriter<TEntry>(textWriter, logFormatter, synchronize: false, disposeWriter: false);
+			var logWriter = new TextWriterLogWriter(textWriter, new SetupLog(), synchronize: false, disposeWriter: false);
+			logWriter.AddFormat(logFormatter);
+			IEntryWriter<TEntry> entryWriter;
+			logWriter.TryGetEntryWriter(out entryWriter);
 			using (logWriter)
 			{
 				for (var enumerator = entries.GetEnumerator(); enumerator.MoveNext();)
 				{
 					TEntry logEntry = enumerator.Current;
-					logWriter.Write(ref logEntry);
+					entryWriter.Write(ref logEntry);
 				}
 			}
 		}
 
 		/// <summary>
-		/// Recursively finds all <see cref="ILogWriter{TEntry}"/> instances with entry type <typeparamref name="TEntry"/>
-		/// within the <paramref name="logWriterCollection"/> tree.
+		/// Returns <c>true</c> if the <paramref name="traceEntries"/> collection contains any <see cref="TraceEntry"/> instances
+		/// with <see cref="TraceEntry.TraceLevel"/> exceeding <paramref name="traceLevel"/>.
+		/// </summary>
+		/// <param name="traceEntries"></param>
+		/// <param name="traceLevel"></param>
+		/// <returns></returns>
+		public static bool HasAnyExceeding(this IEnumerable<TraceEntry> traceEntries, TraceLevel traceLevel)
+		{
+			return traceEntries.Any(traceEntry => traceEntry.TraceLevel > traceLevel);
+		}
+
+		/// <summary>
+		/// Finds all <see cref="IEntryWriter{TEntry}"/> instances with entry type <typeparamref name="TEntry"/>
+		/// within the <paramref name="logWriterCollection"/>.
 		/// </summary>
 		/// <typeparam name="TEntry"></typeparam>
 		/// <param name="logWriterCollection"></param>
-		/// <param name="matches"></param>
-		/// <remarks>An enumerable of logWriters acts like a tree, because each <see cref="IMultiLogWriter"/> can contain
-		/// multiple <see cref="ILogWriter{TEntry}"/> instances, as well as <see cref="IMultiLogWriter"/> instances.</remarks>
-		public static void FindLogWritersByType<TEntry>(this IEnumerable<ILogWriter> logWriterCollection, List<ILogWriter<TEntry>> matches)
+		/// <param name="entryWriters">Matching <see cref="IEntryWriter{TEntry}"/>s are added to this list.</param>
+		public static void GetEntryWriters<TEntry>(this IEnumerable<ILogWriter> logWriterCollection, List<IEntryWriter<TEntry>> entryWriters)
 			where TEntry : ILogEntry
 		{
 			Contract.Requires<ArgumentNullException>(logWriterCollection != null);
 
 			foreach (ILogWriter logWriter in logWriterCollection)
 			{
-				ILogWriter<TEntry> typedInstance = logWriter as ILogWriter<TEntry>;
-				if (typedInstance != null)
+				IEntryWriter<TEntry> entryWriter;
+				if (logWriter.TryGetEntryWriter(out entryWriter))
 				{
-					matches.Add(typedInstance);
-				}
-				else if (logWriter is IMultiLogWriter)
-				{	// Recurse
-					FindLogWritersByType<TEntry>((IMultiLogWriter) logWriter, matches);
+					entryWriters.Add(entryWriter);
 				}
 			}
 
 		}
 
 		/// <summary>
-		/// Recursively finds all <see cref="ILogWriter{TEntry}"/> instances with entry type <typeparamref name="TEntry"/>
-		/// within the <paramref name="logWriterCollection"/> tree, and returns them as a single log writer.
+		/// Finds all <see cref="IEntryWriter{TEntry}"/> instances with entry type <typeparamref name="TEntry"/>
+		/// within the <paramref name="logWriterCollection"/>, and returns them as a single entry writer.
 		/// </summary>
 		/// <typeparam name="TEntry"></typeparam>
 		/// <param name="logWriterCollection"></param>
-		/// <param name="logWriter"></param>
-		/// <returns><c>true</c> if one or more <see cref="ILogWriter{TEntry}"/> instances were found.  <c>false</c> if no
+		/// <param name="entryWriter"></param>
+		/// <returns><c>true</c> if one or more <see cref="IEntryWriter{TEntry}"/> instances were found.  <c>false</c> if no
 		/// matching objects were found.</returns>
-		/// <remarks>An enumerable of logWriters acts like a tree, because each <see cref="IMultiLogWriter"/> can contain
-		/// multiple <see cref="ILogWriter{TEntry}"/> instances, as well as <see cref="IMultiLogWriter"/> instances.</remarks>
-		public static bool FindLogWriterByType<TEntry>(this IEnumerable<ILogWriter> logWriterCollection, out ILogWriter<TEntry> logWriter)
+		public static bool GetSingleEntryWriter<TEntry>(this IEnumerable<ILogWriter> logWriterCollection, out IEntryWriter<TEntry> entryWriter)
 			where TEntry : ILogEntry
 		{
 			Contract.Requires<ArgumentNullException>(logWriterCollection != null);
 
-			var listLogWriters = new List<ILogWriter<TEntry>>();
-			FindLogWritersByType(logWriterCollection, listLogWriters);
+			var listLogWriters = new List<IEntryWriter<TEntry>>();
+			GetEntryWriters(logWriterCollection, listLogWriters);
 			if (listLogWriters.Count == 0)
 			{
-				logWriter = null;
+				entryWriter = null;
 				return false;
 			}
 			if (listLogWriters.Count == 1)
 			{
-				logWriter = listLogWriters[0];
+				entryWriter = listLogWriters[0];
 			}
 			else
 			{
-				logWriter = new FanOutLogWriter<TEntry>(listLogWriters);
+				entryWriter = new FanOutEntryWriter<TEntry>(listLogWriters);
 			}
 			return true;
+		}
+
+		/// <summary>
+		/// Coerces a collection of <see cref="IEntryWriter{TEntry}"/> instances with entry type <typeparamref name="TEntry"/>
+		/// into a single entry writer.
+		/// </summary>
+		/// <typeparam name="TEntry"></typeparam>
+		/// <param name="entryWriterCollection"></param>
+		/// <returns><c>true</c> if one or more <see cref="IEntryWriter{TEntry}"/> instances were found.  <c>false</c> if no
+		/// matching objects were found.</returns>
+		public static IEntryWriter<TEntry> GetSingleEntryWriter<TEntry>(this IEnumerable<IEntryWriter<TEntry>> entryWriterCollection)
+			where TEntry : ILogEntry
+		{
+			Contract.Requires<ArgumentNullException>(entryWriterCollection != null);
+
+			int count = entryWriterCollection.Count();
+			if (count == 0)
+			{
+				return new NoOpEntryWriter<TEntry>();
+			}
+			if (count == 1)
+			{
+				return entryWriterCollection.First();
+			}
+			else
+			{
+				return new FanOutEntryWriter<TEntry>(entryWriterCollection);
+			}
 		}
 
 	}

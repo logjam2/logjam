@@ -29,7 +29,8 @@ namespace LogJam.XUnit2.UnitTests
 		public ExampleTestTracing(ITestOutputHelper testOutput)
 		{
 			_traceSwitch = new ThresholdTraceSwitch(TraceLevel.Debug);
-			_traceManager = new TraceManager(new TestOutputLogWriter<TraceEntry>(testOutput), _traceSwitch);
+			var logWriterConfig = new TestOutputLogWriterConfig(testOutput).UseTestTraceFormat();
+			_traceManager = new TraceManager(logWriterConfig, _traceSwitch);
 		}
 
 		public TraceLevel TraceThreshold
@@ -44,7 +45,7 @@ namespace LogJam.XUnit2.UnitTests
 		}
 
 		/// <summary>
-		/// Due to use of <see cref="TestOutputLogWriter{TEntry}"/> and <see cref="ITestOutputHelper"/> by this test class, all traces
+		/// Due to use of <see cref="TestOutputLogWriter"/> and <see cref="ITestOutputHelper"/> by this test class, all traces
 		/// that pass the configured threshold are written to the test output buffer.
 		/// </summary>
 		[Fact]

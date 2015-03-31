@@ -11,10 +11,10 @@ namespace LogJam.Writer
 {
 
 	/// <summary>
-	/// Abstract <see cref="ILogWriter{TEntry}"/> that writes to the tail of a queue, and supports reading
+	/// Abstract <see cref="IEntryWriter{TEntry}"/> that writes to the tail of a queue, and supports reading
 	/// from the head of the queue.
 	/// </summary>
-	internal interface IQueueLogWriter<TEntry> : ILogWriter<TEntry>, IStartable
+	internal interface IQueueEntryWriter<TEntry> : IEntryWriter<TEntry>, IStartable
 		where TEntry : ILogEntry
 	{
 		/// <summary>

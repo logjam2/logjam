@@ -14,8 +14,12 @@ namespace LogJam.UnitTests
 	using System.Linq;
 	using System.Threading;
 
+	using LogJam.Config;
 	using LogJam.Format;
+	using LogJam.Internal.UnitTests.Examples;
 	using LogJam.Trace;
+	using LogJam.UnitTests.Common;
+	using LogJam.UnitTests.Examples;
 	using LogJam.Writer;
 
 	using Xunit;
@@ -27,7 +31,7 @@ namespace LogJam.UnitTests
 	public sealed class LogManagerTests
 	{
 		[Fact]
-		public void Default_LogManager_tracks_all_LogJam_operations_to_StatusTraces()
+		public void DefaultLogManagerTracksAllLogJamOperationsToStatusTraces()
 		{
 			string testMessage = "test LogJam setup message";
 			var traceLevel = TraceLevel.Info;
@@ -39,29 +43,68 @@ namespace LogJam.UnitTests
 				internalTracer.Trace(traceLevel, null, testMessage);
 
 				// Verify the message can be found in LogJamTraceEntries
-				var traceEntry = logManager.SetupTraces.First(e => e.Message == testMessage);
+				var traceEntry = logManager.SetupLog.First(e => e.Message == testMessage);
 				Assert.Equal(traceLevel, traceEntry.TraceLevel);
 				Assert.Equal(internalTracer.Name, traceEntry.TracerName);
-				int countTraces1 = logManager.SetupTraces.Count();
+				int countTraces1 = logManager.SetupLog.Count();
 
-				// Messing with the SetupTracerFactory doesn't force a Start()
+				// Messing with the SetupLog doesn't force a Start()
 				Assert.False(logManager.IsStarted);
 
 				// Start and stop create trace records
 				logManager.Start();
-				int countTracesAfterStart = logManager.SetupTraces.Count();
+				int countTracesAfterStart = logManager.SetupLog.Count();
 				Assert.True(countTracesAfterStart > countTraces1);
 
 				logManager.Stop();
-				int countTracesAfterStop = logManager.SetupTraces.Count();
+				int countTracesAfterStop = logManager.SetupLog.Count();
 				Assert.True(countTracesAfterStop > countTracesAfterStart);
 			}
 		}
 
 		[Fact(Skip = "Not implemented")]
-		public void LogManager_internal_operations_can_be_directed_to_another_output()
+		public void LogManager_internal_operations_can_be_logged_to_another_target()
 		{	
 		}
+
+		[Fact]
+		public void FinalizerCausesQueuedLogsToFlush()
+		{
+			var setupLog = new SetupLog();
+
+			// Slow log writer - starting, stopping, disposing, writing an entry, all take at least 10ms each.
+			const int opDelayMs = 5;
+			var slowLogWriter = new SlowTestLogWriter<MessageEntry>(setupLog, opDelayMs, false);
+			const int countLoggingThreads = 5;
+			const int countMessagesPerThread = 5;
+			const int expectedEntryCount = countLoggingThreads * countMessagesPerThread;
+
+			// Run the test code in a delegate so that local variable references can be GCed
+			Action logTestMessages = () =>
+			                         {
+				                         var logManager = new LogManager(new LogManagerConfig(), setupLog);
+				                         logManager.Config.UseLogWriter(slowLogWriter).BackgroundLogging = true;
+				                         var entryWriter = logManager.GetEntryWriter<MessageEntry>();
+
+				                         ExampleHelper.LogTestMessagesInParallel(entryWriter, countMessagesPerThread, countLoggingThreads);
+
+				                         // Key point: The LogManager is never disposed, and it has a number of queued
+				                         // entries that haven't been written
+			                         };
+			logTestMessages();
+
+			Assert.True(slowLogWriter.Count < expectedEntryCount);
+
+			// Force a GC cyle, and wait for finalizers to complete.
+			GC.Collect();
+			GC.WaitForPendingFinalizers();
+
+			Assert.Equal(expectedEntryCount, slowLogWriter.Count);
+
+			// When the finalizer is called, an error is logged to the SetupLog.
+			Assert.True(setupLog.Any(traceEntry => (traceEntry.TraceLevel == TraceLevel.Error) && (traceEntry.Message.StartsWith("In finalizer "))));
+		}
+
 
 	}
 

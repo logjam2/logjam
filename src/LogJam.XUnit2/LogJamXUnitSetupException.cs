@@ -1,5 +1,5 @@
 ﻿// // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="NoOpMultiLogWriter.cs">
+// <copyright file="LogJamXUnitSetupException.cs">
 // Copyright (c) 2011-2015 logjam.codeplex.com.  
 // </copyright>
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
@@ -7,23 +7,23 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
-namespace LogJam.Writer
+namespace LogJam.XUnit2
 {
-	using System.Collections;
-	using System.Collections.Generic;
-	using System.Runtime.InteropServices;
-
-	using LogJam.Trace;
+	using System;
 
 
 	/// <summary>
-	/// A <see cref="IMultiLogWriter"/> that returns log writers that do nothing.
+	/// Exception thrown when invalid setup is detected.
 	/// </summary>
-	public sealed class NoOpMultiLogWriter : MultiLogWriter
+	public sealed class LogJamXUnitSetupException : LogJamSetupException
 	{
 
-		public NoOpMultiLogWriter(bool isSychronized, ITracerFactory setupTracerFactory)
-			: base(isSychronized, setupTracerFactory)
+		internal LogJamXUnitSetupException(string message, object source)
+			: base(message, source)
+		{}
+
+		internal LogJamXUnitSetupException(string message, Exception innerException, object source)
+			: base(message, innerException, source)
 		{}
 
 	}

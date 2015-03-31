@@ -6,7 +6,11 @@
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
+using System;
 using System.Reflection;
 
 [assembly: AssemblyTitle("LogJam.UnitTests")]
 [assembly: AssemblyDescription("LogJam unit tests")]
+
+// Unit test projects don't need to be CLS compliant
+[assembly: CLSCompliant(false)]

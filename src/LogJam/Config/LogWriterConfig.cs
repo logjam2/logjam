@@ -17,32 +17,35 @@ namespace LogJam.Config
 
 
 	/// <summary>
-	/// Base class for holding configuration of logwriters that write a single entry type, <typeparamref name="TEntry"/>.
+	/// Base class for holding logwriter configuration.
 	/// </summary>
 	/// <see cref="TraceWriterConfig.LogWriterConfig"/>
-	public abstract class LogWriterConfig<TEntry> : ILogWriterConfig where TEntry : ILogEntry
+	public abstract class LogWriterConfig : ILogWriterConfig
 	{
 
 		private bool _synchronized = true;
+		private bool _disposeOnStop = true;
 
 		/// <summary>
-		/// Sets or gets whether the <see cref="ILogWriter{TEntry}"/> returned from <see cref="CreateLogWriter"/> should have its
-		/// writes synchronized or not.
+		/// Sets or gets whether the <see cref="IEntryWriter{TEntry}"/> returned from <see cref="CreateLogWriter"/> should have its
+		/// writes synchronized or not.  Default is <c>true</c>.
 		/// </summary>
 		public virtual bool Synchronized { get { return _synchronized; } set { _synchronized = value; } }
 
-		/// <inheritdoc />
-		public ILogWriter CreateILogWriter(ITracerFactory setupTracerFactory)
-		{
-			return CreateLogWriter(setupTracerFactory);
-		}
+		/// <summary>
+		/// Sets or gets whether log writes should be queued from the logging thread, and written on a single background thread.
+		/// Default is <c>false</c>.
+		/// </summary>
+		public virtual bool BackgroundLogging { get; set; }
 
 		/// <summary>
-		/// Creates and returns a new <see cref="ILogWriter{TEntry}"/> using the configured settings.
+		/// Sets or gets whether the <see cref="ILogWriter"/> created by <see cref="CreateLogWriter"/> should be disposed
+		/// when the <see cref="LogManager"/> is stopped.  Default is <c>true</c>.
 		/// </summary>
-		/// <param name="setupTracerFactory">An <see cref="ITracerFactory"/> for tracing information about logging setup.</param>
-		/// <returns>A new <see cref="ILogWriter{TEntry}"/> using the configured settings.</returns>
-		public abstract ILogWriter<TEntry> CreateLogWriter(ITracerFactory setupTracerFactory);
+		public virtual bool DisposeOnStop { get { return _disposeOnStop; } set { _disposeOnStop = value; } }
+
+		/// <inheritdoc />
+		public abstract ILogWriter CreateLogWriter(ITracerFactory setupTracerFactory);
 
 		public virtual bool Equals(ILogWriterConfig other)
 		{

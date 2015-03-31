@@ -1,5 +1,5 @@
 ﻿// // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ConsoleTraceWriterConfig.cs">
+// <copyright file="ConsoleLogWriterConfig.cs">
 // Copyright (c) 2011-2014 logjam.codeplex.com.  
 // </copyright>
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
@@ -10,31 +10,25 @@
 namespace LogJam.Trace.Config
 {
 	using LogJam.Config;
-	using LogJam.Format;
-	using LogJam.Trace.Format;
 	using LogJam.Writer;
 
 
 	/// <summary>
-	/// Trace log writer configuration that creates a <see cref="ConsoleTraceWriter"/>.
+	/// Trace log writer configuration that creates a <see cref="ConsoleLogWriter"/>.
 	/// </summary>
-	public sealed class ConsoleTraceWriterConfig : LogWriterConfig<TraceEntry>
+	public sealed class ConsoleLogWriterConfig : TextWriterLogWriterConfig
 	{
 
 		/// <summary>
-		/// Gets or sets a value that specifies whether created <see cref="ConsoleTraceWriter"/>s will write colored text output.
+		/// Gets or sets a value that specifies whether created <see cref="ConsoleLogWriter"/>s will write colored text output.
 		/// </summary>
 		public bool UseColor { get; set; }
 
-		/// <summary>
-		/// Gets or sets the formatter for trace entries.  If not set, <see cref="DebuggerTraceFormatter"/> is used
-		/// with default values.
-		/// </summary>
-		public LogFormatter<TraceEntry> Formatter { get; set; }
-
-		public override ILogWriter<TraceEntry> CreateLogWriter(ITracerFactory setupTracerFactory)
+		public override ILogWriter CreateLogWriter(ITracerFactory setupTracerFactory)
 		{
-			return new ConsoleTraceWriter(UseColor, Formatter);
+			var writer = new ConsoleLogWriter(setupTracerFactory, UseColor, Synchronized);
+			ApplyConfiguredFormatters(writer);
+			return writer;
 		}
 
 		public override bool Equals(ILogWriterConfig other)
@@ -43,7 +37,7 @@ namespace LogJam.Trace.Config
 			{
 				return false;
 			}
-			var otherSameType = other as ConsoleTraceWriterConfig;
+			var otherSameType = other as ConsoleLogWriterConfig;
 			if (otherSameType == null)
 			{
 				return false;

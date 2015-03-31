@@ -32,7 +32,7 @@ namespace LogJam.Trace.Config
 
 		/// <summary>
 		/// Creates a new <see cref="TraceWriterConfig"/> using all default values.
-		/// If <see cref="LogWriterConfig"/> is not subsequently set, a <see cref="NoOpLogWriter{TEntry}"/> will be
+		/// If <see cref="LogWriterConfig"/> is not subsequently set, a <see cref="NoOpEntryWriter{TEntry}"/> will be
 		/// used.
 		/// </summary>
 		public TraceWriterConfig()
@@ -62,7 +62,7 @@ namespace LogJam.Trace.Config
 				Contract.Ensures(Contract.Result<ILogWriterConfig>() != null);
 				if (_tracelogWriterConfig == null)
 				{
-					_tracelogWriterConfig = new NoOpLogWriterConfig<TraceEntry>();
+					_tracelogWriterConfig = new NoOpLogWriterConfig();
 				}
 
 				return _tracelogWriterConfig;

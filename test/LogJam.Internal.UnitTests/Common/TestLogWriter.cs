@@ -14,71 +14,48 @@ namespace LogJam.UnitTests.Common
 	using System.Collections.Generic;
 	using System.Linq;
 
+	using LogJam.Trace;
 	using LogJam.Util;
 	using LogJam.Writer;
 
 
 	/// <summary>
-	/// A test <see cref="ILogWriter{TEntry}"/>, similar to <see cref="ListLogWriter{TEntry}"/>, but with additional 
+	/// A test <see cref="ILogWriter"/> and <see cref="IEntryWriter{TEntry}"/>, similar to <see cref="ListLogWriter{TEntry}"/>, but with additional 
 	/// features for unit testing.
 	/// </summary>
-	public class TestLogWriter<TEntry> :  ILogWriter<TEntry>, IEnumerable<TEntry>, IEnumerable, IStartable, IDisposable
+	public class TestLogWriter<TEntry> : SingleEntryTypeLogWriter<TEntry>, IEnumerable<TEntry>, IStartable, IDisposable
 		where TEntry : ILogEntry
 	{
 
 		private readonly IList<TEntry> _entryList;
 		private readonly bool _isSynchronized = false;
-		private bool _isStarted = false;
-		private bool _isDisposed = false;
 
-		public TestLogWriter(bool synchronize)
+		public TestLogWriter(ITracerFactory setupTracerFactory,  bool synchronize)
+			: base(setupTracerFactory)
 		{
 			_entryList = new List<TEntry>();
 			_isSynchronized = synchronize;
 		}
 
-		internal bool IsDisposed
-		{ get { return _isDisposed; } }
+		public new bool IsDisposed
+		{ get { return base.IsDisposed; } }
 
-		public virtual void Dispose()
-		{
-			lock (this)
-			{
-				Stop();
-
-				_isDisposed = true;
-			}
-		}
-
-		protected void EnsureNotDisposed()
-		{
-			if (_isDisposed)
-			{
-				throw new ObjectDisposedException(GetType().GetCSharpName());
-			}
-		}
-
-		#region ILogWriter
-
-		/// <summary>
-		/// Returns <c>true</c> until the logwriter is disposed.
-		/// </summary>
-		public bool Enabled { get { return _isStarted; } }
+		#region IEntryWriter
 
 		/// <summary>
 		/// Returns <c>true</c> if calls to this object's methods and properties are synchronized.
 		/// </summary>
-		public bool IsSynchronized { get { return _isSynchronized; } }
+		public override bool IsSynchronized { get { return _isSynchronized; } }
 
 		/// <summary>
 		/// Adds the <paramref name="entry"/> to the <see cref="List{TEntry}"/>.
 		/// </summary>
 		/// <param name="entry">A <typeparamref name="TEntry"/>.</param>
-		public virtual void Write(ref TEntry entry)
+		public override void Write(ref TEntry entry)
 		{
 			if (! _isSynchronized)
 			{
-				if (_isStarted)
+				if (IsStarted)
 				{
 					_entryList.Add(entry);
 				}
@@ -87,38 +64,12 @@ namespace LogJam.UnitTests.Common
 			{
 				lock (this)
 				{
-					if (_isStarted)
+					if (IsStarted)
 					{
 						_entryList.Add(entry);
 					}
 				}
 			}
-		}
-
-		#endregion
-		#region IStartable
-
-		public virtual void Start()
-		{
-			lock (this)
-			{
-				EnsureNotDisposed();
-
-				_isStarted = true;
-			}
-		}
-
-		public virtual void Stop()
-		{
-			lock (this)
-			{
-				_isStarted = false;
-			}
-		}
-
-		public bool IsStarted
-		{
-			get { return _isStarted; }
 		}
 
 		#endregion

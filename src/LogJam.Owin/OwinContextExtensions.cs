@@ -95,6 +95,26 @@ namespace Microsoft.Owin
 		}
 
 		/// <summary>
+		/// Retrieves the <see cref="LogManager"/> from the <paramref name="owinContext"/>.
+		/// </summary>
+		/// <param name="owinContext">An <see cref="IOwinContext"/> for the current request.</param>
+		/// <returns></returns>
+		public static LogManager GetLogManager(this IOwinContext owinContext)
+		{
+			Contract.Requires<ArgumentNullException>(owinContext != null);
+			Contract.Ensures(Contract.Result<LogManager>() != null);
+
+			LogManager logManager = owinContext.Environment.Get<LogManager>(LogManagerKey);
+			if (logManager != null)
+			{
+				return logManager;
+			}
+
+			// If not set (eg AppBuilderExtensions.SetTracerFactory() wasn't called), return the global instance
+			return LogManager.Instance;
+		}
+
+		/// <summary>
 		/// Stores <paramref name="logManager"/> in the <paramref name="owinContext"/>.
 		/// </summary>
 		/// <param name="owinContext">An <see cref="IOwinContext"/> for the current request.</param>

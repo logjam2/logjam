@@ -82,7 +82,7 @@ be imported into csproj files using:
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="$(SolutionDir)build\Version.cs">
+    <Compile Include="..\..\build\Version.cs">
       <Link>Properties\Version.cs</Link>
     </Compile>
   </ItemGroup>

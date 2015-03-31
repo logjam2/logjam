@@ -12,6 +12,7 @@ namespace LogJam
 	using System;
 	using System.Collections.Generic;
 
+	using LogJam.Internal;
 	using LogJam.Trace;
 
 
@@ -26,6 +27,7 @@ namespace LogJam
 		private bool _isStarted;
 		private Exception _startException;
 		private bool _isStopped;
+		private bool _isDisposed;
 
 		private readonly List<WeakReference> _disposables = new List<WeakReference>();
 
@@ -35,12 +37,12 @@ namespace LogJam
 		/// A special <see cref="ITracerFactory"/> that returns <see cref="Tracer"/>s for managing configuration,
 		/// setup, shutdown, and exceptions during logging.
 		/// </summary>
-		public abstract SetupTracerFactory SetupTracerFactory { get; }
+		public abstract ITracerFactory SetupTracerFactory { get; }
 
 		/// <summary>
 		/// Returns the collection of <see cref="TraceEntry"/>s logged through <see cref="SetupTracerFactory"/>.
 		/// </summary>
-		public abstract IEnumerable<TraceEntry> SetupTraces { get; }
+		public abstract IEnumerable<TraceEntry> SetupLog { get; }
 
 		/// <summary>
 		/// Ensures that <see cref="Start"/> is automatically called once, but <see cref="Start"/> is not automatically called
@@ -75,6 +77,13 @@ namespace LogJam
 		{
 			var tracer = SetupTracerFactory.TracerFor(this);
 			string className = GetType().Name;
+
+			if (IsDisposed)
+			{
+				tracer.Error(className + " cannot be started; it has been Dispose()ed.");
+				return;
+			}
+
 			tracer.Debug("Starting " + className + "...");
 
 			lock (this)
@@ -127,13 +136,41 @@ namespace LogJam
 					{ } // No need to log this
 					catch (Exception exception)
 					{
-						tracer.Error(exception, "Exception while shutting down " + className + ".");
+						tracer.Error(exception, "Exception while disposing " + className + ".");
 					}
 				}
 			}
 
 			tracer.Info(className + " stopped.");
 			_isStarted = false;
+		}
+
+		/// <summary>
+		/// Resets this instance, to start new as an unconfigured instance with no memory of the past.
+		/// </summary>
+		/// <param name="clearSetupLog">If <c>true</c>, the contents of the <see cref="SetupTracerFactory"/> are cleared.</param>
+		public void Reset(bool clearSetupLog)
+		{
+			lock (this)
+			{
+				var tracer = SetupTracerFactory.TracerFor(this);
+				tracer.Info("Resetting... ");
+
+				Stop();
+
+				if (clearSetupLog)
+				{
+					var setupTracerFactory = SetupTracerFactory as SetupLog;
+					if (setupTracerFactory != null)
+					{
+						setupTracerFactory.Clear();
+					}
+				}
+
+				InternalReset();
+
+				tracer.Info("Completed Reset. ");
+			}
 		}
 
 		/// <summary>
@@ -149,6 +186,11 @@ namespace LogJam
 		{ }
 
 		/// <summary>
+		/// The reset implementation, to be overridden by derived classes.
+		/// </summary>
+		protected abstract void InternalReset();
+
+		/// <summary>
 		/// Returns <c>true</c> if <see cref="Start()"/> was called and succeeded.
 		/// </summary>
 		public bool IsStarted { get { return _isStarted; } }
@@ -158,6 +200,14 @@ namespace LogJam
 		/// 
 		/// </summary>
 		public bool IsStopped { get { return _isStopped; } }
+
+		/// <summary>
+		/// Returns <c>true</c> if there have been no setup traces that are more severe than informational.
+		/// </summary>
+		/// <remarks>
+		/// This method will return <c>false</c> if any warn, error, or severe traces have been reported during configuration, startup, or shutdown.
+		/// </remarks>
+		public bool IsHealthy { get { return ! SetupLog.HasAnyExceeding(TraceLevel.Info); } }
 
 		/// <summary>
 		/// Registers <paramref name="objectToDispose"/> for cleanup when <see cref="Stop"/> is called.
@@ -173,7 +223,52 @@ namespace LogJam
 
 		public void Dispose()
 		{
-			Stop();
+			if (! _isDisposed)
+			{
+				Dispose(true);
+				GC.SuppressFinalize(this);
+				_isDisposed = true;
+			}
+		}
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (! _isDisposed)
+			{
+				Stop();
+				_isDisposed = true;
+			}
+		}
+
+		protected bool IsDisposed { get { return _isDisposed; } }
+
+		/// <summary>
+		/// Returns the <see cref="ILogJamComponent.SetupTracerFactory"/>, and ensures the same instance is shared by
+		/// all of the passed in components.
+		/// </summary>
+		/// <param name="components"></param>
+		/// <returns></returns>
+		// REVIEW: The need for this is messy.  Perhaps each component should manage its messages, and we just walk the tree of components to collect them?
+		internal ITracerFactory GetSetupTracerFactoryForComponents(IEnumerable<ILogJamComponent> components)
+		{
+			ITracerFactory setupTracerFactory = null;
+
+			foreach (var component in components)
+			{
+				var componentInstance = component.SetupTracerFactory;
+				if (componentInstance != null)
+				{
+					if (setupTracerFactory == null)
+					{
+						setupTracerFactory = componentInstance;
+					}
+					else if (!ReferenceEquals(setupTracerFactory, componentInstance))
+					{
+						throw new LogJamSetupException("Illegal to use different setup tracer factory instances within the same set of components.", this);
+					}
+				}
+			}
+			return setupTracerFactory;
 		}
 
 	}

@@ -50,7 +50,7 @@ namespace LogJam.Util
 				if (_isStarted)
 				{
 					InternalStop();
-					_isStarted = true;
+					_isStarted = false;
 				}
 			}
 		}
@@ -63,6 +63,16 @@ namespace LogJam.Util
 
 		/// @inheritdoc
 		public virtual bool IsStarted { get { return _isStarted; } }
+
+		/// <summary>
+		/// Override ToString() to provide more descriptive start/stop logging.
+		/// </summary>
+		/// <returns></returns>
+		public override string ToString()
+		{
+			// This makes Start/Stop logging friendlier, but subclasses are welcome to provider a better ToString()
+			return GetType().GetCSharpName();
+		}
 
 	}
 

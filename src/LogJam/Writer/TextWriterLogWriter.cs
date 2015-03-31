@@ -1,128 +1,187 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="TextWriterLogWriter.cs">
-// Copyright (c) 2011-2014 logjam.codeplex.com.  
+﻿// // --------------------------------------------------------------------------------------------------------------------
+// <copyright file="TextWriterMultiLogWriter.cs">
+// Copyright (c) 2011-2015 logjam.codeplex.com.  
 // </copyright>
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
+
 namespace LogJam.Writer
 {
+	using LogJam.Format;
+	using LogJam.Trace;
 	using System;
 	using System.Diagnostics.Contracts;
 	using System.IO;
 	using System.Threading;
 
-	using LogJam.Format;
-	using LogJam.Util;
-
 
 	/// <summary>
-	/// Formats and writes log entries to a <see cref="TextWriter"/>.
+	/// Supports writing log entries to a <see cref="TextWriter"/>.
 	/// </summary>
-	/// <seealso cref="TextWriterMultiLogWriter"/>
-	public sealed class TextWriterLogWriter<TEntry> : BufferingLogWriter, ILogWriter<TEntry>, IDisposable
-		where TEntry : ILogEntry
+	public class TextWriterLogWriter : BaseLogWriter, IBufferingLogWriter
 	{
 
-		private readonly TextWriter _writer;
-		private readonly LogFormatter<TEntry> _formatter;
+		private readonly TextWriter _textWriter;
 		private readonly bool _isSynchronized;
 		private readonly bool _disposeWriter;
-		private bool _disposed;
+		private readonly string _newLine;
 
 		/// <summary>
-		/// Creates a new <see cref="TextWriterLogWriter{TEntry}"/>.
+		/// Holds the function that is used to determine whether to flush the buffers or not.
 		/// </summary>
-		/// <param name="writer">The <see cref="TextWriter"/> to write formatted log output to.</param>
-		/// <param name="formatter">The <see cref="LogFormatter{TEntry}"/> used to format log entries.</param>
-		/// <param name="synchronize">Set to <c>true</c> to synchronize writes to <paramref name="writer"/>.</param>
-		/// <param name="disposeWriter">Whether to dispose <paramref name="writer"/> when the <c>TextWriterLogWriter</c> is disposed.</param>
+		private Func<bool> _flushPredicate;
+
+		/// <summary>
+		/// Creates a new <see cref="TextWriterLogWriter"/>.
+		/// </summary>
+		/// <param name="textWriter">The <see cref="TextWriter"/> to write formatted log output to.</param>
+		/// <param name="setupTracerFactory">The <see cref="ITracerFactory"/> to use for logging setup operations.</param>
+		/// <param name="synchronize">Set to <c>true</c> if all logging operations should be synchronized.</param>
+		/// <param name="disposeWriter">Whether to dispose <paramref name="textWriter"/> when the <c>TextWriterLogWriter</c> is disposed.</param>
 		/// <param name="flushPredicate">A function that is used to determine whether to flush the buffers or not.  If <c>null</c>,
 		/// a predicate is used to cause buffers to be flushed after every write.</param>
-		public TextWriterLogWriter(TextWriter writer, LogFormatter<TEntry> formatter, bool synchronize = true, bool disposeWriter = true, Func<bool> flushPredicate = null)
-			: base(flushPredicate)
+		public TextWriterLogWriter(TextWriter textWriter, ITracerFactory setupTracerFactory, bool synchronize = false, bool disposeWriter = true, Func<bool> flushPredicate = null)
+			: base(setupTracerFactory)
 		{
-			Contract.Requires<ArgumentNullException>(writer != null);
-			Contract.Requires<ArgumentNullException>(formatter != null);
+			Contract.Requires<ArgumentNullException>(textWriter != null);
 
-			_writer = writer;
-			_formatter = formatter;
+			_textWriter = textWriter;
 			_isSynchronized = synchronize;
 			_disposeWriter = disposeWriter;
-			_disposed = false;
+			_newLine = textWriter.NewLine;
+
+			// Default to "always flush" if not specified.
+			_flushPredicate = flushPredicate ?? BufferingLogWriter.AlwaysFlush;
 		}
-
-		/// <summary>
-		/// Returns the <see cref="LogFormatter{TEntry}"/> used to format the text written to <see cref="TextWriter"/>.
-		/// </summary>
-		public LogFormatter<TEntry> Formatter { get { return _formatter; } }
-
-		/// <summary>
-		/// Gets the inner <see cref="TextWriter"/>.
-		/// </summary>
-		/// <value>
-		/// The <c>TextWriter</c> that this class writes to.
-		/// </value>
-		internal TextWriter TextWriter { get { return _writer; } }
-
-		public override bool Enabled { get { return !_disposed && IsStarted; } }
 
 		public override bool IsSynchronized { get { return _isSynchronized; } }
 
 		/// @inheritdoc
-		public void Write(ref TEntry entry)
+		public Func<bool> FlushPredicate
 		{
-			if (Enabled)
+			get { return _flushPredicate; }
+			set
 			{
-				bool lockTaken = false;
-				if (_isSynchronized)
+				if (IsStarted)
 				{
-					Monitor.Enter(this, ref lockTaken);
+					throw new LogJamSetupException("FlushPredicate cannot be set after logwriter is started.", this);
 				}
-				try
+				_flushPredicate = value;
+			}
+		}
+
+		protected override void Dispose(bool disposing)
+		{
+			base.Dispose(true);
+			_textWriter.Flush();
+			if (_disposeWriter)
+			{
+				_textWriter.Dispose();
+			}
+		}
+
+		/// <summary>
+		/// Adds the specified <typeparamref name="TEntry"/> to this <see cref="TextWriterLogWriter"/>, using <paramref name="entryFormatter"/> to
+		/// format entries of type <c>TEntry</c>.
+		/// </summary>
+		/// <typeparam name="TEntry"></typeparam>
+		/// <param name="entryFormatter"></param>
+		/// <returns>this, for chaining calls in fluent style.</returns>
+		public TextWriterLogWriter AddFormat<TEntry>(LogFormatter<TEntry> entryFormatter)
+			where TEntry : ILogEntry
+		{
+			Contract.Requires<ArgumentNullException>(entryFormatter != null);
+
+			AddEntryWriter(new InnerEntryWriter<TEntry>(this, entryFormatter));
+			return this;
+		}
+
+		/// <summary>
+		/// Adds the specified <typeparamref name="TEntry"/> to this <see cref="TextWriterLogWriter"/>, using <paramref name="formatAction"/> to
+		/// format entries of type <c>TEntry</c>.
+		/// </summary>
+		/// <typeparam name="TEntry"></typeparam>
+		/// <param name="formatAction"></param>
+		/// <returns>this, for chaining calls in fluent style.</returns>
+		public TextWriterLogWriter AddFormat<TEntry>(FormatAction<TEntry> formatAction)
+			where TEntry : ILogEntry
+		{
+			Contract.Requires<ArgumentNullException>(formatAction != null);
+
+			return AddFormat((LogFormatter<TEntry>) formatAction);
+		}
+
+		internal TextWriter InternalTextWriter { get { return _textWriter; } }
+
+		private void WriteFormattedEntry(string formattedEntry)
+		{
+			if (! IsStarted)
+			{
+				return;
+			}
+
+			bool lockTaken = false;
+			bool includeNewLine = ! formattedEntry.EndsWith(_newLine);
+			if (_isSynchronized)
+			{
+				Monitor.Enter(this, ref lockTaken);
+			}
+			try
+			{
+				if (includeNewLine)
 				{
-					_formatter.Format(ref entry, _writer);
-					if (FlushPredicate())
-					{
-						_writer.Flush();
-					}
+					_textWriter.WriteLine(formattedEntry);
 				}
-				catch (ObjectDisposedException)
+				else
 				{
-					_disposed = true;
+					_textWriter.Write(formattedEntry);
 				}
-				finally
+				if (_flushPredicate())
 				{
-					if (lockTaken)
-					{
-						Monitor.Exit(this);
-					}
+					_textWriter.Flush();
+				}
+			}
+			finally
+			{
+				if (lockTaken)
+				{
+					Monitor.Exit(this);
 				}
 			}
 		}
 
-		public void Dispose()
+		/// <summary>
+		/// Provides log writing to the <see cref="TextWriterLogWriter"/> for entry type <typeparamref name="TEntry"/>.
+		/// </summary>
+		/// <typeparam name="TEntry"></typeparam>
+		internal class InnerEntryWriter<TEntry> : IEntryWriter<TEntry>
+			where TEntry : ILogEntry
 		{
-			lock (this)
+
+			private readonly TextWriterLogWriter _parent;
+			private readonly LogFormatter<TEntry> _formatter;
+
+			public InnerEntryWriter(TextWriterLogWriter parent, LogFormatter<TEntry> entryFormatter)
 			{
-				if (! _disposed)
+				_parent = parent;
+				_formatter = entryFormatter;
+			}
+
+			public void Write(ref TEntry entry)
+			{
+				if (_parent.IsStarted)
 				{
-					_writer.Flush();
-
-					if (_disposeWriter)
-					{
-						try
-						{
-							_writer.Dispose();
-						}
-						catch (ObjectDisposedException)
-						{}
-					}
-
-					_disposed = true;
+					_parent.WriteFormattedEntry(_formatter.Format(ref entry));
 				}
 			}
+
+			public bool Enabled { get { return _parent.IsStarted; } }
+
+			internal LogFormatter<TEntry> Formatter { get { return _formatter; } }
+			internal TextWriterLogWriter Parent { get { return _parent; } } 
+
 		}
 
 	}

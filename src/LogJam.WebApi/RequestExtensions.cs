@@ -7,7 +7,10 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
+using Owin;
 // ReSharper disable once CheckNamespace
+
+
 namespace System.Net.Http
 {
 	using System.Diagnostics.Contracts;
@@ -25,7 +28,7 @@ namespace System.Net.Http
 		/// <summary>
 		/// Returns the request number (ordinal) for the request described by <paramref name="webApiRequest"/>.  This
 		/// method will return monotonically increasing request numbers if OWIN request logging is enabled
-		/// via <see cref="Owin.AppBuilderExtensions.LogHttpRequests"/>.
+		/// via <see cref="AppBuilderExtensions.LogHttpRequests"/>.
 		/// </summary>
 		/// <param name="webApiRequest">An <see cref="HttpRequestMessage"/> for the current request.</param>
 		/// <returns>The request number for the current OWIN request.</returns>

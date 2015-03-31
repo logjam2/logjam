@@ -16,7 +16,7 @@ namespace LogJam
 
 
 	/// <summary>
-	/// Thrown when an <see cref="ILogWriter{TEntry}"/> failed to write to a log.
+	/// Thrown when an <see cref="IEntryWriter{TEntry}"/> failed to write to a log.
 	/// </summary>
 	public sealed class LogWriterException : LogJamException
 	{

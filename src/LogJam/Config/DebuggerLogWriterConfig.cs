@@ -7,38 +7,29 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
-namespace LogJam.Writer
+namespace LogJam.Config
 {
 	using System.IO;
 
-	using LogJam.Config;
 	using LogJam.Config.Json;
-	using LogJam.Format;
+	using LogJam.Writer;
 
 
 	/// <summary>
 	/// Configures a log writer that writes to the debugger window.
 	/// </summary>
 	[JsonTypeHint("Target", "Debugger")]
-	public sealed class DebuggerLogWriterConfig<TEntry> : TextWriterLogWriterConfig<TEntry> where TEntry : ILogEntry
+	public sealed class DebuggerLogWriterConfig : TextWriterLogWriterConfig
 	{
 
 		/// <summary>
-		/// Creates a new <see cref="DebuggerLogWriterConfig{TEntry}"/>.  The <see cref="TextWriterLogWriterConfig{TEntry}.Formatter"/> property must be set.
+		/// Creates a new <see cref="DebuggerLogWriterConfig"/>.
 		/// </summary>
 		public DebuggerLogWriterConfig()
+			: base(CreateDebuggerTextWriter)
 		{}
 
-		/// <summary>
-		/// Creates a new <see cref="DebuggerLogWriterConfig{TEntry}"/> using the specified <paramref name="formatter"/>.
-		/// </summary>
-		/// <param name="formatter"></param>
-		public DebuggerLogWriterConfig(LogFormatter<TEntry> formatter)
-		{
-			Formatter = formatter;
-		}
-
-		protected override TextWriter CreateTextWriter()
+		private static TextWriter CreateDebuggerTextWriter()
 		{
 			return new DebuggerTextWriter();
 		}
