@@ -42,11 +42,25 @@ namespace LogJam.Config
 			return writerConfig;
 		}
 
-		public static TextWriterLogWriterConfig UseDebugger(this LogManagerConfig logManagerConfig)
+		public static DebuggerLogWriterConfig UseDebugger(this LogManagerConfig logManagerConfig)
 		{
 			Contract.Requires<ArgumentNullException>(logManagerConfig != null);
 
-			return logManagerConfig.UseTextWriter(new DebuggerTextWriter());
+			var debuggerConfig = new DebuggerLogWriterConfig();
+			logManagerConfig.Writers.Add(debuggerConfig);
+			return debuggerConfig;
+		}
+
+		public static ConsoleLogWriterConfig UseConsole(this LogManagerConfig logManagerConfig, bool colorize = true)
+		{
+			Contract.Requires<ArgumentNullException>(logManagerConfig != null);
+
+			var consoleWriterConfig = new ConsoleLogWriterConfig()
+			                          {
+				                          UseColor = colorize
+			                          };
+			logManagerConfig.Writers.Add(consoleWriterConfig);
+			return consoleWriterConfig;
 		}
 
 		public static UseExistingLogWriterConfig UseLogWriter(this LogManagerConfig logManagerConfig, ILogWriter logWriter)

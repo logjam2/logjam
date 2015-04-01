@@ -82,7 +82,7 @@ namespace LogJam
 			return GetEnumerator();
 		}
 
-		public bool Enabled { get { return true; } }
+		public bool IsEnabled { get { return true; } }
 
 		public void Write(ref TraceEntry entry)
 		{

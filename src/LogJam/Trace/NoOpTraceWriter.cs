@@ -34,7 +34,7 @@ namespace LogJam.Trace
 		public void Dispose()
 		{}
 
-		public bool Enabled { get { return false; } }
+		public bool IsEnabled { get { return false; } }
 
 		public bool IsSynchronized { get { return true; } }
 

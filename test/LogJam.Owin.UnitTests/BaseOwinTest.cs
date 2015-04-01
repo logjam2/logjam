@@ -37,7 +37,7 @@ namespace LogJam.Owin.UnitTests
 		protected readonly PathString TracePath = new PathString("/trace");
 		protected readonly PathString LogJamStatusPath = new PathString("/logjam/status");
 
-		protected TestServer CreateTestServer(TextWriter logTarget, SetupLog setupLog, bool backgroundThreadLogging = true)
+		public TestServer CreateTestServer(TextWriter logTarget, SetupLog setupLog, bool backgroundThreadLogging = true)
 		{
 			Contract.Requires<ArgumentNullException>(logTarget != null);
 
@@ -51,14 +51,7 @@ namespace LogJam.Owin.UnitTests
 				appBuilder.RegisterLogManager(setupLog);
 
 				// Configure logging
-				var textLogConfig = appBuilder.GetLogManagerConfig().UseTextWriter(logTarget)
-				                              .Format(new DebuggerTraceFormatter() { IncludeTimestamp = true})
-				                              .Format(new HttpRequestFormatter())
-				                              .Format(new HttpResponseFormatter());
-				textLogConfig.BackgroundLogging = backgroundThreadLogging;
-				appBuilder.GetTraceManagerConfig().TraceTo(textLogConfig, Tracer.All, new OnOffTraceSwitch(true));
-				appBuilder.LogHttpRequests(textLogConfig);
-				appBuilder.UseOwinTracerLogging();
+				ConfigureLogging(appBuilder, logTarget, backgroundThreadLogging);
 
 				// Run the ExceptionLoggingMiddleware _after_ the Owin.Diagnostics.Error page, which will result in exceptions being 
 				// logged twice, and results in the Owin.Diagnostis.Error page converting the Exception into a response
@@ -105,6 +98,24 @@ namespace LogJam.Owin.UnitTests
 
 				logTarget.WriteLine("TestAuthServer configuration complete.");
 			});
+		}
+
+		/// <summary>
+		/// Logging configuration - overrideable
+		/// </summary>
+		/// <param name="appBuilder"></param>
+		/// <param name="logTarget"></param>
+		/// <param name="backgroundThreadLogging"></param>
+		protected virtual void ConfigureLogging(IAppBuilder appBuilder, TextWriter logTarget, bool backgroundThreadLogging)
+		{
+			var textLogConfig = appBuilder.GetLogManagerConfig().UseTextWriter(logTarget)
+										  .Format(new DebuggerTraceFormatter() { IncludeTimestamp = true })
+										  .Format(new HttpRequestFormatter())
+										  .Format(new HttpResponseFormatter());
+			textLogConfig.BackgroundLogging = backgroundThreadLogging;
+			appBuilder.GetTraceManagerConfig().TraceTo(textLogConfig, Tracer.All, new OnOffTraceSwitch(true));
+			appBuilder.LogHttpRequests(textLogConfig);
+			appBuilder.UseOwinTracerLogging();			
 		}
 
 		protected void IssueTraceRequest(TestServer testServer, int traceCount)

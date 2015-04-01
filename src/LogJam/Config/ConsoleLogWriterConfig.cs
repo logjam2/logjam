@@ -1,23 +1,35 @@
 ﻿// // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ConsoleLogWriterConfig.cs">
-// Copyright (c) 2011-2014 logjam.codeplex.com.  
+// Copyright (c) 2011-2015 logjam.codeplex.com.  
 // </copyright>
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
 
-namespace LogJam.Trace.Config
+namespace LogJam.Config
 {
-	using LogJam.Config;
+	using LogJam.Config.Json;
+	using LogJam.Trace;
+	using LogJam.Util;
 	using LogJam.Writer;
 
 
 	/// <summary>
-	/// Trace log writer configuration that creates a <see cref="ConsoleLogWriter"/>.
+	/// Configures a log writer that writes log output to the console, aka stdout.
 	/// </summary>
-	public sealed class ConsoleLogWriterConfig : TextWriterLogWriterConfig
+	[JsonTypeHint("Target", "Console")]
+	public sealed class ConsoleLogWriterConfig : TextLogWriterConfig
 	{
+
+		/// <summary>
+		/// Creates a new <see cref="ConsoleLogWriterConfig"/>.
+		/// </summary>
+		public ConsoleLogWriterConfig()
+		{
+			// Default Synchronized to false
+			Synchronized = false;
+		}
 
 		/// <summary>
 		/// Gets or sets a value that specifies whether created <see cref="ConsoleLogWriter"/>s will write colored text output.
@@ -33,22 +45,18 @@ namespace LogJam.Trace.Config
 
 		public override bool Equals(ILogWriterConfig other)
 		{
-			if (! base.Equals(other))
+			if (ReferenceEquals(this, other))
 			{
-				return false;
+				return true;
 			}
+
 			var otherSameType = other as ConsoleLogWriterConfig;
 			if (otherSameType == null)
 			{
 				return false;
 			}
 
-			return UseColor == otherSameType.UseColor;
-		}
-
-		public override int GetHashCode()
-		{
-			return base.GetHashCode() ^ UseColor.GetHashCode();
+			return base.Equals(otherSameType) && (UseColor == otherSameType.UseColor);
 		}
 
 	}

@@ -175,8 +175,8 @@ namespace LogJam.Writer
 		///// <summary>
 		///// Returns <c>true</c> if this object is ready to receive log writes.
 		///// </summary>
-		///// <remarks>Enabled is synonymous with <see cref="IsStarted"/> for this class.</remarks>
-		//public bool Enabled { get { return (_backgroundThread != null) && _backgroundThread.IsStarted; } }
+		///// <remarks>IsEnabled is synonymous with <see cref="IsStarted"/> for this class.</remarks>
+		//public bool IsEnabled { get { return (_backgroundThread != null) && _backgroundThread.IsStarted; } }
 
 		//public bool IsSynchronized { get { return true; } }
 
@@ -399,7 +399,7 @@ namespace LogJam.Writer
 				_backgroundActionQueue = parent._backgroundActionQueue;
 				_setupTracerFactory = parent._setupTracerFactory;
 
-				_isStarted = _innerEntryWriter.Enabled;
+				_isStarted = _innerEntryWriter.IsEnabled;
 				_isDisposed = false;
 			}
 
@@ -425,7 +425,7 @@ namespace LogJam.Writer
 				QueueBackgroundAction(DequeAndWriteEntry);
 			}
 
-			public bool Enabled { get { return _isStarted; } }
+			public bool IsEnabled { get { return _isStarted; } }
 
 			public bool IsSynchronized { get { return true; } }
 

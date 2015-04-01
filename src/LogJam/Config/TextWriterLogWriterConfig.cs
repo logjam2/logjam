@@ -24,11 +24,8 @@ namespace LogJam.Config
 	/// <summary>
 	/// Configures use of a <see cref="TextWriterLogWriter"/>.
 	/// </summary>
-	public class TextWriterLogWriterConfig : LogWriterConfig
+	public class TextWriterLogWriterConfig : TextLogWriterConfig
 	{
-
-		// Configured formatters are stored as a list of logentry Type, logentry formatter, configure action
-		private readonly List<Tuple<Type, object, Action<TextWriterLogWriter>>> _formatters = new List<Tuple<Type, object, Action<TextWriterLogWriter>>>();
 
 		/// <summary>
 		/// Initializes a new config object that will create <see cref="TextWriterLogWriter"/> instances
@@ -75,54 +72,11 @@ namespace LogJam.Config
 		public Func<TextWriter> CreateTextWriter { get; set; } 
 
 		/// <summary>
-		/// Adds formatting for entry types <typeparamref name="TEntry"/> using <paramref name="formatter"/>.
-		/// </summary>
-		/// <typeparam name="TEntry"></typeparam>
-		/// <param name="formatter"></param>
-		/// <returns></returns>
-		public TextWriterLogWriterConfig Format<TEntry>(LogFormatter<TEntry> formatter)
-			where TEntry : ILogEntry
-		{
-			Contract.Requires<ArgumentNullException>(formatter != null);
-
-			Action<TextWriterLogWriter> configureAction = (mw) => mw.AddFormat(formatter);
-
-			_formatters.Add(new Tuple<Type, object, Action<TextWriterLogWriter>>(typeof(TEntry), formatter, configureAction));
-			return this;
-		}
-
-		/// <summary>
-		/// Adds formatting for entry types <typeparamref name="TEntry"/> using <paramref name="formatAction"/>.
-		/// </summary>
-		/// <typeparam name="TEntry"></typeparam>
-		/// <param name="formatAction"></param>
-		/// <returns></returns>
-		public TextWriterLogWriterConfig Format<TEntry>(FormatAction<TEntry> formatAction)
-			where TEntry : ILogEntry
-		{
-			Contract.Requires<ArgumentNullException>(formatAction != null);
-
-			return Format((LogFormatter<TEntry>) formatAction);
-		}
-
-		/// <summary>
 		/// Set to <c>true</c> to call <see cref="IDisposable.Dispose"/> on the created <see cref="TextWriter"/>.
 		/// </summary>
 		public bool DisposeTextWriter { get; set; }
 
 		#region ILogWriterConfig
-
-		public override bool Equals(ILogWriterConfig other)
-		{
-			TextWriterLogWriterConfig typedOther = other as TextWriterLogWriterConfig;
-			if ((typedOther == null) || !base.Equals(other))
-			{
-				return false;
-			}
-
-			return CreateTextWriter == typedOther.CreateTextWriter
-			       && EqualityUtil.AreEquivalent(_formatters, typedOther._formatters);
-		}
 
 		public override ILogWriter CreateLogWriter(ITracerFactory setupTracerFactory)
 		{
@@ -136,20 +90,23 @@ namespace LogJam.Config
 			return writer;
 		}
 
-		#endregion
-
-		/// <summary>
-		/// Applies all configured formatters to <paramref name="writer"/>.
-		/// </summary>
-		/// <param name="writer"></param>
-		protected void ApplyConfiguredFormatters(TextWriterLogWriter writer)
+		public override bool Equals(ILogWriterConfig other)
 		{
-			foreach (var formatterTuple in _formatters)
+			if (ReferenceEquals(this, other))
 			{
-				var configureFormatterAction = formatterTuple.Item3;
-				configureFormatterAction(writer);
+				return true;
 			}
+
+			var otherSameType = other as TextWriterLogWriterConfig;
+			if (otherSameType == null)
+			{
+				return false;
+			}
+
+			return base.Equals(otherSameType) && (CreateTextWriter == otherSameType.CreateTextWriter);
 		}
+
+		#endregion
 
 	}
 

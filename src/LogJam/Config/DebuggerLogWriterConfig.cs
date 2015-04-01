@@ -12,6 +12,8 @@ namespace LogJam.Config
 	using System.IO;
 
 	using LogJam.Config.Json;
+	using LogJam.Trace;
+	using LogJam.Util;
 	using LogJam.Writer;
 
 
@@ -19,19 +21,39 @@ namespace LogJam.Config
 	/// Configures a log writer that writes to the debugger window.
 	/// </summary>
 	[JsonTypeHint("Target", "Debugger")]
-	public sealed class DebuggerLogWriterConfig : TextWriterLogWriterConfig
+	public sealed class DebuggerLogWriterConfig : TextLogWriterConfig
 	{
 
 		/// <summary>
 		/// Creates a new <see cref="DebuggerLogWriterConfig"/>.
 		/// </summary>
 		public DebuggerLogWriterConfig()
-			: base(CreateDebuggerTextWriter)
-		{}
-
-		private static TextWriter CreateDebuggerTextWriter()
 		{
-			return new DebuggerTextWriter();
+			// Default Synchronized to false
+			Synchronized = false;
+		}
+
+		public override ILogWriter CreateLogWriter(ITracerFactory setupTracerFactory)
+		{
+			var writer = new DebuggerLogWriter(setupTracerFactory, Synchronized);
+			ApplyConfiguredFormatters(writer);
+			return writer;
+		}
+
+		public override bool Equals(ILogWriterConfig other)
+		{
+			if (ReferenceEquals(this, other))
+			{
+				return true;
+			}
+
+			var otherSameType = other as DebuggerLogWriterConfig;
+			if (otherSameType == null)
+			{
+				return false;
+			}
+
+			return base.Equals(otherSameType);
 		}
 
 	}

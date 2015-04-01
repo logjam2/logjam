@@ -48,7 +48,7 @@ namespace LogJam.Trace
 		/// <inheritdoc />
 		public bool IsTraceEnabled(string tracerName, TraceLevel traceLevel)
 		{
-			return InnerEntryWriter.Enabled && _traceSwitch.IsEnabled(tracerName, traceLevel);
+			return InnerEntryWriter.IsEnabled && _traceSwitch.IsEnabled(tracerName, traceLevel);
 		}
 
 		public TraceWriter[] ToTraceWriterArray()

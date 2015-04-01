@@ -30,7 +30,12 @@ namespace LogJam.Config
 
 		public override bool Equals(ILogWriterConfig other)
 		{
-			if (! base.Equals(other))
+			if (ReferenceEquals(this, other))
+			{
+				return true;
+			}
+
+			if (!base.Equals(other))
 			{
 				return false;
 			}
@@ -41,11 +46,6 @@ namespace LogJam.Config
 			}
 
 			return string.Equals(Directory, otherSameType.Directory) && string.Equals(File, otherSameType.File);
-		}
-
-		public override int GetHashCode()
-		{
-			return base.GetHashCode() ^ Directory.Hash(6) ^ File.Hash(3);
 		}
 
 	}

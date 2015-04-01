@@ -21,7 +21,7 @@ namespace LogJam.Writer
 		public NoOpEntryWriter()
 		{}
 
-		public bool Enabled { get { return false; } }
+		public bool IsEnabled { get { return false; } }
 
 		public void Write(ref TEntry entry)
 		{}

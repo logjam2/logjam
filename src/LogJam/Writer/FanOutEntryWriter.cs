@@ -86,12 +86,12 @@ namespace LogJam.Writer
 		}
 
 		/// <inheritdoc />
-		public bool Enabled
+		public bool IsEnabled
 		{
 			get
 			{
 				// TODO: Perf test this - is it called for normal log operations? should we cache?
-				return _innerEntryWriters.Any(writer => writer.Enabled);
+				return _innerEntryWriters.Any(writer => writer.IsEnabled);
 			}
 		}
 

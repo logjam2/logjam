@@ -89,7 +89,7 @@ namespace LogJam.Owin.Http
 
 			// Log request entry
 			IOwinRequest request = owinContext.Request;
-			if (!_disposed && _requestEntryWriter.Enabled)
+			if (!_disposed && _requestEntryWriter.IsEnabled)
 			{
 				HttpRequestEntry requestEntry;
 				requestEntry.RequestNumber = requestNum;
@@ -116,7 +116,7 @@ namespace LogJam.Owin.Http
 		private void LogHttpResponse(IOwinContext owinContext, DateTimeOffset requestStarted, long requestNum, IOwinRequest request)
 		{
 			// Log response entry
-			if (!_disposed && _responseEntryWriter.Enabled)
+			if (!_disposed && _responseEntryWriter.IsEnabled)
 			{
 				IOwinResponse response = owinContext.Response;
 				if (response == null)

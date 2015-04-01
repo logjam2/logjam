@@ -122,18 +122,6 @@ namespace Owin
 		}
 
 		/// <summary>
-		/// Enables logging to the debugger - this is off by default within OWIN.
-		/// </summary>
-		/// <param name="appBuilder"></param>
-		/// <returns></returns>
-		public static TextWriterLogWriterConfig LogToDebugger(this IAppBuilder appBuilder)
-		{
-			Contract.Requires<ArgumentNullException>(appBuilder != null);
-
-			return appBuilder.GetLogManagerConfig().UseDebugger();
-		}
-
-		/// <summary>
 		/// Logs to the OWIN <c>host.TraceOutput</c> stream.  It seems slow, so developer beware...
 		/// </summary>
 		/// <param name="appBuilder"></param>

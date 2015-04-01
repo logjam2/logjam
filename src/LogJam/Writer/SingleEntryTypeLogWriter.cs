@@ -48,7 +48,7 @@ namespace LogJam.Writer
 
 		#region IEntryWriter<TEntry>
 
-		public bool Enabled { get { return IsStarted; } }
+		public virtual bool IsEnabled { get { return IsStarted; } }
 
 		public abstract void Write(ref TEntry entry);
 

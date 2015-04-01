@@ -25,7 +25,7 @@ namespace LogJam.Writer
 		/// <value>
 		/// If <c>true</c>, this <c>IEntryWriter</c> can write entries.  If <c>false</c>, <see cref="IEntryWriter{TEntry}.Write"/> should not be called.
 		/// </value>
-		bool Enabled { get; }
+		bool IsEnabled { get; }
 
 		/// <summary>
 		/// Writes <paramref name="entry"/> to the log target.
@@ -50,7 +50,7 @@ namespace LogJam.Writer
 			}
 		}
 
-		public bool Enabled { get { throw new System.NotImplementedException(); } }
+		public bool IsEnabled { get { throw new System.NotImplementedException(); } }
 
 		public void Write(ref TEntry entry)
 		{

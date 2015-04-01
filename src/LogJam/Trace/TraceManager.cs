@@ -183,20 +183,20 @@ namespace LogJam.Trace
 		{
 			// Copy all LogWriterConfigs in the TraceWriterConfigs to the LogManager, if not already there
 			ILogWriterConfig[] traceLogWriterConfigs = Config.Writers.Select(writerConfig => writerConfig.LogWriterConfig).ToArray();
-			bool logWriterRestartNotNeeded = _logManager.Config.Writers.IsSupersetOf(traceLogWriterConfigs);
+			bool logWriterRestartNeeded = ! _logManager.Config.Writers.IsSupersetOf(traceLogWriterConfigs);
 
 			lock (this)
 			{
-				if (logWriterRestartNotNeeded)
-				{
-					// No config changes needed, just start it if not already started
-					_logManager.EnsureStarted();
-				}
-				else
+				if (logWriterRestartNeeded)
 				{
 					// Add the LogWriterConfigs, and restart the LogManager
 					_logManager.Config.Writers.UnionWith(traceLogWriterConfigs);
 					_logManager.Start();			
+				}
+				else
+				{
+					// No config changes needed, just start it if not already started
+					_logManager.EnsureStarted();
 				}
 
 				// Create all the TraceWriters associated with each config entry

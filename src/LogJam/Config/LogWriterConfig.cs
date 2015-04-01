@@ -28,9 +28,10 @@ namespace LogJam.Config
 
 		/// <summary>
 		/// Sets or gets whether the <see cref="IEntryWriter{TEntry}"/> returned from <see cref="CreateLogWriter"/> should have its
-		/// writes synchronized or not.  Default is <c>true</c>.
+		/// writes synchronized or not.  Default is <c>true</c>; however <c>false</c> is returned if <see cref="BackgroundLogging"/>
+		/// is <c>true</c>, to avoid synchronization overhead when logging on a single background thread.
 		/// </summary>
-		public virtual bool Synchronized { get { return _synchronized; } set { _synchronized = value; } }
+		public virtual bool Synchronized { get { return _synchronized && ! BackgroundLogging; } set { _synchronized = value; } }
 
 		/// <summary>
 		/// Sets or gets whether log writes should be queued from the logging thread, and written on a single background thread.
@@ -57,17 +58,14 @@ namespace LogJam.Config
 			{
 				return false;
 			}
-			return Synchronized == other.Synchronized;
+			return (Synchronized == other.Synchronized)
+				&& (BackgroundLogging = other.BackgroundLogging)
+				&& (DisposeOnStop = other.DisposeOnStop);
 		}
 
 		public override bool Equals(object obj)
 		{
-			return Equals(obj as ILogWriterConfig);
-		}
-
-		public override int GetHashCode()
-		{
-			return GetType().GetHashCode();
+			return ReferenceEquals(obj, this) || Equals(obj as ILogWriterConfig);
 		}
 
 	}

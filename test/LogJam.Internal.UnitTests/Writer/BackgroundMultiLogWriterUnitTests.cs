@@ -241,7 +241,7 @@ namespace LogJam.Internal.UnitTests.Writer
 				{
 					ExampleHelper.LogTestMessagesInParallel(queueEntryWriter, 8, 8);
 				}
-				Assert.False(queueEntryWriter.Enabled);
+				Assert.False(queueEntryWriter.IsEnabled);
 				Assert.False(queueEntryWriter.IsStarted);
 				Assert.True(backgroundMultiLogWriter.IsStarted);
 

@@ -18,11 +18,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseLogJamManager.cs" />
+    <Compile Include="Config\ConsoleLogWriterConfig.cs" />
     <Compile Include="Config\ILogWriterConfig.cs" />
     <Compile Include="Config\Json\JsonTypeHintAttribute.cs" />
     <Compile Include="Config\LogJamConfigTypes.cs" />
     <Compile Include="Config\LogManagerConfig.cs" />
     <Compile Include="Config\LogManagerConfigFluentExtensions.cs" />
+    <Compile Include="Config\TextLogWriterConfig.cs" />
     <Compile Include="Config\TextWriterLogWriterConfig.cs" />
     <Compile Include="Config\UseExistingLogWriterConfig.cs" />
     <Compile Include="Format\ActionFormatter.cs" />
@@ -48,7 +50,6 @@
     <Compile Include="SetupLog.cs" />
     <Compile Include="LogManager.cs" />
     <Compile Include="LogWriterException.cs" />
-    <Compile Include="Trace\Config\ConsoleLogWriterConfig.cs" />
     <Compile Include="Trace\Config\SwitchSet.cs" />
     <Compile Include="Writer\ConsoleLogWriter.cs" />
     <Compile Include="Trace\ITraceWriter.cs" />
@@ -79,6 +80,7 @@
     <Compile Include="Writer\NoOpLogWriter.cs" />
     <Compile Include="Writer\ProxyEntryWriter.cs" />
     <Compile Include="Writer\SingleEntryTypeLogWriter.cs" />
+    <Compile Include="Writer\TextLogWriter.cs" />
     <Compile Include="Writer\TextWriterLogWriter.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -87,7 +89,7 @@
     <Compile Include="Trace\ITracerFactory.cs" />
     <Compile Include="Trace\TraceEntry.cs" />
     <Compile Include="Trace\TracerFactoryExtensions.cs" />
-    <Compile Include="Writer\DebuggerTextWriter.cs" />
+    <Compile Include="Writer\DebuggerLogWriter.cs" />
     <Compile Include="Trace\Format\DebuggerTraceFormatter.cs" />
     <Compile Include="Format\LogFormatter.cs" />
     <Compile Include="Writer\IEntryWriter.cs" />

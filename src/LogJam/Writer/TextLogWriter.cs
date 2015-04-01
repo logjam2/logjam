@@ -1,44 +1,46 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="TestOutputLogWriter.cs">
+﻿// // --------------------------------------------------------------------------------------------------------------------
+// <copyright file="TextLogWriter.cs">
 // Copyright (c) 2011-2015 logjam.codeplex.com.  
 // </copyright>
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace LogJam.XUnit2
+
+namespace LogJam.Writer
 {
+	using LogJam.Format;
+	using LogJam.Trace;
 	using System;
 	using System.Diagnostics.Contracts;
 
-	using LogJam.Format;
-	using LogJam.Trace;
-	using LogJam.Writer;
-
-	using Xunit.Abstractions;
-
 
 	/// <summary>
-	/// Formats and writes log entries to an <see cref="ITestOutputHelper"/>. This enables
-	/// capturing trace and other log output and writing it to a test's xunit 2.0 test output.
+	/// Supports writing log entries to a target that receives formatted text.
 	/// </summary>
-	public sealed class TestOutputLogWriter : BaseLogWriter
+	public abstract class TextLogWriter : BaseLogWriter
 	{
 
-		private readonly ITestOutputHelper _testOutput;
+		protected readonly bool _isSynchronized;
+		private readonly string _newLine;
 
 		/// <summary>
-		/// Creates a new <see cref="TestOutputLogWriter"/>.
+		/// Creates a new <see cref="TextLogWriter"/>.
 		/// </summary>
-		/// <param name="testOutput">The xunit <see cref="ITestOutputHelper"/> to write formatted log output to.</param>
-		/// <param name="setupTracerFactory">The <see cref="ITracerFactory"/> used to trace setup operations.</param>
-		public TestOutputLogWriter(ITestOutputHelper testOutput, ITracerFactory setupTracerFactory)
+		/// <param name="setupTracerFactory">The <see cref="ITracerFactory"/> to use for logging setup operations.</param>
+		/// <param name="synchronize">Set to <c>true</c> if all logging operations should be synchronized.</param>
+		protected TextLogWriter(ITracerFactory setupTracerFactory, bool synchronize = false)
 			: base(setupTracerFactory)
 		{
-			Contract.Requires<ArgumentNullException>(testOutput != null);
-
-			_testOutput = testOutput;
+			_isSynchronized = synchronize;
 		}
+
+		public override bool IsSynchronized { get { return _isSynchronized; } }
+
+		/// <summary>
+		/// Returns <c>true</c> when this logwriter and its entrywriters are ready to log.
+		/// </summary>
+		public virtual bool IsEnabled { get { return IsStarted; } }
 
 		/// <summary>
 		/// Adds the specified <typeparamref name="TEntry"/> to this <see cref="TextWriterLogWriter"/>, using <paramref name="entryFormatter"/> to
@@ -47,7 +49,7 @@ namespace LogJam.XUnit2
 		/// <typeparam name="TEntry"></typeparam>
 		/// <param name="entryFormatter"></param>
 		/// <returns>this, for chaining calls in fluent style.</returns>
-		public TestOutputLogWriter AddFormat<TEntry>(LogFormatter<TEntry> entryFormatter)
+		public TextLogWriter AddFormat<TEntry>(LogFormatter<TEntry> entryFormatter)
 			where TEntry : ILogEntry
 		{
 			Contract.Requires<ArgumentNullException>(entryFormatter != null);
@@ -63,7 +65,7 @@ namespace LogJam.XUnit2
 		/// <typeparam name="TEntry"></typeparam>
 		/// <param name="formatAction"></param>
 		/// <returns>this, for chaining calls in fluent style.</returns>
-		public TestOutputLogWriter AddFormat<TEntry>(FormatAction<TEntry> formatAction)
+		public TextLogWriter AddFormat<TEntry>(FormatAction<TEntry> formatAction)
 			where TEntry : ILogEntry
 		{
 			Contract.Requires<ArgumentNullException>(formatAction != null);
@@ -71,30 +73,20 @@ namespace LogJam.XUnit2
 			return AddFormat((LogFormatter<TEntry>) formatAction);
 		}
 
+		protected abstract void WriteFormattedEntry(string formattedEntry);
 
 		/// <summary>
-		/// Log writing is synchronized based on the assumption that the <see cref="ITestOutputHelper"/>
-		/// implementation is synchronized - it must be, since xunit2 supports async tests.
-		/// </summary>
-		public override bool IsSynchronized { get { return true; } }
-
-		private void WriteFormattedEntry(string formattedEntry)
-		{
-			_testOutput.WriteLine(formattedEntry);
-		}
-
-		/// <summary>
-		/// Provides log writing to the <see cref="TestOutputLogWriter"/> for entry type <typeparamref name="TEntry"/>.
+		/// Provides log writing to the <see cref="TextLogWriter"/> for entry type <typeparamref name="TEntry"/>.
 		/// </summary>
 		/// <typeparam name="TEntry"></typeparam>
 		internal class InnerEntryWriter<TEntry> : IEntryWriter<TEntry>
 			where TEntry : ILogEntry
 		{
 
-			private readonly TestOutputLogWriter _parent;
+			private readonly TextLogWriter _parent;
 			private readonly LogFormatter<TEntry> _formatter;
 
-			public InnerEntryWriter(TestOutputLogWriter parent, LogFormatter<TEntry> entryFormatter)
+			public InnerEntryWriter(TextLogWriter parent, LogFormatter<TEntry> entryFormatter)
 			{
 				_parent = parent;
 				_formatter = entryFormatter;
@@ -108,11 +100,10 @@ namespace LogJam.XUnit2
 				}
 			}
 
-			public bool IsEnabled { get { return _parent.IsStarted; } }
+			public bool IsEnabled { get { return _parent.IsEnabled; } }
 
 			internal LogFormatter<TEntry> Formatter { get { return _formatter; } }
-
-			internal TestOutputLogWriter Parent { get { return _parent; } }
+			internal TextLogWriter Parent { get { return _parent; } } 
 
 		}
 

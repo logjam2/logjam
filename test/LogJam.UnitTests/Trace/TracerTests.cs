@@ -318,7 +318,7 @@ namespace LogJam.UnitTests.Trace
 					throw new NotImplementedException();
 				}
 
-				public bool Enabled { get { return true; } }
+				public bool IsEnabled { get { return true; } }
 
 			}
 

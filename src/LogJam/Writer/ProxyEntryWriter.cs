@@ -57,7 +57,7 @@ namespace LogJam.Writer
 			get { return _innerEntryWriter; }
 		}
 
-		public virtual bool Enabled { get { return InnerEntryWriter.Enabled; } }
+		public virtual bool IsEnabled { get { return InnerEntryWriter.IsEnabled; } }
 
 		public virtual void Write(ref TEntry entry)
 		{
