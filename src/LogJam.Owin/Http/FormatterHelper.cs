@@ -9,6 +9,7 @@
 
 namespace LogJam.Owin.Http
 {
+	using System.Collections.Generic;
 	using System.IO;
 
 	using Microsoft.Owin;
@@ -20,9 +21,9 @@ namespace LogJam.Owin.Http
 	internal static class FormatterHelper
 	{
 
-		internal static void FormatHeaders(TextWriter textWriter, IReadableStringCollection headerDictionary)
+		internal static void FormatHeaders(TextWriter textWriter, KeyValuePair<string, string[]>[] headers)
 		{
-			foreach (var header in headerDictionary)
+			foreach (var header in headers)
 			{
 				foreach (string value in header.Value)
 				{

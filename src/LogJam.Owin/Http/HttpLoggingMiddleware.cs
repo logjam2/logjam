@@ -12,6 +12,7 @@ namespace LogJam.Owin.Http
 	using System.Collections.Generic;
 	using System.Diagnostics.Contracts;
 	using System.IO;
+	using System.Linq;
 	using System.Text;
 	using System.Threading;
 	using System.Threading.Tasks;
@@ -89,14 +90,17 @@ namespace LogJam.Owin.Http
 
 			// Log request entry
 			IOwinRequest request = owinContext.Request;
+			string requestUri = request.Uri.OriginalString;
+			string requestMethod = request.Method;
+
 			if (!_disposed && _requestEntryWriter.IsEnabled)
 			{
 				HttpRequestEntry requestEntry;
 				requestEntry.RequestNumber = requestNum;
 				requestEntry.RequestStarted = requestStarted;
-				requestEntry.Method = request.Method;
-				requestEntry.Uri = request.Uri.OriginalString;
-				requestEntry.RequestHeaders = request.Headers;
+				requestEntry.Method = requestMethod;
+				requestEntry.Uri = requestUri;
+				requestEntry.RequestHeaders = request.Headers.ToArray();
 				_requestEntryWriter.Write(ref requestEntry);
 			}
 
@@ -106,14 +110,14 @@ namespace LogJam.Owin.Http
 			return taskNext.ContinueWith((innerTask) =>
 			                             {
 											 // Try logging the HTTP response whether or not it faulted
-					                         LogHttpResponse(owinContext, requestStarted, requestNum, request);
+					                         LogHttpResponse(owinContext, requestStarted, requestNum, requestMethod, requestUri);
 
 											 // Propagate the exception or cancellation
 				                             innerTask.Wait();
 			                             });
 		}
 
-		private void LogHttpResponse(IOwinContext owinContext, DateTimeOffset requestStarted, long requestNum, IOwinRequest request)
+		private void LogHttpResponse(IOwinContext owinContext, DateTimeOffset requestStarted, long requestNum, string requestMethod, string requestUri)
 		{
 			// Log response entry
 			if (!_disposed && _responseEntryWriter.IsEnabled)
@@ -121,18 +125,18 @@ namespace LogJam.Owin.Http
 				IOwinResponse response = owinContext.Response;
 				if (response == null)
 				{
-					_tracer.Error("Cannot log HTTP response - no owinContext.Response.  Request #{0} {1}", requestNum, request.Uri.OriginalString);
+					_tracer.Error("Cannot log HTTP response - no owinContext.Response.  Request #{0} {1} {2}", requestNum, requestMethod, requestUri);
 				}
 				else
 				{
 					HttpResponseEntry responseEntry;
 					responseEntry.RequestNumber = requestNum;
 					responseEntry.Ttfb = DateTimeOffset.Now - requestStarted;
-					responseEntry.Method = request.Method;
-					responseEntry.Uri = request.Uri.OriginalString;
+					responseEntry.Method = requestMethod;
+					responseEntry.Uri = requestUri;
 					responseEntry.HttpStatusCode = (short) response.StatusCode;
 					responseEntry.HttpReasonPhrase = response.ReasonPhrase;
-					responseEntry.ResponseHeaders = response.Headers;
+					responseEntry.ResponseHeaders = response.Headers.ToArray();
 					_responseEntryWriter.Write(ref responseEntry);
 				}
 			}

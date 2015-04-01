@@ -10,6 +10,7 @@
 namespace LogJam.Owin.Http
 {
 	using System;
+	using System.Collections.Generic;
 
 	using Microsoft.Owin;
 
@@ -52,7 +53,7 @@ namespace LogJam.Owin.Http
 		/// <summary>
 		/// The HTTP response headers.
 		/// </summary>
-		public IReadableStringCollection ResponseHeaders;
+		public KeyValuePair<string, string[]>[] ResponseHeaders;
 	}
 
 }
