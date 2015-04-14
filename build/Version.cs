@@ -38,4 +38,4 @@ using System.Reflection;
 
 // Semantic version (http://semver.org). Assembly version changes less than the semver; semver must increment for every release.
 
-[assembly: AssemblyInformationalVersion("0.9.3-beta")]
+[assembly: AssemblyInformationalVersion("0.9.4-beta")]
