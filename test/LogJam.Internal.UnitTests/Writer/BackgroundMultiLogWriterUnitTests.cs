@@ -325,7 +325,7 @@ namespace LogJam.Internal.UnitTests.Writer
 
 			Console.WriteLine("Setup messages:");
 			SetupLog.WriteEntriesTo(Console.Out,
-			                                  new DebuggerTraceFormatter()
+			                                  new DefaultTraceFormatter()
 			                                  {
 				                                  IncludeTimestamp = true
 			                                  });

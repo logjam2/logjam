@@ -102,7 +102,7 @@ namespace LogJam.Owin.UnitTests
 
 				// Log to debugger
 				var debuggerConfig = logManagerConfig.UseDebugger()
-													 .Format(new DebuggerTraceFormatter())
+													 .Format(new DefaultTraceFormatter())
 													 .Format(new HttpRequestFormatter())
 													 .Format(new HttpResponseFormatter());
 				debuggerConfig.BackgroundLogging = backgroundThreadLogging;
@@ -110,7 +110,7 @@ namespace LogJam.Owin.UnitTests
 
 				// Log to console
 				var consoleConfig = new ConsoleLogWriterConfig()
-													 .Format(new DebuggerTraceFormatter())
+													 .Format(new DefaultTraceFormatter())
 													 .Format(new HttpRequestFormatter())
 													 .Format(new HttpResponseFormatter());
 				consoleConfig.BackgroundLogging = backgroundThreadLogging;
@@ -119,7 +119,7 @@ namespace LogJam.Owin.UnitTests
 
 				// Log to TextWriter
 				var textLogConfig = logManagerConfig.UseTextWriter(logTarget)
-							  .Format(new DebuggerTraceFormatter() { IncludeTimestamp = true })
+							  .Format(new DefaultTraceFormatter() { IncludeTimestamp = true })
 							  .Format(new HttpRequestFormatter())
 							  .Format(new HttpResponseFormatter());
 				textLogConfig.BackgroundLogging = backgroundThreadLogging;

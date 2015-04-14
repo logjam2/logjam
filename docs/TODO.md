@@ -17,6 +17,7 @@
 
 2. Add status support, expose it from logmanager/tracemanager
 3. Remote logging via protobuf
+1. Implement Web API ITraceManager - more efficient than just implementing ITraceWriter?
 1. Custom log rotator behavior - datetime changes, log size, etc
 1. Better tracing of individual LogWriter setup/shutdown
 

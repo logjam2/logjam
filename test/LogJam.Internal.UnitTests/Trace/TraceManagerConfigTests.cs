@@ -52,7 +52,7 @@ namespace LogJam.Internal.UnitTests.Trace
 			var traceWriter = (TraceWriter) tracer.Writer;
 			Assert.IsType<TextLogWriter.InnerEntryWriter<TraceEntry>>(traceWriter.InnerEntryWriter);
 			var entryWriter = (TextLogWriter.InnerEntryWriter<TraceEntry>) traceWriter.InnerEntryWriter;
-			Assert.IsType<DebuggerTraceFormatter>(entryWriter.Formatter);
+			Assert.IsType<DefaultTraceFormatter>(entryWriter.Formatter);
 			Assert.IsType<DebuggerLogWriter>(entryWriter.Parent);
 		}
 

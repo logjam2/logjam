@@ -78,7 +78,7 @@ namespace LogJam.Trace.Config
 		/// <returns></returns>
 		public static TraceWriterConfig CreateDefaultTraceWriterConfig()
 		{
-			return new TraceWriterConfig(new DebuggerLogWriterConfig().Format(new DebuggerTraceFormatter()))
+			return new TraceWriterConfig(new DebuggerLogWriterConfig().Format(new DefaultTraceFormatter()))
 			       {
 				       Switches =
 				       {

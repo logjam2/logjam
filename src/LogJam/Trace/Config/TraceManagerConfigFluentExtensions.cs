@@ -126,7 +126,7 @@ namespace LogJam.Trace.Config
 
 			if (traceFormatter == null)
 			{
-				traceFormatter = new DebuggerTraceFormatter();
+				traceFormatter = new DefaultTraceFormatter();
 			}
 
 			var traceWriterConfig = new TraceWriterConfig(new ConsoleLogWriterConfig().Format(traceFormatter), switchSet);
@@ -157,7 +157,7 @@ namespace LogJam.Trace.Config
 
 			if (traceFormatter == null)
 			{
-				traceFormatter = new DebuggerTraceFormatter();
+				traceFormatter = new DefaultTraceFormatter();
 			}
 
 			var traceWriterConfig = new TraceWriterConfig(new DebuggerLogWriterConfig().Format(traceFormatter), switchSet);

@@ -41,7 +41,7 @@ namespace LogJam.UnitTests.Trace
 			TraceManager traceManager;
 			if (configForm == ConfigForm.ObjectGraph)
 			{
-				var config = new ConsoleLogWriterConfig().Format(new DebuggerTraceFormatter()
+				var config = new ConsoleLogWriterConfig().Format(new DefaultTraceFormatter()
 				                                                 {
 					                                                 IncludeTimestamp = true
 				                                                 });
@@ -50,7 +50,7 @@ namespace LogJam.UnitTests.Trace
 			else if (configForm == ConfigForm.Fluent)
 			{
 				var config = new TraceManagerConfig();
-				config.TraceToConsole(traceFormatter: new DebuggerTraceFormatter()
+				config.TraceToConsole(traceFormatter: new DefaultTraceFormatter()
 				                                      {
 					                                      IncludeTimestamp = true
 				                                      });

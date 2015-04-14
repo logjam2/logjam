@@ -35,18 +35,23 @@ namespace LogJam.UnitTests.Trace
 		/// Shows reasonable use for tracing to stdout in unit tests.
 		/// </summary>
 		[Fact]
-		public void ShowRecommendedUnitTestTraceManager()
+		public void BasicConsoleTracing()
 		{
 			// Default threshold: Info
-			using (var traceManager = new TraceManager(new ConsoleLogWriterConfig()))
+			using (var traceManager = new TraceManager(new ConsoleLogWriterConfig().Format(new DefaultTraceFormatter())))
 			{
 				var tracer = traceManager.TracerFor(this);
+
+				Assert.True(traceManager.IsStarted); // Getting a tracer starts the TraceManager
+				Assert.True(tracer.IsInfoEnabled());
+				Assert.False(tracer.IsVerboseEnabled());
+
 				tracer.Info("By default info is enabled");
 				tracer.Verbose("This message won't be logged");
 			}
 
 			// Or, trace everything for the class under test, and info for everything else
-			var config = new TraceWriterConfig(new ConsoleLogWriterConfig())
+			var config = new TraceWriterConfig(new ConsoleLogWriterConfig().Format(new DefaultTraceFormatter()))
 			             {
 				             Switches =
 				             {
@@ -56,9 +61,45 @@ namespace LogJam.UnitTests.Trace
 			             };
 			using (var traceManager = new TraceManager(config))
 			{
-				traceManager.Start();
 				var tracer = traceManager.TracerFor(this);
 				tracer.Debug("Now debug is enabled for this class");
+
+				Assert.True(tracer.IsVerboseEnabled());
+				Assert.True(tracer.IsDebugEnabled());
+			}
+		}
+
+		[Fact]
+		public void BasicFluentConsoleTracing()
+		{
+			var traceConfig = new TraceManagerConfig();
+			traceConfig.TraceToConsole();
+			using (var traceManager = new TraceManager(traceConfig))
+			{
+				var tracer = traceManager.TracerFor(this);
+
+				Assert.True(traceManager.IsStarted); // Getting a tracer starts the TraceManager
+				Assert.True(tracer.IsInfoEnabled());
+				Assert.False(tracer.IsVerboseEnabled());
+
+				tracer.Info("By default info is enabled");
+				tracer.Verbose("This message won't be logged");
+			}
+
+			// Or, trace everything for the class under test, and info for everything else
+			traceConfig = new TraceManagerConfig();
+			traceConfig.TraceToConsole(new SwitchSet()
+			                           {
+				                           { Tracer.All, new ThresholdTraceSwitch(TraceLevel.Info) },
+				                           { GetType(), new OnOffTraceSwitch(true) }
+			                           });
+			using (var traceManager = new TraceManager(traceConfig))
+			{
+				var tracer = traceManager.TracerFor(this);
+				tracer.Debug("Now debug is enabled for this class");
+
+				Assert.True(tracer.IsVerboseEnabled());
+				Assert.True(tracer.IsDebugEnabled());
 			}
 		}
 

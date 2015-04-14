@@ -11,6 +11,7 @@ namespace LogJam.Config
 	using System;
 	using System.Collections.Generic;
 	using System.Diagnostics.Contracts;
+	using System.Linq;
 
 	using LogJam.Format;
 	using LogJam.Util;
@@ -32,6 +33,17 @@ namespace LogJam.Config
 		protected TextLogWriterConfig()
 		{
 			_formatters = new List<Tuple<Type, object, Action<TextLogWriter>>>();
+		}
+
+		public bool HasFormatterFor<TEntry>()
+			where TEntry : ILogEntry
+		{
+			return HasFormatterFor(typeof(TEntry));
+		}
+
+		public bool HasFormatterFor(Type logEntryType)
+		{
+			return _formatters.Any(tuple => tuple.Item1 == logEntryType);
 		}
 
 		/// <summary>
