@@ -10,6 +10,7 @@ namespace LogJam.Owin.Http
 {
 	using System;
 	using System.Collections.Generic;
+	using System.Collections.Specialized;
 	using System.Diagnostics.Contracts;
 	using System.IO;
 	using System.Linq;
@@ -136,9 +137,22 @@ namespace LogJam.Owin.Http
 					responseEntry.Uri = requestUri;
 					responseEntry.HttpStatusCode = (short) response.StatusCode;
 					responseEntry.HttpReasonPhrase = response.ReasonPhrase;
-					responseEntry.ResponseHeaders = response.Headers.ToArray();
+					// Workaround for issue in Owin.Host.SystemWeb:
+					//	  response.Headers.Count is inaccurate, so calling response.Headers.ToArray()
+					//	  will throw an exception.
+					var tempHeadersList = new List<KeyValuePair<string, string[]>>();
+					CopyHeadersTo(response.Headers, tempHeadersList);
+					responseEntry.ResponseHeaders = tempHeadersList.ToArray();
 					_responseEntryWriter.Write(ref responseEntry);
 				}
+			}
+		}
+
+		private void CopyHeadersTo(IHeaderDictionary headers, ICollection<KeyValuePair<string, string[]>> dest)
+		{
+			foreach (var header in headers)
+			{
+				dest.Add(header);
 			}
 		}
 
