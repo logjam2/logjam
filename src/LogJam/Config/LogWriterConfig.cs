@@ -59,8 +59,8 @@ namespace LogJam.Config
 				return false;
 			}
 			return (Synchronized == other.Synchronized)
-				&& (BackgroundLogging = other.BackgroundLogging)
-				&& (DisposeOnStop = other.DisposeOnStop);
+				&& (BackgroundLogging == other.BackgroundLogging)
+				&& (DisposeOnStop == other.DisposeOnStop);
 		}
 
 		public override bool Equals(object obj)
