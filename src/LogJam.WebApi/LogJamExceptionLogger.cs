@@ -41,25 +41,21 @@ namespace LogJam.WebApi
 
 		public Task LogAsync(ExceptionLoggerContext context, CancellationToken cancellationToken)
 		{
-			if (context.CatchBlock.IsTopLevel)
-			{
-				// Only log top-level exceptions
-				var request = context.Request;
-				var exception = context.Exception;
+			var request = context.Request;
+			var exception = context.Exception;
 
-				if (request.HasRequestExceptionBeenLogged(exception))
-				{
-					// Don't repeatedly log the same exception
-					_tracer.Error("Exception thrown handling Web API request: {0} {1}\n    (exception already logged)", request.Method,
-						request.RequestUri.OriginalString);
-				}
-				else
-				{
-					// exception hasn't previously been logged
-					_tracer.Error(exception, "Exception thrown handling Web API request: {0} {1}", request.Method,
-						request.RequestUri.OriginalString);
-					request.LoggedRequestException(exception);
-				}
+			if (request.HasRequestExceptionBeenLogged(exception))
+			{
+				// Don't repeatedly log the same exception
+				_tracer.Error("Exception thrown handling Web API request: {0} {1}\n    (exception already logged)", request.Method,
+					request.RequestUri.OriginalString);
+			}
+			else
+			{
+				// exception hasn't previously been logged
+				_tracer.Error(exception, "Exception thrown handling Web API request: {0} {1}", request.Method,
+					request.RequestUri.OriginalString);
+				request.LoggedRequestException(exception);
 			}
 
 			return TaskHelper.Completed;
