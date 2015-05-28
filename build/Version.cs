@@ -18,7 +18,7 @@ using System.Reflection;
 #else
 [assembly: AssemblyConfiguration("Release")]
 #endif
-[assembly: AssemblyCompany("logjam.codeplex.com")]
+[assembly: AssemblyCompany("LogJam Contributors")]
 [assembly: AssemblyProduct("LogJam")]
 [assembly: AssemblyCopyright("Copyright © 2011-2015")]
 
@@ -38,4 +38,4 @@ using System.Reflection;
 
 // Semantic version (http://semver.org). Assembly version changes less than the semver; semver must increment for every release.
 
-[assembly: AssemblyInformationalVersion("0.9.5-beta")]
+[assembly: AssemblyInformationalVersion("0.9.6-beta")]
