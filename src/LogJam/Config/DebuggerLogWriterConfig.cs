@@ -40,22 +40,6 @@ namespace LogJam.Config
 			return writer;
 		}
 
-		public override bool Equals(ILogWriterConfig other)
-		{
-			if (ReferenceEquals(this, other))
-			{
-				return true;
-			}
-
-			var otherSameType = other as DebuggerLogWriterConfig;
-			if (otherSameType == null)
-			{
-				return false;
-			}
-
-			return base.Equals(otherSameType);
-		}
-
 	}
 
 }

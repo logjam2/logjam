@@ -28,26 +28,6 @@ namespace LogJam.Config
 			throw new System.NotImplementedException();
 		}
 
-		public override bool Equals(ILogWriterConfig other)
-		{
-			if (ReferenceEquals(this, other))
-			{
-				return true;
-			}
-
-			if (!base.Equals(other))
-			{
-				return false;
-			}
-			var otherSameType = other as FileLogWriterConfig;
-			if (otherSameType == null)
-			{
-				return false;
-			}
-
-			return string.Equals(Directory, otherSameType.Directory) && string.Equals(File, otherSameType.File);
-		}
-
 	}
 
 }

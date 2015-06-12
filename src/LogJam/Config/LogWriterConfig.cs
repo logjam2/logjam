@@ -48,26 +48,6 @@ namespace LogJam.Config
 		/// <inheritdoc />
 		public abstract ILogWriter CreateLogWriter(ITracerFactory setupTracerFactory);
 
-		public virtual bool Equals(ILogWriterConfig other)
-		{
-			if (other == null)
-			{
-				return false;
-			}
-			if (! ReferenceEquals(GetType(), other.GetType()))
-			{
-				return false;
-			}
-			return (Synchronized == other.Synchronized)
-				&& (BackgroundLogging == other.BackgroundLogging)
-				&& (DisposeOnStop == other.DisposeOnStop);
-		}
-
-		public override bool Equals(object obj)
-		{
-			return ReferenceEquals(obj, this) || Equals(obj as ILogWriterConfig);
-		}
-
 	}
 
 }

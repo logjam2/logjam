@@ -9,22 +9,23 @@
 
 namespace LogJam.Trace.Config
 {
-	using System;
-	using System.Collections.Generic;
-	using System.Diagnostics;
-	using System.Diagnostics.Contracts;
-	using System.Linq;
-	using System.Runtime.Serialization;
-
 	using LogJam.Config;
-	using LogJam.Util;
 	using LogJam.Writer;
+
+	using System;
+	using System.Diagnostics.Contracts;
+	using System.Runtime.Serialization;
 
 
 	/// <summary>
 	/// Holds configuration for a single trace writer.
 	/// </summary>
-	public sealed class TraceWriterConfig : IEquatable<TraceWriterConfig>
+	/// <remarks>
+	/// <c>TraceWriterConfig</c> subclasses should generally not override <see cref="object.GetHashCode"/> or <see cref="object.Equals(object)"/>, 
+	/// because they are identified by reference.  It should be valid to have two <c>TraceWriterConfig</c> objects with the same values stored
+	/// in a set or dictionary.
+	/// </remarks>
+	public sealed class TraceWriterConfig
 	{
 
 		private ILogWriterConfig _tracelogWriterConfig;
@@ -77,22 +78,7 @@ namespace LogJam.Trace.Config
 
 		public SwitchSet Switches
 		{
-			get { return _switches; }	
-		}
-
-		public bool Equals(TraceWriterConfig other)
-		{
-			return other != null && LogWriterConfig.Equals(other.LogWriterConfig) && Switches.Equals(other.Switches);
-		}
-
-		public override bool Equals(object obj)
-		{
-			return Equals(obj as TraceWriterConfig);
-		}
-
-		public override int GetHashCode()
-		{
-			return LogWriterConfig.Hash(3) + Switches.GetHashCode();
+			get { return _switches; }
 		}
 
 	}

@@ -63,7 +63,7 @@ namespace LogJam.Writer
 				formattedEntry += _newLine;
 			}
 
-			if (_isSynchronized)
+			if (isSynchronized)
 			{
 				Monitor.Enter(this, ref lockTaken);
 			}

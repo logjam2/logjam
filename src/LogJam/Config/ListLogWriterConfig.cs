@@ -27,16 +27,6 @@ namespace LogJam.Config
 			return new ListLogWriter<TEntry>(setupTracerFactory, Synchronized);
 		}
 
-		public override bool Equals(ILogWriterConfig other)
-		{
-			if (ReferenceEquals(this, other))
-			{
-				return true;
-			}
-
-			return base.Equals(other as ListLogWriterConfig<TEntry>);
-		}
-
 	}
 
 }

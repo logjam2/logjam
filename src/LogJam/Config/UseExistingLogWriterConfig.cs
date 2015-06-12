@@ -57,30 +57,6 @@ namespace LogJam.Config
 			return _logWriter;
 		}
 
-		public override bool Equals(object obj)
-		{
-			return Equals(obj as ILogWriterConfig);
-		}
-
-		public bool Equals(ILogWriterConfig other)
-		{
-			if (ReferenceEquals(this, other))
-			{
-				return true;
-			}
-
-			var otherSameType = other as UseExistingLogWriterConfig;
-			if (otherSameType == null)
-			{
-				return false;
-			}
-
-			return ReferenceEquals(_logWriter, otherSameType._logWriter)
-			       && (Synchronized == otherSameType.Synchronized)
-			       && (DisposeOnStop == otherSameType.DisposeOnStop)
-			       && (BackgroundLogging == otherSameType.BackgroundLogging);
-		}
-
 	}
 
 }

@@ -16,10 +16,15 @@ namespace LogJam.Config
 
 
 	/// <summary>
-	/// Base interface for types that configure <see cref="ILogWriter"/>s.  Note that an <see cref="ILogWriterConfig"/>
+	/// Base interface for types that configure <see cref="ILogWriter"/>s.  An <see cref="ILogWriterConfig"/>
 	/// acts as a factory for an <c>ILogWriter</c>.
 	/// </summary>
-	public interface ILogWriterConfig : IEquatable<ILogWriterConfig>
+	/// <remarks>
+	/// <c>ILogWriterConfig</c> objects should generally not override <see cref="object.GetHashCode"/> or <see cref="object.Equals(object)"/>, 
+	/// because they are identified by reference.  It should be valid to have two <c>ILogWriterConfig</c> objects with the same values stored
+	/// in a set or dictionary.
+	/// </remarks>
+	public interface ILogWriterConfig
 	{
 		/// <summary>
 		/// Sets or gets whether the <see cref="ILogWriter"/> returned from <see cref="CreateLogWriter"/> should have its

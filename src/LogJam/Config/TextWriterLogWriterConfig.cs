@@ -90,22 +90,6 @@ namespace LogJam.Config
 			return writer;
 		}
 
-		public override bool Equals(ILogWriterConfig other)
-		{
-			if (ReferenceEquals(this, other))
-			{
-				return true;
-			}
-
-			var otherSameType = other as TextWriterLogWriterConfig;
-			if (otherSameType == null)
-			{
-				return false;
-			}
-
-			return base.Equals(otherSameType) && (CreateTextWriter == otherSameType.CreateTextWriter);
-		}
-
 		#endregion
 
 	}

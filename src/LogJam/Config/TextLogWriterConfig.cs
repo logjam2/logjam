@@ -79,17 +79,6 @@ namespace LogJam.Config
 
 		#region ILogWriterConfig
 
-		public override bool Equals(ILogWriterConfig other)
-		{
-			TextLogWriterConfig typedOther = other as TextLogWriterConfig;
-			if (typedOther == null)
-			{
-				return false;
-			}
-
-			return base.Equals(typedOther) && EqualityUtil.AreEquivalent(_formatters, typedOther._formatters);
-		}
-
 		#endregion
 
 		/// <summary>
