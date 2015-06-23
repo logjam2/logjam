@@ -56,7 +56,7 @@ namespace LogJam.Writer
 
 			bool lockTaken = false;
 			bool includeNewLine = !formattedEntry.EndsWith(_newLine);
-			if (isSynchronized)
+			if (synchronize)
 			{
 				Monitor.Enter(this, ref lockTaken);
 			}

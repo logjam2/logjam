@@ -18,7 +18,7 @@ namespace LogJam.Owin.Http
 	/// <summary>
 	/// A log entry that records an HTTP request.
 	/// </summary>
-	public struct HttpRequestEntry : ILogEntry
+	public struct HttpRequestEntry : ITimestampedLogEntry
 	{
 		/// <summary>
 		/// Monotonically increasing request number - starts from 1 when the webapp is started.
@@ -44,6 +44,8 @@ namespace LogJam.Owin.Http
 		/// The HTTP request headers.
 		/// </summary>
 		public KeyValuePair<string, string[]>[] RequestHeaders;
+
+        DateTime ITimestampedLogEntry.TimestampUtc { get { return this.RequestStarted.UtcDateTime; } }
 
 	}
 

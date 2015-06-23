@@ -39,7 +39,8 @@ namespace LogJam.WebApi
 			_tracer = tracerFactory.TracerFor(this);
 		}
 
-		public Task LogAsync(ExceptionLoggerContext context, CancellationToken cancellationToken)
+        /// <inheritdoc />
+        public Task LogAsync(ExceptionLoggerContext context, CancellationToken cancellationToken)
 		{
 			var request = context.Request;
 			var exception = context.Exception;

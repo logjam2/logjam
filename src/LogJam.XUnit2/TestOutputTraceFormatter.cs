@@ -59,7 +59,7 @@ namespace LogJam.XUnit2
 		/// <remarks>The returned string <u>must not</u> end with a newline</remarks>
 		public override string Format(ref TraceEntry traceEntry)
 		{
-			int indentSpaces = 0;
+			//int indentSpaces = 0;
 
 			var sw = new StringWriter();
 			var newLine = sw.NewLine;
@@ -94,14 +94,26 @@ namespace LogJam.XUnit2
 			if (traceEntry.Details != null)
 			{
 				//sw.Repeat(' ', indentSpaces);
-				string detailsMessage = traceEntry.Details.ToString();
-				if (detailsMessage.EndsWith(newLine))
+                string details = traceEntry.Details;
+                if (details.EndsWith(newLine))
 				{
-					detailsMessage = detailsMessage.Substring(0, detailsMessage.Length - newLineLength);
+                    details = details.Substring(0, details.Length - newLineLength);
 				}
 				sw.WriteLine();
-				sw.Write(detailsMessage);
+                sw.Write(details);
 			}
+
+            if (traceEntry.Exception != null)
+            {
+                //sw.Repeat(' ', indentSpaces);
+                string exceptionMessage = traceEntry.Exception.ToString();
+                if (exceptionMessage.EndsWith(newLine))
+                {
+                    exceptionMessage = exceptionMessage.Substring(0, exceptionMessage.Length - newLineLength);
+                }
+                sw.WriteLine();
+                sw.Write(exceptionMessage);
+            }
 
 			return sw.ToString();
 		}

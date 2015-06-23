@@ -40,7 +40,7 @@ namespace LogJam.UnitTests
 			{
 				// Trace a message
 				var internalTracer = logManager.SetupTracerFactory.TracerFor(this);
-				internalTracer.Trace(traceLevel, null, testMessage);
+				internalTracer.Trace(traceLevel, testMessage);
 
 				// Verify the message can be found in LogJamTraceEntries
 				var traceEntry = logManager.SetupLog.First(e => e.Message == testMessage);

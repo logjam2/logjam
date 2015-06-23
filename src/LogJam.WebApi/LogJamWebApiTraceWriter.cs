@@ -36,6 +36,7 @@ namespace LogJam.WebApi
 			_tracerFactory = tracerFactory;
 		}
 
+        /// <inheritdoc />
 		public void Trace(HttpRequestMessage request, string category, System.Web.Http.Tracing.TraceLevel level, Action<System.Web.Http.Tracing.TraceRecord> traceAction)
 		{
 			Tracer tracer = _tracerFactory.GetTracer(category);

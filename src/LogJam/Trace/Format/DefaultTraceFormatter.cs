@@ -59,7 +59,7 @@ namespace LogJam.Trace.Format
 		/// </summary>
 		public override string Format(ref TraceEntry traceEntry)
 		{
-			int indentSpaces = 0;
+			//int indentSpaces = 0;
 
 			var sw = new StringWriter();
 			var newLine = sw.NewLine;
@@ -95,15 +95,26 @@ namespace LogJam.Trace.Format
 			if (traceEntry.Details != null)
 			{
 				//sw.Repeat(' ', indentSpaces);
-				string detailsMessage = traceEntry.Details.ToString();
-				sw.Write(detailsMessage);
-				if (!detailsMessage.EndsWith(newLine))
+				string details = traceEntry.Details;
+                sw.Write(details);
+                if (! details.EndsWith(newLine))
 				{
 					sw.WriteLine();
 				}
 			}
 
-			return sw.ToString();
+            if (traceEntry.Exception != null)
+            {
+                //sw.Repeat(' ', indentSpaces);
+                string exceptionMessage = traceEntry.Exception.ToString();
+                sw.Write(exceptionMessage);
+                if (! exceptionMessage.EndsWith(newLine))
+                {
+                    sw.WriteLine();
+                }
+            }
+
+            return sw.ToString();
 		}
 
 		public override void Format(ref TraceEntry traceEntry, TextWriter writer)

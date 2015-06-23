@@ -246,13 +246,13 @@ namespace LogJam.UnitTests.Trace
 
 				// First write exception is reported in SetupLog
 				// TODO: Replace logging to SetupLog with TraceWriter reporting its current status
-				Assert.Equal(1, traceManager.SetupLog.Count(traceEntry => traceEntry.TraceLevel >= TraceLevel.Error && traceEntry.Details != null));
+				Assert.Equal(1, traceManager.SetupLog.Count(traceEntry => traceEntry.TraceLevel >= TraceLevel.Error && traceEntry.Exception != null));
 			}
 
 			Assert.Equal(3, exceptionLogWriter.CountExceptionsThrown);
 
 			// Exceptions should be reported in the SetupLog
-			Assert.Equal(2, traceManager.SetupLog.Count(traceEntry => traceEntry.TraceLevel >= TraceLevel.Error && traceEntry.Details != null));
+            Assert.Equal(2, traceManager.SetupLog.Count(traceEntry => traceEntry.TraceLevel >= TraceLevel.Error && traceEntry.Exception != null));
 		}
 
 		/// <summary>

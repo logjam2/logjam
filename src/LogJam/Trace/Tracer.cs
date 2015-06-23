@@ -116,7 +116,7 @@ namespace LogJam.Trace
 			}
 		}
 
-		public void Trace(TraceLevel traceLevel, object details, string message)
+		public void Trace(TraceLevel traceLevel, string message, string details)
 		{
 			Contract.Requires<ArgumentNullException>(message != null);
 
@@ -131,7 +131,11 @@ namespace LogJam.Trace
 		{
 			Contract.Requires<ArgumentNullException>(message != null);
 
-			Trace(traceLevel, (object) exception, message);
+            if (IsTraceEnabled(traceLevel))
+            {
+                TraceEntry traceEntry = new TraceEntry(Name, traceLevel, message, exception);
+                WriteTraceEntry(ref traceEntry);
+            }
 		}
 
 		public void Trace(TraceLevel traceLevel, Exception exception, string message, object arg0)

@@ -85,7 +85,7 @@ namespace LogJam.Trace
 		/// </param>
 		public static void Debug(this Tracer tracer, string message)
 		{
-			tracer.Trace(TraceLevel.Debug, null, message);
+			tracer.Trace(TraceLevel.Debug, message);
 		}
 
 		/// <summary>
@@ -161,7 +161,7 @@ namespace LogJam.Trace
 		/// </param>
 		public static void Error(this Tracer tracer, string message)
 		{
-			tracer.Trace(TraceLevel.Error, null, message);
+			tracer.Trace(TraceLevel.Error, message);
 		}
 
 		/// <summary>
@@ -328,7 +328,7 @@ namespace LogJam.Trace
 		/// </param>
 		public static void Info(this Tracer tracer, string message)
 		{
-			tracer.Trace(TraceLevel.Info, null, message);
+			tracer.Trace(TraceLevel.Info, message);
 		}
 
 		/// <summary>
@@ -404,7 +404,7 @@ namespace LogJam.Trace
 		/// </param>
 		public static void Verbose(this Tracer tracer, string message)
 		{
-			tracer.Trace(TraceLevel.Verbose, null, message);
+			tracer.Trace(TraceLevel.Verbose, message);
 		}
 
 		/// <summary>
@@ -571,7 +571,7 @@ namespace LogJam.Trace
 		/// </param>
 		public static void Warn(this Tracer tracer, string message)
 		{
-			tracer.Trace(TraceLevel.Warn, null, message);
+			tracer.Trace(TraceLevel.Warn, message);
 		}
 
 		/// <summary>
@@ -738,7 +738,7 @@ namespace LogJam.Trace
 		/// </param>
 		public static void Severe(this Tracer tracer, string message)
 		{
-			tracer.Trace(TraceLevel.Severe, null, message);
+			tracer.Trace(TraceLevel.Severe, message);
 		}
 
 		/// <summary>

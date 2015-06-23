@@ -1,0 +1,70 @@
+[
+    {
+        "type": "record",
+        "name": "LogJam.Encode.LogRequestHeader",
+        "fields": [
+            { "name": "ApplicationInstanceId", "type": { "type": "fixed", "name": "System.Guid", "size": 16 } },
+            { "name": "LogRequestNumber", "type": "long" },
+            { "name": "TimestampUtc", "type": "long" }
+
+        ]
+    },
+    {
+        "type": "record",
+        "name": "LogJam.ApplicationEntry",
+        "fields": [
+            { "name": "Name", "type": [ "null", "string" ] },
+            { "name": "Assembly", "type": [ "null", "string" ] },
+            { "name": "Version", "type": [ "null", "string" ] },
+            { "name": "MachineName", "type": [ "null", "string" ] },
+            { "name": "StartTimestampUtc", "type": "long" },
+            { "name": "ProcessId", "type": "int" },
+            { "name": "StartDirectory", "type": [ "null", "string" ] },
+            { "name": "ApplicationInstanceId", "type": "System.Guid" }
+        ]
+    },
+    {
+        "type": "record",
+        "name": "LogJam.Trace.TraceEntry",
+        "fields": [
+            { "name": "TimestampUtc", "type": "long" },
+            { "name": "TracerName", "type": "string" },
+            {
+                "name": "TraceLevel",
+                "type": {
+                    "type": "enum",
+                    "name": "LogJam.Trace.TraceLevel",
+                    "symbols": [
+                        "Debug",
+                        "Verbose",
+                        "Info",
+                        "Warn",
+                        "Error",
+                        "Severe",
+                        "Off"
+                    ]
+                }
+            },
+            { "name": "Message", "type": "string" },
+            { "name": "Details", "type": [ "null", "string" ] },
+            {
+                "name": "Exception",
+                "type": [
+                    "null",
+                    {
+                        "type": "record",
+                        "name": "LogJam.Trace.Exception",
+                        "fields": [
+                            { "name": "ExceptionType", "type": "string" },
+                            { "name": "Message", "type": [ "null", "string" ] },
+                            { "name": "Source", "type": [ "null", "string" ] },
+                            { "name": "StackTrace", "type": [ "null", "string" ] },
+                            { "name": "InnerException", "type": [ "null", "LogJam.Trace.Exception" ] }
+                        ]
+                    }
+                ]
+            }
+        ]
+    } ]
+
+

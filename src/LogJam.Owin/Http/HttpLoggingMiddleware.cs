@@ -132,7 +132,8 @@ namespace LogJam.Owin.Http
 				{
 					HttpResponseEntry responseEntry;
 					responseEntry.RequestNumber = requestNum;
-					responseEntry.Ttfb = DateTimeOffset.Now - requestStarted;
+				    responseEntry.RequestCompleted = DateTimeOffset.Now;
+                    responseEntry.Ttfb = responseEntry.RequestCompleted - requestStarted;
 					responseEntry.Method = requestMethod;
 					responseEntry.Uri = requestUri;
 					responseEntry.HttpStatusCode = (short) response.StatusCode;

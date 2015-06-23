@@ -11,51 +11,72 @@ namespace LogJam.Trace
 {
 	using System;
 
+	using LogJam.Schema;
 
-	/// <summary>
+
+    /// <summary>
 	/// Holds a trace message and associated metadata in memory.
 	/// </summary>
-	public struct TraceEntry : ILogEntry
+	public struct TraceEntry : ITimestampedLogEntry
 	{
 		/// <summary>
 		/// When the trace entry was created, using UTC timezone.
 		/// </summary>
-		public readonly DateTime TimestampUtc;
+        public readonly DateTime TimestampUtc;
 
 		/// <summary>
 		/// The <see cref="Tracer.Name"/> that was the source of this <c>TraceEntry</c>.
 		/// </summary>
-		public readonly string TracerName;
+		[Required]
+        public readonly string TracerName;
 
 		/// <summary>
 		/// The <see cref="TraceLevel"/> for this <c>TraceEntry</c>.
 		/// </summary>
-		public readonly TraceLevel TraceLevel;
+        public readonly TraceLevel TraceLevel;
 
 		/// <summary>
 		/// The trace message - may be multiline.
 		/// </summary>
-		public readonly string Message;
+        [Required]
+        public readonly string Message;
 
 		/// <summary>
-		/// Additional trace message metadata - eg an <see cref="Exception"/>.
+		/// Additional trace information - eg additional multi-line text.
 		/// </summary>
-		public readonly object Details;
+        public readonly string Details;
 
-		public override string ToString()
+        /// <summary>
+        /// An <see cref="Exception"/>.
+        /// </summary>
+        public readonly Exception Exception;
+
+        public TraceEntry(string tracerName, TraceLevel traceLevel, string message, string details = null)
+        {
+            TimestampUtc = DateTime.UtcNow;
+            TracerName = tracerName;
+            TraceLevel = traceLevel;
+            Message = message;
+            Details = details;
+            Exception = null;
+        }
+
+        public TraceEntry(string tracerName, TraceLevel traceLevel, string message, Exception exception, string details = null)
+        {
+            TimestampUtc = DateTime.UtcNow;
+            TracerName = tracerName;
+            TraceLevel = traceLevel;
+            Message = message;
+            Details = details;
+            Exception = exception;
+        }
+
+        public override string ToString()
 		{
 			return string.Format("{0,-7}\t{1,-50}\t{2}", TraceLevel, TracerName, Message);
 		}
 
-		public TraceEntry(string tracerName, TraceLevel traceLevel, string message, object details = null)
-		{
-			TimestampUtc = DateTime.UtcNow;
-			TracerName = tracerName;
-			TraceLevel = traceLevel;
-			Message = message;
-			Details = details;
-		}
-
+	    DateTime ITimestampedLogEntry.TimestampUtc { get { return this.TimestampUtc; } }
 	}
 
 }

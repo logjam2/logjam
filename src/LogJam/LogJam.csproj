@@ -17,6 +17,7 @@
     <Reference Include="System.Runtime.Serialization" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ApplicationEntry.cs" />
     <Compile Include="BaseLogJamManager.cs" />
     <Compile Include="Config\ConsoleLogWriterConfig.cs" />
     <Compile Include="Config\ILogWriterConfig.cs" />
@@ -27,15 +28,19 @@
     <Compile Include="Config\TextLogWriterConfig.cs" />
     <Compile Include="Config\TextWriterLogWriterConfig.cs" />
     <Compile Include="Config\UseExistingLogWriterConfig.cs" />
+    <Compile Include="Encode\LogRequestHeader.cs" />
     <Compile Include="Format\ActionFormatter.cs" />
     <Compile Include="Encode\ILogDecoder.cs" />
     <Compile Include="Encode\ILogEncoder.cs" />
     <Compile Include="ILogEntry.cs" />
     <Compile Include="Internal\ILogJamComponent.cs" />
+    <Compile Include="ITimestampedLogEntry.cs" />
     <Compile Include="LogJamException.cs" />
     <Compile Include="LogJamCollectionExtensions.cs" />
     <Compile Include="LogJamSetupException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Schema\RequiredAttribute.cs" />
+    <Compile Include="Schema\SerializedTypeNameAttribute.cs" />
     <Compile Include="Trace\Config\TraceManagerConfigFluentExtensions.cs" />
     <Compile Include="Trace\Format\DebuggerTraceFormatter.cs" />
     <Compile Include="Util\Startable.cs" />

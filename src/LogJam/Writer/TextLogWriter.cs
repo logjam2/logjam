@@ -21,8 +21,8 @@ namespace LogJam.Writer
 	public abstract class TextLogWriter : BaseLogWriter
 	{
 
-		protected readonly bool isSynchronized;
-		private readonly string _newLine;
+		protected readonly bool synchronize;
+		//private readonly string _newLine;
 
 		/// <summary>
 		/// Creates a new <see cref="TextLogWriter"/>.
@@ -32,10 +32,10 @@ namespace LogJam.Writer
 		protected TextLogWriter(ITracerFactory setupTracerFactory, bool synchronize = false)
 			: base(setupTracerFactory)
 		{
-			isSynchronized = synchronize;
+			this.synchronize = synchronize;
 		}
 
-		public override bool IsSynchronized { get { return isSynchronized; } }
+		public override bool IsSynchronized { get { return synchronize; } }
 
 		/// <summary>
 		/// Returns <c>true</c> when this logwriter and its entrywriters are ready to log.

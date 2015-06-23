@@ -18,14 +18,19 @@ namespace LogJam.Owin.Http
 	/// <summary>
 	/// A log entry that records an HTTP response.
 	/// </summary>
-	public struct HttpResponseEntry : ILogEntry
+	public struct HttpResponseEntry : ITimestampedLogEntry
 	{
 		/// <summary>
 		/// Monotonically increasing request number - starts from 1 when the webapp is started.
 		/// </summary>
 		public long RequestNumber;
 
-		/// <summary>
+        /// <summary>
+        /// When the HTTP request began processing.
+        /// </summary>
+        public DateTimeOffset RequestCompleted;
+        
+        /// <summary>
 		/// Time-to-first-byte
 		/// </summary>
 		public TimeSpan Ttfb;
@@ -54,6 +59,9 @@ namespace LogJam.Owin.Http
 		/// The HTTP response headers.
 		/// </summary>
 		public KeyValuePair<string, string[]>[] ResponseHeaders;
+
+        DateTime ITimestampedLogEntry.TimestampUtc { get { return this.RequestCompleted.UtcDateTime; } }
+
 	}
 
 }
