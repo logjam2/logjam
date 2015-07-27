@@ -35,7 +35,7 @@ namespace LogJam.Config.Json
 
 			if (defaultContractResolver == null)
 			{
-				defaultContractResolver = new DefaultContractResolver(false);
+				defaultContractResolver = new DefaultContractResolver();
 			}
 			_innerContractResolver = defaultContractResolver;
 

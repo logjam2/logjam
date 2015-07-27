@@ -12,7 +12,11 @@ namespace LogJam.Service
     using System;
     using System.Diagnostics;
 
+    using LogJam.Config;
+    using LogJam.Owin.Http;
     using LogJam.Trace;
+    using LogJam.Trace.Config;
+    using LogJam.Trace.Format;
 
     using Microsoft.Owin.Hosting;
 
@@ -29,7 +33,7 @@ namespace LogJam.Service
                 var service = new LogJamService();
                 service.Start(args);
 
-                Console.WriteLine("LogJam.Service started; <enter> to exit.");
+                Console.WriteLine("LogJam.Service command-line started; <enter> to exit.");
                 Console.ReadLine();
 
                 service.Stop();
@@ -41,6 +45,16 @@ namespace LogJam.Service
                 tracer.Severe(appException, "LogJam.Service terminating due to unhandled Exception");
                 return -1;
             }
+        }
+
+        private static void InitializeCommandLineAppLogging()
+        {
+            var consoleLogConfig = new ConsoleLogWriterConfig()
+                .Format(new DefaultTraceFormatter())
+                .Format(new HttpRequestFormatter())
+                .Format(new HttpResponseFormatter());
+            LogManager.Instance.Config.Writers.Add(consoleLogConfig);
+            TraceManager.Instance.Config.TraceTo(consoleLogConfig);
         }
 
     }

@@ -21,7 +21,7 @@ namespace LogJam
     /// <summary>
     /// Holds metadata about a running application; this is the top level context data, all other context data is scoped to the <c>ApplicationEntry</c>
     /// </summary>
-    public sealed class ApplicationEntry : ITimestampedLogEntry
+    public sealed class ApplicationEntry : ITimestampedLogEntry, ILogEntry
     {
 
         /// <summary>
@@ -50,6 +50,11 @@ namespace LogJam
 
         [DataMember]
         public readonly string StartDirectory;
+
+        // Included because the AvroSerializer won't serialize a type without a default constructor
+        // This is a bug in Microsoft.Hadoop.Avro, default constructor should only be needed for deserialization.
+        internal ApplicationEntry()
+        {}
 
         public ApplicationEntry(string name, string assembly, string version, string machineName, DateTime startTimestampUtc, int processId, string startDirectory)
         {

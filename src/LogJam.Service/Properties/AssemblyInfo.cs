@@ -7,6 +7,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
@@ -14,3 +15,5 @@ using System.Reflection;
 
 [assembly: AssemblyTitle("LogJam.Service")]
 [assembly: AssemblyDescription("Web service that collects and exposes LogJam log data.")]
+
+[assembly: InternalsVisibleTo("LogJam.Service.UnitTests")]

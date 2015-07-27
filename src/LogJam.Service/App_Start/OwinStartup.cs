@@ -9,6 +9,7 @@
 
 namespace LogJam.Service
 {
+    using System.Linq;
     using System.Web.Http;
 
     using global::Owin;
@@ -27,6 +28,9 @@ namespace LogJam.Service
 
         public void Configuration(IAppBuilder owinAppBuilder)
         {
+            owinAppBuilder.LogHttpRequests(owinAppBuilder.GetLogManagerConfig().Writers);
+            owinAppBuilder.UseOwinTracerLogging();
+
             owinAppBuilder.UseErrorPage();
 
             owinAppBuilder.UseWelcomePage(new PathString("/welcome"));

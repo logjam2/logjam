@@ -37,6 +37,16 @@ namespace LogJam.Encode.Avro
                                                                                                 { typeof(TraceEntry), (parent) => new AvroTraceEntryWriter(parent) }
                                                                                             };
 
+        /// <summary>
+        /// Set of default known types for Avro serializer construction.
+        /// </summary>
+        private static Type[] s_defaultKnownTypes = {
+                                                        typeof(ILogEntry),
+                                                        typeof(ITimestampedLogEntry),
+                                                        typeof(LogRequestHeader),
+                                                        typeof(ApplicationEntry)
+                                                    };
+
         private Stream _stream;
         private readonly bool _disposeStream;
 
@@ -223,7 +233,7 @@ namespace LogJam.Encode.Avro
                    {
                        GenerateSerializer = true,
                        GenerateDeserializer = false,
-                       KnownTypes = EntryWriters.Select(kvp => ((IAvroLogEntryTypeInfo) kvp.Value).LogEntryType).Distinct(),
+                       KnownTypes = EntryWriters.Select(kvp => ((IAvroLogEntryTypeInfo)kvp.Value).LogEntryType).Concat(s_defaultKnownTypes).Distinct(),
                        Resolver = new AvroLogEntryContractResolver()
                    };
         }

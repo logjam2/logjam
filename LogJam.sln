@@ -6,6 +6,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{F89C3372-408F-4F99-A7BF-D2818C959F50}"
 	ProjectSection(SolutionItems) = preProject
 		API.md = API.md
+		README.md = README.md
 		docs\TODO.md = docs\TODO.md
 	EndProjectSection
 EndProject
@@ -43,6 +44,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogJam.Encode.Avro", "src\LogJam.Encode.Avro\LogJam.Encode.Avro.csproj", "{497362FE-DFC3-4519-B35F-3437A53004CC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogJam.Encode.Avro.UnitTests", "test\LogJam.Encode.Avro.UnitTests\LogJam.Encode.Avro.UnitTests.csproj", "{A81C1619-0FE1-4C8D-839D-9F1784CB8AF9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Hadoop.Avro", "..\..\hdinsight\azure-sdk-for-net\src\HDInsight\Microsoft.Hadoop.Avro\Microsoft.Hadoop.Avro.csproj", "{EAB38A14-211F-4361-A06E-3EC1E07ABE33}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogJam.Service.UnitTests", "test\LogJam.Service.UnitTests\LogJam.Service.UnitTests.csproj", "{85B00048-3BD1-4758-A71F-7E0735966A0B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -98,6 +103,14 @@ Global
 		{A81C1619-0FE1-4C8D-839D-9F1784CB8AF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A81C1619-0FE1-4C8D-839D-9F1784CB8AF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A81C1619-0FE1-4C8D-839D-9F1784CB8AF9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EAB38A14-211F-4361-A06E-3EC1E07ABE33}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EAB38A14-211F-4361-A06E-3EC1E07ABE33}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EAB38A14-211F-4361-A06E-3EC1E07ABE33}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EAB38A14-211F-4361-A06E-3EC1E07ABE33}.Release|Any CPU.Build.0 = Release|Any CPU
+		{85B00048-3BD1-4758-A71F-7E0735966A0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{85B00048-3BD1-4758-A71F-7E0735966A0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{85B00048-3BD1-4758-A71F-7E0735966A0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{85B00048-3BD1-4758-A71F-7E0735966A0B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -115,5 +128,6 @@ Global
 		{AD901AB1-D4F2-438E-905F-F38A056249EA} = {E3D54447-25CA-42F6-B58A-8A544118802E}
 		{497362FE-DFC3-4519-B35F-3437A53004CC} = {E3D54447-25CA-42F6-B58A-8A544118802E}
 		{A81C1619-0FE1-4C8D-839D-9F1784CB8AF9} = {45DD2233-A75B-42B8-BE5A-D8C631A9291C}
+		{85B00048-3BD1-4758-A71F-7E0735966A0B} = {45DD2233-A75B-42B8-BE5A-D8C631A9291C}
 	EndGlobalSection
 EndGlobal

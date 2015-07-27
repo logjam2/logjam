@@ -2,6 +2,7 @@
 namespace LogJam.Encode.Avro
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
 
@@ -84,5 +85,11 @@ namespace LogJam.Encode.Avro
                 .Select(m => new MemberSerializationInfo { Name = m.Name, MemberInfo = m, Nullable = m.IsNullable() })
                 .ToArray();
         }
+
+        public override IEnumerable<Type> GetKnownTypes(Type type)
+        {
+            return base.GetKnownTypes(type);
+        }
+
     }
 }

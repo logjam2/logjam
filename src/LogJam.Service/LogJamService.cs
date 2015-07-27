@@ -13,6 +13,8 @@ namespace LogJam.Service
     using System.ServiceProcess;
     using System.Threading;
 
+    using global::Owin;
+
     using LogJam.Trace;
 
     using Microsoft.Owin.Hosting;
@@ -28,15 +30,38 @@ namespace LogJam.Service
 
         private string _listenHostName = "localhost";
         private short _listenPort = DefaultPort;
-
+        private Action<IAppBuilder> _owinConfiguration;
 
         private readonly Tracer _tracer;
         private IDisposable _owinWebApp;
 
-        public LogJamService()
+        public LogJamService(ITracerFactory tracerFactory = null)
         {
-            _tracer = TraceManager.Instance.TracerFor(this);
+            tracerFactory = tracerFactory ?? TraceManager.Instance;
+            _tracer = tracerFactory.TracerFor(this);
             _owinWebApp = null;
+        }
+
+        internal short ListenPort
+        {
+            get { return _listenPort; }
+            set { _listenPort = value; }
+        }
+
+        /// <summary>
+        /// Overridable for testing.
+        /// </summary>
+        internal Action<IAppBuilder> OwinConfigurationFunc
+        {
+            get
+            {
+                if (_owinConfiguration == null)
+                {
+                    _owinConfiguration = new OwinStartup().Configuration;
+                }
+                return _owinConfiguration;
+            }
+            set { _owinConfiguration = value; }
         }
 
         public void Start(string[] args)
@@ -67,7 +92,14 @@ namespace LogJam.Service
 
         private void RunWebServer()
         {
-            _owinWebApp = WebApp.Start<OwinStartup>(BuildListenUrl());
+            string url = BuildListenUrl();
+            StartOptions startOptions = new StartOptions(url)
+                                        {
+                                            Port = _listenPort
+                                        };
+            _owinWebApp = WebApp.Start(startOptions, OwinConfigurationFunc);
+
+            _tracer.Info("Server listening on {0} ...", url);
         }
 
         private string BuildListenUrl()
