@@ -99,7 +99,7 @@ namespace LogJam.Trace
 				}
 			}
 
-			_logManager = new LogManager(new LogManagerConfig(), setupTracerFactory);
+            _logManager = new LogManager(new LogManagerConfig(logWriterConfig), setupTracerFactory);
 			DisposeOnStop(_logManager); // bc the LogManager is owned by this
 			_traceConfig = new TraceManagerConfig(new TraceWriterConfig(logWriterConfig)
 			                                      {

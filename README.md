@@ -62,3 +62,27 @@ LogJam intends to be a multi-project framework that provides best-of-breed loggi
 * Support central management of logging configuration - across many servers and applications
 * Web UI for managing configuration and browsing/querying logs across server farms and applications
 * Optional integration with ETW (Event Tracing for Windows)
+
+# Building LogJam
+
+Note: `restore.bat` must be used to restore all packages/dependencies before building.  This
+command only need to be run after checkout or update.
+
+```
+.\restore
+msbuild LogJam.sln
+```
+
+## Running Tests
+
+(Assuming `restore.bat` has already been run)
+
+Run unit tests:
+```
+msbuild LogJam.sln /p:RunUnitTests=true
+```
+
+Run integration tests:
+```
+msbuild LogJam.sln /p:RunIntegrationTests=true
+```
