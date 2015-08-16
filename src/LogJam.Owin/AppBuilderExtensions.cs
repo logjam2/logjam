@@ -43,7 +43,7 @@ namespace Owin
 		private const string c_traceManagerConfigKey = "LogJam.Trace.Config.TraceManagerConfig";
 
 		/// <summary>
-		/// Returns the <see cref="GetLogManagerConfig"/> used to configure LogJam logging.
+		/// Returns the <see cref="LogManagerConfig"/> used to configure LogJam logging.
 		/// </summary>
 		/// <param name="appBuilder"></param>
 		/// <returns></returns>
@@ -63,7 +63,7 @@ namespace Owin
 		}
 
 		/// <summary>
-		/// Returns the <see cref="GetTraceManagerConfig"/> used to configure LogJam tracing.
+		/// Returns the <see cref="TraceManagerConfig"/> used to configure LogJam tracing.
 		/// </summary>
 		/// <param name="appBuilder"></param>
 		/// <returns></returns>
@@ -103,7 +103,7 @@ namespace Owin
 		}
 
 		/// <summary>
-		/// Retrieves the <see cref="ITracerFactory"/> from the Properties collection.
+		/// Retrieves the <see cref="LogManager"/> from the Properties collection.
 		/// </summary>
 		/// <param name="appBuilder"></param>
 		/// <returns></returns>
@@ -284,6 +284,17 @@ namespace Owin
         }
 
         /// <summary>
+		/// Enables logging of HTTP requests to all currently configured log writers.
+		/// </summary>
+		/// <param name="appBuilder"></param>
+		public static void LogHttpRequestsToAll(this IAppBuilder appBuilder)
+		{
+			Contract.Requires<ArgumentNullException>(appBuilder != null);
+
+			LogHttpRequests(appBuilder, appBuilder.GetLogManagerConfig().Writers.ToArray());
+		}
+
+		/// <summary>
 		/// Enables sending trace messages to <paramref name="configuredLogWriters"/>.  This method can be called multiple times to
 		/// specify different switch settings for different logWriters; or <see cref="GetTraceManagerConfig"/> can
 		/// be used for finer-grained control of configuration.
@@ -292,15 +303,33 @@ namespace Owin
 		/// <param name="switches"></param>
 		/// <param name="configuredLogWriters"></param>
 		/// <returns></returns>
-		public static void TraceTo(this IAppBuilder appBuilder, SwitchSet switches, params ILogWriterConfig[] configuredLogWriters)
+		public static void TraceTo(this IAppBuilder appBuilder, SwitchSet switches = null, params ILogWriterConfig[] configuredLogWriters)
 		{
 			Contract.Requires<ArgumentNullException>(appBuilder != null);
-			Contract.Requires<ArgumentNullException>(switches != null);
+
+			if (switches == null)
+			{
+				switches = TraceManagerConfig.CreateDefaultSwitchSet();
+			}
 
 			foreach (var logWriterConfig in configuredLogWriters)
 			{
 				appBuilder.GetTraceManagerConfig().Writers.Add(new TraceWriterConfig(logWriterConfig, switches));
 			}
+		}
+
+		/// <summary>
+		/// Enables sending trace messages to all configured log writers.
+		/// </summary>
+		/// <param name="appBuilder"></param>
+		/// <param name="switches"></param>
+		/// <returns></returns>
+		public static void TraceToAll(this IAppBuilder appBuilder, SwitchSet switches)
+		{
+			Contract.Requires<ArgumentNullException>(appBuilder != null);
+			Contract.Requires<ArgumentNullException>(switches != null);
+
+			TraceTo(appBuilder, switches, appBuilder.GetLogManagerConfig().Writers.ToArray());
 		}
 
 		/// <summary>

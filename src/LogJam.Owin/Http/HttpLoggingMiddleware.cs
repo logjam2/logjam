@@ -38,6 +38,7 @@ namespace LogJam.Owin.Http
 
 		private readonly IEntryWriter<HttpRequestEntry> _requestEntryWriter;
 		private readonly IEntryWriter<HttpResponseEntry> _responseEntryWriter;
+		private readonly Tracer _setupTracer;
 		private readonly Tracer _tracer;
 
 		public HttpLoggingMiddleware(OwinMiddleware next, LogManager logManager, ITracerFactory tracerFactory, ILogWriterConfig[] logWriterConfigs)
@@ -50,12 +51,24 @@ namespace LogJam.Owin.Http
 
 			_requestCounter = 0L;
 
+			_setupTracer = logManager.SetupTracerFactory.TracerFor(this);
+
 			// Sort the configured LogWriters into request and response entry writers
 			var requestWriters = new List<IEntryWriter<HttpRequestEntry>>();
 			var responseWriters = new List<IEntryWriter<HttpResponseEntry>>();
 			foreach (var logWriterConfig in logWriterConfigs)
 			{
-				var logWriter = logManager.GetLogWriter(logWriterConfig);
+				ILogWriter logWriter;
+				try
+				{
+					logWriter = logManager.GetLogWriter(logWriterConfig);
+				}
+				catch (Exception excp)
+				{
+					_setupTracer.Error(excp, "Unable to setup HTTP logging for log target '{0}' due to exception getting LogWriter", logWriterConfig);
+					continue;
+				}
+
 				IEntryWriter<HttpRequestEntry> requestWriter;
 				if (logWriter.TryGetEntryWriter(out requestWriter))
 				{
@@ -72,6 +85,8 @@ namespace LogJam.Owin.Http
 			_responseEntryWriter = responseWriters.GetSingleEntryWriter();
 
 			_tracer = tracerFactory.TracerFor(this);
+
+			_setupTracer.Info("OWIN HTTP logging setup for: {0}", string.Join(", ", (IEnumerable<ILogWriterConfig>) logWriterConfigs));
 		}
 
 		public void Dispose()
