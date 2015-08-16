@@ -260,6 +260,26 @@ namespace LogJam
 		}
 
 		/// <summary>
+		/// Returns the <see cref="ILogWriter"/> created from the specified <paramref name="logWriterConfig"/>.  If this
+		/// <c>LogManager</c> has not yet been started, it is started first.
+		/// </summary>
+		/// <param name="logWriterConfig"></param>
+		/// <param name="logWriter">Returns the <see cref="ILogWriter"/> created from <paramref name="logWriterConfig"/> if one exists; otherwise <c>null</c>.</param>
+		/// <returns><c>true</c> if a <paramref name="logWriter"/> was found; <c>false</c> if no match was found.</returns>
+		public bool TryGetLogWriter(ILogWriterConfig logWriterConfig, out ILogWriter logWriter)
+		{
+			Contract.Requires<ArgumentNullException>(logWriterConfig != null);
+
+			// Even if Start() wasn't 100% successful, we still return any logwriters that were successfully started.
+			EnsureStarted();
+
+			lock (this)
+			{
+				return _logWriters.TryGetValue(logWriterConfig, out logWriter);
+			}
+		}
+
+		/// <summary>
 		/// Returns the <see cref="ILogWriter"/> created from the specified <paramref name="logWriterConfig"/>.
 		/// </summary>
 		/// <param name="logWriterConfig"></param>
@@ -269,13 +289,10 @@ namespace LogJam
 		{
 			Contract.Requires<ArgumentNullException>(logWriterConfig != null);
 
-			// Even if Start() wasn't 100% successful, we still return any logwriters that were successfully started.
-			EnsureStarted();
-
 			ILogWriter logWriter = null;
-			if (!_logWriters.TryGetValue(logWriterConfig, out logWriter))
+			if (! TryGetLogWriter(logWriterConfig, out logWriter))
 			{
-				throw new KeyNotFoundException("logWriterConfig not found.");
+				throw new KeyNotFoundException("LogManager does not contain logWriterConfig: " + logWriterConfig);
 			}
 			return logWriter;
 		}
@@ -295,7 +312,8 @@ namespace LogJam
 		{
 			Contract.Requires<ArgumentNullException>(logWriterConfig != null);
 
-			ILogWriter logWriter = GetLogWriter(logWriterConfig);
+			ILogWriter logWriter = null;
+			logWriter = GetLogWriter(logWriterConfig);
 			if (logWriter == null)
 			{	// This occurs when entryWriter.Start() fails.  In this case, the desired behavior is to return a functioning logwriter.
 				var tracer = SetupTracerFactory.TracerFor(this);

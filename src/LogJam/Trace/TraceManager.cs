@@ -203,10 +203,14 @@ namespace LogJam.Trace
 				_activeTraceEntryWriters.Clear();
 				foreach (TraceWriterConfig traceWriterConfig in Config.Writers)
 				{
-					IEntryWriter<TraceEntry> traceEntryWriter = LogManager.GetEntryWriter<TraceEntry>(traceWriterConfig.LogWriterConfig);
-					if (traceEntryWriter != null)
+					try
 					{
+						IEntryWriter<TraceEntry> traceEntryWriter = LogManager.GetEntryWriter<TraceEntry>(traceWriterConfig.LogWriterConfig);
 						_activeTraceEntryWriters.Add(new Tuple<TraceWriterConfig, IEntryWriter<TraceEntry>>(traceWriterConfig, traceEntryWriter));
+					}
+					catch (Exception excp)
+					{
+						SetupTracerFactory.TracerFor(this).Error(excp, "Couldn't setup Tracing to target {0} due to exception getting IEntryWriter<TraceEntry>.", traceWriterConfig.LogWriterConfig);
 					}
 				}
 

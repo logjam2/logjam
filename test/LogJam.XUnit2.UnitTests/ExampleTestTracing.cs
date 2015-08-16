@@ -52,6 +52,7 @@ namespace LogJam.XUnit2.UnitTests
 		public void TestWithTraces()
 		{
 			var tracer = _traceManager.TracerFor(this);
+			Assert.True(tracer.IsDebugEnabled());
 			tracer.Info("Info message");
 			tracer.Debug("Formatted debug message at UTC: {0}", DateTime.UtcNow);
 		}

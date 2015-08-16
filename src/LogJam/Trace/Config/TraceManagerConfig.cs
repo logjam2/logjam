@@ -78,12 +78,14 @@ namespace LogJam.Trace.Config
 		/// <returns></returns>
 		public static TraceWriterConfig CreateDefaultTraceWriterConfig()
 		{
-			return new TraceWriterConfig(new DebuggerLogWriterConfig().Format(new DefaultTraceFormatter()))
+			return new TraceWriterConfig(new DebuggerLogWriterConfig().Format(new DefaultTraceFormatter()), CreateDefaultSwitchSet());
+		}
+
+		public static SwitchSet CreateDefaultSwitchSet()
+		{
+			return new SwitchSet()
 			       {
-				       Switches =
-				       {
-					       { Tracer.All, CreateDefaultTraceSwitch() }
-				       }
+				       { Tracer.All, CreateDefaultTraceSwitch() }
 			       };
 		}
 

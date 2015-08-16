@@ -79,6 +79,8 @@ namespace LogJam.UnitTests.Trace
 				tracer.Debug("Debug message not written to console");
 			}
 
+			traceManager.SetupLog.WriteEntriesTo(Console.Out, new DefaultTraceFormatter());
+
 			Assert.False(traceManager.IsStarted);
 			Assert.False(traceManager.LogManager.IsStarted);
 			Assert.True(traceManager.IsStopped);

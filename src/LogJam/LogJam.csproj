@@ -103,6 +103,7 @@
     <Compile Include="Util\Text\StringBuilderExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Instrument\" />
     <Folder Include="Interop\" />
   </ItemGroup>
   <ItemGroup>

@@ -10,6 +10,7 @@
 namespace LogJam.UnitTests
 {
 	using System;
+	using System.Collections.Generic;
 	using System.IO;
 	using System.Linq;
 	using System.Threading;
@@ -89,7 +90,7 @@ namespace LogJam.UnitTests
 				                         ExampleHelper.LogTestMessagesInParallel(entryWriter, countMessagesPerThread, countLoggingThreads);
 
 				                         // Key point: The LogManager is never disposed, and it has a number of queued
-				                         // entries that haven't been written
+				                         // entries that haven't been written at this point.
 			                         };
 			logTestMessages();
 
@@ -105,6 +106,32 @@ namespace LogJam.UnitTests
 			Assert.True(setupLog.Any(traceEntry => (traceEntry.TraceLevel == TraceLevel.Error) && (traceEntry.Message.StartsWith("In finalizer "))));
 		}
 
+		[Fact]
+		public void GetLogWriter_StartsLogManager()
+		{
+			var logManager = new LogManager();
+			var consoleLogWriterConfig = logManager.Config.UseConsole();
+
+			// LogManager.GetLogWriter starts the LogManager
+			Assert.False(logManager.IsStarted);
+			Assert.NotNull(logManager.GetLogWriter(consoleLogWriterConfig));
+			Assert.True(logManager.IsStarted);
+			Assert.True(logManager.IsHealthy);
+		}
+
+		[Fact]
+		public void MissingLogWriterConfigThrows()
+		{
+			var logManager = new LogManager();
+
+			// LogManager.GetLogWriter throws on no match
+			var missingConfig = new ListLogWriterConfig<TraceEntry>();
+			Assert.Throws<KeyNotFoundException>(() => logManager.GetLogWriter(missingConfig));
+			Assert.True(logManager.IsHealthy);
+
+			// LogManager.GetEntryWriter also throws
+			Assert.Throws<KeyNotFoundException>(() => logManager.GetEntryWriter<TraceEntry>(missingConfig));
+		}
 
 	}
 
