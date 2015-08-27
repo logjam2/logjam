@@ -11,7 +11,7 @@ namespace LogJam.Instrument
 {
 
 	/// <summary>
-	/// Container for <see cref="IInstrument"/> objects.
+	/// Container for <see cref="IInstrument"/> objects.   Manages all <see cref="IInstrument"/> instances in a scope - eg a web app.
 	/// </summary>
 	public sealed class InstrumentManager
 	{
