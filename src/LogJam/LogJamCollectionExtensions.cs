@@ -41,7 +41,7 @@ namespace LogJam
 			Contract.Requires<ArgumentNullException>(textWriter != null);
 			Contract.Requires<ArgumentNullException>(logFormatter != null);
 
-			var logWriter = new TextWriterLogWriter(textWriter, new SetupLog(), synchronize: false, disposeWriter: false);
+			var logWriter = new TextWriterLogWriter(textWriter, new SetupLog(), disposeWriter: false);
 			logWriter.AddFormat(logFormatter);
 			IEntryWriter<TEntry> entryWriter;
 			logWriter.TryGetEntryWriter(out entryWriter);

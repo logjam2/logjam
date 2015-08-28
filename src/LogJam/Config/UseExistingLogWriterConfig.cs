@@ -20,10 +20,11 @@ namespace LogJam.Config
 	/// An <see cref="ILogWriterConfig"/> that always returns the <see cref="ILogWriter"/> that is passed in.
 	/// Supports creating an <see cref="ILogWriter"/>, then passing that into configuration methods.
 	/// </summary>
-	public class UseExistingLogWriterConfig : ILogWriterConfig
+	public class UseExistingLogWriterConfig : LogWriterConfig
 	{
 
 		private readonly ILogWriter _logWriter;
+
 
 		/// <summary>
 		/// Creates a new <see cref="UseExistingLogWriterConfig"/> instance, which will result in
@@ -40,19 +41,9 @@ namespace LogJam.Config
 			DisposeOnStop = disposeOnStop;
 		}
 
-		public bool Synchronized
-		{
-			get { return _logWriter.IsSynchronized; }
-			set { throw new NotImplementedException("Can't set the synchronization of an existing IEntryWriter."); }
-		}
-
-		public bool DisposeOnStop { get; set; }
-
-		public bool BackgroundLogging { get; set; }
-
 		internal ILogWriter LogWriter { get { return _logWriter; } }
 
-		public ILogWriter CreateLogWriter(ITracerFactory setupTracerFactory)
+		public override ILogWriter CreateLogWriter(ITracerFactory setupTracerFactory)
 		{
 			return _logWriter;
 		}

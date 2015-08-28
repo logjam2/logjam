@@ -85,7 +85,7 @@ namespace LogJam.Config
 				throw new LogJamSetupException("CreateTextWriter delegate must be set before " + GetType() + " can create a LogWriter.", this);
 			}
 
-			var writer = new TextWriterLogWriter(CreateTextWriter(), setupTracerFactory, Synchronized, DisposeTextWriter);
+			var writer = new TextWriterLogWriter(CreateTextWriter(), setupTracerFactory, DisposeTextWriter);
 			ApplyConfiguredFormatters(writer);
 			return writer;
 		}

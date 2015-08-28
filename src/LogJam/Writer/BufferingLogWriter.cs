@@ -32,7 +32,6 @@ namespace LogJam.Writer
 		/// </summary>
 		public static readonly Func<bool> NeverFlush = () => false;
 
-
 	}
 
 }

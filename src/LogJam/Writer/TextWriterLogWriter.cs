@@ -37,12 +37,11 @@ namespace LogJam.Writer
 		/// </summary>
 		/// <param name="textWriter">The <see cref="TextWriter"/> to write formatted log output to.</param>
 		/// <param name="setupTracerFactory">The <see cref="ITracerFactory"/> to use for logging setup operations.</param>
-		/// <param name="synchronize">Set to <c>true</c> if all logging operations should be synchronized.</param>
 		/// <param name="disposeWriter">Whether to dispose <paramref name="textWriter"/> when the <c>TextWriterLogWriter</c> is disposed.</param>
 		/// <param name="flushPredicate">A function that is used to determine whether to flush the buffers or not.  If <c>null</c>,
 		/// a predicate is used to cause buffers to be flushed after every write.</param>
-		public TextWriterLogWriter(TextWriter textWriter, ITracerFactory setupTracerFactory, bool synchronize = false, bool disposeWriter = true, Func<bool> flushPredicate = null)
-			: base(setupTracerFactory, synchronize)
+		public TextWriterLogWriter(TextWriter textWriter, ITracerFactory setupTracerFactory, bool disposeWriter = true, Func<bool> flushPredicate = null)
+			: base(setupTracerFactory)
 		{
 			Contract.Requires<ArgumentNullException>(textWriter != null);
 
@@ -87,33 +86,18 @@ namespace LogJam.Writer
 				return;
 			}
 
-			bool lockTaken = false;
 			bool includeNewLine = ! formattedEntry.EndsWith(_newLine);
-			if (isSynchronized)
+			if (includeNewLine)
 			{
-				Monitor.Enter(this, ref lockTaken);
+				_textWriter.WriteLine(formattedEntry);
 			}
-			try
+			else
 			{
-				if (includeNewLine)
-				{
-					_textWriter.WriteLine(formattedEntry);
-				}
-				else
-				{
-					_textWriter.Write(formattedEntry);
-				}
-				if (_flushPredicate())
-				{
-					_textWriter.Flush();
-				}
+				_textWriter.Write(formattedEntry);
 			}
-			finally
+			if (_flushPredicate())
 			{
-				if (lockTaken)
-				{
-					Monitor.Exit(this);
-				}
+				_textWriter.Flush();
 			}
 		}
 
