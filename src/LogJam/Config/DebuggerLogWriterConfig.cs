@@ -35,7 +35,7 @@ namespace LogJam.Config
 
 		public override ILogWriter CreateLogWriter(ITracerFactory setupTracerFactory)
 		{
-			var writer = new DebuggerLogWriter(setupTracerFactory, Synchronized);
+			var writer = new DebuggerLogWriter(setupTracerFactory);
 			ApplyConfiguredFormatters(writer);
 			return writer;
 		}
