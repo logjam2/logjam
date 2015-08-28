@@ -22,7 +22,7 @@ namespace LogJam
 
 
 	/// <summary>
-	/// Manages all logs in LogJam.
+	/// Manager object that manages all <see cref="ILogWriter"/>s for a context - eg process, or test.
 	/// </summary>
 	public sealed class LogManager : BaseLogJamManager
 	{
@@ -32,20 +32,7 @@ namespace LogJam
 
 		#endregion
 
-		#region Instance fields
-
-		/// <summary>
-		/// An internal <see cref="ITracerFactory"/>, which is used only for tracing LogJam operations.
-		/// </summary>
-		private readonly ITracerFactory _setupTracerFactory;
-
-		private readonly LogManagerConfig _config;
-
-		private readonly List<BackgroundMultiLogWriter> _backgroundMultiLogWriters;
-
-		private readonly Dictionary<ILogWriterConfig, ILogWriter> _logWriters; 
-
-		#endregion
+		#region Static properties
 
 		/// <summary>
 		/// Sets or gets an AppDomain-global <see cref="LogManager"/>.
@@ -72,10 +59,27 @@ namespace LogJam
 			}
 		}
 
+		#endregion
+
+		#region Instance fields
+
+		/// <summary>
+		/// An internal <see cref="ITracerFactory"/>, which is used only for tracing LogJam operations.
+		/// </summary>
+		private readonly ITracerFactory _setupTracerFactory;
+
+		private readonly LogManagerConfig _config;
+
+		private readonly List<BackgroundMultiLogWriter> _backgroundMultiLogWriters;
+
+		private readonly Dictionary<ILogWriterConfig, ILogWriter> _logWriters; 
+
+		#endregion
+
 		#region Constructors and Destructors
 
 		/// <summary>
-		/// Creates a new <see cref="LogManager"/> instance using default configuration.
+		/// Creates a new <see cref="LogManager"/> instance using an empty initial configuration.
 		/// </summary>
 		public LogManager()
 			: this(new LogManagerConfig())
@@ -165,25 +169,7 @@ namespace LogJam
 						continue;
 					}
 
-					ILogWriter logWriter = null;
-					try
-					{
-						logWriter = logWriterConfig.CreateLogWriter(SetupTracerFactory);
-
-						if (logWriterConfig.BackgroundLogging)
-						{
-							var backgroundWriter = new BackgroundMultiLogWriter(SetupTracerFactory);
-							_backgroundMultiLogWriters.Add(backgroundWriter);
-							logWriter = backgroundWriter.CreateProxyFor(logWriter);
-							backgroundWriter.Start();
-						}
-					}
-					catch (Exception excp)
-					{
-						// TODO: Store initialization failure status
-						var tracer = SetupTracerFactory.TracerFor(logWriterConfig);
-						tracer.Severe(excp, "Exception creating logwriter from config: {0}", logWriterConfig);
-					}
+					ILogWriter logWriter = CreateLogWriter(logWriterConfig);
 
 					(logWriter as IStartable).SafeStart(SetupTracerFactory);
 
@@ -195,6 +181,43 @@ namespace LogJam
 					}
 				}
 			}
+		}
+
+		/// <summary>
+		/// Create an <see cref="ILogWriter"/> from <paramref name="logWriterConfig"/>, then proxy it as configured and log any
+		/// errors in <see cref="SetupLog"/>.
+		/// </summary>
+		/// <param name="logWriterConfig"></param>
+		/// <returns></returns>
+		internal ILogWriter CreateLogWriter(ILogWriterConfig logWriterConfig)
+		{
+			ILogWriter logWriter = null;
+			try
+			{
+				logWriter = logWriterConfig.CreateLogWriter(SetupTracerFactory);
+
+				if (logWriterConfig.BackgroundLogging)
+				{
+					var backgroundWriter = new BackgroundMultiLogWriter(SetupTracerFactory);
+					_backgroundMultiLogWriters.Add(backgroundWriter);
+					logWriter = backgroundWriter.CreateProxyFor(logWriter);
+					backgroundWriter.Start();
+				}
+				else if (!logWriter.IsSynchronized && logWriterConfig.Synchronized)
+				{
+					// Wrap non-synchronized LogWriters to make them threadsafe
+					logWriter = new SynchronizingProxyLogWriter(SetupTracerFactory, logWriter);
+				}
+			}
+			catch (Exception excp)
+			{
+				// TODO: Store initialization failure status
+				var tracer = SetupTracerFactory.TracerFor(logWriterConfig);
+				tracer.Severe(excp, "Exception creating logwriter from config: {0}", logWriterConfig);
+				logWriter = null;
+			}
+
+			return logWriter;
 		}
 
 		/// <summary>

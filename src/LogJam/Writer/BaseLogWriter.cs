@@ -107,7 +107,7 @@ namespace LogJam.Writer
 
 		#region ILogWriter
 
-		public abstract bool IsSynchronized { get; }
+		public virtual bool IsSynchronized { get { return false; } }
 
 		public virtual bool TryGetEntryWriter<TEntry>(out IEntryWriter<TEntry> entryWriter) where TEntry : ILogEntry
 		{

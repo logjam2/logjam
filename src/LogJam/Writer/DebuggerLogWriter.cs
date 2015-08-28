@@ -30,8 +30,8 @@ namespace LogJam.Writer
 		private bool _debuggerIsAttached;
 		private int _lastDebuggerAttachedCheck; // The time, in ticks, of the last debugger attached check
 
-		public DebuggerLogWriter(ITracerFactory setupTracerFactory, bool synchronize = false)
-			: base(setupTracerFactory, synchronize)
+		public DebuggerLogWriter(ITracerFactory setupTracerFactory)
+			: base(setupTracerFactory)
 		{
 			_newLine = Console.Out.NewLine;
 			_lastDebuggerAttachedCheck = int.MaxValue;
@@ -57,47 +57,32 @@ namespace LogJam.Writer
 
 		protected override void WriteFormattedEntry(string formattedEntry)
 		{
-			bool lockTaken = false;
 			if (! formattedEntry.EndsWith(_newLine))
 			{
 				formattedEntry += _newLine;
 			}
 
-			if (isSynchronized)
-			{
-				Monitor.Enter(this, ref lockTaken);
-			}
-			try
-			{
 #if (PORTABLE)
 				// REVIEW: This isn't reliable - it is conditionally compiled in debug builds; but it's all that's available in the portable profile.
 				Debug.Write(formattedEntry);
 #else
-				if (Debugger.IsLogging())
-				{
-					Debugger.Log(0, null, formattedEntry);
-				}
-				else if (IsDebuggerPresent())
-				{
-					try
-					{
-						OutputDebugString(formattedEntry);
-					}
-					catch (EntryPointNotFoundException)
-					{
-						// Disable logging with OutputDebugString for a bit.
-						_debuggerIsAttached = false;
-					}
-				}
-#endif
-			}
-			finally
+			if (Debugger.IsLogging())
 			{
-				if (lockTaken)
+				Debugger.Log(0, null, formattedEntry);
+			}
+			else if (IsDebuggerPresent())
+			{
+				try
 				{
-					Monitor.Exit(this);
+					OutputDebugString(formattedEntry);
+				}
+				catch (EntryPointNotFoundException)
+				{
+					// Disable logging with OutputDebugString for a bit.
+					_debuggerIsAttached = false;
 				}
 			}
+#endif
 		}
 
 #if !PORTABLE

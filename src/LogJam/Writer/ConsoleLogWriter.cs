@@ -28,8 +28,8 @@ namespace LogJam.Writer
 		private readonly string _newLine;
 		private short _countWriteFailures;
 
-		public ConsoleLogWriter(ITracerFactory setupTracerFactory, bool useColor, bool synchronize = false)
-			: base(setupTracerFactory, synchronize)
+		public ConsoleLogWriter(ITracerFactory setupTracerFactory, bool useColor)
+			: base(setupTracerFactory)
 		{
 			UseColor = useColor;
 			_countWriteFailures = 0;
@@ -54,12 +54,7 @@ namespace LogJam.Writer
 				return;
 			}
 
-			bool lockTaken = false;
 			bool includeNewLine = !formattedEntry.EndsWith(_newLine);
-			if (isSynchronized)
-			{
-				Monitor.Enter(this, ref lockTaken);
-			}
 			try
 			{
 				if (includeNewLine)
@@ -79,13 +74,6 @@ namespace LogJam.Writer
 				{
 					setupTracer.Error("Exceeded {0} write failures, halting console logging.");
 					Stop();
-				}
-			}
-			finally
-			{
-				if (lockTaken)
-				{
-					Monitor.Exit(this);
 				}
 			}
 		}

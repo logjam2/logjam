@@ -38,7 +38,7 @@ namespace LogJam.Config
 
 		public override ILogWriter CreateLogWriter(ITracerFactory setupTracerFactory)
 		{
-			var writer = new ConsoleLogWriter(setupTracerFactory, UseColor, Synchronized);
+			var writer = new ConsoleLogWriter(setupTracerFactory, UseColor);
 			ApplyConfiguredFormatters(writer);
 			return writer;
 		}

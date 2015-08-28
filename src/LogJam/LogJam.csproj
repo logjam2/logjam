@@ -74,6 +74,7 @@
     <Compile Include="Trace\Config\TraceWriterConfig.cs" />
     <Compile Include="Trace\Switches\OnOffTraceSwitch.cs" />
     <Compile Include="Trace\TraceWriter.cs" />
+    <Compile Include="Writer\ProxyLogWriter.cs" />
     <Compile Include="Writer\IQueueEntryWriter.cs" />
     <Compile Include="Writer\ListLogWriter.cs" />
     <Compile Include="Writer\BaseLogWriter.cs" />
@@ -81,6 +82,7 @@
     <Compile Include="Writer\NoOpLogWriter.cs" />
     <Compile Include="Writer\ProxyEntryWriter.cs" />
     <Compile Include="Writer\SingleEntryTypeLogWriter.cs" />
+    <Compile Include="Writer\SynchronizingProxyLogWriter.cs" />
     <Compile Include="Writer\TextLogWriter.cs" />
     <Compile Include="Writer\TextWriterLogWriter.cs" />
   </ItemGroup>
