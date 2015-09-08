@@ -29,8 +29,8 @@ namespace LogJam.Config
 		/// </summary>
 		public DebuggerLogWriterConfig()
 		{
-			// Default Synchronized to false
-			Synchronized = false;
+			// Default Synchronize to false
+			Synchronize = false;
 		}
 
 		public override ILogWriter CreateLogWriter(ITracerFactory setupTracerFactory)

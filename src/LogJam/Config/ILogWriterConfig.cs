@@ -10,7 +10,11 @@
 namespace LogJam.Config
 {
 	using System;
+	using System.Collections;
+	using System.Collections.Generic;
+	using System.Diagnostics.Contracts;
 
+	using LogJam.Config.Initializer;
 	using LogJam.Trace;
 	using LogJam.Writer;
 
@@ -24,6 +28,7 @@ namespace LogJam.Config
 	/// because they are identified by reference.  It should be valid to have two <c>ILogWriterConfig</c> objects with the same values stored
 	/// in a set or dictionary.
 	/// </remarks>
+	[ContractClass(typeof(LogWriterConfigContract))]
 	public interface ILogWriterConfig
 	{
 		/// <summary>
@@ -31,7 +36,7 @@ namespace LogJam.Config
 		/// writes synchronized or not.
 		/// </summary>
 		// TODO: Remove, move to LogManagerConfig as a global setting?
-		bool Synchronized { get; set; }
+		bool Synchronize { get; set; }
 
 		/// <summary>
 		/// Sets or gets whether log writes should be queued from the logging thread, and written on a single background thread.
@@ -50,6 +55,41 @@ namespace LogJam.Config
 		/// <param name="setupTracerFactory">An <see cref="ITracerFactory"/> for tracing information about logging setup.</param>
 		/// <returns>A new <see cref="ILogWriter"/> using the configured settings.</returns>
 		ILogWriter CreateLogWriter(ITracerFactory setupTracerFactory);
+
+		/// <summary>
+		/// Returns a collection of initializers that are applied to any <see cref="ILogWriter"/>s returned from <see cref="CreateLogWriter"/>.
+		/// </summary>
+		/// <remarks>
+		/// After these initializers are applied to a logwriter, <c>LogManager</c>-global initializers from <see cref="LogManagerConfig.Initializers"/> are applied.
+		/// </remarks>
+		ICollection<ILogWriterInitializer> Initializers { get; }
+
 	}
 
+	[ContractClassFor(typeof(ILogWriterConfig))]
+	internal abstract class LogWriterConfigContract : ILogWriterConfig
+	{
+
+		public bool Synchronize { get; set; }
+		public bool BackgroundLogging { get; set; }
+		public bool DisposeOnStop { get; set; }
+
+		public ILogWriter CreateLogWriter(ITracerFactory setupTracerFactory)
+		{
+			Contract.Requires<ArgumentNullException>(setupTracerFactory != null);
+
+			throw new NotImplementedException();
+		}
+
+		public ICollection<ILogWriterInitializer> Initializers
+		{
+			get
+			{
+				Contract.Ensures(Contract.Result<ICollection<ILogWriterInitializer>>() != null);
+
+				throw new NotImplementedException();
+			}
+		}
+
+	}
 }

@@ -41,18 +41,30 @@ namespace LogJam.Writer
 			}
 		}
 
-		public override IEnumerable<KeyValuePair<Type, object>> EntryWriters
+		public override IEnumerable<KeyValuePair<Type, IEntryWriter>> EntryWriters
 		{
-			get { return new[] { new KeyValuePair<Type, object>(typeof(TEntry), this) }; }
+			get { return new[] { new KeyValuePair<Type, IEntryWriter>(typeof(TEntry), this) }; }
 		}
 
 		#region IEntryWriter<TEntry>
 
 		public virtual bool IsEnabled { get { return IsStarted; } }
 
+		public Type LogEntryType { get { return typeof(TEntry); } }
+
 		public abstract void Write(ref TEntry entry);
 
 		#endregion
+
+		protected override void InternalStart()
+		{
+			// Don't call base.InternalStart() - because it's redundant to start the EntryWriter
+		}
+
+		protected override void InternalStop()
+		{
+			// Don't call base.InternalStop() - because it's redundant to stop the EntryWriter
+		}
 
 	}
 

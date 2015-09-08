@@ -21,8 +21,8 @@ namespace LogJam.UnitTests.Common
 		where TEntry : ILogEntry
 	{
 
-		public SlowTestLogWriter(ITracerFactory setupTracerFactory, int msDelay, bool synchronize)
-			: base(setupTracerFactory, synchronize)
+		public SlowTestLogWriter(ITracerFactory setupTracerFactory, int msDelay)
+			: base(setupTracerFactory)
 		{
 			WriteEntryDelayMs = msDelay;
 			StartDelayMs = msDelay;

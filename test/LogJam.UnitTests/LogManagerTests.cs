@@ -75,7 +75,7 @@ namespace LogJam.UnitTests
 
 			// Slow log writer - starting, stopping, disposing, writing an entry, all take at least 10ms each.
 			const int opDelayMs = 5;
-			var slowLogWriter = new SlowTestLogWriter<MessageEntry>(setupLog, opDelayMs, false);
+			var slowLogWriter = new SlowTestLogWriter<MessageEntry>(setupLog, opDelayMs);
 			const int countLoggingThreads = 5;
 			const int countMessagesPerThread = 5;
 			const int expectedEntryCount = countLoggingThreads * countMessagesPerThread;
@@ -87,7 +87,7 @@ namespace LogJam.UnitTests
 				                         logManager.Config.UseLogWriter(slowLogWriter).BackgroundLogging = true;
 				                         var entryWriter = logManager.GetEntryWriter<MessageEntry>();
 
-				                         ExampleHelper.LogTestMessagesInParallel(entryWriter, countMessagesPerThread, countLoggingThreads);
+				                         LoadHelper.LogTestMessagesInParallel(entryWriter, countMessagesPerThread, countLoggingThreads);
 
 				                         // Key point: The LogManager is never disposed, and it has a number of queued
 				                         // entries that haven't been written at this point.

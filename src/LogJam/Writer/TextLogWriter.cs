@@ -96,7 +96,10 @@ namespace LogJam.Writer
 
 			public bool IsEnabled { get { return _parent.IsEnabled; } }
 
+			public Type LogEntryType { get { return typeof(TEntry); } }
+
 			internal LogFormatter<TEntry> Formatter { get { return _formatter; } }
+
 			internal TextLogWriter Parent { get { return _parent; } } 
 
 		}

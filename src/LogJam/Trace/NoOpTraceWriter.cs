@@ -9,6 +9,8 @@
 
 namespace LogJam.Trace
 {
+	using System;
+
 
 	/// <summary>
 	/// An <see cref="ITraceWriter"/> that doesn't write any <see cref="TraceEntry"/>s.
@@ -35,6 +37,8 @@ namespace LogJam.Trace
 		{}
 
 		public bool IsEnabled { get { return false; } }
+
+		public Type LogEntryType { get { return typeof(TraceEntry); } }
 
 		public bool IsSynchronized { get { return true; } }
 

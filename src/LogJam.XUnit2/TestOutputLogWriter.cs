@@ -109,6 +109,7 @@ namespace LogJam.XUnit2
 			}
 
 			public bool IsEnabled { get { return _parent.IsStarted; } }
+			public Type LogEntryType { get { return typeof(TEntry); } }
 
 			internal LogFormatter<TEntry> Formatter { get { return _formatter; } }
 

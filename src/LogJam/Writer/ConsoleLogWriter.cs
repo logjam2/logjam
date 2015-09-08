@@ -41,7 +41,7 @@ namespace LogJam.Writer
 
 		protected override void InternalStart()
 		{
-			// Clear the count of write failures if any
+			// Reset the count of write failures if any
 			_countWriteFailures = 0;
 
 			base.InternalStart();

@@ -9,6 +9,8 @@
 
 namespace LogJam.Util
 {
+	using System;
+
 
 	/// <summary>
 	/// Base class for <see cref="IStartable"/> implementations.  
@@ -16,11 +18,33 @@ namespace LogJam.Util
 	public abstract class Startable : IStartable
 	{
 
-		private bool _isStarted;
+		private StartableState _startableState;
 
 		protected Startable()
 		{
-			_isStarted = false;
+			_startableState = StartableState.Unstarted;
+		}
+
+		/// @inheritdoc
+		public StartableState State
+		{
+			get { return _startableState; }
+		}
+
+		/// @inheritdoc
+		public bool ReadyToStart
+		{
+			get
+			{
+				var state = _startableState;
+				return (state == StartableState.Unstarted) || (state == StartableState.Stopped);
+			}
+		}
+
+		/// @inheritdoc
+		public virtual bool IsStarted
+		{
+			get { return _startableState == StartableState.Started; }
 		}
 
 		/// @inheritdoc
@@ -28,10 +52,19 @@ namespace LogJam.Util
 		{
 			lock (this)
 			{
-				if (! _isStarted)
+				if (ReadyToStart)
 				{
-					InternalStart();
-					_isStarted = true;
+					_startableState = StartableState.Starting;
+					try
+					{
+						InternalStart();
+						_startableState = StartableState.Started;
+					}
+					catch
+					{
+						_startableState = StartableState.FailedToStart;
+						throw;
+					}
 				}				
 			}
 		}
@@ -47,23 +80,32 @@ namespace LogJam.Util
 		{
 			lock (this)
 			{
-				if (_isStarted)
+				if ((_startableState != StartableState.Stopped) && (_startableState != StartableState.Stopping) && (_startableState != StartableState.Unstarted))
 				{
-					InternalStop();
-					_isStarted = false;
+					_startableState = StartableState.Stopping;
+					try
+					{
+						InternalStop();
+						_startableState = StartableState.Stopped;
+					}
+					catch
+					{
+						_startableState = StartableState.FailedToStop;
+						throw;
+					}
 				}
 			}
 		}
 
+
 		/// <summary>
-		/// Can be overridden to provide logic that runs when the object is stopped.
+		/// Can be overridden to provide logic that runs when the object is stopped.  <c>InternalStop</c> methods must do any
+		/// cleanup necessary, and must be reliable even after startup failed.
 		/// </summary>
 		protected virtual void InternalStop()
 		{ }
 
 		/// @inheritdoc
-		public virtual bool IsStarted { get { return _isStarted; } }
-
 		/// <summary>
 		/// Override ToString() to provide more descriptive start/stop logging.
 		/// </summary>

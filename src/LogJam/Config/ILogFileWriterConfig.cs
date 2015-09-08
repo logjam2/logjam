@@ -15,18 +15,13 @@ namespace LogJam.Config
 
 
 	/// <summary>
-	/// Configures a log writer that writes to the specified <see cref="File"/>.
+	/// Common configuration for configuring a log writer that writes to the specified <see cref="File"/>.
 	/// </summary>
-	public sealed class FileLogWriterConfig : LogWriterConfig
+	public interface ILogFileWriterConfig : ILogWriterConfig
 	{
-		public string Directory { get; set; }
+		string Directory { get; set; }
 
-		public string File { get; set; }
-
-		public override ILogWriter CreateLogWriter(ITracerFactory setupTracerFactory)
-		{
-			throw new System.NotImplementedException();
-		}
+		string File { get; set; }
 
 	}
 

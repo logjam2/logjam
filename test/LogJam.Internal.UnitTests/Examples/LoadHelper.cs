@@ -1,5 +1,5 @@
 ﻿// // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ExampleHelper.cs">
+// <copyright file="LoadHelper.cs">
 // Copyright (c) 2011-2015 logjam.codeplex.com.  
 // </copyright>
 // Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
@@ -19,13 +19,13 @@ namespace LogJam.Internal.UnitTests.Examples
 
 
 	/// <summary>
-	/// Shared test logic for using examples.
+	/// Shared test logic for applying load (eg logging).
 	/// </summary>
-	public static class ExampleHelper
+	public static class LoadHelper
 	{
 
 		/// <summary>
-		/// Writes some test messages in parallel threads.
+		/// Writes some <see cref="MessageEntry"/>s in parallel threads.
 		/// </summary>
 		/// <param name="entryWriter"></param>
 		/// <param name="messagesPerThread"></param>
@@ -50,6 +50,32 @@ namespace LogJam.Internal.UnitTests.Examples
 			}
 		}
 
+		/// <summary>
+		/// Writes some <see cref="TestEntry"/>s in parallel threads.
+		/// </summary>
+		/// <param name="entryWriter"></param>
+		/// <param name="messagesPerThread"></param>
+		/// <param name="parallelThreads"></param>
+		public static void LogTestEntriesInParallel(IEntryWriter<TestEntry> entryWriter, int messagesPerThread, int parallelThreads)
+		{
+			int counter = 0;
+			var stopwatch = Stopwatch.StartNew();
+
+			Action loggingFunc = () => LogTestEntries(ref counter, entryWriter, messagesPerThread);
+
+			Parallel.Invoke(Enumerable.Repeat(loggingFunc, parallelThreads).ToArray());
+			stopwatch.Stop();
+			Console.WriteLine("Logged {0} test entries per thread in {1} parallel tasks in {2}", messagesPerThread, parallelThreads, stopwatch.Elapsed);
+		}
+
+		public static void LogTestEntries(ref int counter, IEntryWriter<TestEntry> entryWriter, int messageCount)
+		{
+			for (int i = 0; i < messageCount; ++i)
+			{
+				var msg = new TestEntry(ref counter);
+				entryWriter.Write(ref msg);
+			}
+		}
 
 	}
 

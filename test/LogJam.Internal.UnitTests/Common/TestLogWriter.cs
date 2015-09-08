@@ -28,14 +28,17 @@ namespace LogJam.UnitTests.Common
 	{
 
 		private readonly IList<TEntry> _entryList;
-		private readonly bool _isSynchronized = false;
 
-		public TestLogWriter(ITracerFactory setupTracerFactory,  bool synchronize)
+		public TestLogWriter(ITracerFactory setupTracerFactory)
 			: base(setupTracerFactory)
 		{
 			_entryList = new List<TEntry>();
-			_isSynchronized = synchronize;
 		}
+
+		/// <summary>
+		/// Allows tests to attach whatever behavior they want to be notified when an entry is logged.
+		/// </summary>
+		public event EventHandler<TestEntryLoggedEventArgs<TEntry>> EntryLogged;
 
 		public new bool IsDisposed
 		{ get { return base.IsDisposed; } }
@@ -45,7 +48,7 @@ namespace LogJam.UnitTests.Common
 		/// <summary>
 		/// Returns <c>true</c> if calls to this object's methods and properties are synchronized.
 		/// </summary>
-		public override bool IsSynchronized { get { return _isSynchronized; } }
+		public override bool IsSynchronized { get { return false; } }
 
 		/// <summary>
 		/// Adds the <paramref name="entry"/> to the <see cref="List{TEntry}"/>.
@@ -53,21 +56,14 @@ namespace LogJam.UnitTests.Common
 		/// <param name="entry">A <typeparamref name="TEntry"/>.</param>
 		public override void Write(ref TEntry entry)
 		{
-			if (! _isSynchronized)
+			if (IsStarted)
 			{
-				if (IsStarted)
+				_entryList.Add(entry);
+
+				var entryLoggedEventDelegate = EntryLogged;
+				if (entryLoggedEventDelegate != null)
 				{
-					_entryList.Add(entry);
-				}
-			}
-			else
-			{
-				lock (this)
-				{
-					if (IsStarted)
-					{
-						_entryList.Add(entry);
-					}
+					entryLoggedEventDelegate(this, new TestEntryLoggedEventArgs<TEntry>(this, ref entry));
 				}
 			}
 		}
@@ -76,18 +72,7 @@ namespace LogJam.UnitTests.Common
 
 		public IEnumerator<TEntry> GetEnumerator()
 		{
-			IEnumerable<TEntry> enumerable;
-			if (_isSynchronized)
-			{
-				lock (this)
-				{
-					enumerable = _entryList.ToArray();
-				}
-			}
-			else
-			{
-				enumerable = _entryList.ToArray();
-			}
+			IEnumerable<TEntry> enumerable = _entryList.ToArray();
 			return enumerable.GetEnumerator();
 		}
 
@@ -109,6 +94,26 @@ namespace LogJam.UnitTests.Common
 		{
 			_entryList.Clear();
 		}
+
+	}
+
+	/// <summary>
+	/// Event args for notifying test code that an entry was logged.
+	/// </summary>
+	/// <typeparam name="TEntry"></typeparam>
+	public class TestEntryLoggedEventArgs<TEntry> : EventArgs
+		where TEntry : ILogEntry
+	{
+
+		public TestEntryLoggedEventArgs(ILogWriter logWriter, ref TEntry logEntry)
+		{
+			LogWriter = logWriter;
+			LogEntry = logEntry;
+		}
+
+		public ILogWriter LogWriter { get; private set; }
+
+		public TEntry LogEntry { get; private set; }
 
 	}
 

@@ -14,6 +14,7 @@ namespace LogJam.Config
 	using System.IO;
 
 	using LogJam.Writer;
+	using LogJam.Writer.Rotator;
 
 
 	/// <summary>
@@ -69,6 +70,17 @@ namespace LogJam.Config
 			Contract.Requires<ArgumentNullException>(logWriter != null);
 
 			var useExistingConfig = new UseExistingLogWriterConfig(logWriter);
+			logManagerConfig.Writers.Add(useExistingConfig);
+			return useExistingConfig;
+		}
+
+		public static RotatingLogFileWriterConfig UseRotatingLogFileWriter(this LogManagerConfig logManagerConfig, LogFileRotatorConfig logFileRotatorConfig, ILogFileWriterConfig logFileWriterConfig)
+		{
+			Contract.Requires<ArgumentNullException>(logManagerConfig != null);
+			Contract.Requires<ArgumentNullException>(logFileRotatorConfig != null);
+			Contract.Requires<ArgumentNullException>(logFileWriterConfig != null);
+
+			var useExistingConfig = new RotatingLogFileWriterConfig(logFileRotatorConfig, logFileWriterConfig);
 			logManagerConfig.Writers.Add(useExistingConfig);
 			return useExistingConfig;
 		}
