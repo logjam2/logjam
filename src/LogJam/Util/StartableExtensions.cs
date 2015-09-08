@@ -21,55 +21,93 @@ namespace LogJam.Util
 	internal static class StartableExtensions
 	{
 
-		internal static void SafeStart(this IStartable startable, Tracer tracer)
+		/// <summary>
+		/// Starts <paramref name="startable"/>, reporting any errors to <paramref cref="tracer"/>.
+		/// </summary>
+		/// <param name="startable"></param>
+		/// <param name="tracer"></param>
+		/// <returns><c>true</c> if <paramref name="startable"/> did not fail starting.</returns>
+		internal static bool SafeStart(this IStartable startable, Tracer tracer)
 		{
 			Contract.Requires<ArgumentNullException>(tracer != null);
 
 			if (startable == null)
 			{
-				return;
+				return true;
 			}
 
 			if (startable.IsStarted)
 			{
-				tracer.Info("{0} already started, not restarting it.", startable);
-				return;
+				return true;
+			}
+			if (startable.State == StartableState.Starting)
+			{
+				tracer.Debug("{0} already starting, not restarting it.", startable);
+				// Return to avoid re-entrant start tracking
+				return true;
 			}
 
 			try
 			{
 				tracer.Verbose("Starting {0} ...", startable);
 				startable.Start();
-				tracer.Info("Successfully started {0}.", startable);
+				if (startable.IsStarted)
+				{
+					tracer.Info("Successfully started {0}.", startable);
+				}
+				else if (startable.State == StartableState.Starting)
+				{
+					tracer.Info("Start in progress for {0}.", startable);
+				}
+				else
+				{
+					tracer.Warn("{0} not started, but no exception thrown.", startable);
+				}
+				return true;
 			}
 			catch (Exception excp)
 			{
 				tracer.Severe(excp, "Exception Start()ing {0}", startable);
+				return false;
 			}
 		}
 
-		internal static void SafeStart(this IStartable startable, ITracerFactory tracerFactory)
+		/// <summary>
+		/// Starts <paramref name="startable"/>, reporting any errors to <paramref cref="tracerFactory"/>.
+		/// </summary>
+		/// <param name="startable"></param>
+		/// <param name="tracerFactory"></param>
+		/// <returns><c>true</c> if <paramref name="startable"/> did not fail starting.</returns>
+		internal static bool SafeStart(this IStartable startable, ITracerFactory tracerFactory)
 		{
 			Contract.Requires<ArgumentNullException>(tracerFactory != null);
 
 			if (startable == null)
 			{
-				return;
+				return true;
 			}
 
 			Tracer tracer = tracerFactory.TracerFor(startable);
-			SafeStart(startable, tracer);
+			return SafeStart(startable, tracer);
 		}
 
-		internal static void SafeStart(this IEnumerable collection, ITracerFactory tracerFactory)
+		/// <summary>
+		/// Starts all objects in <paramref name="collection"/>, reporting any errors to <paramref cref="tracerFactory"/>.
+		/// </summary>
+		/// <param name="collection"></param>
+		/// <param name="tracerFactory"></param>
+		/// <returns><c>true</c> if no elements in <see cref="collection"/> failed starting.</returns>
+		internal static bool SafeStart(this IEnumerable collection, ITracerFactory tracerFactory)
 		{
 			Contract.Requires<ArgumentNullException>(collection != null);
 			Contract.Requires<ArgumentNullException>(tracerFactory != null);
 
+			bool allStarted = true;
 			foreach (object o in collection)
 			{
-				SafeStart(o as IStartable, tracerFactory);
+				allStarted &= SafeStart(o as IStartable, tracerFactory);
 			}
+			return allStarted;
 		}
 
 		internal static void SafeStop(this IStartable startable, Tracer tracer)
@@ -87,7 +125,18 @@ namespace LogJam.Util
 				{
 					tracer.Verbose("Stopping {0} ...", startable);
 					startable.Stop();
-					tracer.Info("Successfully stopped {0}.", startable);
+					if (startable.State == StartableState.Stopped)
+					{
+						tracer.Info("Successfully stopped {0}.", startable);
+					}
+					else if (startable.State == StartableState.Stopping)
+					{
+						tracer.Info("Stop still in progress for {0}.", startable);
+					}
+					else
+					{
+						tracer.Warn("{0} not stopped, but no exception thrown.", startable);
+					}
 				}
 				catch (Exception excp)
 				{
@@ -133,7 +182,7 @@ namespace LogJam.Util
 			{
 				tracer.Debug("Disposing {0} ...", disposable);
 				disposable.Dispose();
-				tracer.Verbose("Disposed {0}.", disposable);
+				tracer.Debug("Disposed {0}.", disposable);
 			}
 			catch (Exception excp)
 			{

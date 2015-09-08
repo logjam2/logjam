@@ -13,6 +13,7 @@ namespace LogJam.Config
 	using System.Collections.Generic;
 	using System.Diagnostics.Contracts;
 
+	using LogJam.Config.Initializer;
 	using LogJam.Writer;
 
 
@@ -29,7 +30,14 @@ namespace LogJam.Config
 		/// </summary>
 		private readonly ISet<ILogWriterConfig> _logWriterConfigs;
 
+		/// <summary>
+		/// Holds initializers that are applied to all log writers created from this <c>LogManagerConfig</c>.
+		/// </summary>
+		private readonly List<ILogWriterInitializer> _initializers; 
+
 		#endregion
+
+		public static readonly IEnumerable<ILogWriterInitializer> DefaultInitializers = new ILogWriterInitializer[] { new BackgroundMultiLogWriter.Initializer(), new SynchronizingProxyLogWriter.Initializer() };
 
 		/// <summary>
 		/// Creates a new <see cref="LogManagerConfig"/>.
@@ -37,6 +45,7 @@ namespace LogJam.Config
 		public LogManagerConfig()
 		{
 			_logWriterConfigs = new HashSet<ILogWriterConfig>();
+			_initializers = new List<ILogWriterInitializer>(DefaultInitializers);
 		}
 
 		/// <summary>
@@ -47,6 +56,7 @@ namespace LogJam.Config
 			Contract.Requires<ArgumentNullException>(logWriterConfigs != null);
 
 			_logWriterConfigs = new HashSet<ILogWriterConfig>(logWriterConfigs);
+			_initializers = new List<ILogWriterInitializer>(DefaultInitializers);
 		}
 
 		/// <summary>
@@ -55,9 +65,26 @@ namespace LogJam.Config
 		public ISet<ILogWriterConfig> Writers
 		{ get { return _logWriterConfigs; } }
 
-		public void Clear()
+		/// <summary>
+		/// Returns a collection of initializers that are applied to all <see cref="ILogWriter"/>s created from this <see cref="LogManagerConfig"/>.
+		/// </summary>
+		/// <remarks>
+		/// These are <c>LogManager</c>-global initializers.  Each <see cref="ILogWriterConfig"/> also has a collection of initializers that are
+		/// applied only to logwriters created by the log writer config.
+		/// <para>
+		/// Initializers are applied in-order.  <see cref="ILogWriterConfig.Initializers"/> are applied before these global initializers.
+		/// </para>
+		/// </remarks>
+		public ICollection<ILogWriterInitializer> Initializers { get { return _initializers; } }
+
+		/// <summary>
+		/// Reset the configuration to empty/brand new, so that the containing <see cref="LogManager"/> can be re-used with new configuration.
+		/// </summary>
+		public void Reset()
 		{
 			_logWriterConfigs.Clear();
+			_initializers.Clear();
+			_initializers.AddRange(DefaultInitializers);
 		}
 
 	}

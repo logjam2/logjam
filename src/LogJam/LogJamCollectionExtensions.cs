@@ -43,11 +43,13 @@ namespace LogJam
 
 			var logWriter = new TextWriterLogWriter(textWriter, new SetupLog(), disposeWriter: false);
 			logWriter.AddFormat(logFormatter);
-			IEntryWriter<TEntry> entryWriter;
-			logWriter.TryGetEntryWriter(out entryWriter);
 			using (logWriter)
 			{
-				for (var enumerator = entries.GetEnumerator(); enumerator.MoveNext();)
+				logWriter.Start();
+
+				IEntryWriter<TEntry> entryWriter;
+				logWriter.TryGetEntryWriter(out entryWriter);
+				for (var enumerator = entries.GetEnumerator(); enumerator.MoveNext(); )
 				{
 					TEntry logEntry = enumerator.Current;
 					entryWriter.Write(ref logEntry);

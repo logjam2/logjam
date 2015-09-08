@@ -29,6 +29,16 @@ namespace LogJam
 		void Stop();
 
 		/// <summary>
+		/// The <see cref="StartableState"/> that defines the state of the object.
+		/// </summary>
+		StartableState State { get; }
+
+		/// <summary>
+		/// Returns <c>true</c> if the object is ready to be <see cref="Start"/>ed.
+		/// </summary>
+		bool ReadyToStart { get; }
+
+		/// <summary>
 		/// Returns <c>true</c> when the object has been successfully <see cref="Start"/>ed, and has not yet been <see cref="Stop"/>ped.
 		/// </summary>
 		bool IsStarted { get; }

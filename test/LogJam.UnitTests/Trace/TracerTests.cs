@@ -152,6 +152,7 @@ namespace LogJam.UnitTests.Trace
 			Assert.Same(LogManager.Instance, TraceManager.Instance.LogManager);
 			Assert.Empty(LogManager.Instance.Config.Writers);
 			Assert.Empty(TraceManager.Instance.Config.Writers);
+			Assert.True(TraceManager.Instance.IsHealthy);
 
 			// Add the default Tracer config (traces to debugger)
 			TraceManager.Instance.Config.TraceToDebugger();
@@ -360,6 +361,7 @@ namespace LogJam.UnitTests.Trace
 				}
 
 				public bool IsEnabled { get { return true; } }
+				public Type LogEntryType { get { return typeof(TEntry); } }
 
 			}
 

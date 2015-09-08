@@ -23,6 +23,8 @@ namespace LogJam.Writer
 
 		public bool IsEnabled { get { return false; } }
 
+		public Type LogEntryType { get { return typeof(TEntry); } }
+
 		public void Write(ref TEntry entry)
 		{}
 

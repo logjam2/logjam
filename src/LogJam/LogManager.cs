@@ -20,6 +20,8 @@ namespace LogJam
 	using System.Linq;
 	using System.Threading;
 
+	using LogJam.Config.Initializer;
+
 
 	/// <summary>
 	/// Manager object that manages all <see cref="ILogWriter"/>s for a context - eg process, or test.
@@ -147,6 +149,17 @@ namespace LogJam
 			get { return _setupTracerFactory as IEnumerable<TraceEntry> ?? Enumerable.Empty<TraceEntry>(); }
 		}
 
+		/// <summary>
+		/// Adds a <see cref="BackgroundMultiLogWriter"/> so a reference is maintained (to keep it alive), and so
+		/// it can be stopped when the <c>LogManager</c> is stopped.
+		/// </summary>
+		/// <param name="backgroundMultiLogWriter"></param>
+		internal void AddBackgroundMultiLogWriter(BackgroundMultiLogWriter backgroundMultiLogWriter)
+		{
+			Contract.Requires<ArgumentNullException>(backgroundMultiLogWriter != null);
+			_backgroundMultiLogWriters.Add(backgroundMultiLogWriter);
+		}
+
 		protected override void InternalStart()
 		{
 			lock (this)
@@ -159,6 +172,7 @@ namespace LogJam
 					Stop();
 				}
 
+				// Create LogWriters from config
 				foreach (ILogWriterConfig logWriterConfig in Config.Writers)
 				{
 					if (_logWriters.ContainsKey(logWriterConfig))
@@ -171,8 +185,6 @@ namespace LogJam
 
 					ILogWriter logWriter = CreateLogWriter(logWriterConfig);
 
-					(logWriter as IStartable).SafeStart(SetupTracerFactory);
-
 					_logWriters.Add(logWriterConfig, logWriter);
 
 					if (logWriterConfig.DisposeOnStop)
@@ -180,6 +192,10 @@ namespace LogJam
 						DisposeOnStop(logWriter);
 					}
 				}
+
+				// Start background writers and log writers
+				_backgroundMultiLogWriters.SafeStart(SetupTracerFactory);
+				_logWriters.Values.SafeStart(SetupTracerFactory);
 			}
 		}
 
@@ -192,22 +208,30 @@ namespace LogJam
 		internal ILogWriter CreateLogWriter(ILogWriterConfig logWriterConfig)
 		{
 			ILogWriter logWriter = null;
+			
+			// A lightweight service locator scoped to a single LogWriter pipeline
+			DependencyDictionary logWriterDependencyDictionary = new DependencyDictionary();
+			logWriterDependencyDictionary.Add<ITracerFactory>(SetupTracerFactory);
+			logWriterDependencyDictionary.Add<LogManager>(this);
+			logWriterDependencyDictionary.Add<ILogWriterConfig>(logWriterConfig);
+			logWriterDependencyDictionary.Add(logWriterConfig.GetType(), logWriterConfig);
+
 			try
 			{
 				logWriter = logWriterConfig.CreateLogWriter(SetupTracerFactory);
+				if (logWriter == null)
+				{	// Can occur when the logwriter cannot be created; the config object should log errors.
+					// TODO: Ensure that the error state is represented
+					return null;
+				}
+				logWriterDependencyDictionary.Add(logWriter.GetType(), logWriter);
 
-				if (logWriterConfig.BackgroundLogging)
-				{
-					var backgroundWriter = new BackgroundMultiLogWriter(SetupTracerFactory);
-					_backgroundMultiLogWriters.Add(backgroundWriter);
-					logWriter = backgroundWriter.CreateProxyFor(logWriter);
-					backgroundWriter.Start();
-				}
-				else if (!logWriter.IsSynchronized && logWriterConfig.Synchronized)
-				{
-					// Wrap non-synchronized LogWriters to make them threadsafe
-					logWriter = new SynchronizingProxyLogWriter(SetupTracerFactory, logWriter);
-				}
+				// Build pipeline and support dependency resolution using ILogWriterInitializers
+				logWriter = BuildLogWriterPipeline(logWriterConfig, logWriter, logWriterDependencyDictionary);
+				logWriterDependencyDictionary.AddIfNotDefined(typeof(ILogWriter), logWriter);
+				logWriterDependencyDictionary.EndInitialization();
+
+				ConnectImportsForLogWriterPipeline(logWriterConfig, logWriterDependencyDictionary);
 			}
 			catch (Exception excp)
 			{
@@ -218,6 +242,24 @@ namespace LogJam
 			}
 
 			return logWriter;
+		}
+
+		internal ILogWriter BuildLogWriterPipeline(ILogWriterConfig logWriterConfig, ILogWriter logWriter, DependencyDictionary dependencyDictionary)
+		{
+			foreach (var pipelineInitializer in logWriterConfig.Initializers.Concat(Config.Initializers).OfType<ILogWriterPipelineInitializer>())
+			{
+				logWriter = pipelineInitializer.InitializeLogWriter(SetupTracerFactory, logWriter, dependencyDictionary);
+				dependencyDictionary.AddIfNotDefined(logWriter.GetType(), logWriter);
+			}
+			return logWriter;
+		}
+
+		internal void ConnectImportsForLogWriterPipeline(ILogWriterConfig logWriterConfig, DependencyDictionary dependencyDictionary)
+		{
+			foreach (var importInitializer in logWriterConfig.Initializers.Concat(Config.Initializers).OfType<IImportInitializer>())
+			{
+				importInitializer.ImportDependencies(SetupTracerFactory, dependencyDictionary);
+			}
 		}
 
 		/// <summary>
@@ -238,7 +280,7 @@ namespace LogJam
 		{
 			// Stop has already been called
 
-			_config.Clear();
+			_config.Reset();
 		}
 
 		/// <summary>

@@ -26,7 +26,7 @@ namespace LogJam.Writer
 		private readonly ITracerFactory _setupTracerFactory;
 		private bool _disposed;
 
-		private readonly Dictionary<Type, object> _entryWriters;
+		private readonly Dictionary<Type, IEntryWriter> _entryWriters;
 
 		/// <summary>
 		/// Creates a new <see cref="BaseLogWriter"/>.
@@ -38,7 +38,7 @@ namespace LogJam.Writer
 			_setupTracerFactory = setupTracerFactory;
 
 			_disposed = false;
-			_entryWriters = new Dictionary<Type, object>();
+			_entryWriters = new Dictionary<Type, IEntryWriter>();
 		}
 
 		/// <summary>
@@ -74,6 +74,14 @@ namespace LogJam.Writer
 				{
 					throw new LogJamSetupException("Cannot add 2nd writer for Entry type " + typeof(TEntry), argExcp, this);
 				}
+			}
+		}
+
+		protected virtual void ClearEntryWriters()
+		{
+			lock (this)
+			{
+				_entryWriters.Clear();
 			}
 		}
 
@@ -113,7 +121,7 @@ namespace LogJam.Writer
 		{
 			lock (this)
 			{
-				object untypedEntryWriter;
+				IEntryWriter untypedEntryWriter;
 				if (_entryWriters.TryGetValue(typeof(TEntry), out untypedEntryWriter))
 				{
 					entryWriter = (IEntryWriter<TEntry>) untypedEntryWriter;
@@ -127,7 +135,7 @@ namespace LogJam.Writer
 			}
 		}
 
-		public virtual IEnumerable<KeyValuePair<Type, object>> EntryWriters { get { return _entryWriters.ToArray(); } }
+		public virtual IEnumerable<KeyValuePair<Type, IEntryWriter>> EntryWriters { get { return _entryWriters.ToArray(); } }
 
 		#endregion
 		#region Startable overrides
@@ -144,12 +152,12 @@ namespace LogJam.Writer
 
 		protected override void InternalStart()
 		{
-			EntryWriters.SafeStart(SetupTracerFactory);
+			EntryWriters.Select(kvp => kvp.Value).SafeStart(SetupTracerFactory);
 		}
 
 		protected override void InternalStop()
 		{
-			EntryWriters.SafeStop(SetupTracerFactory);
+			EntryWriters.Select(kvp => kvp.Value).SafeStop(SetupTracerFactory);
 		}
 
 		#endregion

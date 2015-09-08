@@ -27,8 +27,8 @@ namespace LogJam.Config
 		/// </summary>
 		public ConsoleLogWriterConfig()
 		{
-			// Default Synchronized to false
-			Synchronized = false;
+			// Default Synchronize to false
+			Synchronize = false;
 		}
 
 		/// <summary>

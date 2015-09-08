@@ -42,7 +42,7 @@ namespace LogJam.UnitTests.Writer
 			{
 				validatingLogWriter = new ValidateSyncedLogWriter(logManager.SetupTracerFactory, s_defaultWriteDelay);
 				var logWriterConfig = logManager.Config.UseLogWriter(validatingLogWriter);
-				logWriterConfig.Synchronized = false;
+				logWriterConfig.Synchronize = false;
 
 				AggregateException aggregateException = null;
 				try
@@ -74,7 +74,7 @@ namespace LogJam.UnitTests.Writer
 			{
 				validatingLogWriter = new ValidateSyncedLogWriter(logManager.SetupTracerFactory, s_defaultWriteDelay);
 				var logWriterConfig = logManager.Config.UseLogWriter(validatingLogWriter);
-				Assert.True(logWriterConfig.Synchronized);
+				Assert.True(logWriterConfig.Synchronize);
 
 				ValidateWithParallelLoad(logManager, c_defaultParallelThreads, c_defaultEntriesPerThread);
 			}

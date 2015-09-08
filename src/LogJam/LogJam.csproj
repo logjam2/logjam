@@ -18,12 +18,24 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseLogJamManager.cs" />
+    <Compile Include="Config\Initializer\DependencyDictionary.cs" />
+    <Compile Include="Config\Initializer\IImportInitializer.cs" />
+    <Compile Include="Config\Initializer\ILogWriterInitializer.cs" />
+    <Compile Include="Config\Initializer\ILogWriterPipelineInitializer.cs" />
+    <Compile Include="Config\Initializer\ImportActionInitializer.cs" />
+    <Compile Include="Config\LogWriterInitializerExtensions.cs" />
+    <Compile Include="StartableState.cs" />
+    <Compile Include="Writer\IEntryWriter.cs" />
+    <Compile Include="Writer\Rotator\AfterRotateLogFileEventArgs.cs" />
     <Compile Include="Config\ConsoleLogWriterConfig.cs" />
     <Compile Include="Config\ILogWriterConfig.cs" />
     <Compile Include="Config\Json\JsonTypeHintAttribute.cs" />
+    <Compile Include="Config\LogFileRotatorConfig.cs" />
     <Compile Include="Config\LogJamConfigTypes.cs" />
     <Compile Include="Config\LogManagerConfig.cs" />
     <Compile Include="Config\LogManagerConfigFluentExtensions.cs" />
+    <Compile Include="Config\RotatingLogFileWriterConfig.cs" />
+    <Compile Include="Config\TextLogFileWriterConfig.cs" />
     <Compile Include="Config\TextLogWriterConfig.cs" />
     <Compile Include="Config\TextWriterLogWriterConfig.cs" />
     <Compile Include="Config\UseExistingLogWriterConfig.cs" />
@@ -45,6 +57,7 @@
     <Compile Include="Writer\IBufferingLogWriter.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Writer\Rotator\ILogFileRotator.cs" />
     <Compile Include="Writer\ILogWriter.cs" />
     <Compile Include="IStartable.cs" />
     <Compile Include="LogJamStartException.cs" />
@@ -65,7 +78,7 @@
     <Compile Include="Util\StartableExtensions.cs" />
     <Compile Include="Util\Text\TextWriterExtensions.cs" />
     <Compile Include="Config\DebuggerLogWriterConfig.cs" />
-    <Compile Include="Config\FileLogWriterConfig.cs" />
+    <Compile Include="Config\ILogFileWriterConfig.cs" />
     <Compile Include="Writer\BackgroundMultiLogWriter.cs" />
     <Compile Include="Writer\FanOutEntryWriter.cs" />
     <Compile Include="Config\NoOpLogWriterConfig.cs" />
@@ -74,6 +87,8 @@
     <Compile Include="Trace\Config\TraceWriterConfig.cs" />
     <Compile Include="Trace\Switches\OnOffTraceSwitch.cs" />
     <Compile Include="Trace\TraceWriter.cs" />
+    <Compile Include="Writer\ISynchronizingLogWriter.cs" />
+    <Compile Include="Writer\LogWriterExtensions.cs" />
     <Compile Include="Writer\ProxyLogWriter.cs" />
     <Compile Include="Writer\IQueueEntryWriter.cs" />
     <Compile Include="Writer\ListLogWriter.cs" />
@@ -81,6 +96,8 @@
     <Compile Include="Writer\NoOpEntryWriter.cs" />
     <Compile Include="Writer\NoOpLogWriter.cs" />
     <Compile Include="Writer\ProxyEntryWriter.cs" />
+    <Compile Include="Writer\Rotator\RotateLogFileEventArgs.cs" />
+    <Compile Include="Writer\Rotator\RotatingLogFileWriter.cs" />
     <Compile Include="Writer\SingleEntryTypeLogWriter.cs" />
     <Compile Include="Writer\SynchronizingProxyLogWriter.cs" />
     <Compile Include="Writer\TextLogWriter.cs" />
@@ -95,7 +112,7 @@
     <Compile Include="Writer\DebuggerLogWriter.cs" />
     <Compile Include="Trace\Format\DefaultTraceFormatter.cs" />
     <Compile Include="Format\LogFormatter.cs" />
-    <Compile Include="Writer\IEntryWriter.cs" />
+    <Compile Include="Writer\IEntryWriterOfTEntry.cs" />
     <Compile Include="Trace\ITraceSwitch.cs" />
     <Compile Include="Trace\TraceManager.cs" />
     <Compile Include="Trace\Tracer.cs" />

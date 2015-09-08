@@ -24,9 +24,8 @@ namespace LogJam
 
 		#region Instance fields
 
-		private bool _isStarted;
+		private StartableState _startableState;
 		private Exception _startException;
-		private bool _isStopped;
 		private bool _isDisposed;
 
 		private readonly List<WeakReference> _disposables = new List<WeakReference>();
@@ -45,6 +44,37 @@ namespace LogJam
 		public abstract IEnumerable<TraceEntry> SetupLog { get; }
 
 		/// <summary>
+		/// Returns <c>true</c> if <see cref="Start()"/> was called and succeeded.
+		/// </summary>
+		public bool IsStarted { get { return _startableState == StartableState.Started; } }
+
+		/// <summary>
+		/// Returns <c>true</c> if <see cref="Stop"/> or <see cref="Dispose"/> has been called.
+		/// 
+		/// </summary>
+		public bool IsStopped { get { return _startableState == StartableState.Stopped; } }
+
+		/// <summary>
+		/// Returns <c>true</c> if there have been no setup traces that are more severe than informational.
+		/// </summary>
+		/// <remarks>
+		/// This method will return <c>false</c> if any warn, error, or severe traces have been reported during configuration, startup, or shutdown.
+		/// </remarks>
+		public bool IsHealthy { get { return !SetupLog.HasAnyExceeding(TraceLevel.Info); } }
+
+
+		public StartableState State { get { return _startableState; } }
+
+		public bool ReadyToStart
+		{
+			get
+			{
+				var state = _startableState;
+				return ((state == StartableState.Unstarted) || (state == StartableState.Stopped)) && ! _isDisposed;
+			}
+		}
+
+		/// <summary>
 		/// Ensures that <see cref="Start"/> is automatically called once, but <see cref="Start"/> is not automatically called
 		/// again if an exception occurred during the initial start, or if <see cref="Stop"/> was called.
 		/// </summary>
@@ -52,11 +82,11 @@ namespace LogJam
 		/// or if the initial call to <see cref="Start"/> was not completely successful.</returns>
 		public bool EnsureStarted()
 		{
-			if (_isStarted)
+			if ((_startableState == StartableState.Started) || (_startableState == StartableState.Starting))
 			{
 				return true;
 			}
-			if (_isStopped)
+			if ((_startableState == StartableState.Stopped) || (_startableState == StartableState.Stopping))
 			{
 				return false;
 			}
@@ -66,7 +96,7 @@ namespace LogJam
 			}
 
 			Start();
-			return _isStarted;
+			return IsStarted;
 		}
 
 		/// <summary>
@@ -84,21 +114,22 @@ namespace LogJam
 				return;
 			}
 
-			tracer.Debug("Starting " + className + "...");
-
 			lock (this)
 			{
+				tracer.Info("Starting " + className + "...");
+
 				try
 				{
+					_startableState = StartableState.Starting;
 					InternalStart();
-					_isStarted = true;
-					_isStopped = false;
+					_startableState = StartableState.Started;
 					tracer.Info(className + " started.");
 				}
 				catch (Exception startException)
 				{
 					_startException = startException;
 					tracer.Error(startException, "Start failed: Exception occurred.");
+					_startableState = StartableState.FailedToStart;
 				}
 			}
 		}
@@ -108,20 +139,31 @@ namespace LogJam
 		/// </summary>
 		public void Stop()
 		{
+			var tracer = SetupTracerFactory.TracerFor(this);
+			string className = GetType().Name;
+
 			lock (this)
 			{
-				if (_isStopped)
+				if (IsStopped || (_startableState == StartableState.Unstarted) || (_startableState == StartableState.Stopping))
 				{
 					return;
 				}
-				_isStopped = true;
+
+				tracer.Info("Stopping " + className + "...");
+
+				try
+				{
+					_startableState = StartableState.Stopping;
+					InternalStop();
+					_startableState = StartableState.Stopped;
+				}
+				catch (Exception stopException)
+				{
+					_startException = stopException;
+					tracer.Error(stopException, "Stop failed: Exception occurred.");
+					_startableState = StartableState.FailedToStop;
+				}
 			}
-
-			var tracer = SetupTracerFactory.TracerFor(this);
-			string className = GetType().Name;
-			tracer.Info("Stopping " + className + "...");
-
-			InternalStop();
 
 			foreach (var disposableRef in _disposables)
 			{
@@ -142,7 +184,6 @@ namespace LogJam
 			}
 
 			tracer.Info(className + " stopped.");
-			_isStarted = false;
 		}
 
 		/// <summary>
@@ -189,25 +230,6 @@ namespace LogJam
 		/// The reset implementation, to be overridden by derived classes.
 		/// </summary>
 		protected abstract void InternalReset();
-
-		/// <summary>
-		/// Returns <c>true</c> if <see cref="Start()"/> was called and succeeded.
-		/// </summary>
-		public bool IsStarted { get { return _isStarted; } }
-
-		/// <summary>
-		/// Returns <c>true</c> if <see cref="Stop"/> or <see cref="Dispose"/> has been called.
-		/// 
-		/// </summary>
-		public bool IsStopped { get { return _isStopped; } }
-
-		/// <summary>
-		/// Returns <c>true</c> if there have been no setup traces that are more severe than informational.
-		/// </summary>
-		/// <remarks>
-		/// This method will return <c>false</c> if any warn, error, or severe traces have been reported during configuration, startup, or shutdown.
-		/// </remarks>
-		public bool IsHealthy { get { return ! SetupLog.HasAnyExceeding(TraceLevel.Info); } }
 
 		/// <summary>
 		/// Registers <paramref name="objectToDispose"/> for cleanup when <see cref="Stop"/> is called.

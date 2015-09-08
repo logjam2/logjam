@@ -1,7 +1,14 @@
 # LogJam TODO
 
 1. Support for configuring synchronization
+1. Custom log rotator behavior - datetime changes, log size, etc
+3. Add flush support, so buffering log writers can be flushed on command.
+  * Support periodic flushing eg every .5s (more efficient than "always flush")
+4. Add property dependency injection for intra-LogWriter pipeline dependencies (eg SynchronizingLogWriter ref)
+5. Upgrade all tests to xunit 2
+4. Make background logging multi log writer support periodic flushing, eg every 20ms by default.  Also support flushing from foreground delegated to background thread.
 1. Consider renaming TraceWriterConfig, TraceWriter to TraceCollector or TraceConfig/TracerConfig or similar; make internal?
+1. Create documentation site
 1. Consider renaming BackgroundMultiLogWriter to BackgroundThreadManager
 1. Add ILogJamComponent, so the tree of components can be walked
   * Rewrite SafeStart() to use the new tree
@@ -10,15 +17,11 @@
 	approach that doesn't require that.
 2. background logging multi log writer tests
   * Test that entries are logged immediately
-3. Add flush support, so buffering log writers can be flushed on command.
-  * Support periodic flushing eg every .5s (more efficient than "always flush")
-4. Make background logging multi log writer support periodic flushing, eg every 20ms by default.  Also support flushing from foreground delegated to background thread.
 5. Add colorizing log formatter, colorized consolelogwriter
 
 2. Add status support, expose it from logmanager/tracemanager
 3. Remote logging via protobuf
 1. Implement Web API ITraceManager - more efficient than just implementing ITraceWriter?
-1. Custom log rotator behavior - datetime changes, log size, etc
 1. Better tracing of individual LogWriter setup/shutdown
 
 1. Support extending/customizing the TraceEntry used for tracing
@@ -26,6 +29,7 @@
 1. Look at adding source code file + log numbers as extension to tracing
 1. Add support for XML and JSON config files
 2. Complete current API unit tests
+3. Add support for pruning the SetupLog to minimize memory use for long-running processes
 
 
 # Done

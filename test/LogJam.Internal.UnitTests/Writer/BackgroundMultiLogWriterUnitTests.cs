@@ -18,11 +18,13 @@ namespace LogJam.Internal.UnitTests.Writer
 	using System.Threading.Tasks;
 
 	using LogJam.Config;
+	using LogJam.Config.Initializer;
 	using LogJam.Format;
 	using LogJam.Internal.UnitTests.Examples;
 	using LogJam.UnitTests.Common;
 	using LogJam.UnitTests.Examples;
 	using LogJam.Trace.Format;
+	using LogJam.Util;
 	using LogJam.Writer;
 
 	using Xunit;
@@ -66,7 +68,7 @@ namespace LogJam.Internal.UnitTests.Writer
 			Assert.False(backgroundMultiLogWriter.IsStarted);
 			Assert.False((logWriter as IStartable).IsStarted);
 
-			backgroundMultiLogWriter.Start();
+			backgroundMultiLogWriter.SafeStart(SetupLog);
 
 			Assert.True(backgroundMultiLogWriter.IsStarted);
 			Assert.True((logWriter as IStartable).IsStarted);
@@ -87,20 +89,20 @@ namespace LogJam.Internal.UnitTests.Writer
 			const int operationDelayMs = 20;
 			const int parallelThreads = 8;
 			const int messagesPerThread = 6;
-			var slowLogWriter = new SlowTestLogWriter<MessageEntry>(SetupLog, operationDelayMs, false);
+			var slowLogWriter = new SlowTestLogWriter<MessageEntry>(SetupLog, operationDelayMs);
 
 			BackgroundMultiLogWriter backgroundMultiLogWriter;
 			IQueueEntryWriter<MessageEntry> queueEntryWriter;
 			stopwatch.Start();
 			SetupBackgroundLogWriter(slowLogWriter, out backgroundMultiLogWriter, out queueEntryWriter);
 			stopwatch.Stop();
-			Assert.True((stopwatch.ElapsedMilliseconds <= operationDelayMs) || _inDebugger, "Starting should be fast, slowLogWriter start delay should occur on background thread.  Elapsed: " + stopwatch.ElapsedMilliseconds);
+			Assert.True((stopwatch.ElapsedMilliseconds >= operationDelayMs) || _inDebugger, "Starting should be slow, slowLogWriter start delay should occur on current thread.  Elapsed: " + stopwatch.ElapsedMilliseconds);
 			Console.WriteLine("Created + started BackgroundMultiLogWriter in {0}", stopwatch.Elapsed);
 
 			using (backgroundMultiLogWriter)
 			{
 				stopwatch.Restart();
-				ExampleHelper.LogTestMessagesInParallel(queueEntryWriter, messagesPerThread, parallelThreads);
+				LoadHelper.LogTestMessagesInParallel(queueEntryWriter, messagesPerThread, parallelThreads);
 				stopwatch.Stop();
 				Assert.True((stopwatch.ElapsedMilliseconds < operationDelayMs) || _inDebugger, "Log writing should be fast, until the queue is filled.");
 
@@ -117,7 +119,7 @@ namespace LogJam.Internal.UnitTests.Writer
 		[Fact]
 		public void CanRestartBackgroundMultiLogWriter()
 		{
-			var innerLogWriter = new TestLogWriter<MessageEntry>(SetupLog, false);
+			var innerLogWriter = new TestLogWriter<MessageEntry>(SetupLog);
 			BackgroundMultiLogWriter backgroundMultiLogWriter;
 			IQueueEntryWriter<MessageEntry> queueEntryWriter;
 			SetupBackgroundLogWriter(innerLogWriter, out backgroundMultiLogWriter, out queueEntryWriter);
@@ -128,7 +130,7 @@ namespace LogJam.Internal.UnitTests.Writer
 			queueEntryWriter.Start();
 
 			// Log some, then Stop
-			ExampleHelper.LogTestMessagesInParallel(queueEntryWriter, 8, 8);
+			LoadHelper.LogTestMessagesInParallel(queueEntryWriter, 8, 8);
 			backgroundMultiLogWriter.Stop(); // Blocks until the background thread exits
 
 			Assert.False(innerLogWriter.IsStarted);
@@ -143,7 +145,7 @@ namespace LogJam.Internal.UnitTests.Writer
 			backgroundMultiLogWriter.Start();
 
 			// Log some, then Dispose
-			ExampleHelper.LogTestMessagesInParallel(queueEntryWriter, 8, 8);
+			LoadHelper.LogTestMessagesInParallel(queueEntryWriter, 8, 8);
 			backgroundMultiLogWriter.Dispose(); // Blocks until the background thread exits
 
 			Assert.False(innerLogWriter.IsStarted);
@@ -158,7 +160,7 @@ namespace LogJam.Internal.UnitTests.Writer
 		[Fact]
 		public void DisposePreventsRestart()
 		{
-			var innerLogWriter = new TestLogWriter<MessageEntry>(SetupLog, false);
+			var innerLogWriter = new TestLogWriter<MessageEntry>(SetupLog);
 			BackgroundMultiLogWriter backgroundMultiLogWriter;
 			IQueueEntryWriter<MessageEntry> queueEntryWriter;
 			SetupBackgroundLogWriter(innerLogWriter, out backgroundMultiLogWriter, out queueEntryWriter);
@@ -181,7 +183,7 @@ namespace LogJam.Internal.UnitTests.Writer
 			const int parallelThreads = 8;
 			const int messagesPerThread = 6;
 			const int expectedMessageCount = parallelThreads * messagesPerThread;
-			var slowLogWriter = new SlowTestLogWriter<MessageEntry>(SetupLog, operationDelayMs, false);
+			var slowLogWriter = new SlowTestLogWriter<MessageEntry>(SetupLog, operationDelayMs);
 
 			BackgroundMultiLogWriter backgroundMultiLogWriter;
 			IQueueEntryWriter<MessageEntry> queueEntryWriter;
@@ -189,7 +191,7 @@ namespace LogJam.Internal.UnitTests.Writer
 
 			using (backgroundMultiLogWriter)
 			{
-				ExampleHelper.LogTestMessagesInParallel(queueEntryWriter, messagesPerThread, parallelThreads);
+				LoadHelper.LogTestMessagesInParallel(queueEntryWriter, messagesPerThread, parallelThreads);
 				Assert.True(backgroundMultiLogWriter.IsBackgroundThreadRunning);
 				Assert.True(slowLogWriter.Count < expectedMessageCount);
 				// Dispose waits for all queued logs to complete, and for the background thread to exit
@@ -201,23 +203,23 @@ namespace LogJam.Internal.UnitTests.Writer
 		[Fact]
 		public void StoppingQueueLogWriterHaltsWriting()
 		{
-			var innerLogWriter = new TestLogWriter<MessageEntry>(SetupLog, false);
+			var innerLogWriter = new TestLogWriter<MessageEntry>(SetupLog);
 			BackgroundMultiLogWriter backgroundMultiLogWriter;
 			IQueueEntryWriter<MessageEntry> queueEntryWriter;
 			SetupBackgroundLogWriter(innerLogWriter, out backgroundMultiLogWriter, out queueEntryWriter);
 
 			using (backgroundMultiLogWriter)
 			{
-				ExampleHelper.LogTestMessagesInParallel(queueEntryWriter, 8, 8);
+				LoadHelper.LogTestMessagesInParallel(queueEntryWriter, 8, 8);
 				queueEntryWriter.Stop();
 				queueEntryWriter.Stop(); // Stopping twice shouldn't change things
 
 				// These messages aren't logged
-				ExampleHelper.LogTestMessagesInParallel(queueEntryWriter, 8, 8);
+				LoadHelper.LogTestMessagesInParallel(queueEntryWriter, 8, 8);
 
 				queueEntryWriter.Start();
 				queueEntryWriter.Start(); // Starting twice shouldn't change things
-				ExampleHelper.LogTestMessagesInParallel(queueEntryWriter, 8, 8);
+				LoadHelper.LogTestMessagesInParallel(queueEntryWriter, 8, 8);
 			}
 
 			Assert.False(backgroundMultiLogWriter.IsBackgroundThreadRunning);
@@ -230,7 +232,7 @@ namespace LogJam.Internal.UnitTests.Writer
 		[Fact]
 		public void QueueLogWriterCanBeDisposedEarly()
 		{
-			var innerLogWriter = new TestLogWriter<MessageEntry>(SetupLog, false);
+			var innerLogWriter = new TestLogWriter<MessageEntry>(SetupLog);
 			BackgroundMultiLogWriter backgroundMultiLogWriter;
 			IQueueEntryWriter<MessageEntry> queueEntryWriter;
 			SetupBackgroundLogWriter(innerLogWriter, out backgroundMultiLogWriter, out queueEntryWriter);
@@ -239,7 +241,7 @@ namespace LogJam.Internal.UnitTests.Writer
 			{
 				using (queueEntryWriter as IDisposable)
 				{
-					ExampleHelper.LogTestMessagesInParallel(queueEntryWriter, 8, 8);
+					LoadHelper.LogTestMessagesInParallel(queueEntryWriter, 8, 8);
 				}
 				Assert.False(queueEntryWriter.IsEnabled);
 				Assert.False(queueEntryWriter.IsStarted);
@@ -265,7 +267,7 @@ namespace LogJam.Internal.UnitTests.Writer
 			const int opDelayMs = 50;
 			const int maxQueueLength = 10;
 			const int countBlockingWrites = 4;
-			var slowLogWriter = new SlowTestLogWriter<MessageEntry>(SetupLog, opDelayMs, false);
+			var slowLogWriter = new SlowTestLogWriter<MessageEntry>(SetupLog, opDelayMs);
 
 			BackgroundMultiLogWriter backgroundMultiLogWriter;
 			IQueueEntryWriter<MessageEntry> queueEntryWriter;
@@ -275,7 +277,7 @@ namespace LogJam.Internal.UnitTests.Writer
 			using (backgroundMultiLogWriter)
 			{
 				// First 10 messages log fast, then the queue is exactly full
-				ExampleHelper.LogTestMessages(queueEntryWriter, maxQueueLength);
+				LoadHelper.LogTestMessages(queueEntryWriter, maxQueueLength);
 				stopwatch.Stop();
 				Console.WriteLine("First {0} writes took: {1}ms", maxQueueLength, stopwatch.ElapsedMilliseconds);
 				Assert.True(_inDebugger || (stopwatch.ElapsedMilliseconds <= opDelayMs), "Log writing should be fast, until the queue is filled.");
@@ -284,7 +286,7 @@ namespace LogJam.Internal.UnitTests.Writer
 				for (int i = 0; i < countBlockingWrites; ++i)
 				{
 					stopwatch.Restart();
-					ExampleHelper.LogTestMessages(queueEntryWriter, 1);
+					LoadHelper.LogTestMessages(queueEntryWriter, 1);
 					stopwatch.Stop();
 					long elapsedMilliseconds = stopwatch.ElapsedMilliseconds;
 					Console.WriteLine("Blocking write #{0}: {1}ms", i, elapsedMilliseconds);
@@ -315,13 +317,14 @@ namespace LogJam.Internal.UnitTests.Writer
 			var backgroundMultiLogWriter = new BackgroundMultiLogWriter(SetupLog);
 			ILogWriter logWriter = backgroundMultiLogWriter.CreateProxyFor(innerLogWriter);
 			IEntryWriter<MessageEntry> entryWriter;
-			Assert.True(logWriter.TryGetEntryWriter(out entryWriter));
 
 			using (backgroundMultiLogWriter)
 			{
 				backgroundMultiLogWriter.Start();
-				ExampleHelper.LogTestMessages(entryWriter, 6);
+				Assert.True(logWriter.TryGetEntryWriter(out entryWriter));
+				LoadHelper.LogTestMessages(entryWriter, 6);
 			}
+			Assert.Equal(7, innerLogWriter.CountExceptionsThrown); // Logged 6 entries, plus 1 exception during dispose
 
 			Console.WriteLine("Setup messages:");
 			SetupLog.WriteEntriesTo(Console.Out,
@@ -329,7 +332,7 @@ namespace LogJam.Internal.UnitTests.Writer
 			                                  {
 				                                  IncludeTimestamp = true
 			                                  });
-			Assert.Equal(7, SetupLog.Where((traceEntry, index) => traceEntry.TraceLevel >= TraceLevel.Error).Count());
+			Assert.Equal(innerLogWriter.CountExceptionsThrown, SetupLog.Where((traceEntry, index) => traceEntry.TraceLevel >= TraceLevel.Error).Count());
 		}
 
 		[Fact(Skip = "Not implemented")]
@@ -345,7 +348,7 @@ namespace LogJam.Internal.UnitTests.Writer
 		{
 			// Slow log writer - starting, stopping, disposing, writing an entry, all take at least 10ms each.
 			const int opDelayMs = 5;
-			var slowLogWriter = new SlowTestLogWriter<MessageEntry>(SetupLog, opDelayMs, false);
+			var slowLogWriter = new SlowTestLogWriter<MessageEntry>(SetupLog, opDelayMs);
 			const int expectedEntryCount = 25;
 
 			// Run the test code in a delegate so that local variable references can be GCed
@@ -355,7 +358,7 @@ namespace LogJam.Internal.UnitTests.Writer
 				                         IQueueEntryWriter<MessageEntry> queueEntryWriter;
 				                         SetupBackgroundLogWriter(slowLogWriter, out backgroundMultiLogWriter, out queueEntryWriter);
 
-										 ExampleHelper.LogTestMessages(queueEntryWriter, expectedEntryCount);
+										 LoadHelper.LogTestMessages(queueEntryWriter, expectedEntryCount);
 
 										 // Key point: The BackgroundMultiLogWriter is never disposed, and it has a number of queued
 										 // entries that haven't been written

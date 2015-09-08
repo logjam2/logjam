@@ -14,6 +14,7 @@ namespace LogJam.XUnit2
 	using System.Diagnostics.Contracts;
 
 	using LogJam.Config;
+	using LogJam.Config.Initializer;
 	using LogJam.Format;
 	using LogJam.Trace;
 	using LogJam.Writer;

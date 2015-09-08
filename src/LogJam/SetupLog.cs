@@ -9,6 +9,8 @@
 
 namespace LogJam
 {
+	using System;
+
 	using LogJam.Trace;
 	using LogJam.Trace.Switches;
 	using LogJam.Writer;
@@ -83,6 +85,8 @@ namespace LogJam
 		}
 
 		public bool IsEnabled { get { return true; } }
+
+		public Type LogEntryType { get { return typeof(TraceEntry); } }
 
 		public void Write(ref TraceEntry entry)
 		{

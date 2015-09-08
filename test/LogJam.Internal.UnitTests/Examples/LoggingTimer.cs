@@ -62,7 +62,7 @@ namespace LogJam.UnitTests.Examples
 			{
 				_parentTimer = timer;
 				_id = timingId;
-				_startDateTime = DateTime.Now;
+				_startDateTime = DateTime.UtcNow;
 				_stopDateTime = null;
 
 				var startRecord = new StartRecord()
@@ -76,7 +76,7 @@ namespace LogJam.UnitTests.Examples
 
 			public void Stop()
 			{
-				var now = DateTime.Now;
+				var now = DateTime.UtcNow;
 				_stopDateTime = now;
 				var stopRecord = new StopRecord()
 				{

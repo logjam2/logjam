@@ -21,7 +21,7 @@ namespace LogJam.Writer
 		where TEntry : ILogEntry
 	{
 
-		private readonly IEntryWriter<TEntry> _innerEntryWriter;
+		private IEntryWriter<TEntry> _innerEntryWriter;
 		private bool _disposed = false;
 
 		/// <summary>
@@ -55,15 +55,21 @@ namespace LogJam.Writer
 		public IEntryWriter<TEntry> InnerEntryWriter
 		{
 			get { return _innerEntryWriter; }
+			set
+			{
+				Contract.Requires<ArgumentNullException>(value != null);
+				_innerEntryWriter = value;
+			}
 		}
 
-		public virtual bool IsEnabled { get { return InnerEntryWriter.IsEnabled; } }
+		public virtual bool IsEnabled { get { return ! _disposed && InnerEntryWriter.IsEnabled; } }
+
+		public Type LogEntryType { get { return typeof(TEntry); } }
 
 		public virtual void Write(ref TEntry entry)
 		{
 			InnerEntryWriter.Write(ref entry);
 		}
-
 
 	}
 
