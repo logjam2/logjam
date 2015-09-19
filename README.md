@@ -41,7 +41,7 @@ Current API integrations:
 Current log targets:
 
 * Console
-* Any ```TextWriter``` - including files
+* Any ```TextWriter```
 * .NET debugger
 * XUnit 2.0 test output
 * ```List<TLogEntry>``` - in memory collection of log entries.
@@ -69,7 +69,7 @@ Note: `restore.bat` must be used to restore all packages/dependencies before bui
 command only need to be run after checkout or update.
 
 ```
-.\restore
+.\build\restore
 msbuild LogJam.sln
 ```
 

@@ -105,7 +105,6 @@ namespace LogJam.UnitTests
 			Assert.True(setupLog.Any(traceEntry => (traceEntry.TraceLevel == TraceLevel.Error) && (traceEntry.Message.StartsWith("In finalizer "))));
 		}
 
-
 	}
 
 }

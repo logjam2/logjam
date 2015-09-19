@@ -18,6 +18,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Hadoop.Avro">
+      <HintPath>..\..\packages\Microsoft.Hadoop.Avro.1.5.9.0-hdinsight-beta\lib\net45\Microsoft.Hadoop.Avro.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
@@ -47,10 +50,6 @@
     <Compile Include="AvroLogWriterTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\hdinsight\azure-sdk-for-net\src\HDInsight\Microsoft.Hadoop.Avro\Microsoft.Hadoop.Avro.csproj">
-      <Project>{eab38a14-211f-4361-a06e-3ec1e07abe33}</Project>
-      <Name>Microsoft.Hadoop.Avro</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\src\LogJam.Encode.Avro\LogJam.Encode.Avro.csproj">
       <Project>{497362fe-dfc3-4519-b35f-3437a53004cc}</Project>
       <Name>LogJam.Encode.Avro</Name>
