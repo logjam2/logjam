@@ -30,7 +30,7 @@ namespace LogJam.Writer
 	{
 		// Internal lock object
 		private readonly object _lock;
-		// Queue of actions to be run synchonously
+		// Queue of actions to be run synchonously after the next entry is logged
 		private readonly ConcurrentQueue<Action> _syncActionQueue;
 
 
@@ -91,19 +91,41 @@ namespace LogJam.Writer
 
 		#endregion
 
-		public void QueueSynchronized(Action action)
+		public void QueueSynchronized(Action action, LogWriterActionPriority priority)
 		{
-			// We use an internal queue, so action is run at the beginning of the next EntryWriter<TEntry>.Write()
-			_syncActionQueue.Enqueue(action);
+			switch (priority)
+			{
+				case LogWriterActionPriority.Delay:
+					// Queueing the action on the ThreadPool works, but provides no assurance that action will be run before other synchronized log writes.
+					ThreadPool.QueueUserWorkItem(state =>
+												 {
+													 lock (_lock)
+													 {
+														 action();
+													 }
+												 });
+					break;
 
-			// Queueing the action on the ThreadPool works, but provides no assurance that action will be run before other synchronized log writes.
-			//ThreadPool.QueueUserWorkItem(state =>
-			//							 {
-			//								 lock (_lock)
-			//								 {
-			//									 action();
-			//								 }
-			//							 });
+				case LogWriterActionPriority.Normal:
+					// Run action at the beginning of the next EntryWriter<TEntry>.Write()
+					_syncActionQueue.Enqueue(action);
+					break;
+
+				case LogWriterActionPriority.High:
+					// Run action at the beginning of the next EntryWriter<TEntry>.Write(), or on a ThreadPool task, whichever comes first
+					_syncActionQueue.Enqueue(action);
+					ThreadPool.QueueUserWorkItem(state =>
+												 {
+													 lock (_lock)
+													 {
+														 RunQueuedActions();
+													 }
+												 });
+					break;
+
+				default:
+					throw new ArgumentException("Priority " + priority + " is not an acceptable value.");
+			}
 		}
 
 		private void RunQueuedActions()

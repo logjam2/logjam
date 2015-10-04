@@ -26,6 +26,7 @@
     <Compile Include="Config\LogWriterInitializerExtensions.cs" />
     <Compile Include="StartableState.cs" />
     <Compile Include="Writer\IEntryWriter.cs" />
+    <Compile Include="Writer\LogWriterActionPriority.cs" />
     <Compile Include="Writer\Rotator\AfterRotateLogFileEventArgs.cs" />
     <Compile Include="Config\ConsoleLogWriterConfig.cs" />
     <Compile Include="Config\ILogWriterConfig.cs" />
@@ -96,7 +97,6 @@
     <Compile Include="Writer\NoOpEntryWriter.cs" />
     <Compile Include="Writer\NoOpLogWriter.cs" />
     <Compile Include="Writer\ProxyEntryWriter.cs" />
-    <Compile Include="Writer\Rotator\IntervalLogFileRotator.cs" />
     <Compile Include="Writer\Rotator\RotateLogFileEventArgs.cs" />
     <Compile Include="Writer\Rotator\RotatingLogFileWriter.cs" />
     <Compile Include="Writer\SingleEntryTypeLogWriter.cs" />

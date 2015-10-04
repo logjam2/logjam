@@ -153,7 +153,7 @@ namespace LogJam.Writer.Rotator
 		private void HandleTriggerRotateEvent(object source, RotateLogFileEventArgs rotateEventArgs)
 		{
 			_tracer.Debug("Queueing log rotation to {0}", rotateEventArgs.NextLogFile);
-			_synchronizingLogWriter.QueueSynchronized(() => SynchronizedRotate(rotateEventArgs));
+			_synchronizingLogWriter.QueueSynchronized(() => SynchronizedRotate(rotateEventArgs), LogWriterActionPriority.High);
 		}
 
 		/// <summary>
@@ -169,7 +169,7 @@ namespace LogJam.Writer.Rotator
 
 			// Queue creating the cleanup task so it doesn't start until currently queued operations complete;
 			// and then run it in a Task (doesn't have to be synchronized with log writes).
-			_synchronizingLogWriter.QueueSynchronized(() => new Task(cleanupAction).Start());
+			_synchronizingLogWriter.QueueSynchronized(() => new Task(cleanupAction).Start(), LogWriterActionPriority.Normal);
 
 			_tracer.Debug("Completed log rotation to {0}", rotateEventArgs.NextLogFile);
 		}
