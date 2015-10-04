@@ -31,6 +31,16 @@
     <Compile Include="Encode\ILogDecoder.cs" />
     <Compile Include="Encode\ILogEncoder.cs" />
     <Compile Include="ILogEntry.cs" />
+    <Compile Include="Instrument\Health\HealthItem.cs" />
+    <Compile Include="Instrument\Health\HealthState.cs" />
+    <Compile Include="Instrument\Health\HealthStatus.cs" />
+    <Compile Include="Instrument\Health\HealthStatusChanging.cs" />
+    <Compile Include="Instrument\Health\IHealthItem.cs" />
+    <Compile Include="Instrument\Health\OnlineState.cs" />
+    <Compile Include="Instrument\Health\PollingHealthItem.cs" />
+    <Compile Include="Instrument\IInstrument.cs" />
+    <Compile Include="Instrument\InstrumentKey.cs" />
+    <Compile Include="Instrument\InstrumentManager.cs" />
     <Compile Include="Internal\ILogJamComponent.cs" />
     <Compile Include="LogJamException.cs" />
     <Compile Include="LogJamCollectionExtensions.cs" />
@@ -103,6 +113,8 @@
     <Compile Include="Util\Text\StringBuilderExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Instrument\Counter\" />
+    <Folder Include="Instrument\Timer\" />
     <Folder Include="Interop\" />
   </ItemGroup>
   <ItemGroup>
