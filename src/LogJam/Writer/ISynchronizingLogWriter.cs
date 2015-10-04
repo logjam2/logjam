@@ -26,8 +26,9 @@ namespace LogJam.Writer
 		/// operations on the same <see cref="ILogWriter"/>.  An <see cref="Action"/> queued with this method must be synchronized so that it
 		/// does not run concurrently with other queued actions or other log writer operations.
 		/// </summary>
-		/// <param name="action"></param>
-		void QueueSynchronized(Action action);
+		/// <param name="action">The <see cref="Action"/> to run in a synchronized context.</param>
+		/// <param name="priority">The priority setting for running <paramref name="action"/>.</param>
+		void QueueSynchronized(Action action, LogWriterActionPriority priority);
 
 	}
 
@@ -35,7 +36,7 @@ namespace LogJam.Writer
 	internal abstract class ISynchronizingLogWriterContract : ISynchronizingLogWriter
 	{
 
-		public void QueueSynchronized(Action action)
+		public void QueueSynchronized(Action action, LogWriterActionPriority priority)
 		{
 			Contract.Requires<ArgumentNullException>(action != null);
 

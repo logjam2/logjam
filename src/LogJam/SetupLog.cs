@@ -76,7 +76,11 @@ namespace LogJam
 
 		public IEnumerator<TraceEntry> GetEnumerator()
 		{
-			return _listEntries.GetEnumerator();
+			lock (_listEntries)
+			{
+				TraceEntry[] array = _listEntries.ToArray();
+				return ((IEnumerable<TraceEntry>) array).GetEnumerator();
+			}
 		}
 
 		IEnumerator IEnumerable.GetEnumerator()

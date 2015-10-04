@@ -49,6 +49,8 @@ namespace LogJam.Writer
 
 		// The set of log writers that have been proxied
 		private readonly List<LogWriterProxy> _proxyLogWriters;
+		// Queued actions that take precedence over _backgroundActionQueue.
+		private readonly ConcurrentQueue<Action> _priorityActionQueue;
 		// Queued actions to invoke on the background thread.
 		private readonly ConcurrentQueue<Action> _backgroundActionQueue;
 
@@ -65,6 +67,7 @@ namespace LogJam.Writer
 			_tracer = setupTracerFactory.TracerFor(this);
 
 			_proxyLogWriters = new List<LogWriterProxy>();
+			_priorityActionQueue = new ConcurrentQueue<Action>();
 			_backgroundActionQueue = new ConcurrentQueue<Action>();
 
 			_isDisposed = false;
@@ -106,7 +109,7 @@ namespace LogJam.Writer
 				EnsureNotDisposed();
 				OperationNotSupportedWhenStarted("CreateProxyFor(ILogWriter)");
 
-				var logWriter = new LogWriterProxy(innerLogWriter, _backgroundActionQueue, _setupTracerFactory, maxQueueLength);
+				var logWriter = new LogWriterProxy(innerLogWriter, _priorityActionQueue, _backgroundActionQueue, _setupTracerFactory, maxQueueLength);
 				_proxyLogWriters.Add(logWriter);
 
 				return logWriter;
@@ -176,7 +179,7 @@ namespace LogJam.Writer
 					_startableState = StartableState.Starting;
 					if (_backgroundThread == null)
 					{
-						_backgroundThread = new BackgroundThread(_setupTracerFactory, _backgroundActionQueue);
+						_backgroundThread = new BackgroundThread(_setupTracerFactory, _priorityActionQueue, _backgroundActionQueue);
 					}
 				}
 
@@ -364,21 +367,25 @@ namespace LogJam.Writer
 
 			// The ILogWriter that is accessed only on the background thread
 			private readonly ILogWriter _innerLogWriter;
+			// References parent._priorityActionQueue
+			private readonly ConcurrentQueue<Action> _priorityActionQueue;
 			// References parent._backgroundActionQueue
 			private readonly ConcurrentQueue<Action> _backgroundActionQueue;
 			private readonly ITracerFactory _setupTracerFactory;
 			private readonly SemaphoreSlim _slotsLeftInQueue;
 
 
-			internal LogWriterProxy(ILogWriter innerLogWriter, ConcurrentQueue<Action> backgroundActionQueue, ITracerFactory setupTracerFactory, int maxQueueLength)
+			internal LogWriterProxy(ILogWriter innerLogWriter, ConcurrentQueue<Action> priorityActionQueue, ConcurrentQueue<Action> backgroundActionQueue, ITracerFactory setupTracerFactory, int maxQueueLength)
 				: base(setupTracerFactory)
 			{
 				Contract.Requires<ArgumentNullException>(innerLogWriter != null);
+				Contract.Requires<ArgumentNullException>(priorityActionQueue != null);
 				Contract.Requires<ArgumentNullException>(backgroundActionQueue != null);
 				Contract.Requires<ArgumentNullException>(setupTracerFactory != null);
 				Contract.Requires<ArgumentException>(maxQueueLength > 0);
 
 				_innerLogWriter = innerLogWriter;
+				_priorityActionQueue = priorityActionQueue;
 				_backgroundActionQueue = backgroundActionQueue;
 				_setupTracerFactory = setupTracerFactory;
 				_slotsLeftInQueue = new SemaphoreSlim(maxQueueLength);
@@ -390,7 +397,34 @@ namespace LogJam.Writer
 
 			public void QueueSynchronized(Action action)
 			{
-				QueueBackgroundAction(action);
+				_priorityActionQueue.Enqueue(action);
+			}
+
+			public void QueueSynchronized(Action action, LogWriterActionPriority priority)
+			{
+				switch (priority)
+				{
+					case LogWriterActionPriority.Delay:
+						// Queueing the action on the ThreadPool causes a delay
+						ThreadPool.QueueUserWorkItem(state =>
+						{
+							_backgroundActionQueue.Enqueue(action);
+						});
+						break;
+
+					case LogWriterActionPriority.Normal:
+						// Run action in normal queue order
+						_backgroundActionQueue.Enqueue(action);
+						break;
+
+					case LogWriterActionPriority.High:
+						// Run action before the next normally queued actions
+						_priorityActionQueue.Enqueue(action);
+						break;
+
+					default:
+						throw new ArgumentException("Priority " + priority + " is not an acceptable value.");
+				}
 			}
 
 			private void QueueBackgroundAction(Action backgroundAction)
@@ -677,6 +711,8 @@ namespace LogJam.Writer
 		{
 
 			private readonly Tracer _tracer;
+			// Queued actions that take precedence over _backgroundActionQueue.
+			private readonly ConcurrentQueue<Action> _priorityActionQueue;
 			// Queued actions to invoke on the background thread.
 			private readonly ConcurrentQueue<Action> _backgroundActionQueue;
 			private volatile StartableState _startableState;
@@ -685,12 +721,14 @@ namespace LogJam.Writer
 			// REVIEW: Important that this object + ThreadProc has NO reference to the parent BackgroundMultiLogWriter.
 			// If there were a reference from this, it would never finalize.
 
-			public BackgroundThread(ITracerFactory setupTracerFactory, ConcurrentQueue<Action> backgroundActionQueue)
+			public BackgroundThread(ITracerFactory setupTracerFactory, ConcurrentQueue<Action> priorityActionQueue, ConcurrentQueue<Action> backgroundActionQueue)
 			{
 				Contract.Requires<ArgumentNullException>(setupTracerFactory != null);
+				Contract.Requires<ArgumentNullException>(priorityActionQueue != null);
 				Contract.Requires<ArgumentNullException>(backgroundActionQueue != null);
 
 				_tracer = setupTracerFactory.TracerFor(this);
+				_priorityActionQueue = priorityActionQueue;
 				_backgroundActionQueue = backgroundActionQueue;
 				_startableState = StartableState.Unstarted;
 			}
@@ -791,7 +829,20 @@ namespace LogJam.Writer
 				while (true)
 				{
 					Action action;
-					if (_backgroundActionQueue.TryDequeue(out action))
+					if (_priorityActionQueue.TryDequeue(out action))
+					{
+						try
+						{
+							action();
+						}
+						catch (Exception excp)
+						{
+							_tracer.Error(excp, "Exception caught in background thread while executing priority Action.");
+						}
+
+						spinWait.Reset();
+					}
+					else if (_backgroundActionQueue.TryDequeue(out action))
 					{
 						try
 						{

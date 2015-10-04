@@ -26,6 +26,7 @@
     <Compile Include="Config\LogWriterInitializerExtensions.cs" />
     <Compile Include="StartableState.cs" />
     <Compile Include="Writer\IEntryWriter.cs" />
+    <Compile Include="Writer\LogWriterActionPriority.cs" />
     <Compile Include="Writer\Rotator\AfterRotateLogFileEventArgs.cs" />
     <Compile Include="Config\ConsoleLogWriterConfig.cs" />
     <Compile Include="Config\ILogWriterConfig.cs" />
