@@ -6,8 +6,8 @@
 		<title>$title$</title>
 		<authors>$author$</authors>
 		<owners>$author$</owners>
-		<licenseUrl>https://logjam.codeplex.com/license</licenseUrl>
-		<projectUrl>https://logjam.codeplex.com/</projectUrl>
+    <licenseUrl>https://raw.githubusercontent.com/logjam2/logjam/master/LICENSE.txt</licenseUrl>
+    <projectUrl>https://github.com/logjam2/logjam</projectUrl>
 		<!--<iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl>-->
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<description>$description$</description>
