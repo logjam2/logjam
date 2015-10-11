@@ -1,159 +1,155 @@
-﻿// // --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="BaseLogWriter.cs">
-// Copyright (c) 2011-2015 logjam.codeplex.com.  
+// Copyright (c) 2011-2015 https://github.com/logjam2.  
 // </copyright>
-// Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
+// Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
 
 namespace LogJam.Writer
 {
-	using LogJam.Internal;
-	using LogJam.Trace;
-	using LogJam.Util;
-	using System;
-	using System.Collections.Generic;
-	using System.Diagnostics.Contracts;
-	using System.Linq;
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics.Contracts;
+    using System.Linq;
+
+    using LogJam.Internal;
+    using LogJam.Trace;
+    using LogJam.Util;
 
 
-	/// <summary>
-	/// Common implementation for <see cref="ILogWriter"/>s.
-	/// </summary>
-	public abstract class BaseLogWriter : Startable, ILogWriter, IDisposable, ILogJamComponent
-	{
-		private readonly ITracerFactory _setupTracerFactory;
-		private bool _disposed;
+    /// <summary>
+    /// Common implementation for <see cref="ILogWriter" />s.
+    /// </summary>
+    public abstract class BaseLogWriter : Startable, ILogWriter, IDisposable, ILogJamComponent
+    {
 
-		private readonly Dictionary<Type, object> _entryWriters;
+        private readonly ITracerFactory _setupTracerFactory;
+        private bool _disposed;
 
-		/// <summary>
-		/// Creates a new <see cref="BaseLogWriter"/>.
-		/// </summary>
-		protected BaseLogWriter(ITracerFactory setupTracerFactory)
-		{
-			Contract.Requires<ArgumentNullException>(setupTracerFactory != null);
+        private readonly Dictionary<Type, object> _entryWriters;
 
-			_setupTracerFactory = setupTracerFactory;
+        /// <summary>
+        /// Creates a new <see cref="BaseLogWriter" />.
+        /// </summary>
+        protected BaseLogWriter(ITracerFactory setupTracerFactory)
+        {
+            Contract.Requires<ArgumentNullException>(setupTracerFactory != null);
 
-			_disposed = false;
-			_entryWriters = new Dictionary<Type, object>();
-		}
+            _setupTracerFactory = setupTracerFactory;
 
-		/// <summary>
-		/// Returns the <see cref="ITracerFactory"/> to use when logging setup operations.
-		/// </summary>
-		protected ITracerFactory SetupTracerFactory
-		{
-			get { return _setupTracerFactory; }
-		}
+            _disposed = false;
+            _entryWriters = new Dictionary<Type, object>();
+        }
 
-		ITracerFactory ILogJamComponent.SetupTracerFactory
-		{
-			get { return _setupTracerFactory; }
-		}
+        /// <summary>
+        /// Returns the <see cref="ITracerFactory" /> to use when logging setup operations.
+        /// </summary>
+        protected ITracerFactory SetupTracerFactory { get { return _setupTracerFactory; } }
 
-		protected internal void AddEntryWriter<TEntry>(IEntryWriter<TEntry> entryWriter)
-			where TEntry : ILogEntry
-		{
-			Contract.Requires<ArgumentNullException>(entryWriter != null);
+        ITracerFactory ILogJamComponent.SetupTracerFactory { get { return _setupTracerFactory; } }
 
-			if (IsStarted)
-			{
-				throw new LogJamSetupException("New entry writers cannot be added after starting.", this);
-			}
+        protected internal void AddEntryWriter<TEntry>(IEntryWriter<TEntry> entryWriter)
+            where TEntry : ILogEntry
+        {
+            Contract.Requires<ArgumentNullException>(entryWriter != null);
 
-			lock (this)
-			{
-				try
-				{
-					_entryWriters.Add(typeof(TEntry), entryWriter);
-				}
-				catch (ArgumentException argExcp)
-				{
-					throw new LogJamSetupException("Cannot add 2nd writer for Entry type " + typeof(TEntry), argExcp, this);
-				}
-			}
-		}
+            if (IsStarted)
+            {
+                throw new LogJamSetupException("New entry writers cannot be added after starting.", this);
+            }
 
-		public void Dispose()
-		{
-			Stop();
-			lock (this)
-			{
-				if (! _disposed)
-				{
-					_disposed = true;
+            lock (this)
+            {
+                try
+                {
+                    _entryWriters.Add(typeof(TEntry), entryWriter);
+                }
+                catch (ArgumentException argExcp)
+                {
+                    throw new LogJamSetupException("Cannot add 2nd writer for Entry type " + typeof(TEntry), argExcp, this);
+                }
+            }
+        }
 
-					Dispose(true);
-					GC.SuppressFinalize(this);
-				}
-			}
-		}
+        public void Dispose()
+        {
+            Stop();
+            lock (this)
+            {
+                if (! _disposed)
+                {
+                    _disposed = true;
 
-		protected bool IsDisposed { get { return _disposed; } }
+                    Dispose(true);
+                    GC.SuppressFinalize(this);
+                }
+            }
+        }
 
-		protected virtual void Dispose(bool disposing)
-		{ }
+        protected bool IsDisposed { get { return _disposed; } }
 
-		protected void EnsureNotDisposed()
-		{
-			if (_disposed)
-			{
-				throw new ObjectDisposedException(GetType().GetCSharpName());
-			}
-		}
+        protected virtual void Dispose(bool disposing)
+        {}
 
-		#region ILogWriter
+        protected void EnsureNotDisposed()
+        {
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(GetType().GetCSharpName());
+            }
+        }
 
-		public virtual bool IsSynchronized { get { return false; } }
+        #region ILogWriter
 
-		public virtual bool TryGetEntryWriter<TEntry>(out IEntryWriter<TEntry> entryWriter) where TEntry : ILogEntry
-		{
-			lock (this)
-			{
-				object untypedEntryWriter;
-				if (_entryWriters.TryGetValue(typeof(TEntry), out untypedEntryWriter))
-				{
-					entryWriter = (IEntryWriter<TEntry>) untypedEntryWriter;
-					return true;
-				}
-				else
-				{
-					entryWriter = null;
-					return false;
-				}
-			}
-		}
+        public virtual bool IsSynchronized { get { return false; } }
 
-		public virtual IEnumerable<KeyValuePair<Type, object>> EntryWriters { get { return _entryWriters.ToArray(); } }
+        public virtual bool TryGetEntryWriter<TEntry>(out IEntryWriter<TEntry> entryWriter) where TEntry : ILogEntry
+        {
+            lock (this)
+            {
+                object untypedEntryWriter;
+                if (_entryWriters.TryGetValue(typeof(TEntry), out untypedEntryWriter))
+                {
+                    entryWriter = (IEntryWriter<TEntry>) untypedEntryWriter;
+                    return true;
+                }
+                else
+                {
+                    entryWriter = null;
+                    return false;
+                }
+            }
+        }
 
-		#endregion
-		#region Startable overrides
+        public virtual IEnumerable<KeyValuePair<Type, object>> EntryWriters { get { return _entryWriters.ToArray(); } }
 
-		public override void Start()
-		{
-			if (_disposed)
-			{
-				throw new ObjectDisposedException(GetType().GetCSharpName());
-			}
+        #endregion
 
-			base.Start();
-		}
+        #region Startable overrides
 
-		protected override void InternalStart()
-		{
-			EntryWriters.SafeStart(SetupTracerFactory);
-		}
+        public override void Start()
+        {
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(GetType().GetCSharpName());
+            }
 
-		protected override void InternalStop()
-		{
-			EntryWriters.SafeStop(SetupTracerFactory);
-		}
+            base.Start();
+        }
 
-		#endregion
+        protected override void InternalStart()
+        {
+            EntryWriters.SafeStart(SetupTracerFactory);
+        }
 
-	}
+        protected override void InternalStop()
+        {
+            EntryWriters.SafeStop(SetupTracerFactory);
+        }
+
+        #endregion
+    }
 
 }

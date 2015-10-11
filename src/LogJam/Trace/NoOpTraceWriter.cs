@@ -1,8 +1,8 @@
-﻿// // --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="NoOpTraceWriter.cs">
-// Copyright (c) 2011-2014 logjam.codeplex.com.  
+// Copyright (c) 2011-2015 https://github.com/logjam2.  
 // </copyright>
-// Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
+// Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -10,34 +10,35 @@
 namespace LogJam.Trace
 {
 
-	/// <summary>
-	/// An <see cref="ITraceWriter"/> that doesn't write any <see cref="TraceEntry"/>s.
-	/// </summary>
-	/// <remarks>
-	/// This class is useful when logging is disabled.</remarks>
-	internal sealed class NoOpTraceWriter : ITraceWriter
-	{
+    /// <summary>
+    /// An <see cref="ITraceWriter" /> that doesn't write any <see cref="TraceEntry" />s.
+    /// </summary>
+    /// <remarks>
+    /// This class is useful when logging is disabled.
+    /// </remarks>
+    internal sealed class NoOpTraceWriter : ITraceWriter
+    {
 
-		public void Write(ref TraceEntry entry)
-		{}
+        public void Write(ref TraceEntry entry)
+        {}
 
-		public bool IsTraceEnabled(string tracerName, TraceLevel traceLevel)
-		{
-			return false;
-		}
+        public bool IsTraceEnabled(string tracerName, TraceLevel traceLevel)
+        {
+            return false;
+        }
 
-		public TraceWriter[] ToTraceWriterArray()
-		{
-			return new TraceWriter[0];
-		}
+        public TraceWriter[] ToTraceWriterArray()
+        {
+            return new TraceWriter[0];
+        }
 
-		public void Dispose()
-		{}
+        public void Dispose()
+        {}
 
-		public bool IsEnabled { get { return false; } }
+        public bool IsEnabled { get { return false; } }
 
-		public bool IsSynchronized { get { return true; } }
+        public bool IsSynchronized { get { return true; } }
 
-	}
+    }
 
 }

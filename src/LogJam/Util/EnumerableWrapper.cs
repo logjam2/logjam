@@ -1,44 +1,48 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="EnumerableWrapper.cs" company="PrecisionDemand">
-// Copyright (c) 2012 PrecisionDemand.  All rights reserved.
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="EnumerableWrapper.cs">
+// Copyright (c) 2011-2015 https://github.com/logjam2.  
 // </copyright>
-// -----------------------------------------------------------------------
+// Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
+// you may not use this file except in compliance with the License.
+// --------------------------------------------------------------------------------------------------------------------
+
 
 namespace LogJam.Util
 {
-	using System;
-	using System.Collections;
-	using System.Collections.Generic;
-	using System.Diagnostics.Contracts;
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Diagnostics.Contracts;
 
 
-	/// <summary>
-	/// Wraps an <see cref="IEnumerable{T}"/>.  Used to prevent access to the underlying collection via casting.
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	internal class EnumerableWrapper<T> : IEnumerable<T>
-	{
-		private readonly IEnumerable<T> _enumerable;
+    /// <summary>
+    /// Wraps an <see cref="IEnumerable{T}" />.  Used to prevent access to the underlying collection via casting.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    internal class EnumerableWrapper<T> : IEnumerable<T>
+    {
 
-		internal EnumerableWrapper(IEnumerable<T> enumerable)
-		{
-			Contract.Requires<ArgumentNullException>(enumerable != null);
+        private readonly IEnumerable<T> _enumerable;
 
-			_enumerable = enumerable;
-		}
+        internal EnumerableWrapper(IEnumerable<T> enumerable)
+        {
+            Contract.Requires<ArgumentNullException>(enumerable != null);
 
-		#region Implementation of IEnumerable
+            _enumerable = enumerable;
+        }
 
-		public IEnumerator<T> GetEnumerator()
-		{
-			return _enumerable.GetEnumerator();
-		}
+        #region Implementation of IEnumerable
 
-		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return _enumerable.GetEnumerator();
-		}
+        public IEnumerator<T> GetEnumerator()
+        {
+            return _enumerable.GetEnumerator();
+        }
 
-		#endregion
-	}
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return _enumerable.GetEnumerator();
+        }
+
+        #endregion
+    }
 }

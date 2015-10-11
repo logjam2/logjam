@@ -1,83 +1,83 @@
-﻿// // --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ConsoleLogWriter.cs">
-// Copyright (c) 2011-2014 logjam.codeplex.com.  
+// Copyright (c) 2011-2015 https://github.com/logjam2.  
 // </copyright>
-// Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
+// Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
 
 namespace LogJam.Writer
 {
-	using System;
-	using System.Threading;
+    using System;
 
-	using LogJam.Trace;
+    using LogJam.Trace;
 
 
-	/// <summary>
-	/// Logs to the console.
-	/// </summary>
-	public sealed class ConsoleLogWriter : TextLogWriter, IStartable
-	{
-		/// <summary>
-		/// If more than 5 failures occur while writing to Console.Out, stop writing.
-		/// </summary>
-		private const short c_maxWriteFailures = 5;
+    /// <summary>
+    /// Logs to the console.
+    /// </summary>
+    public sealed class ConsoleLogWriter : TextLogWriter, IStartable
+    {
 
-		private readonly string _newLine;
-		private short _countWriteFailures;
+        /// <summary>
+        /// If more than 5 failures occur while writing to Console.Out, stop writing.
+        /// </summary>
+        private const short c_maxWriteFailures = 5;
 
-		public ConsoleLogWriter(ITracerFactory setupTracerFactory, bool useColor)
-			: base(setupTracerFactory)
-		{
-			UseColor = useColor;
-			_countWriteFailures = 0;
+        private readonly string _newLine;
+        private short _countWriteFailures;
 
-			_newLine = Console.Out.NewLine;
-		}
+        public ConsoleLogWriter(ITracerFactory setupTracerFactory, bool useColor)
+            : base(setupTracerFactory)
+        {
+            UseColor = useColor;
+            _countWriteFailures = 0;
 
-		public bool UseColor { get; set; }
+            _newLine = Console.Out.NewLine;
+        }
 
-		protected override void InternalStart()
-		{
-			// Clear the count of write failures if any
-			_countWriteFailures = 0;
+        public bool UseColor { get; set; }
 
-			base.InternalStart();
-		}
+        protected override void InternalStart()
+        {
+            // Clear the count of write failures if any
+            _countWriteFailures = 0;
 
-		protected override void WriteFormattedEntry(string formattedEntry)
-		{
-			if (!IsStarted)
-			{
-				return;
-			}
+            base.InternalStart();
+        }
 
-			bool includeNewLine = !formattedEntry.EndsWith(_newLine);
-			try
-			{
-				if (includeNewLine)
-				{
-					Console.Out.WriteLine(formattedEntry);
-				}
-				else
-				{
-					Console.Out.Write(formattedEntry);
-				}
-			}
-			catch (Exception excp)
-			{
-				var setupTracer = SetupTracerFactory.TracerFor(this);
-				setupTracer.Error(excp, "Exception caught writing to console");
-				if (++_countWriteFailures > c_maxWriteFailures)
-				{
-					setupTracer.Error("Exceeded {0} write failures, halting console logging.");
-					Stop();
-				}
-			}
-		}
+        protected override void WriteFormattedEntry(string formattedEntry)
+        {
+            if (! IsStarted)
+            {
+                return;
+            }
 
-	}
+            bool includeNewLine = ! formattedEntry.EndsWith(_newLine);
+            try
+            {
+                if (includeNewLine)
+                {
+                    Console.Out.WriteLine(formattedEntry);
+                }
+                else
+                {
+                    Console.Out.Write(formattedEntry);
+                }
+            }
+            catch (Exception excp)
+            {
+                var setupTracer = SetupTracerFactory.TracerFor(this);
+                setupTracer.Error(excp, "Exception caught writing to console");
+                if (++_countWriteFailures > c_maxWriteFailures)
+                {
+                    setupTracer.Error("Exceeded {0} write failures, halting console logging.");
+                    Stop();
+                }
+            }
+        }
+
+    }
 
 }
