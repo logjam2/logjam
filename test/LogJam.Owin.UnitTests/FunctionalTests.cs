@@ -10,6 +10,7 @@
 namespace LogJam.Owin.UnitTests
 {
     using System;
+    using System.Diagnostics.Contracts;
     using System.IO;
 
     using global::Owin;
@@ -24,6 +25,7 @@ namespace LogJam.Owin.UnitTests
     using Microsoft.Owin.Testing;
 
     using Xunit;
+    using Xunit.Abstractions;
 
 
     /// <summary>
@@ -31,6 +33,14 @@ namespace LogJam.Owin.UnitTests
     /// </summary>
     public sealed class FunctionalTests : BaseOwinTest
     {
+        private readonly ITestOutputHelper _testOutputHelper;
+
+        public FunctionalTests(ITestOutputHelper testOutputHelper)
+        {
+            Contract.Requires<ArgumentNullException>(testOutputHelper != null);
+
+            _testOutputHelper = testOutputHelper;
+        }
 
         [Fact]
         public void SingleRequestWithTracing()
@@ -42,7 +52,7 @@ namespace LogJam.Owin.UnitTests
                 IssueTraceRequest(testServer, 2);
             }
 
-            Console.WriteLine(stringWriter);
+            _testOutputHelper.WriteLine(stringWriter.ToString());
 
             Assert.NotEmpty(setupLog);
             Assert.False(setupLog.HasAnyExceeding(TraceLevel.Info));
@@ -57,11 +67,11 @@ namespace LogJam.Owin.UnitTests
             {
                 IssueTraceRequest(testServer, 2);
             }
-            Console.WriteLine("Logging complete.");
+            _testOutputHelper.WriteLine("Logging complete.");
 
-            Console.WriteLine();
-            Console.WriteLine("StringWriter contents:");
-            Console.WriteLine(stringWriter);
+            _testOutputHelper.WriteLine(string.Empty);
+            _testOutputHelper.WriteLine("StringWriter contents:");
+            _testOutputHelper.WriteLine(stringWriter.ToString());
 
             Assert.NotEmpty(setupLog);
             Assert.False(setupLog.HasAnyExceeding(TraceLevel.Info));
@@ -78,7 +88,7 @@ namespace LogJam.Owin.UnitTests
                 var response = task.Result; // Wait for the call to complete
             }
 
-            Console.WriteLine(stringWriter);
+            _testOutputHelper.WriteLine(stringWriter.ToString());
 
             Assert.NotEmpty(setupLog);
             Assert.False(setupLog.HasAnyExceeding(TraceLevel.Info));

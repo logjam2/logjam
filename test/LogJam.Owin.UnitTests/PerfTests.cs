@@ -11,6 +11,7 @@ namespace LogJam.Owin.UnitTests
 {
     using System;
     using System.Diagnostics;
+    using System.Diagnostics.Contracts;
     using System.IO;
     using System.Linq;
     using System.Threading;
@@ -19,7 +20,8 @@ namespace LogJam.Owin.UnitTests
     using Microsoft.Owin.Testing;
 
     using Xunit;
-    using Xunit.Extensions;
+    using Xunit.Abstractions;
+
 
     using TraceLevel = LogJam.Trace.TraceLevel;
 
@@ -29,6 +31,14 @@ namespace LogJam.Owin.UnitTests
     /// </summary>
     public sealed class PerfTests : BaseOwinTest
     {
+        private readonly ITestOutputHelper _testOutputHelper;
+
+        public PerfTests(ITestOutputHelper testOutputHelper)
+        {
+            Contract.Requires<ArgumentNullException>(testOutputHelper != null);
+
+            _testOutputHelper = testOutputHelper;
+        }
 
         [Theory]
         [InlineData(4, 1000, 0)]
@@ -47,7 +57,7 @@ namespace LogJam.Owin.UnitTests
                 Action testThread = () =>
                                     {
                                         int threadId = Thread.CurrentThread.ManagedThreadId;
-                                        Console.WriteLine("{0}: Starting requests on thread {1}", overallStopwatch.Elapsed, threadId);
+                                        _testOutputHelper.WriteLine("{0}: Starting requests on thread {1}", overallStopwatch.Elapsed, threadId);
                                         var stopWatch = Stopwatch.StartNew();
 
                                         for (int i = 0; i < requestsPerThread; ++i)
@@ -56,7 +66,7 @@ namespace LogJam.Owin.UnitTests
                                         }
                                         stopWatch.Stop();
 
-                                        Console.WriteLine("{0}: Completed {1} requests on thread {2} in {3}",
+                                        _testOutputHelper.WriteLine("{0}: Completed {1} requests on thread {2} in {3}",
                                                           overallStopwatch.Elapsed,
                                                           requestsPerThread,
                                                           threadId,

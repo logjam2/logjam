@@ -11,10 +11,12 @@ namespace LogJam.UnitTests.Trace
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.Contracts;
     using System.IO;
     using System.Linq;
     using System.Xml.Serialization;
 
+    using LogJam;
     using LogJam.Config;
     using LogJam.Config.Json;
     using LogJam.Format;
@@ -28,7 +30,7 @@ namespace LogJam.UnitTests.Trace
     using Newtonsoft.Json;
 
     using Xunit;
-    using Xunit.Extensions;
+    using Xunit.Abstractions;
 
 
     /// <summary>
@@ -36,6 +38,14 @@ namespace LogJam.UnitTests.Trace
     /// </summary>
     public sealed class TraceManagerConfigTests
     {
+        private readonly ITestOutputHelper _testOutputHelper;
+
+        public TraceManagerConfigTests(ITestOutputHelper testOutputHelper)
+        {
+            Contract.Requires<ArgumentNullException>(testOutputHelper != null);
+
+            _testOutputHelper = testOutputHelper;
+        }
 
         [Theory]
         [InlineData(ConfigForm.ObjectGraph)]
@@ -83,7 +93,7 @@ namespace LogJam.UnitTests.Trace
                 tracer.Debug("Debug message not written to console");
             }
 
-            traceManager.SetupLog.WriteEntriesTo(Console.Out, new DefaultTraceFormatter());
+            _testOutputHelper.WriteEntries(traceManager.SetupLog);
 
             Assert.False(traceManager.IsStarted);
             Assert.False(traceManager.LogManager.IsStarted);
@@ -297,8 +307,8 @@ namespace LogJam.UnitTests.Trace
             // Text output is written here
             StringWriter traceOutput = new StringWriter();
 
-            // Can either use a FormatAction, or subclass LogFormatter<TEntry>.  Here we're using a FormatAction.
-            // Note that subclassing LogFormatter<TEntry> provides a slightly more efficient code-path.
+            // Can either use a FormatAction, or subclass EntryFormatter<TEntry>.  Here we're using a FormatAction.
+            // Note that subclassing EntryFormatter<TEntry> provides a slightly more efficient code-path.
             FormatAction<TraceEntry> format = (traceEntry, textWriter) => textWriter.WriteLine(traceEntry.TraceLevel);
 
             using (var traceManager = new TraceManager(new TextWriterLogWriterConfig(traceOutput).Format(format)))
@@ -339,20 +349,20 @@ namespace LogJam.UnitTests.Trace
         }
 
         [Theory]
-        [PropertyData("TestTraceManagerConfigs")]
+        [MemberData("TestTraceManagerConfigs")]
         public void CanRoundTripTraceManagerConfigToJson(TraceManagerConfig traceManagerConfig)
         {
             JsonSerializerSettings jsonSettings = new JsonSerializerSettings();
             jsonSettings.ContractResolver = new JsonConfigContractResolver(jsonSettings.ContractResolver);
             string json = JsonConvert.SerializeObject(traceManagerConfig, Formatting.Indented, jsonSettings);
 
-            Console.WriteLine(json);
+            _testOutputHelper.WriteLine(json);
 
             // TODO: Deserialize back to TraceManagerConfig, then validate that the config is equal.
         }
 
         [Theory(Skip = "Not yet implemented")]
-        [PropertyData("TestTraceManagerConfigs")]
+        [MemberData("TestTraceManagerConfigs")]
         public void CanRoundTripTraceManagerConfigToXml(TraceManagerConfig traceManagerConfig)
         {
             // Serialize to xml
@@ -361,7 +371,7 @@ namespace LogJam.UnitTests.Trace
             xmlSerializer.Serialize(sw, traceManagerConfig);
 
             string xml = sw.ToString();
-            Console.WriteLine(xml);
+            _testOutputHelper.WriteLine(xml);
 
             // Deserialize back to TraceManagerConfig
             TraceManagerConfig deserializedConfig = (TraceManagerConfig) xmlSerializer.Deserialize(new StringReader(xml));

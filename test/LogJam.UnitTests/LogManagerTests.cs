@@ -11,6 +11,7 @@ namespace LogJam.UnitTests
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.Contracts;
     using System.Linq;
 
     using LogJam.Config;
@@ -20,6 +21,7 @@ namespace LogJam.UnitTests
     using LogJam.UnitTests.Examples;
 
     using Xunit;
+    using Xunit.Abstractions;
 
 
     /// <summary>
@@ -27,6 +29,14 @@ namespace LogJam.UnitTests
     /// </summary>
     public sealed class LogManagerTests
     {
+        private readonly ITestOutputHelper _testOutputHelper;
+
+        public LogManagerTests(ITestOutputHelper testOutputHelper)
+        {
+            Contract.Requires<ArgumentNullException>(testOutputHelper != null);
+
+            _testOutputHelper = testOutputHelper;
+        }
 
         [Fact]
         public void DefaultLogManagerTracksAllLogJamOperationsToStatusTraces()
@@ -83,7 +93,7 @@ namespace LogJam.UnitTests
                                          logManager.Config.UseLogWriter(slowLogWriter).BackgroundLogging = true;
                                          var entryWriter = logManager.GetEntryWriter<MessageEntry>();
 
-                                         ExampleHelper.LogTestMessagesInParallel(entryWriter, countMessagesPerThread, countLoggingThreads);
+                                         ExampleHelper.LogTestMessagesInParallel(entryWriter, countMessagesPerThread, countLoggingThreads, _testOutputHelper);
 
                                          // Key point: The LogManager is never disposed, and it has a number of queued
                                          // entries that haven't been written at this point.

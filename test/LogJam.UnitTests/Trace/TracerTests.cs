@@ -10,9 +10,11 @@
 namespace LogJam.UnitTests.Trace
 {
     using System;
+    using System.Diagnostics.Contracts;
     using System.Linq;
 
     using LogJam.Config;
+    using LogJam.Internal.UnitTests.Examples;
     using LogJam.Trace;
     using LogJam.Trace.Config;
     using LogJam.Trace.Format;
@@ -22,7 +24,8 @@ namespace LogJam.UnitTests.Trace
     using LogJam.Writer;
 
     using Xunit;
-    using Xunit.Extensions;
+    using Xunit.Abstractions;
+
 
 
     /// <summary>
@@ -30,6 +33,15 @@ namespace LogJam.UnitTests.Trace
     /// </summary>
     public sealed class TracerTests
     {
+
+        private readonly ITestOutputHelper _testOutputHelper;
+
+        public TracerTests(ITestOutputHelper testOutputHelper)
+        {
+            Contract.Requires<ArgumentNullException>(testOutputHelper != null);
+
+            _testOutputHelper = testOutputHelper;
+        }
 
         /// <summary>
         /// Shows reasonable use for tracing to stdout in unit tests.
@@ -265,27 +277,27 @@ namespace LogJam.UnitTests.Trace
 
             // ListLogWriter<MessageEntry> handling (generic type parameter)
             var tracer1 = tracerFactory.GetTracer(typeof(ListLogWriter<MessageEntry>));
-            Console.WriteLine(tracer1.Name);
+            _testOutputHelper.WriteLine(tracer1.Name);
             var tracer2 = tracerFactory.GetTracer(typeof(ListLogWriter<>));
-            Console.WriteLine(tracer2.Name);
+            _testOutputHelper.WriteLine(tracer2.Name);
             var tracer3 = tracerFactory.TracerFor(new ListLogWriter<MessageEntry>(new SetupLog()));
-            Console.WriteLine(tracer3.Name);
+            _testOutputHelper.WriteLine(tracer3.Name);
             var tracer4 = tracerFactory.TracerFor<ListLogWriter<MessageEntry>>();
-            Console.WriteLine(tracer4.Name);
+            _testOutputHelper.WriteLine(tracer4.Name);
             var tracer5 = tracerFactory.GetTracer(typeof(ListLogWriter<MessageEntry>).GetGenericTypeDefinition());
-            Console.WriteLine(tracer5.Name);
+            _testOutputHelper.WriteLine(tracer5.Name);
 
             // PrivateClass.TestLogWriter<MessageEntry> handling (inner class + generic type parameter)
             tracer1 = tracerFactory.GetTracer(typeof(PrivateClass.TestEntryWriter<MessageEntry>));
-            Console.WriteLine(tracer1.Name);
+            _testOutputHelper.WriteLine(tracer1.Name);
             tracer2 = tracerFactory.GetTracer(typeof(PrivateClass.TestEntryWriter<>));
-            Console.WriteLine(tracer2.Name);
+            _testOutputHelper.WriteLine(tracer2.Name);
             tracer3 = tracerFactory.TracerFor(new PrivateClass.TestEntryWriter<MessageEntry>());
-            Console.WriteLine(tracer3.Name);
+            _testOutputHelper.WriteLine(tracer3.Name);
             tracer4 = tracerFactory.TracerFor<PrivateClass.TestEntryWriter<MessageEntry>>();
-            Console.WriteLine(tracer4.Name);
+            _testOutputHelper.WriteLine(tracer4.Name);
             tracer5 = tracerFactory.GetTracer(typeof(PrivateClass.TestEntryWriter<MessageEntry>).GetGenericTypeDefinition());
-            Console.WriteLine(tracer5.Name);
+            _testOutputHelper.WriteLine(tracer5.Name);
         }
 
         [Fact]

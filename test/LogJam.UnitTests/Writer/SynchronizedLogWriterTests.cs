@@ -58,7 +58,7 @@ namespace LogJam.UnitTests.Writer
                 // Expected: Asserts must fail
                 Assert.NotNull(aggregateException);
                 Assert.Equal(c_defaultParallelThreads, aggregateException.InnerExceptions.Count);
-                Assert.True(aggregateException.InnerExceptions.All(excp => excp is AssertException));
+                Assert.True(aggregateException.InnerExceptions.All(excp => excp is AssertActualExpectedException));
             }
 
             Assert.NotEqual(c_defaultParallelThreads * c_defaultEntriesPerThread, validatingLogWriter.WritesCompleted);

@@ -10,6 +10,7 @@
 namespace LogJam.UnitTests.Writer
 {
     using System;
+    using System.Diagnostics.Contracts;
     using System.IO;
     using System.Threading;
 
@@ -18,6 +19,7 @@ namespace LogJam.UnitTests.Writer
     using LogJam.Writer;
 
     using Xunit;
+    using Xunit.Abstractions;
 
 
     /// <summary>
@@ -25,6 +27,15 @@ namespace LogJam.UnitTests.Writer
     /// </summary>
     public sealed class TextWriterLogWriterUnitTests
     {
+
+        private readonly ITestOutputHelper _testOutputHelper;
+
+        public TextWriterLogWriterUnitTests(ITestOutputHelper testOutputHelper)
+        {
+            Contract.Requires<ArgumentNullException>(testOutputHelper != null);
+
+            _testOutputHelper = testOutputHelper;
+        }
 
         [Fact]
         public void MultiLogWriterToText()
@@ -53,7 +64,7 @@ namespace LogJam.UnitTests.Writer
             }
 
             string logOutput = stringWriter.ToString();
-            Console.WriteLine(logOutput);
+            _testOutputHelper.WriteLine(logOutput);
 
             Assert.Contains(">2\r\n<2 00:00:00.", logOutput);
             Assert.Contains(">3\r\n<3 00:00:00.", logOutput);

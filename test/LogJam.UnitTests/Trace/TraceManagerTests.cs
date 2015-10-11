@@ -12,6 +12,7 @@ namespace LogJam.UnitTests.Trace
     using System.Linq;
 
     using LogJam.Config;
+    using LogJam.Internal.UnitTests.Examples;
     using LogJam.Trace;
     using LogJam.Trace.Config;
     using LogJam.UnitTests.Examples;

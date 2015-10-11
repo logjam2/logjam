@@ -19,6 +19,7 @@
   <ItemGroup>
     <Compile Include="LogJamXUnitSetupException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestOutputHelperExtensions.cs" />
     <Compile Include="TestOutputLogWriter.cs" />
     <Compile Include="TestOutputLogWriterConfig.cs" />
     <Compile Include="TestOutputTraceFormatter.cs" />

@@ -8,12 +8,14 @@
 
 
 using System;
+using System.Diagnostics.Contracts;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 
 using Xunit;
+using Xunit.Abstractions;
 
 
 public class A
@@ -43,6 +45,15 @@ public class C : A
 public sealed class JsonTypeConverterProblem
 {
 
+    private readonly ITestOutputHelper _testOutputHelper;
+
+    public JsonTypeConverterProblem(ITestOutputHelper testOutputHelper)
+    {
+        Contract.Requires<ArgumentNullException>(testOutputHelper != null);
+
+        _testOutputHelper = testOutputHelper;
+    }
+
     [Fact(Skip = "Bug still exists")]
     public void ShowSerializationBug()
     {
@@ -58,7 +69,7 @@ public sealed class JsonTypeConverterProblem
         JsonSerializerSettings jsonSettings = new JsonSerializerSettings();
         jsonSettings.ContractResolver = new TypeHintContractResolver();
         string json = JsonConvert.SerializeObject(a, Formatting.Indented, jsonSettings);
-        Console.WriteLine(json);
+        _testOutputHelper.WriteLine(json);
 
         Assert.Contains(@"""Target"": ""B""", json);
         Assert.Contains(@"""Is"": ""C""", json);

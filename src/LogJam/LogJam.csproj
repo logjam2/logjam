@@ -30,6 +30,7 @@
     <Compile Include="Format\ActionFormatter.cs" />
     <Compile Include="Encode\ILogDecoder.cs" />
     <Compile Include="Encode\ILogEncoder.cs" />
+    <Compile Include="Format\DefaultFormatterAttribute.cs" />
     <Compile Include="ILogEntry.cs" />
     <Compile Include="Internal\ILogJamComponent.cs" />
     <Compile Include="LogJamException.cs" />
@@ -94,7 +95,7 @@
     <Compile Include="Trace\TracerFactoryExtensions.cs" />
     <Compile Include="Writer\DebuggerLogWriter.cs" />
     <Compile Include="Trace\Format\DefaultTraceFormatter.cs" />
-    <Compile Include="Format\LogFormatter.cs" />
+    <Compile Include="Format\EntryFormatter.cs" />
     <Compile Include="Writer\IEntryWriter.cs" />
     <Compile Include="Trace\ITraceSwitch.cs" />
     <Compile Include="Trace\TraceManager.cs" />
@@ -110,7 +111,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="LogJam.nuspec" />
-    <None Include="LogJam.Portable.nuspec" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
