@@ -12,10 +12,13 @@ namespace LogJam.Owin.Http
     using System;
     using System.Collections.Generic;
 
+    using LogJam.Format;
+
 
     /// <summary>
     /// A log entry that records an HTTP response.
     /// </summary>
+    [DefaultFormatter(typeof(HttpResponseFormatter))]
     public struct HttpResponseEntry : ILogEntry
     {
 

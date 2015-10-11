@@ -19,7 +19,7 @@ namespace LogJam.Trace.Format
     /// <summary>
     /// The debugger trace formatter.
     /// </summary>
-    public class DefaultTraceFormatter : LogFormatter<TraceEntry>
+    public class DefaultTraceFormatter : EntryFormatter<TraceEntry>
     {
         #region Fields
 
@@ -60,7 +60,7 @@ namespace LogJam.Trace.Format
         /// </summary>
         public override string Format(ref TraceEntry traceEntry)
         {
-            int indentSpaces = 0;
+            //int indentSpaces = 0;
 
             var sw = new StringWriter();
             var newLine = sw.NewLine;

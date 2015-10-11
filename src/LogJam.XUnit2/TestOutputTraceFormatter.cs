@@ -19,7 +19,7 @@ namespace LogJam.XUnit2
     /// <summary>
     /// Formats <see cref="TraceEntry" />s for test output.
     /// </summary>
-    public sealed class TestOutputTraceFormatter : LogFormatter<TraceEntry>
+    public sealed class TestOutputTraceFormatter : EntryFormatter<TraceEntry>
     {
         #region Fields
 
@@ -60,7 +60,7 @@ namespace LogJam.XUnit2
         /// <remarks>The returned string <u>must not</u> end with a newline</remarks>
         public override string Format(ref TraceEntry traceEntry)
         {
-            int indentSpaces = 0;
+            //int indentSpaces = 0;
 
             var sw = new StringWriter();
             var newLine = sw.NewLine;

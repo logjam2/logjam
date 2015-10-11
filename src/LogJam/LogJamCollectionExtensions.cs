@@ -31,21 +31,31 @@ namespace LogJam
         /// </summary>
         /// <param name="entries"></param>
         /// <param name="textWriter"></param>
-        /// <param name="logFormatter"></param>
+        /// <param name="entryFormatter"></param>
         /// <typeparam name="TEntry"></typeparam>
-        public static void WriteEntriesTo<TEntry>(this IEnumerable<TEntry> entries, TextWriter textWriter, LogFormatter<TEntry> logFormatter)
+        public static void WriteEntriesTo<TEntry>(this IEnumerable<TEntry> entries, TextWriter textWriter, EntryFormatter<TEntry> entryFormatter = null)
             where TEntry : ILogEntry
         {
             Contract.Requires<ArgumentNullException>(entries != null);
             Contract.Requires<ArgumentNullException>(textWriter != null);
-            Contract.Requires<ArgumentNullException>(logFormatter != null);
+
+            if (entryFormatter == null)
+            {   // Try creating the default log formatter
+                entryFormatter = DefaultFormatterAttribute.GetDefaultFormatterFor<TEntry>();
+                if (entryFormatter == null)
+                {
+                    throw new ArgumentNullException(nameof(entryFormatter),
+                                                    $"No [DefaultFormatter] could be found for entry type {typeof(TEntry).FullName}, so logFormatter argument must be set.");
+                }
+            }
 
             var logWriter = new TextWriterLogWriter(textWriter, new SetupLog(), disposeWriter: false);
-            logWriter.AddFormat(logFormatter);
+            logWriter.AddFormat(entryFormatter);
             IEntryWriter<TEntry> entryWriter;
             logWriter.TryGetEntryWriter(out entryWriter);
             using (logWriter)
             {
+                logWriter.Start();
                 for (var enumerator = entries.GetEnumerator(); enumerator.MoveNext();)
                 {
                     TEntry logEntry = enumerator.Current;

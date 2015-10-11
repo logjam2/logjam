@@ -7,7 +7,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
-namespace LogJam.UnitTests.Examples
+namespace LogJam.Internal.UnitTests.Examples
 {
     using System;
     using System.IO;
@@ -18,6 +18,7 @@ namespace LogJam.UnitTests.Examples
     /// <summary>
     /// A simple, logentry struct.
     /// </summary>
+    [DefaultFormatter(typeof(MessageEntryFormatter))]
     public struct MessageEntry : ILogEntry
     {
 
@@ -53,9 +54,9 @@ namespace LogJam.UnitTests.Examples
 
 
         /// <summary>
-        /// Default <see cref="LogFormatter{TEntry}" /> for <see cref="MessageEntry" />.
+        /// Default <see cref="EntryFormatter{TEntry}" /> for <see cref="MessageEntry" />.
         /// </summary>
-        public class Formatter : LogFormatter<MessageEntry>
+        public class MessageEntryFormatter : EntryFormatter<MessageEntry>
         {
 
             public override void Format(ref MessageEntry entry, TextWriter textWriter)

@@ -24,7 +24,7 @@ namespace LogJam.Config
     public abstract class TextLogWriterConfig : LogWriterConfig
     {
 
-        // Configured formatters are stored as a list of logentry Type, logentry formatter, configure action
+        // Configured formatters are stored as a list of logentry Type, logentry entryFormatter, configure action
         private readonly List<Tuple<Type, object, Action<TextLogWriter>>> _formatters;
 
         /// <summary>
@@ -47,19 +47,27 @@ namespace LogJam.Config
         }
 
         /// <summary>
-        /// Adds formatting for entry types <typeparamref name="TEntry" /> using <paramref name="formatter" />.
+        /// Adds formatting for entry types <typeparamref name="TEntry" /> using <paramref name="entryFormatter" />.
         /// </summary>
         /// <typeparam name="TEntry"></typeparam>
-        /// <param name="formatter"></param>
+        /// <param name="entryFormatter"></param>
         /// <returns></returns>
-        public TextLogWriterConfig Format<TEntry>(LogFormatter<TEntry> formatter)
+        public TextLogWriterConfig Format<TEntry>(EntryFormatter<TEntry> entryFormatter = null)
             where TEntry : ILogEntry
         {
-            Contract.Requires<ArgumentNullException>(formatter != null);
+            if (entryFormatter == null)
+            {   // Try creating the default entry formatter
+                entryFormatter = DefaultFormatterAttribute.GetDefaultFormatterFor<TEntry>();
+                if (entryFormatter == null)
+                {
+                    throw new ArgumentNullException(nameof(entryFormatter),
+                                                    $"No [DefaultFormatter] attribute could be found for entry type {typeof(TEntry).FullName}, so {nameof(entryFormatter)} argument must be set.");
+                }
+            }
 
-            Action<TextLogWriter> configureAction = (mw) => mw.AddFormat(formatter);
+            Action<TextLogWriter> configureAction = (mw) => mw.AddFormat(entryFormatter);
 
-            _formatters.Add(new Tuple<Type, object, Action<TextLogWriter>>(typeof(TEntry), formatter, configureAction));
+            _formatters.Add(new Tuple<Type, object, Action<TextLogWriter>>(typeof(TEntry), entryFormatter, configureAction));
             return this;
         }
 
@@ -74,7 +82,7 @@ namespace LogJam.Config
         {
             Contract.Requires<ArgumentNullException>(formatAction != null);
 
-            return Format((LogFormatter<TEntry>) formatAction);
+            return Format((EntryFormatter<TEntry>) formatAction);
         }
 
         #region ILogWriterConfig

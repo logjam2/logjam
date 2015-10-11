@@ -17,7 +17,7 @@ namespace LogJam.Format
     /// <summary>
     /// Supports formatting log entries using a simple delegate.
     /// </summary>
-    internal sealed class ActionFormatter<TEntry> : LogFormatter<TEntry>
+    internal sealed class ActionFormatter<TEntry> : EntryFormatter<TEntry>
         where TEntry : ILogEntry
     {
 

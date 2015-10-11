@@ -45,10 +45,18 @@ namespace LogJam.Writer
         /// <typeparam name="TEntry"></typeparam>
         /// <param name="entryFormatter"></param>
         /// <returns>this, for chaining calls in fluent style.</returns>
-        public TextLogWriter AddFormat<TEntry>(LogFormatter<TEntry> entryFormatter)
+        public TextLogWriter AddFormat<TEntry>(EntryFormatter<TEntry> entryFormatter = null)
             where TEntry : ILogEntry
         {
-            Contract.Requires<ArgumentNullException>(entryFormatter != null);
+            if (entryFormatter == null)
+            {   // Try creating the default entry formatter
+                entryFormatter = DefaultFormatterAttribute.GetDefaultFormatterFor<TEntry>();
+                if (entryFormatter == null)
+                {
+                    throw new ArgumentNullException(nameof(entryFormatter),
+                                                    $"No [DefaultFormatter] attribute could be found for entry type {typeof(TEntry).FullName}, so {nameof(entryFormatter)} argument must be set.");
+                }
+            }
 
             AddEntryWriter(new InnerEntryWriter<TEntry>(this, entryFormatter));
             return this;
@@ -67,7 +75,7 @@ namespace LogJam.Writer
         {
             Contract.Requires<ArgumentNullException>(formatAction != null);
 
-            return AddFormat((LogFormatter<TEntry>) formatAction);
+            return AddFormat((EntryFormatter<TEntry>) formatAction);
         }
 
         protected abstract void WriteFormattedEntry(string formattedEntry);
@@ -82,9 +90,9 @@ namespace LogJam.Writer
         {
 
             private readonly TextLogWriter _parent;
-            private readonly LogFormatter<TEntry> _formatter;
+            private readonly EntryFormatter<TEntry> _formatter;
 
-            public InnerEntryWriter(TextLogWriter parent, LogFormatter<TEntry> entryFormatter)
+            public InnerEntryWriter(TextLogWriter parent, EntryFormatter<TEntry> entryFormatter)
             {
                 _parent = parent;
                 _formatter = entryFormatter;
@@ -100,7 +108,7 @@ namespace LogJam.Writer
 
             public bool IsEnabled { get { return _parent.IsEnabled; } }
 
-            internal LogFormatter<TEntry> Formatter { get { return _formatter; } }
+            internal EntryFormatter<TEntry> Formatter { get { return _formatter; } }
             internal TextLogWriter Parent { get { return _parent; } }
 
         }

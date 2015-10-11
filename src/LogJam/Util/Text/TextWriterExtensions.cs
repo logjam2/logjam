@@ -39,7 +39,7 @@ namespace LogJam.Util.Text
             Contract.Requires<ArgumentOutOfRangeException>(indentSpaces >= 0);
 
             throw new NotImplementedException();
-
+            /*
             var sb = new StringBuilder();
             if (((indentSpaces == 0) && (linePrefix == null)) || string.IsNullOrEmpty(s))
             {
@@ -85,6 +85,7 @@ namespace LogJam.Util.Text
 
             // Append whatever remains.
             sb.Append(s, ichAppend, s.Length - ichAppend);
+            */
         }
 
     }

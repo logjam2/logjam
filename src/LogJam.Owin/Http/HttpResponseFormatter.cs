@@ -17,7 +17,7 @@ namespace LogJam.Owin.Http
     /// <summary>
     /// Formats <see cref="HttpResponseEntry" /> instances to a text stream.
     /// </summary>
-    public sealed class HttpResponseFormatter : LogFormatter<HttpResponseEntry>
+    public sealed class HttpResponseFormatter : EntryFormatter<HttpResponseEntry>
     {
 
         /// <inheritdoc />

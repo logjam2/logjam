@@ -11,10 +11,14 @@ namespace LogJam.Trace
 {
     using System;
 
+    using LogJam.Format;
+    using LogJam.Trace.Format;
+
 
     /// <summary>
     /// Holds a trace message and associated metadata in memory.
     /// </summary>
+    [DefaultFormatter(typeof(DefaultTraceFormatter))]
     public struct TraceEntry : ILogEntry
     {
 
