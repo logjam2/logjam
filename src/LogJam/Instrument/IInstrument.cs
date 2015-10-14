@@ -17,9 +17,10 @@ namespace LogJam.Instrument
 	{
 		
 		/// <summary>
-		/// An instrument's key, plus its instrument type, uniquely identify an instrument.
+		/// An instrument's key, plus its instrument type, uniquely identify an instrument. The <c>Key</c> for any given instrument is immutable.
 		/// </summary>
 		InstrumentKey Key { get; }
+
 	}
 
 }

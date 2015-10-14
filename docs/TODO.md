@@ -1,6 +1,11 @@
 # LogJam TODO
 
+1. Use global LogManager and TraceManager in OWIN
+1. Easier OWIN + WebAPI Config - eg if no LogWriterConfigs are specified, use all instead of none
 1. Support for configuring synchronization
+3. Add flush support, so buffering log writers can be flushed on command.
+  * Support periodic flushing eg every .5s (more efficient than "always flush")
+4. Make background logging multi log writer support periodic flushing, eg every 20ms by default.  Also support flushing from foreground delegated to background thread.
 1. Consider renaming TraceWriterConfig, TraceWriter to TraceCollector or TraceConfig/TracerConfig or similar; make internal?
 1. Consider renaming BackgroundMultiLogWriter to BackgroundThreadManager
 1. Add ILogJamComponent, so the tree of components can be walked
@@ -10,9 +15,6 @@
 	approach that doesn't require that.
 2. background logging multi log writer tests
   * Test that entries are logged immediately
-3. Add flush support, so buffering log writers can be flushed on command.
-  * Support periodic flushing eg every .5s (more efficient than "always flush")
-4. Make background logging multi log writer support periodic flushing, eg every 20ms by default.  Also support flushing from foreground delegated to background thread.
 5. Add colorizing log formatter, colorized consolelogwriter
 
 2. Add status support, expose it from logmanager/tracemanager

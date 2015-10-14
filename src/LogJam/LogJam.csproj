@@ -31,6 +31,7 @@
     <Compile Include="Encode\ILogDecoder.cs" />
     <Compile Include="Encode\ILogEncoder.cs" />
     <Compile Include="ILogEntry.cs" />
+    <Compile Include="Instrument\Health\AggregateHealthItem.cs" />
     <Compile Include="Instrument\Health\HealthItem.cs" />
     <Compile Include="Instrument\Health\HealthState.cs" />
     <Compile Include="Instrument\Health\HealthStatus.cs" />
@@ -39,6 +40,7 @@
     <Compile Include="Instrument\Health\OnlineState.cs" />
     <Compile Include="Instrument\Health\PollingHealthItem.cs" />
     <Compile Include="Instrument\IInstrument.cs" />
+    <Compile Include="Instrument\InstrumentCollection.cs" />
     <Compile Include="Instrument\InstrumentKey.cs" />
     <Compile Include="Instrument\InstrumentManager.cs" />
     <Compile Include="Internal\ILogJamComponent.cs" />
