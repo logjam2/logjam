@@ -1,8 +1,14 @@
+# File types
 *.user
 *.suo
 *.Cache
+*.nupkg
+
+# Directories
 /_ReSharper.LogJam
 /TestResults
 obj
 bin
 /packages
+.vs
+
