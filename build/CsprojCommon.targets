@@ -51,7 +51,11 @@ be imported into csproj files using:
 		<CodeContractsRunInBackground>True</CodeContractsRunInBackground>
 		<CodeContractsShowSquigglies>True</CodeContractsShowSquigglies>
 		<CodeContractsUseBaseLine>False</CodeContractsUseBaseLine>
-		<CodeContractsEmitXMLDocs>True</CodeContractsEmitXMLDocs>
+		
+		<!-- TODO: Enable this after https://github.com/Microsoft/CodeContracts/issues/169
+https://github.com/Microsoft/CodeContracts/issues/226 are fixed -->
+		<CodeContractsEmitXMLDocs>false</CodeContractsEmitXMLDocs>
+		
 		<CodeContractsCustomRewriterAssembly />
 		<CodeContractsCustomRewriterClass />
 		<CodeContractsLibPaths />
