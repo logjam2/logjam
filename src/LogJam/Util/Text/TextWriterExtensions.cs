@@ -40,31 +40,31 @@ namespace LogJam.Util.Text
 
             throw new NotImplementedException();
             /*
-            var sb = new StringBuilder();
+            var buffer = new StringBuilder();
             if (((indentSpaces == 0) && (linePrefix == null)) || string.IsNullOrEmpty(s))
             {
                 // Extra logic unnecessary
-                sb.Append(s);
+                buffer.Append(s);
                 return;
             }
 
-            if ((sb.Length == 0) || sb.EndsWith(LineFeed))
+            if ((buffer.Length == 0) || buffer.EndsWith(LineFeed))
             {
                 if (linePrefix != null)
                 {
-                    sb.Append(linePrefix);
+                    buffer.Append(linePrefix);
                 }
 
-                sb.Append(' ', indentSpaces);
+                buffer.Append(' ', indentSpaces);
             }
 
-            // Track line position within s to append to sb - append one line at a time, then prefix each line with indentation
+            // Track line position within s to append to buffer - append one line at a time, then prefix each line with indentation
             int ichAppend = 0;
             int ichLineFeed = s.IndexOf(LineFeed);
             while (ichLineFeed >= 0)
             {
                 // Append the line including the LineFeed
-                sb.Append(s, ichAppend, ichLineFeed - ichAppend + 1);
+                buffer.Append(s, ichAppend, ichLineFeed - ichAppend + 1);
                 ichAppend = ichLineFeed + 1;
 
                 // If the LineFeed is the last char, don't indent the next line
@@ -73,10 +73,10 @@ namespace LogJam.Util.Text
                     // Indent following the LineFeed
                     if (linePrefix != null)
                     {
-                        sb.Append(linePrefix);
+                        buffer.Append(linePrefix);
                     }
 
-                    sb.Append(' ', indentSpaces);
+                    buffer.Append(' ', indentSpaces);
                 }
 
                 // Look for next LineFeed
@@ -84,7 +84,7 @@ namespace LogJam.Util.Text
             }
 
             // Append whatever remains.
-            sb.Append(s, ichAppend, s.Length - ichAppend);
+            buffer.Append(s, ichAppend, s.Length - ichAppend);
             */
         }
 

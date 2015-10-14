@@ -30,7 +30,9 @@
     <Compile Include="Format\ActionFormatter.cs" />
     <Compile Include="Encode\ILogDecoder.cs" />
     <Compile Include="Encode\ILogEncoder.cs" />
+    <Compile Include="Format\ColorCategory.cs" />
     <Compile Include="Format\DefaultFormatterAttribute.cs" />
+    <Compile Include="Format\FormatterWriter.cs" />
     <Compile Include="ILogEntry.cs" />
     <Compile Include="Internal\ILogJamComponent.cs" />
     <Compile Include="LogJamException.cs" />

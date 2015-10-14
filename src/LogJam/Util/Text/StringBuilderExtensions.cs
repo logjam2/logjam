@@ -28,20 +28,37 @@ namespace LogJam.Util.Text
         #region Public Methods and Operators
 
         /// <summary>
-        /// The append indent lines.
+        /// Appends <see cref="i"/> to buffer, left-padding with zeroes to fill <paramref name="width"/> characters.
         /// </summary>
-        /// <param name="sb">
-        /// The sb.
-        /// </param>
-        /// <param name="s">
-        /// The s.
-        /// </param>
-        /// <param name="indentSpaces">
-        /// The indent spaces.
-        /// </param>
-        /// <param name="linePrefix">
-        /// The line prefix.
-        /// </param>
+        /// <param name="sb">A <see cref="StringBuilder"/>.</param>
+        /// <param name="number">A number to write.</param>
+        /// <param name="width">The minimum number of characters to fill.</param>
+        public static void AppendPadZeroes(this StringBuilder sb, int number, int width)
+        {
+            Contract.Requires<ArgumentException>(width <= 10 && width >= 0);
+
+            if (number < 0)
+            {
+                sb.Append('-');
+                number *= -1;
+                width--;
+            }
+
+            int threshold = 1, i = 0;
+            for (; i <= width && threshold <= number; ++i, threshold *= 10) {}
+            int countZeroes = width - i;
+
+            sb.Append('0', countZeroes);
+            sb.Append(number);
+        }
+
+        /// <summary>
+        /// Appends indented lines to <paramref name="sb"/>.
+        /// </summary>
+        /// <param name="sb">A <see cref="StringBuilder"/>.</param>
+        /// <param name="s">The string to append.</param>
+        /// <param name="indentSpaces">Number of spaces to indent.</param>
+        /// <param name="linePrefix">The prefix for each line (before indentation).</param>
         public static void AppendIndentLines(this StringBuilder sb, string s, int indentSpaces, string linePrefix = null)
         {
             Contract.Requires<ArgumentOutOfRangeException>(indentSpaces >= 0);
@@ -63,7 +80,7 @@ namespace LogJam.Util.Text
                 sb.Append(' ', indentSpaces);
             }
 
-            // Track line position within s to append to sb - append one line at a time, then prefix each line with indentation
+            // Track line position within s to append to buffer - append one line at a time, then prefix each line with indentation
             int ichAppend = 0;
             int ichLineFeed = s.IndexOf(LineFeed);
             while (ichLineFeed >= 0)
@@ -114,7 +131,7 @@ namespace LogJam.Util.Text
                 int sbIndex = index + i;
                 if (sbIndex >= sb.Length)
                 {
-                    // s > sb, since it's longer
+                    // s > buffer, since it's longer
                     return 1;
                 }
                 else
@@ -135,7 +152,7 @@ namespace LogJam.Util.Text
         /// The ends with.
         /// </summary>
         /// <param name="sb">
-        /// The sb.
+        /// The buffer.
         /// </param>
         /// <param name="suffix">
         /// The suffix.
@@ -158,7 +175,7 @@ namespace LogJam.Util.Text
         /// The ends with.
         /// </summary>
         /// <param name="sb">
-        /// The sb.
+        /// The buffer.
         /// </param>
         /// <param name="suffix">
         /// The suffix.
@@ -182,7 +199,7 @@ namespace LogJam.Util.Text
                 }
             }
 
-            // sb ends with suffix
+            // buffer ends with suffix
             return true;
         }
 
@@ -190,7 +207,7 @@ namespace LogJam.Util.Text
         /// The ensure ends with.
         /// </summary>
         /// <param name="sb">
-        /// The sb.
+        /// The buffer.
         /// </param>
         /// <param name="suffix">
         /// The suffix.

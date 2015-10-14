@@ -14,23 +14,31 @@ namespace LogJam.Writer
 
     using LogJam.Format;
     using LogJam.Trace;
+    using LogJam.Util;
 
 
     /// <summary>
-    /// Supports writing log entries to a target that receives formatted text.
+    /// A <see cref="ILogWriter"/>s that writes log entries to a target that receives formatted text.
+    /// Text targets can be colorized and are generally optimized for readability.  In contrast, binary targets are 
+    /// generally optimized for efficient and precise writing and parsing.
     /// </summary>
-    public abstract class TextLogWriter : BaseLogWriter
+    public class TextLogWriter : BaseLogWriter
     {
 
-        //private readonly string _newLine;
+        private readonly FormatterWriter _formatterWriter;
 
         /// <summary>
         /// Creates a new <see cref="TextLogWriter" />.
         /// </summary>
         /// <param name="setupTracerFactory">The <see cref="ITracerFactory" /> to use for logging setup operations.</param>
-        protected TextLogWriter(ITracerFactory setupTracerFactory)
+        public TextLogWriter(ITracerFactory setupTracerFactory, FormatterWriter formatterWriter)
             : base(setupTracerFactory)
-        {}
+        {
+            Contract.Requires<ArgumentNullException>(setupTracerFactory != null);
+            Contract.Requires<ArgumentNullException>(formatterWriter != null);
+
+            _formatterWriter = formatterWriter;
+        }
 
         /// <summary>
         /// Returns <c>true</c> when this logwriter and its entrywriters are ready to log.
@@ -78,8 +86,39 @@ namespace LogJam.Writer
             return AddFormat((EntryFormatter<TEntry>) formatAction);
         }
 
-        protected abstract void WriteFormattedEntry(string formattedEntry);
+        protected override void InternalStart()
+        {
+            (_formatterWriter as IStartable).SafeStart(SetupTracerFactory);
 
+            base.InternalStart();
+        }
+
+        protected override void InternalStop()
+        {
+            base.InternalStop();
+
+            (_formatterWriter as IStartable).SafeStop(SetupTracerFactory);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            _formatterWriter.SafeDispose(SetupTracerFactory);
+        }
+
+        /// <summary>
+        /// Central method to format and write <paramref name="entry"/> to the <see cref="FormatterWriter"/>.
+        /// </summary>
+        /// <typeparam name="TEntry">The log entry type</typeparam>
+        /// <param name="entry">The log entry</param>
+        /// <param name="entryFormatter">The <see cref="EntryFormatter{TEntry}"/></param>
+        protected virtual void WriteFormattedEntry<TEntry>(ref TEntry entry, EntryFormatter<TEntry> entryFormatter)
+            where TEntry : ILogEntry
+        {
+            if (IsStarted)
+            {
+                entryFormatter.Format(ref entry, _formatterWriter);
+            }
+        }
 
         /// <summary>
         /// Provides log writing to the <see cref="TextLogWriter" /> for entry type <typeparamref name="TEntry" />.
@@ -100,10 +139,7 @@ namespace LogJam.Writer
 
             public void Write(ref TEntry entry)
             {
-                if (_parent.IsStarted)
-                {
-                    _parent.WriteFormattedEntry(_formatter.Format(ref entry));
-                }
+                _parent.WriteFormattedEntry(ref entry, _formatter);              
             }
 
             public bool IsEnabled { get { return _parent.IsEnabled; } }

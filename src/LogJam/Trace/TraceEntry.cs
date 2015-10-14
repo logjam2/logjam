@@ -49,7 +49,7 @@ namespace LogJam.Trace
 
         public override string ToString()
         {
-            return string.Format("{0,-7}\t{1,-50}\t{2}", TraceLevel, TracerName, Message);
+            return string.Format("{0,-7}  {1,-50}  {2}", TraceLevel, TracerName, Message);
         }
 
         public TraceEntry(string tracerName, TraceLevel traceLevel, string message, object details = null)

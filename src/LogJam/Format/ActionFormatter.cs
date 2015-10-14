@@ -30,9 +30,9 @@ namespace LogJam.Format
             _formatAction = formatAction;
         }
 
-        public override void Format(ref TEntry entry, TextWriter textWriter)
+        public override void Format(ref TEntry entry, FormatterWriter formatterWriter)
         {
-            _formatAction(entry, textWriter);
+            _formatAction(entry, formatterWriter);
         }
 
     }

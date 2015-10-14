@@ -24,11 +24,11 @@ namespace LogJam.Format
         #region Public Methods and Operators
 
         /// <summary>
-        /// Format <paramref name="entry" /> and write output to <paramref name="textWriter" />.
+        /// Format <paramref name="entry" /> and write output to <paramref name="formatterWriter" />.
         /// </summary>
         /// <param name="entry">A log entry to format.</param>
-        /// <param name="textWriter">The text writer that receives formatted log output</param>
-        public abstract void Format(ref TEntry entry, TextWriter textWriter);
+        /// <param name="formatterWriter">The <see cref="FormatterWriter"/> that receives formatted log output</param>
+        public abstract void Format(ref TEntry entry, FormatterWriter formatterWriter);
 
         /// <summary>
         /// Formats <paramref name="entry" /> and returns the formatted result as a <see cref="string" />.
@@ -38,7 +38,7 @@ namespace LogJam.Format
         public virtual string Format(ref TEntry entry)
         {
             StringWriter sw = new StringWriter();
-            Format(ref entry, sw);
+            //Format(ref entry, sw);
             return sw.ToString();
         }
 
@@ -63,13 +63,13 @@ namespace LogJam.Format
     /// </summary>
     /// <typeparam name="TEntry">The log entry type.</typeparam>
     /// <param name="entry">A log entry to format.</param>
-    /// <param name="textWriter">The text writer that receives formatted log output.</param>
+    /// <param name="writer">The <see cref="FormatterWriter"/> that receives formatted log output.</param>
     /// <remarks>
     /// Note that subclassing <see cref="EntryFormatter{TEntry}" /> is more efficient for value-typed
     /// <c>TEntry</c>, because the log entry is not copied.  In this delegate, <paramref name="entry" />
     /// is not a <c>ref</c> parameter to allow lambda functions to be used for formatting.
     /// </remarks>
-    public delegate void FormatAction<in TEntry>(TEntry entry, TextWriter textWriter)
+    public delegate void FormatAction<in TEntry>(TEntry entry, FormatterWriter writer)
         where TEntry : ILogEntry;
 
 }

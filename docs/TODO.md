@@ -18,6 +18,7 @@
 2. background logging multi log writer tests
   * Test that entries are logged immediately
 5. Add colorizing log formatter, colorized consolelogwriter
+5. SetupLog pruning - ensure it doesn't hold unneeded information.  Add a trace count?
 
 2. Add status support, expose it from logmanager/tracemanager
 3. Remote logging via protobuf

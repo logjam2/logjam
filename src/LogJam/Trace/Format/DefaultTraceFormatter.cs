@@ -21,11 +21,6 @@ namespace LogJam.Trace.Format
     /// </summary>
     public class DefaultTraceFormatter : EntryFormatter<TraceEntry>
     {
-        #region Fields
-
-        private TimeZoneInfo _outputTimeZone = TimeZoneInfo.Local;
-
-        #endregion
 
         public DefaultTraceFormatter()
         {}
@@ -33,27 +28,23 @@ namespace LogJam.Trace.Format
         #region Public Properties
 
         /// <summary>
+        /// <c>true</c> to include the Date when formatting <see cref="TraceEntry" />s.
+        /// </summary>
+        public bool IncludeDate { get; set; }
+
+        /// <summary>
         /// <c>true</c> to include the Timestamp when formatting <see cref="TraceEntry" />s.
         /// </summary>
         public bool IncludeTimestamp { get; set; }
 
         /// <summary>
-        /// Specifies the TimeZone to use when formatting the Timestamp for a <see cref="TraceEntry" />.
+        /// We don't yet support indenting based on context, but we do support indenting a constant amount. 
         /// </summary>
-        public TimeZoneInfo OutputTimeZone
-        {
-            get { return _outputTimeZone; }
-            set
-            {
-                Contract.Requires<ArgumentNullException>(value != null);
-
-                _outputTimeZone = value;
-            }
-        }
+        public int IndentLevel { get; set; }
 
         #endregion
 
-        #region Public Methods and Operators
+        #region Formatter methods
 
         /// <summary>
         /// Formats the trace entry for debugger windows
@@ -107,11 +98,77 @@ namespace LogJam.Trace.Format
             return sw.ToString();
         }
 
-        public override void Format(ref TraceEntry traceEntry, TextWriter writer)
+        public override void Format(ref TraceEntry traceEntry, FormatterWriter writer)
         {
-            writer.Write(Format(ref traceEntry));
+            ColorCategory color = ColorCategory.None;
+            if (writer.IsColorEnabled)
+            {
+                color = TraceLevelToColorCategory(traceEntry.TraceLevel);
+            }
+
+            writer.BeginEntry(IndentLevel);
+
+            if (IncludeDate)
+            {
+                writer.WriteDate(traceEntry.TimestampUtc);
+            }
+            if (IncludeTimestamp)
+            {
+                writer.WriteTimestamp(traceEntry.TimestampUtc);
+            }
+            writer.WriteField(TraceLevelToLabel(traceEntry.TraceLevel), color, 7);
+            writer.WriteAbbreviatedTypeName(traceEntry.TracerName, ColorCategory.Detail, 50);
+            writer.WriteField(traceEntry.Message.Trim(), color);
+            if (traceEntry.Details != null)
+            {
+                writer.WriteLines(traceEntry.Details.ToString(), ColorCategory.Detail, 1);
+            }
+
+            writer.EndEntry();
         }
 
         #endregion
+
+        protected ColorCategory TraceLevelToColorCategory(TraceLevel traceLevel)
+        {
+            switch (traceLevel)
+            {
+                case TraceLevel.Info:
+                    return ColorCategory.Info;
+                case TraceLevel.Verbose:
+                    return ColorCategory.Detail;
+                case TraceLevel.Debug:
+                    return ColorCategory.Debug;
+                case TraceLevel.Warn:
+                    return ColorCategory.Warning;
+                case TraceLevel.Error:
+                case TraceLevel.Severe:
+                    return ColorCategory.Failure;
+                default:
+                    return ColorCategory.None;
+            }
+        }
+
+        protected string TraceLevelToLabel(TraceLevel traceLevel)
+        {
+            switch (traceLevel)
+            {
+                case TraceLevel.Info:
+                    return "Info";
+                case TraceLevel.Verbose:
+                    return "Verbose";
+                case TraceLevel.Debug:
+                    return "Debug";
+                case TraceLevel.Warn:
+                    return "Warn";
+                case TraceLevel.Error:
+                    return "Error";
+                case TraceLevel.Severe:
+                    return "SEVERE";
+                default:
+                    return "";
+            }
+        }
+
     }
 }
