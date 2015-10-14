@@ -6,7 +6,7 @@
   * Support periodic flushing eg every .5s (more efficient than "always flush")
 4. Add property dependency injection for intra-LogWriter pipeline dependencies (eg SynchronizingLogWriter ref)
 5. Upgrade all tests to xunit 2
-4. Make background logging multi log writer support periodic flushing, eg every 20ms by default.  Also support flushing from foreground delegated to background thread.
+4. Make background logging multi log writer support periodic flushing, eg every 600ms by default.  Also support flushing from foreground delegated to background thread.
 1. Consider renaming TraceWriterConfig, TraceWriter to TraceCollector or TraceConfig/TracerConfig or similar; make internal?
 1. Create documentation site
 1. Consider renaming BackgroundMultiLogWriter to BackgroundThreadManager

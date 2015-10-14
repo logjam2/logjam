@@ -11,9 +11,6 @@
     <RootNamespace>LogJam.Internal.UnitTests</RootNamespace>
     <AssemblyName>LogJam.Internal.UnitTests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
-    <TargetFrameworkProfile />
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
