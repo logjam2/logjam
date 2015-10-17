@@ -46,59 +46,7 @@ namespace LogJam.Trace.Format
 
         #region Formatter methods
 
-        /// <summary>
-        /// Formats the trace entry for debugger windows
-        /// </summary>
-        public override string Format(ref TraceEntry traceEntry)
-        {
-            //int indentSpaces = 0;
-
-            var sw = new StringWriter();
-            var newLine = sw.NewLine;
-            var newLineLength = newLine.Length;
-
-            //if (TraceManager.Config.ActivityTracingEnabled)
-            //{
-            //	// Compute indent spaces based on current ActivityRecord scope
-            //}
-
-            //sw.Repeat(' ', indentSpaces);
-
-            sw.Write("{0,-7}\t", traceEntry.TraceLevel);
-
-            if (IncludeTimestamp)
-            {
-#if PORTABLE
-				DateTime outputTime = TimeZoneInfo.ConvertTime(timestampUtc, _outputTimeZone);
-#else
-                DateTime outputTime = TimeZoneInfo.ConvertTimeFromUtc(traceEntry.TimestampUtc, _outputTimeZone);
-#endif
-                // TODO: Implement own formatting to make this more efficient
-                sw.Write(outputTime.ToString("HH:mm:ss.fff\t"));
-            }
-
-            var message = traceEntry.Message.Trim();
-            sw.Write("{0,-50}     {1}", traceEntry.TracerName, message);
-            if (! message.EndsWith(newLine))
-            {
-                sw.WriteLine();
-            }
-
-            if (traceEntry.Details != null)
-            {
-                //sw.Repeat(' ', indentSpaces);
-                string detailsMessage = traceEntry.Details.ToString();
-                sw.Write(detailsMessage);
-                if (! detailsMessage.EndsWith(newLine))
-                {
-                    sw.WriteLine();
-                }
-            }
-
-            return sw.ToString();
-        }
-
-        public override void Format(ref TraceEntry traceEntry, FormatterWriter writer)
+        public override void Format(ref TraceEntry traceEntry, FormatWriter writer)
         {
             ColorCategory color = ColorCategory.None;
             if (writer.IsColorEnabled)
@@ -142,8 +90,9 @@ namespace LogJam.Trace.Format
                 case TraceLevel.Warn:
                     return ColorCategory.Warning;
                 case TraceLevel.Error:
+                    return ColorCategory.Error;
                 case TraceLevel.Severe:
-                    return ColorCategory.Failure;
+                    return ColorCategory.SevereError;
                 default:
                     return ColorCategory.None;
             }

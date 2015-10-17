@@ -32,7 +32,7 @@
     <Compile Include="Encode\ILogEncoder.cs" />
     <Compile Include="Format\ColorCategory.cs" />
     <Compile Include="Format\DefaultFormatterAttribute.cs" />
-    <Compile Include="Format\FormatterWriter.cs" />
+    <Compile Include="Format\FormatWriter.cs" />
     <Compile Include="ILogEntry.cs" />
     <Compile Include="Internal\ILogJamComponent.cs" />
     <Compile Include="LogJamException.cs" />
@@ -43,6 +43,7 @@
     <Compile Include="Trace\Format\DebuggerTraceFormatter.cs" />
     <Compile Include="Util\GrowingListEnumerator.cs" />
     <Compile Include="Util\Startable.cs" />
+    <Compile Include="Util\Text\CharHelper.cs" />
     <Compile Include="Writer\BufferingLogWriter.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -87,8 +88,10 @@
     <Compile Include="Writer\ProxyEntryWriter.cs" />
     <Compile Include="Writer\SingleEntryTypeLogWriter.cs" />
     <Compile Include="Writer\SynchronizingProxyLogWriter.cs" />
-    <Compile Include="Writer\TextLogWriter.cs" />
-    <Compile Include="Writer\TextWriterLogWriter.cs" />
+    <Compile Include="Writer\Text\ConsoleFormatWriter.cs" />
+    <Compile Include="Writer\Text\DelimitedFormatWriter.cs" />
+    <Compile Include="Writer\Text\TextLogWriter.cs" />
+    <Compile Include="Writer\Text\TextWriterFormatWriter.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Trace\Config\TraceManagerConfig.cs" />
@@ -96,7 +99,7 @@
     <Compile Include="Trace\ITracerFactory.cs" />
     <Compile Include="Trace\TraceEntry.cs" />
     <Compile Include="Trace\TracerFactoryExtensions.cs" />
-    <Compile Include="Writer\DebuggerLogWriter.cs" />
+    <Compile Include="Writer\Text\DebuggerFormatWriter.cs" />
     <Compile Include="Trace\Format\DefaultTraceFormatter.cs" />
     <Compile Include="Format\EntryFormatter.cs" />
     <Compile Include="Writer\IEntryWriter.cs" />

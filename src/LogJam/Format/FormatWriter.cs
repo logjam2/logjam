@@ -1,5 +1,5 @@
 ﻿// // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="FormatterWriter.cs">
+// <copyright file="FormatWriter.cs">
 // Copyright (c) 2011-2015 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
@@ -19,8 +19,8 @@ namespace LogJam.Format
 
 
     /// <summary>
-    /// Base class for writing formatted log output to a text target.  A <c>FormatterWriter</c> is primarily used by one or more
-    /// <see cref="EntryFormatter{TEntry}"/>s to write formatted text.  <c>FormatterWriter</c> is the primary abstraction for writing
+    /// Abstract base class for writing formatted log output to a text target.  A <c>FormatWriter</c> is primarily used by one or more
+    /// <see cref="EntryFormatter{TEntry}"/>s to write formatted text.  <c>FormatWriter</c> is the primary abstraction for writing
     /// to a text target.
     /// <para>
     /// Text targets can be colorized and are generally optimized for readability.  In contrast, binary targets are generally optimized for
@@ -28,14 +28,26 @@ namespace LogJam.Format
     /// </para>
     /// </summary>
     /// <remarks>
-    /// <c>FormatterWriter</c> is <u>not</u> threadsafe.  It assumes that writes are synchronized at a higher level (typically using pluggable
+    /// <c>FormatWriter</c> is <u>not</u> threadsafe.  It assumes that writes are synchronized at a higher level (typically using pluggable
     /// <see cref="ISynchronizingLogWriter"/>s), so that the last entry is completely formatted/written before the next entry starts. 
     /// <see cref="BeginEntry"/> and <see cref="EndEntry"/> provide basic checks for this assertion.
     /// </remarks>
-    public abstract class FormatterWriter : IDisposable
+    public abstract class FormatWriter : IDisposable
     {
+        /// <summary>
+        /// The default field delimiter for this formatter is 2 spaces.
+        /// </summary>
         public const string DefaultFieldDelimiter = "  ";
 
+        /// <summary>
+        /// End-of-line chars.
+        /// </summary>
+        public readonly static char[] EolChars = { '\r', '\n' };
+
+        /// <summary>
+        /// Characters that are removed from field text.
+        /// </summary>
+        private static readonly char[] s_invalidFieldChars = { '\r', '\n', '\t' };
 
         #region Fields
 
@@ -71,8 +83,13 @@ namespace LogJam.Format
 
         #endregion
 
-
-        protected FormatterWriter(ITracerFactory setupTracerFactory, string fieldDelimiter = DefaultFieldDelimiter, int spacesPerIndentLevel = 4)
+        /// <summary>
+        /// Initialize the <see cref="FormatWriter"/>.
+        /// </summary>
+        /// <param name="setupTracerFactory">The <see cref="ITracerFactory" /> to use for logging setup operations.</param>
+        /// <param name="fieldDelimiter">The field delimiter for formatted text output.</param>
+        /// <param name="spacesPerIndentLevel">The number of spaces per indent level.  Can be 0 for no indenting.</param>
+        protected FormatWriter(ITracerFactory setupTracerFactory, string fieldDelimiter = DefaultFieldDelimiter, int spacesPerIndentLevel = 4)
         {
             Contract.Requires<ArgumentNullException>(setupTracerFactory != null);
             Contract.Requires<ArgumentNullException>(fieldDelimiter != null);
@@ -80,11 +97,19 @@ namespace LogJam.Format
             _setupTracer = setupTracerFactory.TracerFor(this);
             _fieldDelimiter = fieldDelimiter;
             SpacesPerIndent = spacesPerIndentLevel;
-            buffer = new StringBuilder(255);
+            buffer = new StringBuilder(512);
             _startedEntries = 0;
         }
 
-        public abstract void Dispose();
+        /// <summary>
+        /// Must return <c>true</c> when the <c>FormatWriter</c> to available to write formatted output.
+        /// </summary>
+        public abstract bool IsEnabled { get; }
+
+        public virtual void Dispose()
+        {}
+
+#region Properties that control formatting
 
         /// <summary>
         /// The delimiter used to separate fields - eg single space, 2 spaces (default value), tab, comma.
@@ -138,6 +163,9 @@ namespace LogJam.Format
             }
         }
 
+        #endregion
+        #region Public methods to write formatted log text
+
         /// <summary>
         /// Marks the start of a new entry.
         /// </summary>
@@ -145,31 +173,86 @@ namespace LogJam.Format
         {
             if (Interlocked.Increment(ref _startedEntries) != 1)
             {
-                _setupTracer.Error("FormatterWriter invariant violated: Only one entry must be written at a time.");
+                _setupTracer.Error("FormatWriter invariant violated: Only one entry must be written at a time.");
             }
             IndentLevel = indentLevel;
+
+            if (! atBeginningOfLine)
+            {
+                WriteEndLine();
+            }
         }
 
-        public abstract void WriteField(string text, ColorCategory colorCategory = ColorCategory.None, int padWidth = 0);
-
-        public abstract void WriteLines(string lines, ColorCategory colorCategory = ColorCategory.None, int relativeIndentLevel = 1);
-
-        protected virtual void WriteLinePrefix(int indentLevel)
+        public virtual void WriteField(string text, ColorCategory colorCategory = ColorCategory.None, int padWidth = 0)
         {
-            WriteText(LineDelimiter, ColorCategory.None);
-            atBeginningOfLine = false;
+            if (atBeginningOfLine)
+            {
+                WriteLinePrefix(IndentLevel);
+            }
+            else
+            {
+                WriteText(FieldDelimiter, ColorCategory.Markup);
+            }
+
+            if (text != null)
+            {
+                WriteText(text, colorCategory, true);
+                padWidth -= text.Length;
+            }
+
+            if (padWidth > 0)
+            {
+                WriteSpaces(padWidth);
+            }
         }
 
-        protected abstract void WriteText(string s, ColorCategory colorCategory);
-
-        protected abstract void WriteField(StringBuilder sb, ColorCategory colorCategory);
-
-        protected abstract void WriteLine(StringBuilder sb, ColorCategory colorCategory, int relativeIndentLevel = 1);
-
-        protected virtual void WriteEndLine()
+        public virtual void WriteField(StringBuilder buffer, ColorCategory colorCategory = ColorCategory.None, int padWidth = 0)
         {
-            WriteText(LineDelimiter, ColorCategory.None);
-            atBeginningOfLine = true;
+            Contract.Requires<ArgumentNullException>(buffer != null);
+
+            if (atBeginningOfLine)
+            {
+                WriteLinePrefix(IndentLevel);
+            }
+            else
+            {
+                WriteText(FieldDelimiter, ColorCategory.Markup);
+            }
+
+            WriteText(buffer, colorCategory);
+            padWidth -= buffer.Length;
+
+            if (padWidth > 0)
+            {
+                WriteSpaces(padWidth);
+            }
+        }
+
+        public virtual void WriteLines(string lines, ColorCategory colorCategory = ColorCategory.None, int relativeIndentLevel = 1)
+        {
+            if (! atBeginningOfLine)
+            {
+                WriteEndLine();
+            }
+
+            int indexStartLine = 0;
+            while (true)
+            {
+                int indexEol = lines.IndexOfAny(EolChars, indexStartLine);
+                if (indexEol < 0)
+                {
+                    break;
+                }
+                // REVIEW: When there are multiple EolChars adjacent to each other (eg CrLfCrLf), nothing is written
+                // If the caller wants blank lines, put a single space or tab on each blank line.
+                if (indexEol >= indexStartLine)
+                {
+                    WriteLinePrefix(IndentLevel + relativeIndentLevel);
+                    WriteText(lines, indexStartLine, indexEol - indexStartLine, colorCategory);
+                    WriteEndLine();
+                }
+                indexStartLine = indexEol + 1;
+            }
         }
 
         /// <summary>
@@ -177,14 +260,18 @@ namespace LogJam.Format
         /// </summary>
         public virtual void EndEntry()
         {
-            if (! atBeginningOfLine)
+            if (!atBeginningOfLine)
             {
                 WriteEndLine();
             }
             Interlocked.Decrement(ref _startedEntries);
         }
 
-        public abstract void Flush();
+        public virtual void Flush()
+        { }
+
+        #endregion
+#region Public methods to format field primitives
 
         public virtual void WriteDate(DateTime dateTimeUtc, ColorCategory colorCategory = ColorCategory.Detail)
         {
@@ -238,7 +325,7 @@ namespace LogJam.Format
             int segmentsToAbbreviate = (countDots >> 1) + 1;
             buffer.Clear();
             int len = typeName.Length;
-            buffer.Append(AsciiToLower(typeName[0])); // Always include the first char
+            buffer.Append(typeName[0].AsciiToLower()); // Always include the first char
             for (int i = 1, segmentsAbbreviated = 0; i < len; ++i)
             {
                 char ch = typeName[i];
@@ -247,21 +334,21 @@ namespace LogJam.Format
                     buffer.Append(ch);
                     i++;
                     if (++segmentsAbbreviated >= segmentsToAbbreviate)
-                    {   // No more abbreviating - take the rest straight
+                    { // No more abbreviating - take the rest straight
                         buffer.Append(typeName, i, len - i);
                         break;
                     }
                     else
-                    {   // Keep abbreviating - always include the first char after a '.'
+                    { // Keep abbreviating - always include the first char after a '.'
                         if (i < len)
                         {
-                            buffer.Append(AsciiToLower(typeName[i]));
+                            buffer.Append(typeName[i].AsciiToLower());
                         }
                     }
                 }
-                else if (! AsciiIsLower(ch))
+                else if (! ch.AsciiIsLower())
                 {
-                    buffer.Append(AsciiToLower(ch));
+                    buffer.Append(ch.AsciiToLower());
                 }
                 // Else ch is lower case - omit it 
             }
@@ -276,18 +363,69 @@ namespace LogJam.Format
             WriteField(buffer, colorCategory);
         }
 
-        protected bool AsciiIsLower(char ch)
+        #endregion
+        #region Protected formatting methods
+
+        protected virtual void WriteLinePrefix(int indentLevel)
         {
-            return (ch >= 97) && (ch <= 122);
+            WriteSpaces(indentLevel * SpacesPerIndent);
+            atBeginningOfLine = false;
         }
 
-        protected char AsciiToLower(char ch)
+        protected virtual void WriteSpaces(int countSpaces)
         {
-            if (65 <= ch && ch <= 90)
-                ch |= ' ';
-            return ch;
+            buffer.Clear();
+            buffer.Append(' ', countSpaces);
+            WriteText(buffer, ColorCategory.Markup);
         }
 
+        /// <summary>
+        /// Writes the specified text to the target.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="colorCategory"></param>
+        /// <param name="normalizeFieldText">If <c>true</c>, <paramref name="s"/> should be normalized for display as a field, eg tabs and line breaks removed.</param>
+        protected virtual void WriteText(string s, ColorCategory colorCategory, bool normalizeFieldText = false)
+        {
+            if (s == null)
+            {
+                WriteText(string.Empty, 0, 0, colorCategory);
+            }
+            else if (normalizeFieldText && (s.IndexOfAny(s_invalidFieldChars) >= 0))
+            {
+                buffer.Clear();
+                buffer.Append(s);
+                buffer.RemoveAll(s_invalidFieldChars);
+                buffer.TrimSpaces();
+            }
+            else
+            {
+                if (normalizeFieldText)
+                {
+                    s = s.Trim();
+                }
+                WriteText(s, 0, s.Length, colorCategory);
+            }
+        }
+
+        protected virtual void WriteEndLine()
+        {
+            WriteText(LineDelimiter, ColorCategory.Markup);
+            atBeginningOfLine = true;
+        }
+
+        #endregion
+        #region Abstract write methods
+
+        protected abstract void WriteText(string s, int startIndex, int length, ColorCategory colorCategory);
+
+        protected abstract void WriteText(StringBuilder sb, ColorCategory colorCategory);
+
+
+  //      protected abstract void WriteLine(StringBuilder sb, ColorCategory colorCategory, int relativeIndentLevel = 1);
+
+        #endregion
+  
     }
 
 }

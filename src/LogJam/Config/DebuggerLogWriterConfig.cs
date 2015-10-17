@@ -12,6 +12,7 @@ namespace LogJam.Config
     using LogJam.Config.Json;
     using LogJam.Trace;
     using LogJam.Writer;
+    using LogJam.Writer.Text;
 
 
     /// <summary>
@@ -32,7 +33,7 @@ namespace LogJam.Config
 
         public override ILogWriter CreateLogWriter(ITracerFactory setupTracerFactory)
         {
-            var writer = new DebuggerLogWriter(setupTracerFactory);
+            var writer = new DebuggerFormatWriter(setupTracerFactory);
             ApplyConfiguredFormatters(writer);
             return writer;
         }

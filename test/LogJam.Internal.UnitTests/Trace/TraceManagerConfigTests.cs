@@ -12,6 +12,7 @@ namespace LogJam.Internal.UnitTests.Trace
     using LogJam.Trace;
     using LogJam.Trace.Format;
     using LogJam.Writer;
+    using LogJam.Writer.Text;
 
     using Xunit;
 
@@ -26,7 +27,7 @@ namespace LogJam.Internal.UnitTests.Trace
         private static readonly bool s_inDebugger = System.Diagnostics.Debugger.IsAttached;
 
         /// <summary>
-        /// By default, info and greater messages are written to a <see cref="DebuggerLogWriter" />.
+        /// By default, info and greater messages are written to a <see cref="DebuggerFormatWriter" />.
         /// </summary>
         [Fact]
         public void VerifyDefaultTraceManagerConfig()
@@ -54,7 +55,7 @@ namespace LogJam.Internal.UnitTests.Trace
             Assert.IsType<TextLogWriter.InnerEntryWriter<TraceEntry>>(traceWriter.InnerEntryWriter);
             var entryWriter = (TextLogWriter.InnerEntryWriter<TraceEntry>) traceWriter.InnerEntryWriter;
             Assert.IsType<DefaultTraceFormatter>(entryWriter.Formatter);
-            Assert.IsType<DebuggerLogWriter>(entryWriter.Parent);
+            Assert.IsType<DebuggerFormatWriter>(entryWriter.Parent);
         }
 
     }

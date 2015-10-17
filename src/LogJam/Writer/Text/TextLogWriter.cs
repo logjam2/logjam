@@ -25,19 +25,19 @@ namespace LogJam.Writer
     public class TextLogWriter : BaseLogWriter
     {
 
-        private readonly FormatterWriter _formatterWriter;
+        private readonly FormatWriter _formatWriter;
 
         /// <summary>
         /// Creates a new <see cref="TextLogWriter" />.
         /// </summary>
         /// <param name="setupTracerFactory">The <see cref="ITracerFactory" /> to use for logging setup operations.</param>
-        public TextLogWriter(ITracerFactory setupTracerFactory, FormatterWriter formatterWriter)
+        public TextLogWriter(ITracerFactory setupTracerFactory, FormatWriter formatWriter)
             : base(setupTracerFactory)
         {
             Contract.Requires<ArgumentNullException>(setupTracerFactory != null);
-            Contract.Requires<ArgumentNullException>(formatterWriter != null);
+            Contract.Requires<ArgumentNullException>(formatWriter != null);
 
-            _formatterWriter = formatterWriter;
+            _formatWriter = formatWriter;
         }
 
         /// <summary>
@@ -53,6 +53,7 @@ namespace LogJam.Writer
         /// <typeparam name="TEntry"></typeparam>
         /// <param name="entryFormatter"></param>
         /// <returns>this, for chaining calls in fluent style.</returns>
+        // TODO: Rename to .IncludeEntry or .AddEntry or similar?
         public TextLogWriter AddFormat<TEntry>(EntryFormatter<TEntry> entryFormatter = null)
             where TEntry : ILogEntry
         {
@@ -88,7 +89,7 @@ namespace LogJam.Writer
 
         protected override void InternalStart()
         {
-            (_formatterWriter as IStartable).SafeStart(SetupTracerFactory);
+            (_formatWriter as IStartable).SafeStart(SetupTracerFactory);
 
             base.InternalStart();
         }
@@ -97,16 +98,16 @@ namespace LogJam.Writer
         {
             base.InternalStop();
 
-            (_formatterWriter as IStartable).SafeStop(SetupTracerFactory);
+            (_formatWriter as IStartable).SafeStop(SetupTracerFactory);
         }
 
         protected override void Dispose(bool disposing)
         {
-            _formatterWriter.SafeDispose(SetupTracerFactory);
+            _formatWriter.SafeDispose(SetupTracerFactory);
         }
 
         /// <summary>
-        /// Central method to format and write <paramref name="entry"/> to the <see cref="FormatterWriter"/>.
+        /// Central method to format and write <paramref name="entry"/> to the <see cref="FormatWriter"/>.
         /// </summary>
         /// <typeparam name="TEntry">The log entry type</typeparam>
         /// <param name="entry">The log entry</param>
@@ -114,9 +115,9 @@ namespace LogJam.Writer
         protected virtual void WriteFormattedEntry<TEntry>(ref TEntry entry, EntryFormatter<TEntry> entryFormatter)
             where TEntry : ILogEntry
         {
-            if (IsStarted)
+            if (IsStarted && _formatWriter.IsEnabled)
             {
-                entryFormatter.Format(ref entry, _formatterWriter);
+                entryFormatter.Format(ref entry, _formatWriter);
             }
         }
 

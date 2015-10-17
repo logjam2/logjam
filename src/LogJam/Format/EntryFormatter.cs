@@ -15,7 +15,7 @@ namespace LogJam.Format
 
 
     /// <summary>
-    /// Definition of log entry formatters, which format <typeparamref name="TEntry" /> objects into a text representation.
+    /// Base class for log entry formatters, which write <typeparamref name="TEntry" /> objects to a text representation.
     /// </summary>
     /// <typeparam name="TEntry">The log entry type.</typeparam>
     public abstract class EntryFormatter<TEntry>
@@ -24,23 +24,11 @@ namespace LogJam.Format
         #region Public Methods and Operators
 
         /// <summary>
-        /// Format <paramref name="entry" /> and write output to <paramref name="formatterWriter" />.
+        /// Format <paramref name="entry" /> and write output to <paramref name="formatWriter" />.
         /// </summary>
         /// <param name="entry">A log entry to format.</param>
-        /// <param name="formatterWriter">The <see cref="FormatterWriter"/> that receives formatted log output</param>
-        public abstract void Format(ref TEntry entry, FormatterWriter formatterWriter);
-
-        /// <summary>
-        /// Formats <paramref name="entry" /> and returns the formatted result as a <see cref="string" />.
-        /// </summary>
-        /// <param name="entry">A log entry to format.</param>
-        /// <returns>A string containing the formatted log entry.</returns>
-        public virtual string Format(ref TEntry entry)
-        {
-            StringWriter sw = new StringWriter();
-            //Format(ref entry, sw);
-            return sw.ToString();
-        }
+        /// <param name="formatWriter">The <see cref="FormatWriter"/> that receives formatted log output</param>
+        public abstract void Format(ref TEntry entry, FormatWriter formatWriter);
 
         /// <summary>
         /// Provides automatic conversion from <see cref="FormatAction{TEntry}" /> to <see cref="EntryFormatter{TEntry}" />.
@@ -63,13 +51,13 @@ namespace LogJam.Format
     /// </summary>
     /// <typeparam name="TEntry">The log entry type.</typeparam>
     /// <param name="entry">A log entry to format.</param>
-    /// <param name="writer">The <see cref="FormatterWriter"/> that receives formatted log output.</param>
+    /// <param name="writer">The <see cref="FormatWriter"/> that receives formatted log output.</param>
     /// <remarks>
     /// Note that subclassing <see cref="EntryFormatter{TEntry}" /> is more efficient for value-typed
     /// <c>TEntry</c>, because the log entry is not copied.  In this delegate, <paramref name="entry" />
     /// is not a <c>ref</c> parameter to allow lambda functions to be used for formatting.
     /// </remarks>
-    public delegate void FormatAction<in TEntry>(TEntry entry, FormatterWriter writer)
+    public delegate void FormatAction<in TEntry>(TEntry entry, FormatWriter writer)
         where TEntry : ILogEntry;
 
 }

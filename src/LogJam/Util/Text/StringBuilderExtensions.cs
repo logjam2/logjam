@@ -221,6 +221,72 @@ namespace LogJam.Util.Text
             }
         }
 
+        /// <summary>
+        /// Remove all instances of characters in the buffer that match <paramref name="charsToRemove"/>.
+        /// </summary>
+        /// <param name="sb"></param>
+        /// <param name="charsToRemove"></param>
+        public static void RemoveAll(this StringBuilder sb, char[] charsToRemove)
+        {
+            int upperEndOfRemoveStretch = -1;
+            for (int i = sb.Length - 1; i >= 0; i--)
+            {
+                char ch = sb[i];
+                if (ch.MatchesAny(charsToRemove))
+                {
+                    if (upperEndOfRemoveStretch == -1)
+                    {
+                        upperEndOfRemoveStretch = i;
+                    }
+                }
+                else if (upperEndOfRemoveStretch > i)
+                {
+                    sb.Remove(i + 1, upperEndOfRemoveStretch - i);
+                    upperEndOfRemoveStretch = -1;
+                }
+            }
+
+            if (upperEndOfRemoveStretch > 0)
+            {
+                sb.Remove(0, upperEndOfRemoveStretch + 1);
+            }
+        }
+
+        /// <summary>
+        /// Trims leading and trailing space characters - does not trim all whitespace characters, only " ".
+        /// </summary>
+        /// <param name="sb"></param>
+        public static void TrimSpaces(this StringBuilder sb)
+        {
+            int len = sb.Length;
+            for (int i = len - 1; i >= 0; i--)
+            {
+                char ch = sb[i];
+                if (ch != ' ')
+                {
+                    if (i < len - 1)
+                    {
+                        sb.Length = i + 1;
+                        len = sb.Length;
+                    }
+                    break;
+                }
+            }
+
+            for (int i = 0; i < len; ++i)
+            {
+                char ch = sb[i];
+                if (ch != ' ')
+                {
+                    if (i > 0)
+                    {
+                        sb.Remove(0, i);
+                    }
+                    break;
+                }
+            }
+        }
+
         #endregion
     }
 }
