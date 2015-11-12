@@ -19,7 +19,7 @@ namespace LogJam.Util
     /// Wraps an <see cref="IEnumerable{T}" />.  Used to prevent access to the underlying collection via casting.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class EnumerableWrapper<T> : IEnumerable<T>
+    internal sealed class EnumerableWrapper<T> : IEnumerable<T>
     {
 
         private readonly IEnumerable<T> _enumerable;

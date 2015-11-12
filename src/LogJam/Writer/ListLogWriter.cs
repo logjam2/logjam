@@ -14,16 +14,17 @@ namespace LogJam.Writer
     using System.Linq;
 
     using LogJam.Trace;
+    using LogJam.Util;
 
 
-    /// <summary>
+	/// <summary>
     /// Appends all log entries to a <see cref="List{T}" />.
     /// </summary>
     public sealed class ListLogWriter<TEntry> : SingleEntryTypeLogWriter<TEntry>, IEnumerable<TEntry>, IStartable
         where TEntry : ILogEntry
     {
 
-        private readonly IList<TEntry> _entryList;
+        private readonly List<TEntry> _entryList;
         private readonly bool _isSynchronized;
 
         /// <summary>
@@ -80,19 +81,7 @@ namespace LogJam.Writer
 
         public IEnumerator<TEntry> GetEnumerator()
         {
-            IEnumerable<TEntry> enumerable;
-            if (_isSynchronized)
-            {
-                lock (this)
-                {
-                    enumerable = _entryList.ToArray();
-                }
-            }
-            else
-            {
-                enumerable = _entryList.ToArray();
-            }
-            return enumerable.GetEnumerator();
+			return new GrowingListEnumerator<TEntry>(_entryList);
         }
 
         IEnumerator IEnumerable.GetEnumerator()

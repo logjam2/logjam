@@ -39,6 +39,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Trace\Config\TraceManagerConfigFluentExtensions.cs" />
     <Compile Include="Trace\Format\DebuggerTraceFormatter.cs" />
+    <Compile Include="Util\GrowingListEnumerator.cs" />
     <Compile Include="Util\Startable.cs" />
     <Compile Include="Writer\BufferingLogWriter.cs">
       <SubType>Code</SubType>

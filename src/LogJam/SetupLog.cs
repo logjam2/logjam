@@ -14,6 +14,7 @@ namespace LogJam
 
     using LogJam.Trace;
     using LogJam.Trace.Switches;
+    using LogJam.Util;
     using LogJam.Writer;
 
 
@@ -78,7 +79,7 @@ namespace LogJam
 
         public IEnumerator<TraceEntry> GetEnumerator()
         {
-            return _listEntries.GetEnumerator();
+            return new GrowingListEnumerator<TraceEntry>(_listEntries);
         }
 
         IEnumerator IEnumerable.GetEnumerator()
