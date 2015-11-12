@@ -180,14 +180,17 @@ namespace LogJam
 
                     ILogWriter logWriter = CreateLogWriter(logWriterConfig);
 
-                    (logWriter as IStartable).SafeStart(SetupTracerFactory);
+	                if (logWriter != null)
+	                {
+		                (logWriter as IStartable).SafeStart(SetupTracerFactory);
 
-                    _logWriters.Add(logWriterConfig, logWriter);
+		                _logWriters.Add(logWriterConfig, logWriter);
 
-                    if (logWriterConfig.DisposeOnStop)
-                    {
-                        DisposeOnStop(logWriter);
-                    }
+		                if (logWriterConfig.DisposeOnStop)
+		                {
+			                DisposeOnStop(logWriter);
+		                }
+	                }
                 }
             }
         }

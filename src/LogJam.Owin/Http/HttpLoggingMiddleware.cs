@@ -59,13 +59,9 @@ namespace LogJam.Owin.Http
             foreach (var logWriterConfig in logWriterConfigs)
             {
                 ILogWriter logWriter;
-                try
+				if (! logManager.TryGetLogWriter(logWriterConfig, out logWriter))
                 {
-                    logWriter = logManager.GetLogWriter(logWriterConfig);
-                }
-                catch (Exception excp)
-                {
-                    _setupTracer.Error(excp, "Unable to setup HTTP logging for log target '{0}' due to exception getting LogWriter", logWriterConfig);
+                    _setupTracer.Error("Unable to setup HTTP logging for log target '{0}', no LogWriter exists for this configuration.", logWriterConfig);
                     continue;
                 }
 
