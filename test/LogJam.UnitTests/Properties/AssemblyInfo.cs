@@ -10,9 +10,14 @@
 using System;
 using System.Reflection;
 
+using Xunit;
+
 [assembly: AssemblyTitle("LogJam.UnitTests")]
 [assembly: AssemblyDescription("LogJam unit tests")]
 
 // Unit test projects don't need to be CLS compliant
 
 [assembly: CLSCompliant(false)]
+
+// Disable test parallelization for this assembly
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
