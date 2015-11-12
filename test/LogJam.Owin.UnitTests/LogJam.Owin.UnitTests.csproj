@@ -69,6 +69,10 @@
       <Project>{9d6dc0b4-01ef-4027-827e-1561e82f66a3}</Project>
       <Name>LogJam.Owin</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\src\LogJam.XUnit2\LogJam.XUnit2.csproj">
+      <Project>{2774CA60-3CAD-493B-BFCB-F77EA7F191E3}</Project>
+      <Name>LogJam.XUnit2</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\LogJam\LogJam.csproj">
       <Project>{43f154ad-aa27-48b3-ba07-d02c92be4f45}</Project>
       <Name>LogJam</Name>

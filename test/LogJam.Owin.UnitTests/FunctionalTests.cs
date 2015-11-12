@@ -12,6 +12,7 @@ namespace LogJam.Owin.UnitTests
     using System;
     using System.Diagnostics.Contracts;
     using System.IO;
+    using System.Linq;
 
     using global::Owin;
 
@@ -74,6 +75,8 @@ namespace LogJam.Owin.UnitTests
             _testOutputHelper.WriteLine(stringWriter.ToString());
 
             Assert.NotEmpty(setupLog);
+
+			_testOutputHelper.WriteEntries(setupLog);
             Assert.False(setupLog.HasAnyExceeding(TraceLevel.Info));
         }
 
