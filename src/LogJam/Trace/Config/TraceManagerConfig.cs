@@ -18,6 +18,7 @@ namespace LogJam.Trace.Config
     using LogJam.Trace.Format;
     using LogJam.Trace.Switches;
     using LogJam.Util;
+    using LogJam.Writer.Text;
 
 
     /// <summary>
@@ -38,12 +39,14 @@ namespace LogJam.Trace.Config
 
         /// <summary>
         /// Creates and returns a new <see cref="TraceManagerConfig" /> with default trace configuration,
-        /// which means trace output is logged to the debugger.
+        /// which means if a debugger is attached, trace output is logged to the debugger.
         /// </summary>
         /// <returns></returns>
         public static TraceManagerConfig Default()
         {
-            return new TraceManagerConfig(CreateDefaultTraceWriterConfig());
+            var traceManagerConfig = new TraceManagerConfig();
+            traceManagerConfig.SetToDefaultConfiguration();
+            return traceManagerConfig;
         }
 
         /// <summary>
@@ -72,10 +75,22 @@ namespace LogJam.Trace.Config
         }
 
         /// <summary>
+        /// Default configuration for tracing writes to the debugger when the debugger is attached.
+        /// </summary>
+        internal void SetToDefaultConfiguration()
+        {
+            _traceWriterConfigs.Clear();
+            if (DebuggerFormatWriter.IsDebuggerActive())
+            {
+                _traceWriterConfigs.Add(CreateDebugTraceWriterConfig());
+            }
+        }
+
+        /// <summary>
         /// Returns a <see cref="TraceWriterConfig" /> containing default values - trace output is logged to the debugger.
         /// </summary>
         /// <returns></returns>
-        public static TraceWriterConfig CreateDefaultTraceWriterConfig()
+        public static TraceWriterConfig CreateDebugTraceWriterConfig()
         {
             return new TraceWriterConfig(new DebuggerLogWriterConfig().Format(new DefaultTraceFormatter()), CreateDefaultSwitchSet());
         }

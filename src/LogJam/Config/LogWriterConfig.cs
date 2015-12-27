@@ -26,8 +26,7 @@ namespace LogJam.Config
 
         /// <summary>
         /// Sets or gets whether the <see cref="IEntryWriter{TEntry}" /> returned from <see cref="CreateLogWriter" /> should have
-        /// its
-        /// writes synchronized or not.  Default is <c>true</c>; however <c>false</c> is returned if
+        /// its writes synchronized or not.  Default is <c>true</c>; however <c>false</c> is returned if
         /// <see cref="BackgroundLogging" />
         /// is <c>true</c>, to avoid synchronization overhead when logging on a single background thread.
         /// </summary>

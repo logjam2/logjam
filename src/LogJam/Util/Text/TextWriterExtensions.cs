@@ -18,13 +18,60 @@ namespace LogJam.Util.Text
     /// <summary>
     /// Extension methods for <see cref="TextWriter" />.
     /// </summary>
-    public static class TextWriterExtensions
+    internal static class TextWriterExtensions
     {
         #region Constants
 
         private const char LineFeed = '\n';
 
         #endregion
+
+        public static void BufferedWrite(this TextWriter textWriter, string s, char[] buffer)
+        {
+            Contract.Requires<ArgumentNullException>(textWriter != null);
+            Contract.Requires<ArgumentNullException>(s != null);
+
+            int macIndex = s.Length;
+            int bufLen = buffer.Length;
+            for (int i = 0; i < macIndex; i += bufLen)
+            {
+                int lenCopy = Math.Min(macIndex - i, bufLen);
+                s.CopyTo(i, buffer, 0, lenCopy);
+                textWriter.Write(buffer, 0, lenCopy);
+            }
+        }
+
+        public static void BufferedWrite(this TextWriter textWriter, string s, int startIndex, int length, char[] buffer)
+        {
+            Contract.Requires<ArgumentNullException>(textWriter != null);
+            Contract.Requires<ArgumentNullException>(s != null);
+            Contract.Requires<ArgumentOutOfRangeException>(s.Length >= startIndex + length);
+
+            int macIndex = startIndex + length;
+            int bufLen = buffer.Length;
+            for (int i = startIndex; i < macIndex; i += bufLen)
+            {
+                int lenCopy = Math.Min(macIndex - i, bufLen);
+                s.CopyTo(i, buffer, 0, lenCopy);
+
+                textWriter.Write(buffer, 0, lenCopy);
+            }
+        }
+
+        public static void BufferedWrite(this TextWriter textWriter, StringBuilder sb, int startIndex, int length, char[] buffer)
+        {
+            Contract.Requires<ArgumentNullException>(textWriter != null);
+            Contract.Requires<ArgumentNullException>(sb != null);
+
+            int macIndex = Math.Min(sb.Length, startIndex + length);
+            int bufLen = buffer.Length;
+            for (int i = startIndex; i < macIndex; i += bufLen)
+            {
+                int lenCopy = Math.Min(macIndex - i, bufLen);
+                sb.CopyTo(i, buffer, 0, lenCopy);
+                textWriter.Write(buffer, 0, lenCopy);
+            }
+        }
 
         public static void Repeat(this TextWriter textWriter, char ch, int count)
         {

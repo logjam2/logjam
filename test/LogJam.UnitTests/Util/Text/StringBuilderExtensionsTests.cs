@@ -29,17 +29,17 @@ namespace LogJam.UnitTests.Util.Text
         [InlineData(-9, 2, "-9")]
         [InlineData(-9, 4, "-009")]
         [InlineData(-1000, 6, "-01000")]
-        [InlineData(1, 2, "02")]
+        [InlineData(1, 2, "01")]
         [InlineData(9, 2, "09")]
-        [InlineData(10, 3, "10")]
-        [InlineData(10, 3, "10")]
-        [InlineData(10, 3, "10")]
+        [InlineData(10, 2, "10")]
+        [InlineData(10, 3, "010")]
+        [InlineData(10, 5, "00010")]
         [InlineData(999, 3, "999")]
         [InlineData(999, 5, "00999")]
         [InlineData(1000, 3, "1000")]
         [InlineData(1000, 5, "01000")]
         [InlineData(990800000, 10, "0990800000")]
-        [InlineData(4000000000, 10, "4000000000")]
+        [InlineData(2000000000, 10, "2000000000")]
         public void VerifyAppendPadZeroes(int number, int width, string expectedText)
         {
             var sb = new StringBuilder();

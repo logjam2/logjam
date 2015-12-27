@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ActionFormatter.cs">
+// <copyright file="EntryActionFormatter.cs">
 // Copyright (c) 2011-2015 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
@@ -7,23 +7,22 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
-namespace LogJam.Format
+namespace LogJam.Writer.Text
 {
     using System;
     using System.Diagnostics.Contracts;
-    using System.IO;
 
 
     /// <summary>
-    /// Supports formatting log entries using a simple delegate.
+    /// Supports formatting log entries using a <see cref="EntryFormatAction{TEntry}"/> delegate.
     /// </summary>
-    internal sealed class ActionFormatter<TEntry> : EntryFormatter<TEntry>
+    internal sealed class EntryActionFormatter<TEntry> : EntryFormatter<TEntry>
         where TEntry : ILogEntry
     {
 
-        private readonly FormatAction<TEntry> _formatAction;
+        private readonly EntryFormatAction<TEntry> _formatAction;
 
-        public ActionFormatter(FormatAction<TEntry> formatAction)
+        public EntryActionFormatter(EntryFormatAction<TEntry> formatAction)
         {
             Contract.Requires<ArgumentNullException>(formatAction != null);
 

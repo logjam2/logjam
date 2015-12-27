@@ -7,15 +7,14 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
-namespace LogJam.Format
+namespace LogJam.Writer.Text
 {
     using System;
     using System.Diagnostics.Contracts;
-    using System.IO;
 
 
     /// <summary>
-    /// Base class for log entry formatters, which write <typeparamref name="TEntry" /> objects to a text representation.
+    /// Base class for log entry formatters, which write <typeparamref name="TEntry" /> objects to a <see cref="FormatWriter"/>.
     /// </summary>
     /// <typeparam name="TEntry">The log entry type.</typeparam>
     public abstract class EntryFormatter<TEntry>
@@ -31,15 +30,15 @@ namespace LogJam.Format
         public abstract void Format(ref TEntry entry, FormatWriter formatWriter);
 
         /// <summary>
-        /// Provides automatic conversion from <see cref="FormatAction{TEntry}" /> to <see cref="EntryFormatter{TEntry}" />.
+        /// Provides automatic conversion from <see cref="EntryFormatActionrmatAction{TEntry}" /> to <see cref="EntryFormatter{TEntry}" />.
         /// </summary>
-        /// <param name="formatAction">A <see cref="FormatAction{TEntry}" /></param>
+        /// <param name="formatAction">A <see cref="EntryFormatActionrmatAction{TEntry}" /></param>
         /// <returns>A <see cref="EntryFormatter{TEntry}" /> that calls <paramref name="formatAction" /> to format text.</returns>
-        public static explicit operator EntryFormatter<TEntry>(FormatAction<TEntry> formatAction)
+        public static explicit operator EntryFormatter<TEntry>(EntryFormatAction<TEntry> formatAction)
         {
             Contract.Requires<ArgumentNullException>(formatAction != null);
 
-            return new ActionFormatter<TEntry>(formatAction);
+            return new EntryActionFormatter<TEntry>(formatAction);
         }
 
         #endregion
@@ -47,7 +46,7 @@ namespace LogJam.Format
 
 
     /// <summary>
-    /// Signature for format actions, which can be used in place of <see cref="EntryFormatter{TEntry}" />.
+    /// Signature for entry format actions, which can be used in place of <see cref="EntryFormatter{TEntry}" />.
     /// </summary>
     /// <typeparam name="TEntry">The log entry type.</typeparam>
     /// <param name="entry">A log entry to format.</param>
@@ -57,7 +56,7 @@ namespace LogJam.Format
     /// <c>TEntry</c>, because the log entry is not copied.  In this delegate, <paramref name="entry" />
     /// is not a <c>ref</c> parameter to allow lambda functions to be used for formatting.
     /// </remarks>
-    public delegate void FormatAction<in TEntry>(TEntry entry, FormatWriter writer)
+    public delegate void EntryFormatAction<in TEntry>(TEntry entry, FormatWriter writer)
         where TEntry : ILogEntry;
 
 }

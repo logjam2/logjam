@@ -9,8 +9,11 @@
 
 namespace LogJam.Internal.UnitTests.Trace
 {
+    using System.Linq;
+
     using LogJam.Trace;
     using LogJam.Trace.Format;
+    using LogJam.Util;
     using LogJam.Writer;
     using LogJam.Writer.Text;
 
@@ -49,13 +52,24 @@ namespace LogJam.Internal.UnitTests.Trace
             Assert.Equal(s_inDebugger, tracer.IsInfoEnabled());
             Assert.False(tracer.IsVerboseEnabled());
 
-            // Walk the Tracer object to ensure everything is as expected for default configuration
-            Assert.IsType<TraceWriter>(tracer.Writer);
-            var traceWriter = (TraceWriter) tracer.Writer;
-            Assert.IsType<TextLogWriter.InnerEntryWriter<TraceEntry>>(traceWriter.InnerEntryWriter);
-            var entryWriter = (TextLogWriter.InnerEntryWriter<TraceEntry>) traceWriter.InnerEntryWriter;
-            Assert.IsType<DefaultTraceFormatter>(entryWriter.Formatter);
-            Assert.IsType<DebuggerFormatWriter>(entryWriter.Parent);
+            if (s_inDebugger)
+            {
+                // Walk the Tracer object to ensure everything is as expected for default configuration
+                Assert.IsType<TraceWriter>(tracer.Writer);
+                var traceWriter = (TraceWriter) tracer.Writer;
+                Assert.IsType<SynchronizingProxyLogWriter.SynchronizingProxyEntryWriter<TraceEntry>>(traceWriter.InnerEntryWriter);
+                var synchronizingEntryWriter = (SynchronizingProxyLogWriter.SynchronizingProxyEntryWriter<TraceEntry>) traceWriter.InnerEntryWriter;
+                Assert.IsType<TextLogWriter.InnerEntryWriter<TraceEntry>>(synchronizingEntryWriter.InnerEntryWriter);
+                var entryWriter = (TextLogWriter.InnerEntryWriter<TraceEntry>) synchronizingEntryWriter.InnerEntryWriter;
+
+                Assert.IsType<DefaultTraceFormatter>(entryWriter.Formatter);
+                Assert.IsType<TextLogWriter>(entryWriter.Parent);
+            }
+            else
+            {
+                // Walk the Tracer object to ensure everything is as expected for default configuration
+                Assert.IsType<NoOpTraceWriter>(tracer.Writer);
+            }
         }
 
     }

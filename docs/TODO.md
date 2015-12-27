@@ -1,12 +1,11 @@
 # LogJam TODO
 
-1. Support for configuring synchronization
 1. Custom log rotator behavior - datetime changes, log size, etc
 3. Add flush support, so buffering log writers can be flushed on command.
   * Support periodic flushing eg every .5s (more efficient than "always flush")
-4. Add property dependency injection for intra-LogWriter pipeline dependencies (eg SynchronizingLogWriter ref)
-5. Upgrade all tests to xunit 2
 4. Make background logging multi log writer support periodic flushing, eg every 600ms by default.  Also support flushing from foreground delegated to background thread.
+5. Instruments: Counters, Timers, HealthItems
+1. Profile and perf test various use-cases
 1. Consider renaming TraceWriterConfig, TraceWriter to TraceCollector or TraceConfig/TracerConfig or similar; make internal?
 1. Create documentation site
 1. Consider renaming BackgroundMultiLogWriter to BackgroundThreadManager
@@ -17,7 +16,6 @@
 	approach that doesn't require that.
 2. background logging multi log writer tests
   * Test that entries are logged immediately
-5. Add colorizing log formatter, colorized consolelogwriter
 5. SetupLog pruning - ensure it doesn't hold unneeded information.  Add a trace count?
 
 2. Add status support, expose it from logmanager/tracemanager
@@ -31,9 +29,18 @@
 1. Add support for XML and JSON config files
 2. Complete current API unit tests
 3. Add support for pruning the SetupLog to minimize memory use for long-running processes
+4. Another code review pass of everything
 
 
 # Done
+
+## Version 1.0.0-beta
+* Text log formatting refactor - added FormatWriter
+** Added support for colorizing text, including colorized Console output
+** Major improvements to console logging behavior
+* Support for configuring synchronization
+** Add property dependency injection for intra-LogWriter pipeline dependencies (eg SynchronizingLogWriter ref)
+* Upgrade all tests to xunit 2
 
 ## Version 0.9.0-beta
 * Rename ILogWriter<tentry>

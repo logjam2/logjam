@@ -12,7 +12,7 @@ namespace LogJam.Owin.Http
     using System;
     using System.Collections.Generic;
 
-    using LogJam.Format;
+    using LogJam.Writer.Text;
 
 
     /// <summary>

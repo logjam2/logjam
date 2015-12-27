@@ -7,7 +7,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
-namespace LogJam.UnitTests.Common
+namespace LogJam.Test.Shared.Writers
 {
     using System;
 
@@ -16,7 +16,7 @@ namespace LogJam.UnitTests.Common
 
 
     /// <summary>
-    /// A <see cref="IEntryWriter{TEntry}" /> that throws exceptions when writing and disposing.
+    /// An <see cref="ILogWriter" /> that throws exceptions when writing and disposing.
     /// </summary>
     public class ExceptionThrowingLogWriter<TEntry> : SingleEntryTypeLogWriter<TEntry>, IDisposable
         where TEntry : ILogEntry

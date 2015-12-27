@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="TextWriterLogWriterUnitTests.cs">
+// <copyright file="TextLoggingTests.cs">
 // Copyright (c) 2011-2015 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
@@ -7,16 +7,15 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
-namespace LogJam.UnitTests.Writer
+namespace LogJam.UnitTests.Writer.Text
 {
     using System;
     using System.Diagnostics.Contracts;
     using System.IO;
     using System.Threading;
 
-    using LogJam.Format;
     using LogJam.UnitTests.Examples;
-    using LogJam.Writer;
+    using LogJam.Writer.Text;
 
     using Xunit;
     using Xunit.Abstractions;
@@ -25,12 +24,12 @@ namespace LogJam.UnitTests.Writer
     /// <summary>
     /// Exercises <see cref="TextWriterLogWriter" />.
     /// </summary>
-    public sealed class TextWriterLogWriterUnitTests
+    public sealed class TextLoggingTests
     {
 
         private readonly ITestOutputHelper _testOutputHelper;
 
-        public TextWriterLogWriterUnitTests(ITestOutputHelper testOutputHelper)
+        public TextLoggingTests(ITestOutputHelper testOutputHelper)
         {
             Contract.Requires<ArgumentNullException>(testOutputHelper != null);
 
@@ -44,13 +43,24 @@ namespace LogJam.UnitTests.Writer
             var stringWriter = new StringWriter();
 
             var setupTracerFactory = new SetupLog();
-            FormatAction<LoggingTimer.StartRecord> formatStart = (startRecord, writer) => writer.WriteLine(">{0}", startRecord.TimingId);
-            FormatAction<LoggingTimer.StopRecord> formatStop = (stopRecord, writer) => writer.WriteLine("<{0} {1}", stopRecord.TimingId, stopRecord.ElapsedTime);
-            var multiLogWriter = new TextWriterLogWriter(stringWriter, setupTracerFactory)
+            EntryFormatAction<LoggingTimer.StartRecord> formatStart = (startRecord, writer) =>
+                                                                      {
+                                                                          writer.BeginEntry();
+                                                                          writer.WriteField((buffer) => buffer.AppendFormat(">{0}", startRecord.TimingId));
+                                                                          writer.EndEntry();
+                                                                      };
+            EntryFormatAction<LoggingTimer.StopRecord> formatStop = (stopRecord, writer) =>
+                                                                    {
+                                                                        writer.BeginEntry();
+                                                                        writer.WriteField((buffer) => buffer.AppendFormat("<{0}", stopRecord.TimingId));
+                                                                        writer.WriteField(stopRecord.ElapsedTime.ToString());
+                                                                        writer.EndEntry();
+                                                                    };
+            var logWriter = new TextLogWriter(setupTracerFactory, new TextWriterFormatWriter(setupTracerFactory, stringWriter))
                 .AddFormat(formatStart)
                 .AddFormat(formatStop);
 
-            using (var logManager = new LogManager(multiLogWriter))
+            using (var logManager = new LogManager(logWriter))
             {
                 // LoggingTimer test class logs starts and stops
                 LoggingTimer.RestartTimingIds();
@@ -66,8 +76,8 @@ namespace LogJam.UnitTests.Writer
             string logOutput = stringWriter.ToString();
             _testOutputHelper.WriteLine(logOutput);
 
-            Assert.Contains(">2\r\n<2 00:00:00.", logOutput);
-            Assert.Contains(">3\r\n<3 00:00:00.", logOutput);
+            Assert.Contains(">2\r\n<2  00:00:00.", logOutput);
+            Assert.Contains(">3\r\n<3  00:00:00.", logOutput);
         }
 
     }

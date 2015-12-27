@@ -10,7 +10,8 @@
     <ProjectGuid>{D3F3F56F-0A43-4464-8FD5-B33A9F44136D}</ProjectGuid>
     <RootNamespace>LogJam.Internal.UnitTests</RootNamespace>
     <AssemblyName>LogJam.Internal.UnitTests</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -33,12 +34,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Common\ExceptionThrowingLogWriter.cs" />
-    <Compile Include="Common\SlowTestLogWriter.cs" />
-    <Compile Include="Common\TestLogWriter.cs" />
-    <Compile Include="Examples\MessageEntry.cs" />
-    <Compile Include="Examples\LoggingTimer.cs" />
-    <Compile Include="Examples\ExampleHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Trace\TraceManagerConfigTests.cs" />
     <Compile Include="Writer\BackgroundMultiLogWriterUnitTests.cs" />
@@ -56,6 +51,10 @@
     <ProjectReference Include="..\..\src\LogJam\LogJam.csproj">
       <Project>{43f154ad-aa27-48b3-ba07-d02c92be4f45}</Project>
       <Name>LogJam</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LogJam.Test.Shared\LogJam.Test.Shared.csproj">
+      <Project>{fb3bef5b-a7f7-436d-bff2-ea2a9c620ccd}</Project>
+      <Name>LogJam.Test.Shared</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

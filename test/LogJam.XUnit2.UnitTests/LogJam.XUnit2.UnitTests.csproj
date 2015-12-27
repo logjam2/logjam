@@ -10,9 +10,10 @@
     <ProjectGuid>{B5663409-100C-4A34-8C05-EF06F0AE4D53}</ProjectGuid>
     <RootNamespace>LogJam.XUnit2.UnitTests</RootNamespace>
     <AssemblyName>LogJam.XUnit2.UnitTests</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

@@ -18,12 +18,11 @@ namespace LogJam.Internal.UnitTests.Writer
 
     using LogJam;
     using LogJam.Config;
-    using LogJam.Format;
     using LogJam.Internal.UnitTests.Examples;
-    using LogJam.Trace.Format;
-    using LogJam.UnitTests.Common;
+    using LogJam.Test.Shared.Writers;
     using LogJam.UnitTests.Examples;
     using LogJam.Writer;
+    using LogJam.Writer.Text;
 
     using Xunit;
     using Xunit.Abstractions;
@@ -95,7 +94,7 @@ namespace LogJam.Internal.UnitTests.Writer
             var stopwatch = new Stopwatch();
 
             // Slow log writer - starting, stopping, disposing, writing an entry, all take at least 10ms each.
-            const int operationDelayMs = 20;
+            const int operationDelayMs = 30;
             const int parallelThreads = 8;
             const int messagesPerThread = 6;
             var slowLogWriter = new SlowTestLogWriter<MessageEntry>(SetupLog, operationDelayMs, false);
@@ -399,15 +398,20 @@ namespace LogJam.Internal.UnitTests.Writer
             // Log output written here on the background thread
             var stringWriter = new StringWriter();
 
-            FormatAction<LoggingTimer.StartRecord> formatStart = (startRecord, writer) =>
+            EntryFormatAction<LoggingTimer.StartRecord> formatStart = (startRecord, writer) =>
                                                                  {
                                                                      Assert.NotEqual(testThreadId, Thread.CurrentThread.ManagedThreadId);
-                                                                     writer.WriteLine(">{0}", startRecord.TimingId);
+                                                                     writer.BeginEntry();
+                                                                     writer.WriteField((buffer) => buffer.AppendFormat(">{0}", startRecord.TimingId));
+                                                                     writer.EndEntry();
                                                                  };
-            FormatAction<LoggingTimer.StopRecord> formatStop = (stopRecord, writer) =>
+            EntryFormatAction<LoggingTimer.StopRecord> formatStop = (stopRecord, writer) =>
                                                                {
                                                                    Assert.NotEqual(testThreadId, Thread.CurrentThread.ManagedThreadId);
-                                                                   writer.WriteLine("<{0} {1}", stopRecord.TimingId, stopRecord.ElapsedTime);
+                                                                   writer.BeginEntry();
+                                                                   writer.WriteField((buffer) => buffer.AppendFormat("<{0}", stopRecord.TimingId));
+                                                                   writer.WriteField(stopRecord.ElapsedTime.ToString());
+                                                                   writer.EndEntry();
                                                                };
 
             var logManagerConfig = new LogManagerConfig();
@@ -431,8 +435,8 @@ namespace LogJam.Internal.UnitTests.Writer
             string logOutput = stringWriter.ToString();
             _testOutputHelper.WriteLine(logOutput);
 
-            Assert.Contains(">2\r\n<2 00:00:00.", logOutput);
-            Assert.Contains(">3\r\n<3 00:00:00.", logOutput);
+            Assert.Contains(">2\r\n<2  00:00:00.", logOutput);
+            Assert.Contains(">3\r\n<3  00:00:00.", logOutput);
         }
 
     }

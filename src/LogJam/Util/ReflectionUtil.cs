@@ -19,15 +19,15 @@ namespace LogJam.Util
     /// <summary>
     /// Reflection utility methods.
     /// </summary>
-    public static class ReflectionUtil
+    internal static class ReflectionUtil
     {
 
-        private static readonly CodeDomProvider csharpCodeDomProvider = CodeDomProvider.CreateProvider("CSharp");
+        private static readonly CodeDomProvider s_csharpCodeDomProvider = CodeDomProvider.CreateProvider("CSharp");
 
         public static string GetCSharpName(this Type type)
         {
             var reference = new System.CodeDom.CodeTypeReference(type);
-            return csharpCodeDomProvider.GetTypeOutput(reference);
+            return s_csharpCodeDomProvider.GetTypeOutput(reference);
         }
 
         internal static Type[] GetGenericTypeArgumentsFor(this Type objectType, Type parameterizedType)

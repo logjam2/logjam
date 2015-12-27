@@ -15,9 +15,9 @@ namespace LogJam
     using System.IO;
     using System.Linq;
 
-    using LogJam.Format;
     using LogJam.Trace;
     using LogJam.Writer;
+    using LogJam.Writer.Text;
 
 
     /// <summary>
@@ -49,7 +49,9 @@ namespace LogJam
                 }
             }
 
-            var logWriter = new TextWriterLogWriter(textWriter, new SetupLog(), disposeWriter: false);
+            var setupLog = new SetupLog();
+            var formatWriter = new TextWriterFormatWriter(setupLog, textWriter, disposeWriter: false);
+            var logWriter = new TextLogWriter(setupLog, formatWriter);
             logWriter.AddFormat(entryFormatter);
             IEntryWriter<TEntry> entryWriter;
             logWriter.TryGetEntryWriter(out entryWriter);

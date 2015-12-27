@@ -16,7 +16,7 @@ namespace LogJam.Util
     /// <summary>
     /// Extension methods for collection classes
     /// </summary>
-    public static class CollectionExtensions
+    internal static class CollectionExtensions
     {
 
         /// <summary>

@@ -12,7 +12,7 @@ namespace LogJam.Internal.UnitTests.Examples
     using System;
     using System.IO;
 
-    using LogJam.Format;
+    using LogJam.Writer.Text;
 
 
     /// <summary>
@@ -40,28 +40,33 @@ namespace LogJam.Internal.UnitTests.Examples
             Text = text;
         }
 
-        public override string ToString()
-        {
-            if (MessageId.HasValue)
-            {
-                return string.Format("{0:HH:mm:ss.fff}  [{1}] {2}", Timestamp, MessageId.Value, Text);
-            }
-            else
-            {
-                return string.Format("{0:HH:mm:ss.fff}  [?] {1}", Timestamp, Text);
-            }
-        }
-
-
         /// <summary>
         /// Default <see cref="EntryFormatter{TEntry}" /> for <see cref="MessageEntry" />.
         /// </summary>
         public class MessageEntryFormatter : EntryFormatter<MessageEntry>
         {
 
-            public override void Format(ref MessageEntry entry, TextWriter textWriter)
+            public override void Format(ref MessageEntry entry, FormatWriter formatWriter)
             {
-                textWriter.WriteLine(entry.ToString());
+                formatWriter.BeginEntry(0);
+                formatWriter.WriteTimestamp(entry.Timestamp);
+
+                var buf = formatWriter.FieldBuffer;
+                buf.Clear();
+                buf.Append('[');
+                if (entry.MessageId.HasValue)
+                {
+                    buf.Append(entry.MessageId.Value);
+                }
+                else
+                {
+                    buf.Append('?');
+                }
+                buf.Append(']');
+                formatWriter.WriteField(buf);
+
+                formatWriter.WriteField(entry.Text);
+                formatWriter.EndEntry();
             }
 
         }

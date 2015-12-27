@@ -11,8 +11,8 @@ namespace LogJam.Trace
 {
     using System;
 
-    using LogJam.Format;
     using LogJam.Trace.Format;
+    using LogJam.Writer.Text;
 
 
     /// <summary>

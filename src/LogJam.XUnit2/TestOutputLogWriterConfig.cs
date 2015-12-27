@@ -14,15 +14,15 @@ namespace LogJam.XUnit2
     using System.Diagnostics.Contracts;
 
     using LogJam.Config;
-    using LogJam.Format;
     using LogJam.Trace;
     using LogJam.Writer;
+    using LogJam.Writer.Text;
 
     using Xunit.Abstractions;
 
 
     /// <summary>
-    /// Creates a <see cref="TestOutputLogWriter" /> using the specified xunit2 <see cref="ITestOutputHelper" />.
+    /// Creates a <see cref="TestOutputFormatWriter" /> using the specified xunit2 <see cref="ITestOutputHelper" />.
     /// </summary>
     public sealed class TestOutputLogWriterConfig : TextLogWriterConfig
     {
@@ -42,18 +42,7 @@ namespace LogJam.XUnit2
         /// </summary>
         public ITestOutputHelper TestOutput { get; set; }
 
-        /// <summary>
-        /// Configures use of <see cref="TestOutputTraceFormatter" />, which includes formatting showing the time since
-        /// the test started, for each test.
-        /// </summary>
-        /// <returns></returns>
-        public TestOutputLogWriterConfig UseTestTraceFormat()
-        {
-            Format(new TestOutputTraceFormatter());
-            return this;
-        }
-
-        public override ILogWriter CreateLogWriter(ITracerFactory setupTracerFactory)
+        protected override FormatWriter CreateFormatWriter(ITracerFactory setupTracerFactory)
         {
             var testOutputHelper = TestOutput;
             if (testOutputHelper == null)
@@ -61,9 +50,7 @@ namespace LogJam.XUnit2
                 throw new LogJamXUnitSetupException("TestOutputLogWriterConfig.TestOutput must be set before logging.", this);
             }
 
-            var logWriter = new TestOutputLogWriter(testOutputHelper, setupTracerFactory);
-            ApplyConfiguredFormatters(logWriter);
-            return logWriter;
+            return new TestOutputFormatWriter(testOutputHelper, setupTracerFactory, FieldDelimiter, SpacesPerIndent);
         }
 
     }

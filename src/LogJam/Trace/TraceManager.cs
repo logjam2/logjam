@@ -262,7 +262,7 @@ namespace LogJam.Trace
         {
             // Stop has already been called
 
-            _traceConfig.Clear();
+            _traceConfig.SetToDefaultConfiguration();
         }
 
         #endregion

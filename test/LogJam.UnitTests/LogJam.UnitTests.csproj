@@ -10,9 +10,10 @@
     <ProjectGuid>{6274E396-7957-43E1-B76B-51921F9C6AC3}</ProjectGuid>
     <RootNamespace>LogJam.UnitTests</RootNamespace>
     <AssemblyName>LogJam.UnitTests</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -94,7 +95,9 @@
     <Compile Include="Trace\TraceManagerTests.cs" />
     <Compile Include="Util\Text\StringBuilderExtensionsTests.cs" />
     <Compile Include="Writer\SynchronizedLogWriterTests.cs" />
-    <Compile Include="Writer\TextWriterLogWriterUnitTests.cs" />
+    <Compile Include="Writer\Text\ConsoleLoggingTests.cs" />
+    <Compile Include="Writer\Text\FormatWriterTests.cs" />
+    <Compile Include="Writer\Text\TextLoggingTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Trace\TracerTests.cs" />
@@ -117,9 +120,17 @@
       <Project>{43f154ad-aa27-48b3-ba07-d02c92be4f45}</Project>
       <Name>LogJam</Name>
     </ProjectReference>
+    <ProjectReference Include="..\LogJam.ConsoleTester\LogJam.ConsoleTester.csproj">
+      <Project>{e4374b5e-5de2-43ed-b8f3-a46206a953c3}</Project>
+      <Name>LogJam.ConsoleTester</Name>
+    </ProjectReference>
     <ProjectReference Include="..\LogJam.Internal.UnitTests\LogJam.Internal.UnitTests.csproj">
       <Project>{d3f3f56f-0a43-4464-8fd5-b33a9f44136d}</Project>
       <Name>LogJam.Internal.UnitTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LogJam.Test.Shared\LogJam.Test.Shared.csproj">
+      <Project>{fb3bef5b-a7f7-436d-bff2-ea2a9c620ccd}</Project>
+      <Name>LogJam.Test.Shared</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

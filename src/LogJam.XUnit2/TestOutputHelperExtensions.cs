@@ -14,9 +14,9 @@ namespace LogJam
     using System.Collections.Generic;
     using System.Diagnostics.Contracts;
 
-    using LogJam.Format;
     using LogJam.Trace;
     using LogJam.Writer;
+    using LogJam.Writer.Text;
     using LogJam.XUnit2;
 
     using Xunit.Abstractions;
@@ -41,29 +41,9 @@ namespace LogJam
             Contract.Requires<ArgumentNullException>(entries != null);
             Contract.Requires<ArgumentNullException>(testOutputHelper != null);
 
-            if (entryFormatter == null)
-            {
-                if (typeof(TEntry) == typeof(TraceEntry))
-                {
-                    entryFormatter = new TestOutputTraceFormatter()
-                                   {
-                                       IncludeTimestamp = true,
-                                       IncludeTimeOffset = false
-                                   } as EntryFormatter<TEntry>;
-                }
-                else
-                {
-                    // Try creating the default log formatter
-                    entryFormatter = DefaultFormatterAttribute.GetDefaultFormatterFor<TEntry>();
-                }
-                if (entryFormatter == null)
-                {
-                    throw new ArgumentNullException(nameof(entryFormatter),
-                                                    $"No [DefaultFormatter] could be found for entry type {typeof(TEntry).FullName}, so logFormatter argument must be set.");
-                }
-            }
-
-            var logWriter = new TestOutputLogWriter(testOutputHelper, new SetupLog());
+            var setupLog = new SetupLog();
+            var formatWriter = new TestOutputFormatWriter(testOutputHelper, setupLog);
+            var logWriter = new TextLogWriter(setupLog, formatWriter);
             logWriter.AddFormat(entryFormatter);
             IEntryWriter<TEntry> entryWriter;
             logWriter.TryGetEntryWriter(out entryWriter);

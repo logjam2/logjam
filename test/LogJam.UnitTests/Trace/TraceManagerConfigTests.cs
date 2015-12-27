@@ -19,13 +19,12 @@ namespace LogJam.UnitTests.Trace
     using LogJam;
     using LogJam.Config;
     using LogJam.Config.Json;
-    using LogJam.Format;
     using LogJam.Trace;
     using LogJam.Trace.Config;
     using LogJam.Trace.Format;
     using LogJam.Trace.Switches;
-    using LogJam.Util;
     using LogJam.Writer;
+    using LogJam.Writer.Text;
 
     using Newtonsoft.Json;
 
@@ -50,25 +49,29 @@ namespace LogJam.UnitTests.Trace
         [Theory]
         [InlineData(ConfigForm.ObjectGraph)]
         [InlineData(ConfigForm.Fluent)]
-        public void TraceWithTimestampsToConsole(ConfigForm configForm)
+        public void TraceToString(ConfigForm configForm)
         {
+            var stringWriter = new StringWriter();
+
             TraceManager traceManager;
             if (configForm == ConfigForm.ObjectGraph)
             {
-                var config = new ConsoleLogWriterConfig().Format(new DefaultTraceFormatter()
-                                                                 {
-                                                                     IncludeTimestamp = true
-                                                                 });
+                var config = new TextWriterLogWriterConfig(stringWriter).Format(new DefaultTraceFormatter()
+                                                                                {
+                                                                                    IncludeDate = true,
+                                                                                    IncludeTimestamp = true
+                                                                                });
                 traceManager = new TraceManager(config);
             }
             else if (configForm == ConfigForm.Fluent)
             {
-                var config = new TraceManagerConfig();
-                config.TraceToConsole(traceFormatter: new DefaultTraceFormatter()
-                                                      {
-                                                          IncludeTimestamp = true
-                                                      });
-                traceManager = new TraceManager(config);
+                traceManager = new TraceManager();
+                traceManager.Config.TraceTo(stringWriter,
+                                            traceFormatter: new DefaultTraceFormatter()
+                                                            {
+                                                                IncludeDate = true,
+                                                                IncludeTimestamp = true
+                                                            });
             }
             else
             {
@@ -78,20 +81,23 @@ namespace LogJam.UnitTests.Trace
             using (traceManager)
             {
                 var tracer = traceManager.TracerFor(this);
+                Assert.True(traceManager.IsStarted);
+                Assert.True(traceManager.LogManager.IsStarted);
+
                 Assert.True(tracer.IsInfoEnabled());
                 Assert.False(tracer.IsVerboseEnabled());
 
-                Assert.True(traceManager.IsStarted);
-                Assert.True(traceManager.LogManager.IsStarted);
                 Assert.False(traceManager.IsStopped);
                 Assert.False(traceManager.LogManager.IsStopped);
                 Assert.True(traceManager.IsHealthy);
 
                 //Assert.Single(tracer.Writers);
                 //Assert.IsType<DebuggerLogWriter>(tracer.Writers[0].innerEntryWriter);
-                tracer.Info("Info message to console");
-                tracer.Debug("Debug message not written to console");
+                tracer.Info("Info message");
+                tracer.Debug("Debug message not written");
             }
+
+            Assert.Matches(@"Info\s+LJ\.UT\.Trace\.TraceManagerConfigTests\s+Info message\r\n", stringWriter.ToString());
 
             _testOutputHelper.WriteEntries(traceManager.SetupLog);
 
@@ -135,25 +141,6 @@ namespace LogJam.UnitTests.Trace
         //		Assert.True(tracer.IsSevereEnabled());
         //	}
         //}
-
-        [Fact]
-        public void RootLogWriterCanBeSetOnInitialization()
-        {
-            var setupTracerFactory = new SetupLog();
-            // Trace output is written to this guy
-            var listLogWriter = new ListLogWriter<TraceEntry>(setupTracerFactory);
-            using (var traceManager = new TraceManager(listLogWriter))
-            {
-                traceManager.Start();
-                var tracer = traceManager.TracerFor(this);
-                tracer.Info("Info");
-
-                Assert.Single(listLogWriter);
-                TraceEntry traceEntry = listLogWriter.First();
-                Assert.Equal(GetType().GetCSharpName(), traceEntry.TracerName);
-                Assert.Equal(TraceLevel.Info, traceEntry.TraceLevel);
-            }
-        }
 
         [Fact]
         public void RootThresholdCanBeModifiedAfterTracing()
@@ -307,9 +294,14 @@ namespace LogJam.UnitTests.Trace
             // Text output is written here
             StringWriter traceOutput = new StringWriter();
 
-            // Can either use a FormatAction, or subclass EntryFormatter<TEntry>.  Here we're using a FormatAction.
+            // Can either use a EntryFormatAction, or subclass EntryFormatter<TEntry>.  Here we're using a EntryFormatAction.
             // Note that subclassing EntryFormatter<TEntry> provides a slightly more efficient code-path.
-            FormatAction<TraceEntry> format = (traceEntry, textWriter) => textWriter.WriteLine(traceEntry.TraceLevel);
+            EntryFormatAction<TraceEntry> format = (traceEntry, formatWriter) =>
+                                                   {
+                                                       formatWriter.BeginEntry();
+                                                       formatWriter.WriteField(traceEntry.TraceLevel.ToString());
+                                                       formatWriter.EndEntry();
+                                                   };
 
             using (var traceManager = new TraceManager(new TextWriterLogWriterConfig(traceOutput).Format(format)))
             {

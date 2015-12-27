@@ -15,6 +15,7 @@ namespace LogJam.Config
 
     using LogJam.Trace;
     using LogJam.Writer;
+    using LogJam.Writer.Text;
 
 
     /// <summary>
@@ -74,18 +75,16 @@ namespace LogJam.Config
         /// </summary>
         public bool DisposeTextWriter { get; set; }
 
-        #region ILogWriterConfig
+        #region TextLogWriterConfig overrides
 
-        public override ILogWriter CreateLogWriter(ITracerFactory setupTracerFactory)
+        protected override FormatWriter CreateFormatWriter(ITracerFactory setupTracerFactory)
         {
             if (CreateTextWriter == null)
             {
                 throw new LogJamSetupException("CreateTextWriter delegate must be set before " + GetType() + " can create a LogWriter.", this);
             }
 
-            var writer = new TextWriterLogWriter(CreateTextWriter(), setupTracerFactory, DisposeTextWriter);
-            ApplyConfiguredFormatters(writer);
-            return writer;
+            return new TextWriterFormatWriter(setupTracerFactory, CreateTextWriter(), DisposeTextWriter, FieldDelimiter, SpacesPerIndent);
         }
 
         #endregion

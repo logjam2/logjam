@@ -48,7 +48,10 @@ namespace LogJam.Util.Text
             for (; i <= width && threshold <= number; ++i, threshold *= 10) {}
             int countZeroes = width - i;
 
-            sb.Append('0', countZeroes);
+            if (countZeroes > 0)
+            {
+                sb.Append('0', countZeroes);
+            }
             sb.Append(number);
         }
 
@@ -222,6 +225,37 @@ namespace LogJam.Util.Text
         }
 
         /// <summary>
+        /// Returns the first index of any of <paramref name="matchChars"/> in <paramref name="sb"/>, starting
+        /// at index <paramref name="startIndex"/> and ending just before <paramref name="macIndex"/>.
+        /// </summary>
+        /// <param name="sb"></param>
+        /// <param name="matchChars"></param>
+        /// <param name="startIndex"></param>
+        /// <param name="macIndex"></param>
+        /// <returns></returns>
+        public static int IndexOfAny(this StringBuilder sb, char[] matchChars, int startIndex = 0, int macIndex = -1)
+        {
+            if (macIndex < 0)
+            {
+                macIndex = sb.Length;
+            }
+
+            for (int i = startIndex; i < macIndex; ++i)
+            {
+                char ch = sb[i];
+                for (int j = 0; j < matchChars.Length; ++j)
+                {
+                    if (ch == matchChars[j])
+                    {
+                        return i;
+                    }
+                }
+            }
+
+            return -1;
+        }
+
+        /// <summary>
         /// Remove all instances of characters in the buffer that match <paramref name="charsToRemove"/>.
         /// </summary>
         /// <param name="sb"></param>
@@ -284,6 +318,22 @@ namespace LogJam.Util.Text
                     }
                     break;
                 }
+            }
+        }
+
+        public static void BufferedAppend(this StringBuilder sb, StringBuilder source, int startIndex, int length, char[] buffer)
+        {
+            Contract.Requires<ArgumentNullException>(sb != null);
+            Contract.Requires<ArgumentNullException>(source != null);
+            Contract.Requires<ArgumentOutOfRangeException>(source.Length >= startIndex + length);
+
+            int macIndex = startIndex + length;
+            int bufLen = buffer.Length;
+            for (int i = startIndex; i < macIndex; i += bufLen)
+            {
+                int lenCopy = Math.Min(macIndex - i, bufLen);
+                source.CopyTo(i, buffer, 0, lenCopy);
+                sb.Append(buffer, 0, lenCopy);
             }
         }
 

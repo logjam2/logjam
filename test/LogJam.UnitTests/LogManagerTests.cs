@@ -12,12 +12,13 @@ namespace LogJam.UnitTests
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.Contracts;
+    using System.IO;
     using System.Linq;
 
     using LogJam.Config;
     using LogJam.Internal.UnitTests.Examples;
+    using LogJam.Test.Shared.Writers;
     using LogJam.Trace;
-    using LogJam.UnitTests.Common;
     using LogJam.UnitTests.Examples;
 
     using Xunit;
@@ -115,12 +116,13 @@ namespace LogJam.UnitTests
         [Fact]
         public void GetLogWriter_StartsLogManager()
         {
+            var stringWriter = new StringWriter();
             var logManager = new LogManager();
-            var consoleLogWriterConfig = logManager.Config.UseConsole();
+            var textLogWriterConfig = logManager.Config.UseTextWriter(stringWriter);
 
             // LogManager.GetLogWriter starts the LogManager
             Assert.False(logManager.IsStarted);
-            Assert.NotNull(logManager.GetLogWriter(consoleLogWriterConfig));
+            Assert.NotNull(logManager.GetLogWriter(textLogWriterConfig));
             Assert.True(logManager.IsStarted);
             Assert.True(logManager.IsHealthy);
         }

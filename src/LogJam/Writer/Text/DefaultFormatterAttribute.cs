@@ -7,7 +7,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
-namespace LogJam.Format
+namespace LogJam.Writer.Text
 {
     using System;
     using System.Diagnostics.Contracts;

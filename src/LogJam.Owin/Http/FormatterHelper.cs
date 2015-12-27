@@ -11,6 +11,9 @@ namespace LogJam.Owin.Http
 {
     using System.Collections.Generic;
     using System.IO;
+    using System.Text;
+
+    using LogJam.Writer.Text;
 
 
     /// <summary>
@@ -19,15 +22,18 @@ namespace LogJam.Owin.Http
     internal static class FormatterHelper
     {
 
-        internal static void FormatHeaders(TextWriter textWriter, KeyValuePair<string, string[]>[] headers)
+        internal static void FormatHeaders(FormatWriter formatWriter, KeyValuePair<string, string[]>[] headers)
         {
+            StringBuilder buf = formatWriter.FieldBuffer;
             foreach (var header in headers)
             {
                 foreach (string value in header.Value)
                 {
-                    textWriter.Write(header.Key);
-                    textWriter.Write(": ");
-                    textWriter.WriteLine(value);
+                    buf.Clear();
+                    buf.Append(header.Key);
+                    buf.Append(": ");
+                    buf.Append(value);
+                    formatWriter.WriteLine(buf, ColorCategory.Debug);
                 }
             }
         }

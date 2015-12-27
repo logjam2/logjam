@@ -9,9 +9,12 @@
 
 namespace LogJam.Config
 {
+    using System;
+
     using LogJam.Config.Json;
     using LogJam.Trace;
     using LogJam.Writer;
+    using LogJam.Writer.Text;
 
 
     /// <summary>
@@ -25,21 +28,42 @@ namespace LogJam.Config
         /// Creates a new <see cref="ConsoleLogWriterConfig" />.
         /// </summary>
         public ConsoleLogWriterConfig()
+        {}
+
+        /// <summary>
+        /// Gets or sets a value that specifies whether created <see cref="ConsoleFormatWriter" />s will write colored text output.
+        /// </summary>
+        public bool UseColor
         {
-            // Default Synchronized to false
-            Synchronized = false;
+            get { return ColorResolverFactory != null; }
+            set
+            {
+                if (UseColor == value)
+                {
+                    return;
+                }
+
+                if (value)
+                {
+                    ColorResolverFactory = () => new DefaultConsoleColorResolver();
+                }
+                else
+                {
+                    ColorResolverFactory = null;
+                }
+            }
         }
 
         /// <summary>
-        /// Gets or sets a value that specifies whether created <see cref="ConsoleLogWriter" />s will write colored text output.
+        /// Gets or sets a function that creates new <see cref="IConsoleColorResolver"/> instances for colorizing console log output.
+        /// May be <c>null</c>, in which case console log output is not colorized.
         /// </summary>
-        public bool UseColor { get; set; }
+        public Func<IConsoleColorResolver> ColorResolverFactory { get; set; }
 
-        public override ILogWriter CreateLogWriter(ITracerFactory setupTracerFactory)
+        protected override FormatWriter CreateFormatWriter(ITracerFactory setupTracerFactory)
         {
-            var writer = new ConsoleLogWriter(setupTracerFactory, UseColor);
-            ApplyConfiguredFormatters(writer);
-            return writer;
+            IConsoleColorResolver colorResolver = ColorResolverFactory == null ? null : ColorResolverFactory();
+            return new ConsoleFormatWriter(setupTracerFactory, colorResolver);
         }
 
     }

@@ -10,8 +10,10 @@
 namespace LogJam.Owin.Http
 {
     using System.IO;
+    using System.Text;
 
-    using LogJam.Format;
+    using LogJam.Util.Text;
+    using LogJam.Writer.Text;
 
 
     /// <summary>
@@ -21,12 +23,67 @@ namespace LogJam.Owin.Http
     {
 
         /// <inheritdoc />
-        public override void Format(ref HttpResponseEntry entry, TextWriter textWriter)
+        public override void Format(ref HttpResponseEntry entry, FormatWriter formatWriter)
         {
-            textWriter.WriteLine("{0}<\tResponse:   \t{1}\t{2}\t   {3:ss\\.fff}s", entry.RequestNumber, entry.Method, entry.Uri, entry.Ttfb);
-            textWriter.WriteLine("HTTP/1.1 {0}\t{1}", entry.HttpStatusCode, entry.HttpReasonPhrase);
-            FormatterHelper.FormatHeaders(textWriter, entry.ResponseHeaders);
-            textWriter.WriteLine(); // Extra line break for readability
+            StringBuilder buf = formatWriter.FieldBuffer;
+
+            formatWriter.IndentLevel--;
+            formatWriter.BeginEntry(0);
+
+            // RequestNumber
+            buf.Clear();
+            buf.Append(entry.RequestNumber);
+            buf.Append('<');
+            formatWriter.WriteField(buf, ColorCategory.Markup, 5);
+
+            formatWriter.WriteField("Response:", ColorCategory.Detail);
+
+            // Ttfb
+            buf.Clear();
+            buf.AppendPadZeroes(entry.Ttfb.Seconds, 2);
+            buf.Append('.');
+            buf.AppendPadZeroes(entry.Ttfb.Milliseconds, 3);
+            buf.Append('s');
+            formatWriter.WriteField(buf, ColorCategory.Info);
+
+            // Determine request color
+            ColorCategory requestColorCategory = ColorCategory.None;
+            if (formatWriter.IsColorEnabled)
+            {
+                var statusCode = entry.HttpStatusCode;
+                if ((statusCode >= 200) && (statusCode < 200))
+                {
+                    requestColorCategory = ColorCategory.Success;
+                }
+                else if ((statusCode >= 300) && (statusCode < 400))
+                {
+                    requestColorCategory = ColorCategory.Important;
+                }
+                else if (statusCode >= 500)
+                {
+                    requestColorCategory = ColorCategory.Error;
+                }
+                else
+                {
+                    requestColorCategory = ColorCategory.Warning;
+                }
+            }
+
+            formatWriter.WriteField(entry.Method, requestColorCategory, 6);
+            formatWriter.WriteField(entry.Uri, requestColorCategory);
+
+            // HTTP status line
+            buf.Clear();
+            buf.Append("HTTP/1.1 ");
+            buf.Append(entry.HttpStatusCode);
+            buf.Append(" ");
+            buf.Append(entry.HttpReasonPhrase);
+            formatWriter.WriteLine(buf, requestColorCategory);
+
+            FormatterHelper.FormatHeaders(formatWriter, entry.ResponseHeaders);
+
+            formatWriter.EndEntry();
+            formatWriter.WriteLine(); // Extra line break for readability
         }
 
     }

@@ -7,7 +7,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
-namespace LogJam.UnitTests.Common
+namespace LogJam.Test.Shared.Writers
 {
     using System;
     using System.Collections;

@@ -7,7 +7,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
-namespace LogJam.Format
+namespace LogJam.Writer.Text
 {
 
     /// <summary>
@@ -28,24 +28,24 @@ namespace LogJam.Format
         Success = 1,
 
         /// <summary>
+        /// Important content - usually highlighted to stand out from standard text.
+        /// </summary>
+        Important = 2,
+
+        /// <summary>
         /// Severe error content - usually colored red, may be colored differently to stand out from regular <see cref="Error"/>s.
         /// </summary>
-        SevereError = 2,
+        SevereError = 3,
 
         /// <summary>
         /// Error content - usually colored red.
         /// </summary>
-        Error = 3,
+        Error = 4,
 
         /// <summary>
         /// Warning content - usually colored yellow.
         /// </summary>
-        Warning = 4,
-
-        /// <summary>
-        /// Important content - usually highlighted to stand out from standard text.
-        /// </summary>
-        Important = 5,
+        Warning = 5,
 
         /// <summary>
         /// Informational content - usually the standard text color.

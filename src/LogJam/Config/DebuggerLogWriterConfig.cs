@@ -27,15 +27,11 @@ namespace LogJam.Config
         /// </summary>
         public DebuggerLogWriterConfig()
         {
-            // Default Synchronized to false
-            Synchronized = false;
         }
 
-        public override ILogWriter CreateLogWriter(ITracerFactory setupTracerFactory)
+        protected override FormatWriter CreateFormatWriter(ITracerFactory setupTracerFactory)
         {
-            var writer = new DebuggerFormatWriter(setupTracerFactory);
-            ApplyConfiguredFormatters(writer);
-            return writer;
+            return new DebuggerFormatWriter(setupTracerFactory);
         }
 
     }

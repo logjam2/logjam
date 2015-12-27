@@ -14,8 +14,8 @@ namespace LogJam.Writer.Text
     using System.Runtime.InteropServices;
     using System.Text;
 
-    using LogJam.Format;
     using LogJam.Trace;
+    using LogJam.Util.Text;
 
 
     /// <summary>
@@ -26,18 +26,59 @@ namespace LogJam.Writer.Text
 
         private readonly string _newLine;
 
-        private const int c_debuggerAttachedCheckInterval = 1000; // Every second
+        private const int c_debuggerAttachedCheckInterval = 2000; // Every 2 seconds
         private bool _debuggerIsAttached;
         private int _lastDebuggerAttachedCheck; // The time, in ticks, of the last debugger attached check
+        private readonly StringBuilder _outputBuffer;
+        private readonly char[] _charBuffer;
 
-        public DebuggerFormatWriter(ITracerFactory setupTracerFactory, string fieldDelimiter = DefaultFieldDelimiter, int spacesPerIndentLevel = 4)
+        public DebuggerFormatWriter(ITracerFactory setupTracerFactory, string fieldDelimiter = DefaultFieldDelimiter, int spacesPerIndentLevel = DefaultSpacesPerIndent)
             : base(setupTracerFactory, fieldDelimiter, spacesPerIndentLevel)
         {
             _newLine = Console.Out.NewLine;
             _lastDebuggerAttachedCheck = int.MaxValue;
+            _outputBuffer = new StringBuilder(4096);
+            _charBuffer = new char[_outputBuffer.Capacity];
         }
 
-#if (! PORTABLE)
+        public static bool IsDebuggerActive()
+        {
+#if PORTABLE
+            // In portable builds, there is no way to tell if the debugger is active.
+            // One assumption is that portable libs are not normally responsible for configuring LogJam
+            return true;
+#else
+            return Debugger.IsLogging() || IsDebuggerPresent();
+#endif
+        }
+
+        public void WriteDebuggerText(string s)
+        {
+#if (PORTABLE)
+    // REVIEW: This isn't reliable - it is conditionally compiled in debug builds; but it's all that's available in the portable profile.
+			Debug.Write(text);
+#else
+            if (Debugger.IsLogging())
+            {
+                Debugger.Log(0, null, s);
+            }
+            else if (IsDebuggerPresent())
+            {
+                try
+                {
+                    OutputDebugString(s);
+                }
+                catch (EntryPointNotFoundException)
+                {
+                    // Disable logging with OutputDebugString for a bit.
+                    _debuggerIsAttached = false;
+                    _lastDebuggerAttachedCheck = Environment.TickCount;
+                }
+            }
+#endif            
+        }
+
+#if (!PORTABLE)
         public override bool IsEnabled
         {
             get
@@ -47,7 +88,7 @@ namespace LogJam.Writer.Text
                 if ((nowTicks < _lastDebuggerAttachedCheck)
                     || (nowTicks >= _lastDebuggerAttachedCheck + c_debuggerAttachedCheckInterval))
                 {
-                    _debuggerIsAttached = Debugger.IsLogging() || IsDebuggerPresent();
+                    _debuggerIsAttached = IsDebuggerActive();
                     _lastDebuggerAttachedCheck = nowTicks;
                 }
                 return _debuggerIsAttached;
@@ -59,45 +100,28 @@ namespace LogJam.Writer.Text
 
         public override bool IsColorEnabled { get { return false; } }
 
-        protected override void WriteText(string s, int startIndex, int length, ColorCategory colorCategory)
+        protected override void WriteText(string s, ColorCategory colorCategory)
         {
-            string text;
-            if ((startIndex == 0) && (length == s.Length))
-            {
-                text = s;
-            }
-            else
-            {
-                text = s.Substring(startIndex, length);
-            }
-
-#if (PORTABLE)
-    // REVIEW: This isn't reliable - it is conditionally compiled in debug builds; but it's all that's available in the portable profile.
-			Debug.Write(text);
-#else
-            if (Debugger.IsLogging())
-            {
-                Debugger.Log(0, null, text);
-            }
-            else if (IsDebuggerPresent())
-            {
-                try
-                {
-                    OutputDebugString(text);
-                }
-                catch (EntryPointNotFoundException)
-                {
-                    // Disable logging with OutputDebugString for a bit.
-                    _debuggerIsAttached = false;
-                }
-            }
-#endif
+            _outputBuffer.Append(s);
         }
 
-        protected override void WriteText(StringBuilder sb, ColorCategory colorCategory)
+        protected override void WriteText(string s, int startIndex, int length, ColorCategory colorCategory)
         {
-            string s = sb.ToString();
-            WriteText(s, 0, s.Length, colorCategory);
+            _outputBuffer.Append(s, startIndex, length);
+        }
+
+        protected override void WriteText(StringBuilder sb, int startIndex, int length, ColorCategory colorCategory)
+        {
+            _outputBuffer.BufferedAppend(sb, startIndex, length, _charBuffer);
+        }
+
+        public override void Flush()
+        {
+            if (_outputBuffer.Length > 0)
+            {
+                WriteDebuggerText(_outputBuffer.ToString());
+                _outputBuffer.Clear();
+            }
         }
 
 #if !PORTABLE

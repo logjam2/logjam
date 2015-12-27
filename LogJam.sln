@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.40629.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{F89C3372-408F-4F99-A7BF-D2818C959F50}"
 	ProjectSection(SolutionItems) = preProject
@@ -36,6 +36,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogJam.Internal.UnitTests", "test\LogJam.Internal.UnitTests\LogJam.Internal.UnitTests.csproj", "{D3F3F56F-0A43-4464-8FD5-B33A9F44136D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogJam.XUnit2.UnitTests", "test\LogJam.XUnit2.UnitTests\LogJam.XUnit2.UnitTests.csproj", "{B5663409-100C-4A34-8C05-EF06F0AE4D53}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogJam.ConsoleTester", "test\LogJam.ConsoleTester\LogJam.ConsoleTester.csproj", "{E4374B5E-5DE2-43ED-B8F3-A46206A953C3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogJam.Test.Shared", "test\LogJam.Test.Shared\LogJam.Test.Shared.csproj", "{FB3BEF5B-A7F7-436D-BFF2-EA2A9C620CCD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -75,6 +79,14 @@ Global
 		{B5663409-100C-4A34-8C05-EF06F0AE4D53}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B5663409-100C-4A34-8C05-EF06F0AE4D53}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B5663409-100C-4A34-8C05-EF06F0AE4D53}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E4374B5E-5DE2-43ED-B8F3-A46206A953C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E4374B5E-5DE2-43ED-B8F3-A46206A953C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E4374B5E-5DE2-43ED-B8F3-A46206A953C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E4374B5E-5DE2-43ED-B8F3-A46206A953C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB3BEF5B-A7F7-436D-BFF2-EA2A9C620CCD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB3BEF5B-A7F7-436D-BFF2-EA2A9C620CCD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB3BEF5B-A7F7-436D-BFF2-EA2A9C620CCD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB3BEF5B-A7F7-436D-BFF2-EA2A9C620CCD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -88,5 +100,7 @@ Global
 		{2774CA60-3CAD-493B-BFCB-F77EA7F191E3} = {E3D54447-25CA-42F6-B58A-8A544118802E}
 		{D3F3F56F-0A43-4464-8FD5-B33A9F44136D} = {45DD2233-A75B-42B8-BE5A-D8C631A9291C}
 		{B5663409-100C-4A34-8C05-EF06F0AE4D53} = {45DD2233-A75B-42B8-BE5A-D8C631A9291C}
+		{E4374B5E-5DE2-43ED-B8F3-A46206A953C3} = {45DD2233-A75B-42B8-BE5A-D8C631A9291C}
+		{FB3BEF5B-A7F7-436D-BFF2-EA2A9C620CCD} = {45DD2233-A75B-42B8-BE5A-D8C631A9291C}
 	EndGlobalSection
 EndGlobal

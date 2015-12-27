@@ -10,8 +10,9 @@
 namespace LogJam.Owin.Http
 {
     using System.IO;
+    using System.Text;
 
-    using LogJam.Format;
+    using LogJam.Writer.Text;
 
 
     /// <summary>
@@ -21,11 +22,28 @@ namespace LogJam.Owin.Http
     {
 
         /// <inheritdoc />
-        public override void Format(ref HttpRequestEntry entry, TextWriter textWriter)
+        public override void Format(ref HttpRequestEntry entry, FormatWriter formatWriter)
         {
-            textWriter.WriteLine("{0}>\t{1:HH:mm:ss.fff}\t{2}\t{3}", entry.RequestNumber, entry.RequestStarted, entry.Method, entry.Uri);
-            FormatterHelper.FormatHeaders(textWriter, entry.RequestHeaders);
-            textWriter.WriteLine(); // Extra line break for readability
+            StringBuilder buf = formatWriter.FieldBuffer;
+            
+            formatWriter.BeginEntry(0);
+
+            // RequestNumber
+            buf.Clear();
+            buf.Append(entry.RequestNumber);
+            buf.Append('>');
+            formatWriter.WriteField(buf, ColorCategory.Markup, 5);
+
+            formatWriter.WriteTimestamp(entry.RequestStarted, ColorCategory.Detail);
+
+            formatWriter.WriteField(entry.Method, ColorCategory.Info, 6);
+            formatWriter.WriteField(entry.Uri, ColorCategory.Important);
+
+            FormatterHelper.FormatHeaders(formatWriter, entry.RequestHeaders);
+
+            formatWriter.EndEntry();
+            formatWriter.WriteLine(); // Extra line break for readability
+            formatWriter.IndentLevel++;
         }
 
     }

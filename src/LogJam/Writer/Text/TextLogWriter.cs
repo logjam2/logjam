@@ -7,12 +7,11 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
-namespace LogJam.Writer
+namespace LogJam.Writer.Text
 {
     using System;
     using System.Diagnostics.Contracts;
 
-    using LogJam.Format;
     using LogJam.Trace;
     using LogJam.Util;
 
@@ -38,12 +37,21 @@ namespace LogJam.Writer
             Contract.Requires<ArgumentNullException>(formatWriter != null);
 
             _formatWriter = formatWriter;
+
+            // Default to true
+            AutoFlush = true;
         }
 
         /// <summary>
         /// Returns <c>true</c> when this logwriter and its entrywriters are ready to log.
         /// </summary>
-        public virtual bool IsEnabled { get { return IsStarted; } }
+        public virtual bool IsEnabled { get { return IsStarted && _formatWriter.IsEnabled; } }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the <see cref="TextLogWriter"/> will call <see cref="FormatWriter.Flush"/> after 
+        /// each log entry is written.
+        /// </summary>
+        public bool AutoFlush { get; set; }
 
         /// <summary>
         /// Adds the specified <typeparamref name="TEntry" /> to this <see cref="TextWriterLogWriter" />, using
@@ -79,7 +87,7 @@ namespace LogJam.Writer
         /// <typeparam name="TEntry"></typeparam>
         /// <param name="formatAction"></param>
         /// <returns>this, for chaining calls in fluent style.</returns>
-        public TextLogWriter AddFormat<TEntry>(FormatAction<TEntry> formatAction)
+        public TextLogWriter AddFormat<TEntry>(EntryFormatAction<TEntry> formatAction)
             where TEntry : ILogEntry
         {
             Contract.Requires<ArgumentNullException>(formatAction != null);
@@ -103,6 +111,10 @@ namespace LogJam.Writer
 
         protected override void Dispose(bool disposing)
         {
+            if (disposing)
+            {
+                _formatWriter.Flush();
+            }
             _formatWriter.SafeDispose(SetupTracerFactory);
         }
 
@@ -118,6 +130,10 @@ namespace LogJam.Writer
             if (IsStarted && _formatWriter.IsEnabled)
             {
                 entryFormatter.Format(ref entry, _formatWriter);
+                if (AutoFlush)
+                {
+                    _formatWriter.Flush();
+                }
             }
         }
 

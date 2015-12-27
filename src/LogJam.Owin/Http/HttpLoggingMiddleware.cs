@@ -182,7 +182,7 @@ namespace LogJam.Owin.Http
 
             Stream streamToRead;
             if (! bodyStream.CanSeek)
-            { // Need to copy the stream into a buffer, it will replace the previous stream.
+            { // Need to copy the stream into a fieldBuffer, it will replace the previous stream.
                 streamToRead = new MemoryStream(1024);
                 bodyStream.CopyTo(streamToRead);
             }

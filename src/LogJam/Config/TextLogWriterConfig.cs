@@ -14,8 +14,9 @@ namespace LogJam.Config
     using System.Diagnostics.Contracts;
     using System.Linq;
 
-    using LogJam.Format;
+    using LogJam.Trace;
     using LogJam.Writer;
+    using LogJam.Writer.Text;
 
 
     /// <summary>
@@ -28,11 +29,83 @@ namespace LogJam.Config
         private readonly List<Tuple<Type, object, Action<TextLogWriter>>> _formatters;
 
         /// <summary>
+        /// Delimiter between fields.
+        /// </summary>
+        private string _fieldDelimiter;
+
+        /// <summary>
+        /// The number of spaces for each indent level.
+        /// </summary>
+        private int _spacesPerIndent;
+
+        /// <summary>
+        /// TimeZone to use for formatting dates and times.
+        /// </summary>
+        private TimeZoneInfo _timeZone;
+
+
+        /// <summary>
         /// Initializes a new <see cref="TextLogWriterConfig" />.
         /// </summary>
         protected TextLogWriterConfig()
         {
             _formatters = new List<Tuple<Type, object, Action<TextLogWriter>>>();
+            _fieldDelimiter = FormatWriter.DefaultFieldDelimiter;
+            _spacesPerIndent = FormatWriter.DefaultSpacesPerIndent;
+            _timeZone = TimeZoneInfo.Local;
+            IncludeDate = false;
+            IncludeTimestamp = true;
+        }
+
+        /// <summary>
+        /// The delimiter used to separate fields - eg single space, 2 spaces (default value), tab, comma.
+        /// </summary>
+        public string FieldDelimiter
+        {
+            get { return _fieldDelimiter; }
+            set
+            {
+                Contract.Requires<ArgumentNullException>(value != null);
+                _fieldDelimiter = value;
+            }
+        }
+
+        /// <summary>
+        /// The number of spaces for each indent level.
+        /// </summary>
+        public int SpacesPerIndent
+        {
+            get { return _spacesPerIndent; }
+            set
+            {
+                Contract.Requires<ArgumentOutOfRangeException>(value >= 0);
+                Contract.Requires<ArgumentOutOfRangeException>(value <= 100);
+                _spacesPerIndent = value;
+            }
+        }
+
+        /// <summary>
+        /// <c>true</c> to include the Date when formatting log entries with a date/time field. Default is <c>false</c>.
+        /// </summary>
+        public bool IncludeDate { get; set; }
+
+        /// <summary>
+        /// <c>true</c> to include the Timestamp when formatting log entries with a date/time field. Default is <c>true</c>.
+        /// </summary>
+        public bool IncludeTimestamp { get; set; }
+
+        /// <summary>
+        /// Specifies the TimeZone to use when formatting the timestamp for a log entry. Defaults to local time.
+        /// </summary>
+        public TimeZoneInfo TimeZone
+        {
+            get { return _timeZone; }
+            set
+            {
+                Contract.Requires<ArgumentNullException>(value != null);
+
+                _timeZone = value;
+            }
         }
 
         public bool HasFormatterFor<TEntry>()
@@ -47,11 +120,18 @@ namespace LogJam.Config
         }
 
         /// <summary>
-        /// Adds formatting for entry types <typeparamref name="TEntry" /> using <paramref name="entryFormatter" />.
+        /// Sets formatting for entry types <typeparamref name="TEntry" /> using <paramref name="entryFormatter" />.
         /// </summary>
-        /// <typeparam name="TEntry"></typeparam>
-        /// <param name="entryFormatter"></param>
-        /// <returns></returns>
+        /// <typeparam name="TEntry">The log entry type for the specified <paramref name="entryFormatter"/>.</typeparam>
+        /// <param name="entryFormatter">The <see cref="EntryFormatter{TEntry}"/> to use to format <typeparamref name="TEntry"/> objects.
+        /// If <c>null</c>, the <see cref="DefaultFormatterAttribute"/> on <typeparamref name="TEntry"/> is used to resolve a
+        /// default formatter.</param>
+        /// <returns><c>this</c>, to support chaining configuration calls in a fluent manner.</returns>
+        /// <remarks>
+        /// If <see cref="Format{TEntry}(LogJam.Writer.Text.EntryFormatter{TEntry})"/> is called more than once for the same
+        /// <typeparamref name="TEntry"/> value, the last formatter is the only one used. In other words, repeating the call replaces
+        /// earlier formatters.
+        /// </remarks>
         public TextLogWriterConfig Format<TEntry>(EntryFormatter<TEntry> entryFormatter = null)
             where TEntry : ILogEntry
         {
@@ -65,19 +145,23 @@ namespace LogJam.Config
                 }
             }
 
+            Type entryType = typeof(TEntry);
             Action<TextLogWriter> configureAction = (mw) => mw.AddFormat(entryFormatter);
 
-            _formatters.Add(new Tuple<Type, object, Action<TextLogWriter>>(typeof(TEntry), entryFormatter, configureAction));
+            // Remove any existing formatters for the same TEntry.
+            _formatters.RemoveAll(tuple => tuple.Item1 == entryType);
+
+            _formatters.Add(new Tuple<Type, object, Action<TextLogWriter>>(entryType, entryFormatter, configureAction));
             return this;
         }
 
         /// <summary>
-        /// Adds formatting for entry types <typeparamref name="TEntry" /> using <paramref name="formatAction" />.
+        /// Sets formatting for entry types <typeparamref name="TEntry" /> using <paramref name="formatAction" />.
         /// </summary>
         /// <typeparam name="TEntry"></typeparam>
         /// <param name="formatAction"></param>
         /// <returns></returns>
-        public TextLogWriterConfig Format<TEntry>(FormatAction<TEntry> formatAction)
+        public TextLogWriterConfig Format<TEntry>(EntryFormatAction<TEntry> formatAction)
             where TEntry : ILogEntry
         {
             Contract.Requires<ArgumentNullException>(formatAction != null);
@@ -87,7 +171,24 @@ namespace LogJam.Config
 
         #region ILogWriterConfig
 
+        /// <inheritdoc />
+        public override ILogWriter CreateLogWriter(ITracerFactory setupTracerFactory)
+        {
+            var formatWriter = CreateFormatWriter(setupTracerFactory);
+            formatWriter.FieldDelimiter = FieldDelimiter;
+            formatWriter.SpacesPerIndent = SpacesPerIndent; 
+            formatWriter.IncludeDate = IncludeDate;
+            formatWriter.IncludeTimestamp = IncludeTimestamp;
+            formatWriter.OutputTimeZone = TimeZone;
+
+            var logWriter = new TextLogWriter(setupTracerFactory, formatWriter);
+            ApplyConfiguredFormatters(logWriter);
+            return logWriter;
+        }
+
         #endregion
+
+        protected abstract FormatWriter CreateFormatWriter(ITracerFactory setupTracerFactory);
 
         /// <summary>
         /// Applies all configured formatters to <paramref name="writer" />.

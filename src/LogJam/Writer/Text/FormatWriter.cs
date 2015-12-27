@@ -7,7 +7,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
-namespace LogJam.Format
+namespace LogJam.Writer.Text
 {
     using System;
     using System.Diagnostics.Contracts;
@@ -15,6 +15,7 @@ namespace LogJam.Format
     using System.Threading;
 
     using LogJam.Trace;
+    using LogJam.Util;
     using LogJam.Util.Text;
 
 
@@ -32,12 +33,17 @@ namespace LogJam.Format
     /// <see cref="ISynchronizingLogWriter"/>s), so that the last entry is completely formatted/written before the next entry starts. 
     /// <see cref="BeginEntry"/> and <see cref="EndEntry"/> provide basic checks for this assertion.
     /// </remarks>
-    public abstract class FormatWriter : IDisposable
+    public abstract class FormatWriter : Startable, IDisposable
     {
         /// <summary>
-        /// The default field delimiter for this formatter is 2 spaces.
+        /// The default field delimiter is 2 spaces.
         /// </summary>
         public const string DefaultFieldDelimiter = "  ";
+
+        /// <summary>
+        /// The default number of spaces per indent level is 4.
+        /// </summary>
+        public const int DefaultSpacesPerIndent = 4;
 
         /// <summary>
         /// End-of-line chars.
@@ -59,17 +65,22 @@ namespace LogJam.Format
         /// <summary>
         /// SetupLog <see cref="Tracer"/>.
         /// </summary>
-        private readonly Tracer _setupTracer;
+        protected readonly Tracer setupTracer;
 
         /// <summary>
         /// Delimiter between fields.
         /// </summary>
-        private readonly string _fieldDelimiter;
+        private string _fieldDelimiter;
 
         /// <summary>
-        /// A text buffer that can be used by any formatting methods.
+        /// A text buffer used by markup formatting methods.
         /// </summary>
-        protected readonly StringBuilder buffer;
+        private readonly StringBuilder _markupBuffer;
+
+        /// <summary>
+        /// A text buffer that can be used by field formatting methods.
+        /// </summary>
+        private readonly StringBuilder _fieldBuffer;
 
         /// <summary>
         /// Set to <c>true</c> when text writing is positioned at the beginning of a line.
@@ -89,16 +100,21 @@ namespace LogJam.Format
         /// <param name="setupTracerFactory">The <see cref="ITracerFactory" /> to use for logging setup operations.</param>
         /// <param name="fieldDelimiter">The field delimiter for formatted text output.</param>
         /// <param name="spacesPerIndentLevel">The number of spaces per indent level.  Can be 0 for no indenting.</param>
-        protected FormatWriter(ITracerFactory setupTracerFactory, string fieldDelimiter = DefaultFieldDelimiter, int spacesPerIndentLevel = 4)
+        protected FormatWriter(ITracerFactory setupTracerFactory, string fieldDelimiter = DefaultFieldDelimiter, int spacesPerIndentLevel = DefaultSpacesPerIndent)
         {
             Contract.Requires<ArgumentNullException>(setupTracerFactory != null);
             Contract.Requires<ArgumentNullException>(fieldDelimiter != null);
 
-            _setupTracer = setupTracerFactory.TracerFor(this);
+            setupTracer = setupTracerFactory.TracerFor(this);
             _fieldDelimiter = fieldDelimiter;
             SpacesPerIndent = spacesPerIndentLevel;
-            buffer = new StringBuilder(512);
+            _markupBuffer = new StringBuilder(256);
+            _fieldBuffer = new StringBuilder(512);
             _startedEntries = 0;
+
+            // Set defaults
+            IncludeTimestamp = true;
+            IncludeDate = false;
         }
 
         /// <summary>
@@ -109,12 +125,43 @@ namespace LogJam.Format
         public virtual void Dispose()
         {}
 
-#region Properties that control formatting
+        #region Properties that control formatting
 
         /// <summary>
         /// The delimiter used to separate fields - eg single space, 2 spaces (default value), tab, comma.
         /// </summary>
-        public string FieldDelimiter { get { return _fieldDelimiter; } }
+        public string FieldDelimiter
+        {
+            internal set
+            {
+                Contract.Requires<ArgumentNullException>(value != null);
+                _fieldDelimiter = value;
+            }
+            get
+            {
+                Contract.Ensures(Contract.Result<string>() != null);
+                return _fieldDelimiter;
+            }
+        }
+
+        /// <summary>
+        /// A buffer that can be used by custom formatting methods.
+        /// </summary>
+        /// <remarks>
+        /// This buffer can be reused by every field formatting method, under the assumption that no two fields will 
+        /// be formatted at the same time.  This invariant is maintained by synchronization at the <see cref="ILogWriter"/> level.
+        /// <para>
+        /// Continually reusing the same buffer is a performance optimization - it reduces memory allocation and GC activity significantly.
+        /// </para>
+        /// </remarks>
+        public StringBuilder FieldBuffer
+        {
+            get
+            {
+                Contract.Ensures(Contract.Result<StringBuilder>() != null);
+                return _fieldBuffer;
+            }
+        }
 
         /// <summary>
         /// Derived classes must return the line delimiter for the log target, eg "\r\n".
@@ -130,19 +177,19 @@ namespace LogJam.Format
         public abstract bool IsColorEnabled { get; }
 
         /// <summary>
-        /// <c>true</c> to include the Date when formatting log entrys.
+        /// <c>true</c> to include the Date when formatting log entries with a date/time field.
         /// </summary>
         public bool IncludeDate { get; set; }
 
         /// <summary>
-        /// <c>true</c> to include the Timestamp when formatting log entrys.
+        /// <c>true</c> to include the Timestamp when formatting log entries with a date/time field.
         /// </summary>
         public bool IncludeTimestamp { get; set; }
 
         /// <summary>
         /// The number of spaces for each indent level.
         /// </summary>
-        public int SpacesPerIndent { get; private set; }
+        public int SpacesPerIndent { get; internal set; }
 
         /// <summary>
         /// The current indent level.  May be increased or decreased as needed by the formatter.
@@ -150,7 +197,7 @@ namespace LogJam.Format
         public int IndentLevel { get; set; }
 
         /// <summary>
-        /// Specifies the TimeZone to use when formatting the Timestamp for a log entry.
+        /// Specifies the TimeZone to use when formatting the timestamp for a log entry. Defaults to local time.
         /// </summary>
         public TimeZoneInfo OutputTimeZone
         {
@@ -169,18 +216,32 @@ namespace LogJam.Format
         /// <summary>
         /// Marks the start of a new entry.
         /// </summary>
-        public virtual void BeginEntry(int indentLevel)
+        public virtual void BeginEntry()
         {
             if (Interlocked.Increment(ref _startedEntries) != 1)
             {
-                _setupTracer.Error("FormatWriter invariant violated: Only one entry must be written at a time.");
+                setupTracer.Error("FormatWriter invariant violated: Only one entry must be written at a time.");
             }
-            IndentLevel = indentLevel;
+
+            // Handle incorrect indentation
+            if (IndentLevel < 0)
+            {
+                IndentLevel = 0;
+            }
 
             if (! atBeginningOfLine)
             {
                 WriteEndLine();
             }
+        }
+
+        /// <summary>
+        /// Marks the start of a new entry.
+        /// </summary>
+        public void BeginEntry(int indentLevel)
+        {
+            BeginEntry();
+            IndentLevel = indentLevel;
         }
 
         public virtual void WriteField(string text, ColorCategory colorCategory = ColorCategory.None, int padWidth = 0)
@@ -219,8 +280,54 @@ namespace LogJam.Format
                 WriteText(FieldDelimiter, ColorCategory.Markup);
             }
 
-            WriteText(buffer, colorCategory);
+            WriteText(buffer, 0, buffer.Length, colorCategory);
             padWidth -= buffer.Length;
+
+            if (padWidth > 0)
+            {
+                WriteSpaces(padWidth);
+            }
+        }
+
+        public virtual void WriteField(StringBuilder buffer, int startIndex, int length, ColorCategory colorCategory = ColorCategory.None, int padWidth = 0)
+        {
+            Contract.Requires<ArgumentNullException>(buffer != null);
+
+            if (atBeginningOfLine)
+            {
+                WriteLinePrefix(IndentLevel);
+            }
+            else
+            {
+                WriteText(FieldDelimiter, ColorCategory.Markup);
+            }
+
+            WriteText(buffer, startIndex, length, colorCategory);
+            padWidth -= buffer.Length;
+
+            if (padWidth > 0)
+            {
+                WriteSpaces(padWidth);
+            }
+        }
+
+        public virtual void WriteField(Action<StringBuilder> formatFieldAction, ColorCategory colorCategory = ColorCategory.None, int padWidth = 0)
+        {
+            Contract.Requires<ArgumentNullException>(formatFieldAction != null);
+
+            if (atBeginningOfLine)
+            {
+                WriteLinePrefix(IndentLevel);
+            }
+            else
+            {
+                WriteText(FieldDelimiter, ColorCategory.Markup);
+            }
+
+            _fieldBuffer.Clear();
+            formatFieldAction(_fieldBuffer);
+            WriteText(_fieldBuffer, 0, _fieldBuffer.Length, colorCategory);
+            padWidth -= _fieldBuffer.Length;
 
             if (padWidth > 0)
             {
@@ -236,16 +343,17 @@ namespace LogJam.Format
             }
 
             int indexStartLine = 0;
-            while (true)
+            while (indexStartLine < lines.Length)
             {
                 int indexEol = lines.IndexOfAny(EolChars, indexStartLine);
                 if (indexEol < 0)
-                {
-                    break;
+                {   // No more EOL chars in remainder of the string
+                    indexEol = lines.Length;
                 }
+
                 // REVIEW: When there are multiple EolChars adjacent to each other (eg CrLfCrLf), nothing is written
                 // If the caller wants blank lines, put a single space or tab on each blank line.
-                if (indexEol >= indexStartLine)
+                if (indexEol > indexStartLine)
                 {
                     WriteLinePrefix(IndentLevel + relativeIndentLevel);
                     WriteText(lines, indexStartLine, indexEol - indexStartLine, colorCategory);
@@ -255,12 +363,53 @@ namespace LogJam.Format
             }
         }
 
+        public virtual void WriteLines(StringBuilder linesBuffer, ColorCategory colorCategory = ColorCategory.None, int relativeIndentLevel = 1)
+        {
+            if (! atBeginningOfLine)
+            {
+                WriteEndLine();
+            }
+
+            int indexStartLine = 0;
+            int bufLen = linesBuffer.Length;
+            while (indexStartLine < bufLen)
+            {
+                int indexEol = linesBuffer.IndexOfAny(EolChars, indexStartLine);
+                if (indexEol < 0)
+                {   // No more EOL chars in remainder of linesBuffer
+                    indexEol = bufLen;
+                }
+
+                // REVIEW: When there are multiple EolChars adjacent to each other (eg CrLfCrLf), nothing is written
+                // If the caller wants blank lines, put a single space or tab on each blank line.
+                if (indexEol > indexStartLine)
+                {
+                    WriteLinePrefix(IndentLevel + relativeIndentLevel);
+                    WriteText(linesBuffer, indexStartLine, indexEol - indexStartLine, colorCategory);
+                    WriteEndLine();
+                }
+                indexStartLine = indexEol + 1;
+            }
+        }
+
+        public virtual void WriteLine(StringBuilder line, ColorCategory colorCategory = ColorCategory.None, int relativeIndentLevel = 1)
+        {
+            if (! atBeginningOfLine)
+            {
+                WriteEndLine();
+            }
+
+            WriteLinePrefix(IndentLevel + relativeIndentLevel);
+            WriteText(line, 0, line.Length, colorCategory);
+            WriteEndLine();
+        }
+
         /// <summary>
         /// Ends an entry.
         /// </summary>
         public virtual void EndEntry()
         {
-            if (!atBeginningOfLine)
+            if (! atBeginningOfLine)
             {
                 WriteEndLine();
             }
@@ -268,24 +417,24 @@ namespace LogJam.Format
         }
 
         public virtual void Flush()
-        { }
+        {}
 
         #endregion
-#region Public methods to format field primitives
+        #region Public methods to format field primitives
 
         public virtual void WriteDate(DateTime dateTimeUtc, ColorCategory colorCategory = ColorCategory.Detail)
         {
             DateTime outputDateTime = TimeZoneInfo.ConvertTimeFromUtc(dateTimeUtc, _outputTimeZone);
 
             // Format date
-            buffer.Clear();
-            buffer.AppendPadZeroes(outputDateTime.Year, 4);
-            buffer.Append('/');
-            buffer.AppendPadZeroes(outputDateTime.Month, 2);
-            buffer.Append('/');
-            buffer.AppendPadZeroes(outputDateTime.Day, 2);
+            _fieldBuffer.Clear();
+            _fieldBuffer.AppendPadZeroes(outputDateTime.Year, 4);
+            _fieldBuffer.Append('/');
+            _fieldBuffer.AppendPadZeroes(outputDateTime.Month, 2);
+            _fieldBuffer.Append('/');
+            _fieldBuffer.AppendPadZeroes(outputDateTime.Day, 2);
 
-            WriteField(buffer, colorCategory);
+            WriteField(_fieldBuffer, colorCategory);
         }
 
         public virtual void WriteTimestamp(DateTime timestampUtc, ColorCategory colorCategory = ColorCategory.Detail)
@@ -293,74 +442,38 @@ namespace LogJam.Format
             DateTime outputTimestamp = TimeZoneInfo.ConvertTimeFromUtc(timestampUtc, _outputTimeZone);
 
             // Format time
-            buffer.Clear();
-            buffer.AppendPadZeroes(outputTimestamp.Hour, 2);
-            buffer.Append(':');
-            buffer.AppendPadZeroes(outputTimestamp.Minute, 2);
-            buffer.Append(':');
-            buffer.AppendPadZeroes(outputTimestamp.Second, 2);
-            buffer.Append('.');
-            buffer.AppendPadZeroes(outputTimestamp.Millisecond, 3);
+            _fieldBuffer.Clear();
+            _fieldBuffer.AppendPadZeroes(outputTimestamp.Hour, 2);
+            _fieldBuffer.Append(':');
+            _fieldBuffer.AppendPadZeroes(outputTimestamp.Minute, 2);
+            _fieldBuffer.Append(':');
+            _fieldBuffer.AppendPadZeroes(outputTimestamp.Second, 2);
+            _fieldBuffer.Append('.');
+            _fieldBuffer.AppendPadZeroes(outputTimestamp.Millisecond, 3);
 
-            WriteField(buffer, colorCategory);
+            WriteField(_fieldBuffer, colorCategory);
         }
 
-        public virtual void WriteAbbreviatedTypeName(string typeName, ColorCategory colorCategory = ColorCategory.Detail, int padWidth = 0)
+        public virtual void WriteTimestamp(DateTimeOffset timestamp, ColorCategory colorCategory = ColorCategory.Detail)
+        {            
+            DateTimeOffset outputTimestamp = TimeZoneInfo.ConvertTime(timestamp, _outputTimeZone);
+
+            // Format time
+            _fieldBuffer.Clear();
+            _fieldBuffer.AppendPadZeroes(outputTimestamp.Hour, 2);
+            _fieldBuffer.Append(':');
+            _fieldBuffer.AppendPadZeroes(outputTimestamp.Minute, 2);
+            _fieldBuffer.Append(':');
+            _fieldBuffer.AppendPadZeroes(outputTimestamp.Second, 2);
+            _fieldBuffer.Append('.');
+            _fieldBuffer.AppendPadZeroes(outputTimestamp.Millisecond, 3);
+
+            WriteField(_fieldBuffer, colorCategory);
+        }
+
+        public virtual void WriteLine()
         {
-            Contract.Requires<ArgumentNullException>(typeName != null);
-
-            // Count the dots
-            int countDots = 0;
-            for (int i = typeName.IndexOf('.'); i >= 0; i = typeName.IndexOf('.', i + 1))
-            {
-                countDots++;
-            }
-            if (countDots == 0)
-            {
-                WriteField(typeName, colorCategory, padWidth);
-                return;
-            }
-
-            // Walk the string, abbreviating until just over half the segments are abbreviated
-            int segmentsToAbbreviate = (countDots >> 1) + 1;
-            buffer.Clear();
-            int len = typeName.Length;
-            buffer.Append(typeName[0].AsciiToLower()); // Always include the first char
-            for (int i = 1, segmentsAbbreviated = 0; i < len; ++i)
-            {
-                char ch = typeName[i];
-                if (ch == '.')
-                {
-                    buffer.Append(ch);
-                    i++;
-                    if (++segmentsAbbreviated >= segmentsToAbbreviate)
-                    { // No more abbreviating - take the rest straight
-                        buffer.Append(typeName, i, len - i);
-                        break;
-                    }
-                    else
-                    { // Keep abbreviating - always include the first char after a '.'
-                        if (i < len)
-                        {
-                            buffer.Append(typeName[i].AsciiToLower());
-                        }
-                    }
-                }
-                else if (! ch.AsciiIsLower())
-                {
-                    buffer.Append(ch.AsciiToLower());
-                }
-                // Else ch is lower case - omit it 
-            }
-
-            // Add padding if needed
-            int spacesPadding = padWidth - buffer.Length;
-            if (spacesPadding > 0)
-            {
-                buffer.Append(' ', spacesPadding);
-            }
-
-            WriteField(buffer, colorCategory);
+            WriteEndLine();
         }
 
         #endregion
@@ -374,9 +487,14 @@ namespace LogJam.Format
 
         protected virtual void WriteSpaces(int countSpaces)
         {
-            buffer.Clear();
-            buffer.Append(' ', countSpaces);
-            WriteText(buffer, ColorCategory.Markup);
+            if (countSpaces == 0)
+            {
+                return;
+            }
+
+            _markupBuffer.Clear();
+            _markupBuffer.Append(' ', countSpaces);
+            WriteText(_markupBuffer, 0, countSpaces, ColorCategory.None);
         }
 
         /// <summary>
@@ -388,15 +506,15 @@ namespace LogJam.Format
         protected virtual void WriteText(string s, ColorCategory colorCategory, bool normalizeFieldText = false)
         {
             if (s == null)
-            {
-                WriteText(string.Empty, 0, 0, colorCategory);
+            {   // Do nothing
             }
             else if (normalizeFieldText && (s.IndexOfAny(s_invalidFieldChars) >= 0))
             {
-                buffer.Clear();
-                buffer.Append(s);
-                buffer.RemoveAll(s_invalidFieldChars);
-                buffer.TrimSpaces();
+                _fieldBuffer.Clear();
+                _fieldBuffer.Append(s);
+                _fieldBuffer.RemoveAll(s_invalidFieldChars);
+                _fieldBuffer.TrimSpaces();
+                WriteText(_fieldBuffer, 0, _fieldBuffer.Length, colorCategory);
             }
             else
             {
@@ -404,25 +522,24 @@ namespace LogJam.Format
                 {
                     s = s.Trim();
                 }
-                WriteText(s, 0, s.Length, colorCategory);
+                WriteText(s, colorCategory);
             }
         }
 
         protected virtual void WriteEndLine()
         {
-            WriteText(LineDelimiter, ColorCategory.Markup);
+            WriteText(LineDelimiter, ColorCategory.None);
             atBeginningOfLine = true;
         }
 
         #endregion
         #region Abstract write methods
 
+        protected abstract void WriteText(string s, ColorCategory colorCategory);
+
         protected abstract void WriteText(string s, int startIndex, int length, ColorCategory colorCategory);
 
-        protected abstract void WriteText(StringBuilder sb, ColorCategory colorCategory);
-
-
-  //      protected abstract void WriteLine(StringBuilder sb, ColorCategory colorCategory, int relativeIndentLevel = 1);
+        protected abstract void WriteText(StringBuilder sb, int startIndex, int length, ColorCategory colorCategory);
 
         #endregion
   

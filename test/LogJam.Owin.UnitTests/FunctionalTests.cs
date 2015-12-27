@@ -115,20 +115,19 @@ namespace LogJam.Owin.UnitTests
 
                 // Log to debugger
                 var debuggerConfig = logManagerConfig.UseDebugger()
-                                                     .Format(new DefaultTraceFormatter())
-                                                     .Format(new HttpRequestFormatter())
-                                                     .Format(new HttpResponseFormatter());
+                                                     .Format<TraceEntry>()
+                                                     .Format<HttpRequestEntry>()
+                                                     .Format<HttpResponseEntry>();
                 debuggerConfig.BackgroundLogging = backgroundThreadLogging;
                 traceManagerConfig.TraceTo(debuggerConfig, traceSwitches);
 
-                // Log to console
-                var consoleConfig = new ConsoleLogWriterConfig()
-                    .Format(new DefaultTraceFormatter())
-                    .Format(new HttpRequestFormatter())
-                    .Format(new HttpResponseFormatter());
-                consoleConfig.BackgroundLogging = backgroundThreadLogging;
-                logManagerConfig.Writers.Add(consoleConfig);
-                traceManagerConfig.TraceTo(consoleConfig, traceSwitches);
+                // Log to textwriter without timestamps
+                var textLogConfig0 = logManagerConfig.UseTextWriter(new StringWriter())
+                                                     .Format<TraceEntry>()
+                                                     .Format<HttpRequestEntry>()
+                                                     .Format<HttpResponseEntry>();
+                textLogConfig0.BackgroundLogging = backgroundThreadLogging;
+                traceManagerConfig.TraceTo(textLogConfig0, traceSwitches);
 
                 // Log to TextWriter
                 var textLogConfig = logManagerConfig.UseTextWriter(logTarget)
@@ -141,7 +140,7 @@ namespace LogJam.Owin.UnitTests
                 textLogConfig.BackgroundLogging = backgroundThreadLogging;
                 traceManagerConfig.TraceTo(textLogConfig, traceSwitches);
 
-                appBuilder.LogHttpRequests(debuggerConfig, consoleConfig, textLogConfig);
+                appBuilder.LogHttpRequests(debuggerConfig, textLogConfig0, textLogConfig);
                 appBuilder.UseOwinTracerLogging();
             }
 

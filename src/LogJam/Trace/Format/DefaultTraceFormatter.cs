@@ -13,7 +13,7 @@ namespace LogJam.Trace.Format
     using System.Diagnostics.Contracts;
     using System.IO;
 
-    using LogJam.Format;
+    using LogJam.Writer.Text;
 
 
     /// <summary>
@@ -54,22 +54,23 @@ namespace LogJam.Trace.Format
                 color = TraceLevelToColorCategory(traceEntry.TraceLevel);
             }
 
-            writer.BeginEntry(IndentLevel);
+            writer.BeginEntry(writer.IndentLevel + IndentLevel);
 
             if (IncludeDate)
             {
-                writer.WriteDate(traceEntry.TimestampUtc);
+                writer.WriteDate(traceEntry.TimestampUtc, ColorCategory.Debug);
             }
             if (IncludeTimestamp)
             {
-                writer.WriteTimestamp(traceEntry.TimestampUtc);
+                writer.WriteTimestamp(traceEntry.TimestampUtc, ColorCategory.Debug);
             }
             writer.WriteField(TraceLevelToLabel(traceEntry.TraceLevel), color, 7);
-            writer.WriteAbbreviatedTypeName(traceEntry.TracerName, ColorCategory.Detail, 50);
+            writer.WriteAbbreviatedTypeName(traceEntry.TracerName, ColorCategory.Debug, 40);
             writer.WriteField(traceEntry.Message.Trim(), color);
             if (traceEntry.Details != null)
             {
-                writer.WriteLines(traceEntry.Details.ToString(), ColorCategory.Detail, 1);
+                ColorCategory detailColor = color == ColorCategory.Debug ? ColorCategory.Debug : ColorCategory.Detail;
+                writer.WriteLines(traceEntry.Details.ToString(), detailColor, 1);
             }
 
             writer.EndEntry();

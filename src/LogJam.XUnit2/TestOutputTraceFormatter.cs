@@ -12,8 +12,8 @@ namespace LogJam.XUnit2
     using System;
     using System.IO;
 
-    using LogJam.Format;
     using LogJam.Trace;
+    using LogJam.Writer.Text.Format;
 
 
     /// <summary>
