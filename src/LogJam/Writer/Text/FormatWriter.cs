@@ -41,9 +41,9 @@ namespace LogJam.Writer.Text
         public const string DefaultFieldDelimiter = "  ";
 
         /// <summary>
-        /// The default number of spaces per indent level is 4.
+        /// The default number of spaces per indent level is 3.
         /// </summary>
-        public const int DefaultSpacesPerIndent = 4;
+        public const int DefaultSpacesPerIndent = 3;
 
         /// <summary>
         /// End-of-line chars.
@@ -91,6 +91,11 @@ namespace LogJam.Writer.Text
         /// The number of started and not completed entries.  Should be 0 or 1 at all times (this is a class invariant).
         /// </summary>
         private int _startedEntries;
+
+        /// <summary>
+        /// The indent level before the current entry started.
+        /// </summary>
+        private int _previousIndentLevel;
 
         #endregion
 
@@ -228,6 +233,7 @@ namespace LogJam.Writer.Text
             {
                 IndentLevel = 0;
             }
+            _previousIndentLevel = IndentLevel;
 
             if (! atBeginningOfLine)
             {
@@ -413,6 +419,9 @@ namespace LogJam.Writer.Text
             {
                 WriteEndLine();
             }
+            // Restore the indent level from before the entry started
+            IndentLevel = _previousIndentLevel;
+
             Interlocked.Decrement(ref _startedEntries);
         }
 
@@ -476,16 +485,13 @@ namespace LogJam.Writer.Text
             WriteEndLine();
         }
 
-        #endregion
-        #region Protected formatting methods
-
-        protected virtual void WriteLinePrefix(int indentLevel)
+        public virtual void WriteLinePrefix(int indentLevel)
         {
             WriteSpaces(indentLevel * SpacesPerIndent);
             atBeginningOfLine = false;
         }
 
-        protected virtual void WriteSpaces(int countSpaces)
+        public virtual void WriteSpaces(int countSpaces)
         {
             if (countSpaces == 0)
             {
@@ -503,7 +509,7 @@ namespace LogJam.Writer.Text
         /// <param name="s"></param>
         /// <param name="colorCategory"></param>
         /// <param name="normalizeFieldText">If <c>true</c>, <paramref name="s"/> should be normalized for display as a field, eg tabs and line breaks removed.</param>
-        protected virtual void WriteText(string s, ColorCategory colorCategory, bool normalizeFieldText = false)
+        public virtual void WriteText(string s, ColorCategory colorCategory, bool normalizeFieldText = false)
         {
             if (s == null)
             {   // Do nothing
@@ -526,7 +532,7 @@ namespace LogJam.Writer.Text
             }
         }
 
-        protected virtual void WriteEndLine()
+        public virtual void WriteEndLine()
         {
             WriteText(LineDelimiter, ColorCategory.None);
             atBeginningOfLine = true;
@@ -537,9 +543,9 @@ namespace LogJam.Writer.Text
 
         protected abstract void WriteText(string s, ColorCategory colorCategory);
 
-        protected abstract void WriteText(string s, int startIndex, int length, ColorCategory colorCategory);
+        public abstract void WriteText(string s, int startIndex, int length, ColorCategory colorCategory);
 
-        protected abstract void WriteText(StringBuilder sb, int startIndex, int length, ColorCategory colorCategory);
+        public abstract void WriteText(StringBuilder sb, int startIndex, int length, ColorCategory colorCategory);
 
         #endregion
   

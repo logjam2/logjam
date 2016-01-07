@@ -34,9 +34,9 @@ namespace LogJam.Owin.Http
             buf.Clear();
             buf.Append(entry.RequestNumber);
             buf.Append('<');
-            formatWriter.WriteField(buf, ColorCategory.Markup, 5);
+            formatWriter.WriteField(buf, ColorCategory.Markup, 3);
 
-            formatWriter.WriteField("Response:", ColorCategory.Detail);
+            formatWriter.WriteTimestamp(entry.RequestCompleted, ColorCategory.Detail);
 
             // Ttfb
             buf.Clear();
@@ -46,44 +46,46 @@ namespace LogJam.Owin.Http
             buf.Append('s');
             formatWriter.WriteField(buf, ColorCategory.Info);
 
-            // Determine request color
-            ColorCategory requestColorCategory = ColorCategory.None;
+            // Determine response color from HTTP status code
+            ColorCategory responseColorCategory = ColorCategory.None;
             if (formatWriter.IsColorEnabled)
             {
                 var statusCode = entry.HttpStatusCode;
-                if ((statusCode >= 200) && (statusCode < 200))
+                if ((statusCode >= 200) && (statusCode < 300))
                 {
-                    requestColorCategory = ColorCategory.Success;
+                    responseColorCategory = ColorCategory.Success;
                 }
                 else if ((statusCode >= 300) && (statusCode < 400))
                 {
-                    requestColorCategory = ColorCategory.Important;
+                    responseColorCategory = ColorCategory.Important;
                 }
                 else if (statusCode >= 500)
                 {
-                    requestColorCategory = ColorCategory.Error;
+                    responseColorCategory = ColorCategory.Error;
                 }
                 else
                 {
-                    requestColorCategory = ColorCategory.Warning;
+                    responseColorCategory = ColorCategory.Warning;
                 }
             }
 
-            formatWriter.WriteField(entry.Method, requestColorCategory, 6);
-            formatWriter.WriteField(entry.Uri, requestColorCategory);
+            formatWriter.WriteField(entry.Method, ColorCategory.Info, 3);
+            formatWriter.WriteField(entry.Uri, responseColorCategory);
+            formatWriter.WriteLine();
 
             // HTTP status line
+            formatWriter.WriteLinePrefix(formatWriter.IndentLevel + 1);
+            formatWriter.WriteText("  HTTP/1.1 ", ColorCategory.Detail);
             buf.Clear();
-            buf.Append("HTTP/1.1 ");
             buf.Append(entry.HttpStatusCode);
-            buf.Append(" ");
-            buf.Append(entry.HttpReasonPhrase);
-            formatWriter.WriteLine(buf, requestColorCategory);
+            formatWriter.WriteText(buf, 0, buf.Length, responseColorCategory);
+            formatWriter.WriteSpaces(1);
+            formatWriter.WriteText(entry.HttpReasonPhrase, ColorCategory.Detail);
 
             FormatterHelper.FormatHeaders(formatWriter, entry.ResponseHeaders);
 
-            formatWriter.EndEntry();
             formatWriter.WriteLine(); // Extra line break for readability
+            formatWriter.EndEntry();
         }
 
     }

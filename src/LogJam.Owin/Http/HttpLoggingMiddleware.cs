@@ -143,11 +143,13 @@ namespace LogJam.Owin.Http
                 {
                     HttpResponseEntry responseEntry;
                     responseEntry.RequestNumber = requestNum;
-                    responseEntry.Ttfb = DateTimeOffset.Now - requestStarted;
+                    responseEntry.RequestCompleted = DateTimeOffset.Now;
+                    responseEntry.Ttfb = responseEntry.RequestCompleted - requestStarted;
                     responseEntry.Method = requestMethod;
                     responseEntry.Uri = requestUri;
                     responseEntry.HttpStatusCode = (short) response.StatusCode;
                     responseEntry.HttpReasonPhrase = response.ReasonPhrase;
+
                     // Workaround for issue in Owin.Host.SystemWeb:
                     //	  response.Headers.Count is inaccurate, so calling response.Headers.ToArray()
                     //	  will throw an exception.

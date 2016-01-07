@@ -7,6 +7,10 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
+// ReSharper disable once CheckNamespace
+
+using LogJam.Writer.Text;
+
 namespace Owin
 {
     using System;
@@ -21,7 +25,6 @@ namespace Owin
     using LogJam.Owin.Http;
     using LogJam.Trace;
     using LogJam.Trace.Config;
-    using LogJam.Trace.Switches;
 
     using Microsoft.Owin;
     using Microsoft.Owin.BuilderProperties;
@@ -112,7 +115,6 @@ namespace Owin
             LogManager logManager = appBuilder.Properties.Get<LogManager>(c_logManagerKey);
             if (logManager == null)
             {
-                // Includes creating the LogManager
                 logManager = appBuilder.RegisterLogManager();
             }
 
@@ -134,26 +136,9 @@ namespace Owin
                 return null;
             }
 
-            var logWriterConfig = appBuilder.LogToText(() => owintraceOutputTextWriter);
+            var logWriterConfig = appBuilder.GetLogManagerConfig().UseTextWriter(() => owintraceOutputTextWriter);
             logWriterConfig.DisposeTextWriter = false;
             return logWriterConfig;
-        }
-
-        /// <summary>
-        /// Logs to the <see cref="TextWriter" /> returned from <paramref name="textWriterCreateFunc" />.
-        /// </summary>
-        /// <param name="appBuilder"></param>
-        /// <param name="textWriterCreateFunc">
-        /// A function that is called once each time logging starts, to obtain a
-        /// <see cref="TextWriter" />.
-        /// </param>
-        /// <returns></returns>
-        public static TextWriterLogWriterConfig LogToText(this IAppBuilder appBuilder, Func<TextWriter> textWriterCreateFunc)
-        {
-            Contract.Requires<ArgumentNullException>(appBuilder != null);
-            Contract.Requires<ArgumentNullException>(textWriterCreateFunc != null);
-
-            return appBuilder.GetLogManagerConfig().UseTextWriter(textWriterCreateFunc);
         }
 
         /// <summary>
@@ -173,16 +158,20 @@ namespace Owin
         /// it should be
         /// called before any other <c>LogJam.Owin</c> configuration methods.
         /// </remarks>
-        public static LogManager RegisterLogManager(this IAppBuilder appBuilder, TraceManager traceManager, LogManager logManager = null)
+        public static LogManager RegisterLogManager(this IAppBuilder appBuilder, TraceManager traceManager = null, LogManager logManager = null)
         {
             Contract.Requires<ArgumentNullException>(appBuilder != null);
-            Contract.Requires<ArgumentNullException>(traceManager != null);
 
+            if (traceManager == null)
+            {
+                // Use global instance
+                traceManager = TraceManager.Instance;
+            }
             if (logManager == null)
             {
                 logManager = traceManager.LogManager;
             }
-            else if (logManager != traceManager.LogManager)
+            if (logManager != traceManager.LogManager)
             {
                 throw new LogJamOwinSetupException("Not supported to register disassociated TraceManager and LogManager instances.", appBuilder);
             }
@@ -208,87 +197,6 @@ namespace Owin
         }
 
         /// <summary>
-        /// Registers <see cref="LogManager" /> and <see cref="TraceManager" /> instances, along with
-        /// <see cref="LogManagerConfig" /> and <see cref="TraceManagerConfig" />, with the <paramref name="appBuilder" />.  In
-        /// addition,
-        /// this method registers OWIN middleware that associates the application <see cref="LogManager" /> and
-        /// <see cref="TraceManager" /> with each request.
-        /// </summary>
-        /// <param name="appBuilder"></param>
-        /// <param name="setupTracerFactory">
-        /// An optional <see cref="ITracerFactory" /> used to trace logjam setup operations -
-        /// <see cref="SetupLog" />.
-        /// </param>
-        /// <param name="logManagerConfig"></param>
-        /// <param name="traceManagerConfig"></param>
-        /// <remarks>
-        /// This registration is run automatically by several other configuration methods, so usually does not need to
-        /// be explicitly called.  If it IS explicitly called (for example to use a custom <paramref name="setupTracerFactory" />),
-        /// it should be
-        /// called before any other <c>LogJam.Owin</c> configuration methods.
-        /// </remarks>
-        public static LogManager RegisterLogManager(this IAppBuilder appBuilder,
-                                                    ITracerFactory setupTracerFactory = null,
-                                                    LogManagerConfig logManagerConfig = null,
-                                                    TraceManagerConfig traceManagerConfig = null)
-        {
-            Contract.Requires<ArgumentNullException>(appBuilder != null);
-
-            var logManager = appBuilder.Properties.Get<LogManager>(c_logManagerKey);
-            if (logManager == null)
-            {
-                var tracerFactory = appBuilder.Properties.Get<ITracerFactory>(c_tracerFactoryKey);
-                if (tracerFactory != null)
-                {
-                    throw new LogJamOwinSetupException("Not supported to register the ITracerFactory before the LogManager.", appBuilder);
-                }
-
-                logManagerConfig = logManagerConfig ?? new LogManagerConfig();
-                traceManagerConfig = traceManagerConfig ?? new TraceManagerConfig();
-                appBuilder.Properties.Add(c_logManagerConfigKey, logManagerConfig);
-                appBuilder.Properties.Add(c_traceManagerConfigKey, traceManagerConfig);
-
-                logManager = new LogManager(logManagerConfig, setupTracerFactory);
-                var traceManager = new TraceManager(logManager, traceManagerConfig);
-                appBuilder.Properties.Add(c_logManagerKey, logManager);
-                appBuilder.Properties.Add(c_tracerFactoryKey, traceManager);
-
-                // LogJamManagerMiddleware manages lifetime + registering the LogManager and TraceManager per request
-                appBuilder.Use<LogJamManagerMiddleware>(logManager, traceManager);
-
-                // Ensure LogManager.Dispose - LogJamManagerMiddleware.Dispose() is not reliably called.
-                var properties = new AppProperties(appBuilder.Properties);
-                properties.OnAppDisposing.Register(() =>
-                                                   {
-                                                       traceManager.Dispose();
-                                                       logManager.Dispose();
-                                                   });
-            }
-
-            return logManager;
-        }
-
-        /// <summary>
-        /// Enables logging of all HTTP requests to the specified <paramref name="configuredLogWriters" />.
-        /// </summary>
-        /// <param name="appBuilder"></param>
-        /// <param name="configuredLogWriters">Specifies the log writers to use for HTTP logging.</param>
-        /// <remarks>This middleware should be enabled at or near the beginning of the OWIN pipeline.</remarks>
-        public static void LogHttpRequests(this IAppBuilder appBuilder, params ILogWriterConfig[] configuredLogWriters)
-        {
-            Contract.Requires<ArgumentNullException>(appBuilder != null);
-            Contract.Requires<ArgumentNullException>(configuredLogWriters != null);
-
-            var logManager = appBuilder.GetLogManager();
-            var tracerFactory = appBuilder.GetTracerFactory();
-
-            if (configuredLogWriters.Any())
-            {
-                appBuilder.Use<HttpLoggingMiddleware>(logManager, tracerFactory, configuredLogWriters);
-            }
-        }
-
-        /// <summary>
         /// Enables logging of all HTTP requests to the specified <paramref name="configuredLogWriters" />.
         /// </summary>
         /// <param name="appBuilder"></param>
@@ -299,7 +207,30 @@ namespace Owin
             Contract.Requires<ArgumentNullException>(appBuilder != null);
             Contract.Requires<ArgumentNullException>(configuredLogWriters != null);
 
-            LogHttpRequests(appBuilder, configuredLogWriters.ToArray());
+            var logManager = appBuilder.GetLogManager();
+            var tracerFactory = appBuilder.GetTracerFactory();
+
+            ILogWriterConfig[] logWriterConfigs = configuredLogWriters.ToArray();
+            if (logWriterConfigs.Any())
+            {
+                logWriterConfigs.FormatAll<HttpRequestEntry>()
+                                .FormatAll<HttpResponseEntry>();
+                appBuilder.Use<HttpLoggingMiddleware>(logManager, tracerFactory, logWriterConfigs);
+            }
+        }
+
+        /// <summary>
+        /// Enables logging of all HTTP requests to the specified <paramref name="logWriter" />.
+        /// </summary>
+        /// <param name="appBuilder"></param>
+        /// <param name="logWriter">Specifies the log writer to use for HTTP logging.</param>
+        /// <remarks>This middleware should be enabled at or near the beginning of the OWIN pipeline.</remarks>
+        public static void LogHttpRequests(this IAppBuilder appBuilder, ILogWriterConfig logWriter)
+        {
+            Contract.Requires<ArgumentNullException>(appBuilder != null);
+            Contract.Requires<ArgumentNullException>(logWriter != null);
+
+            LogHttpRequests(appBuilder, new[] { logWriter });
         }
 
         /// <summary>
@@ -310,7 +241,7 @@ namespace Owin
         {
             Contract.Requires<ArgumentNullException>(appBuilder != null);
 
-            LogHttpRequests(appBuilder, appBuilder.GetLogManagerConfig().Writers.ToArray());
+            LogHttpRequests(appBuilder, appBuilder.GetLogManagerConfig().Writers);
         }
 
         /// <summary>
@@ -320,18 +251,24 @@ namespace Owin
         /// be used for finer-grained control of configuration.
         /// </summary>
         /// <param name="appBuilder"></param>
-        /// <param name="switches"></param>
         /// <param name="configuredLogWriters"></param>
+        /// <param name="switches"></param>
+        /// <param name="traceFormatter"></param>
         /// <returns></returns>
-        public static void TraceTo(this IAppBuilder appBuilder, SwitchSet switches = null, params ILogWriterConfig[] configuredLogWriters)
+        public static void TraceTo(this IAppBuilder appBuilder,
+                                   IEnumerable<ILogWriterConfig> configuredLogWriters,
+                                   SwitchSet switches = null,
+                                   EntryFormatter<TraceEntry> traceFormatter = null)
         {
             Contract.Requires<ArgumentNullException>(appBuilder != null);
+            Contract.Requires<ArgumentNullException>(configuredLogWriters != null);
 
             if (switches == null)
             {
                 switches = TraceManagerConfig.CreateDefaultSwitchSet();
             }
 
+            configuredLogWriters.FormatAll(traceFormatter);
             foreach (var logWriterConfig in configuredLogWriters)
             {
                 appBuilder.GetTraceManagerConfig().Writers.Add(new TraceWriterConfig(logWriterConfig, switches));
@@ -343,32 +280,15 @@ namespace Owin
         /// </summary>
         /// <param name="appBuilder"></param>
         /// <param name="switches"></param>
+        /// <param name="traceFormatter"></param>
         /// <returns></returns>
-        public static void TraceToAll(this IAppBuilder appBuilder, SwitchSet switches)
-        {
-            Contract.Requires<ArgumentNullException>(appBuilder != null);
-            Contract.Requires<ArgumentNullException>(switches != null);
-
-            TraceTo(appBuilder, switches, appBuilder.GetLogManagerConfig().Writers.ToArray());
-        }
-
-        /// <summary>
-        /// Enables sending trace messages to <paramref name="configuredLogWriters" />.  This overload uses default trace threshold
-        /// (<see cref="TraceLevel.Info" />) for all tracing.
-        /// </summary>
-        /// <param name="appBuilder"></param>
-        /// <param name="configuredLogWriters"></param>
-        /// <returns></returns>
-        public static void TraceTo(this IAppBuilder appBuilder, params ILogWriterConfig[] configuredLogWriters)
+        public static void TraceToAll(this IAppBuilder appBuilder,
+                                      SwitchSet switches = null,
+                                      EntryFormatter<TraceEntry> traceFormatter = null)
         {
             Contract.Requires<ArgumentNullException>(appBuilder != null);
 
-            var traceSwitch = new ThresholdTraceSwitch(TraceLevel.Info);
-            var switches = new SwitchSet()
-                           {
-                               { Tracer.All, traceSwitch }
-                           };
-            appBuilder.TraceTo(switches, configuredLogWriters);
+            TraceTo(appBuilder, appBuilder.GetLogManagerConfig().Writers, switches, traceFormatter);
         }
 
         /// <summary>

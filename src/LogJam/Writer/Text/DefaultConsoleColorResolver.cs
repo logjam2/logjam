@@ -52,7 +52,7 @@ namespace LogJam.Writer.Text
                     return ConsoleColor.DarkGray;
 
                 case ColorCategory.Warning:
-                    return ConsoleColor.DarkYellow;
+                    return ConsoleColor.Yellow;
 
                 case ColorCategory.Error:
                     return ConsoleColor.Red;
@@ -67,7 +67,7 @@ namespace LogJam.Writer.Text
                     return ConsoleColor.Green;
 
                 case ColorCategory.Important:
-                    return ConsoleColor.Blue;
+                    return ConsoleColor.Cyan;
 
                 default:
                     return _initialForegroundColor;

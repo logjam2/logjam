@@ -24,6 +24,26 @@ namespace LogJam.Writer.Text
 
         #region Format fields
 
+        public static void WriteIntField(this FormatWriter formatWriter, int number, ColorCategory colorCategory = ColorCategory.Detail, int zeroPaddedWidth = 0, int spacePaddedWidth = 0)
+        {
+            Contract.Requires<ArgumentNullException>(formatWriter != null);
+
+            StringBuilder fieldBuffer = formatWriter.FieldBuffer;
+            fieldBuffer.Clear();
+            if (zeroPaddedWidth > 0)
+            {
+                fieldBuffer.AppendPadZeroes(number, zeroPaddedWidth);
+            }
+
+            int spacesPadding = spacePaddedWidth - fieldBuffer.Length;
+            if (spacesPadding > 0)
+            {
+                fieldBuffer.Append(' ', spacesPadding);
+            }
+
+            formatWriter.WriteField(fieldBuffer, colorCategory);
+        }
+
         public static void WriteAbbreviatedTypeName(this FormatWriter formatWriter, string typeName, ColorCategory colorCategory = ColorCategory.Detail, int padWidth = 0)
         {
             Contract.Requires<ArgumentNullException>(formatWriter != null);

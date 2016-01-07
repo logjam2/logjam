@@ -30,6 +30,7 @@ namespace LogJam.Owin.Http
                 foreach (string value in header.Value)
                 {
                     buf.Clear();
+                    buf.Append("  ");
                     buf.Append(header.Key);
                     buf.Append(": ");
                     buf.Append(value);

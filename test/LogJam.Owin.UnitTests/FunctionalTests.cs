@@ -13,6 +13,7 @@ namespace LogJam.Owin.UnitTests
     using System.Diagnostics.Contracts;
     using System.IO;
     using System.Linq;
+    using System.Threading.Tasks;
 
     using global::Owin;
 
@@ -51,6 +52,28 @@ namespace LogJam.Owin.UnitTests
             using (TestServer testServer = CreateTestServer(stringWriter, setupLog))
             {
                 IssueTraceRequest(testServer, 2);
+            }
+
+            _testOutputHelper.WriteLine(stringWriter.ToString());
+
+            Assert.NotEmpty(setupLog);
+            Assert.False(setupLog.HasAnyExceeding(TraceLevel.Info));
+        }
+
+        [Fact]
+        public void ParallelRequestsWithTracing()
+        {
+            var setupLog = new SetupLog();
+            var stringWriter = new StringWriter();
+            using (TestServer testServer = CreateTestServer(stringWriter, setupLog))
+            {
+                // 10 parallel threads, each thread issues 2 requests, each request traces 2x
+                Action issueRequestAction = () =>
+                                            {
+                                                IssueTraceRequest(testServer, 2);
+                                                IssueTraceRequest(testServer, 2);
+                                            };
+                Parallel.Invoke(Enumerable.Repeat(issueRequestAction, 10).ToArray());
             }
 
             _testOutputHelper.WriteLine(stringWriter.ToString());
@@ -114,33 +137,23 @@ namespace LogJam.Owin.UnitTests
                                     };
 
                 // Log to debugger
-                var debuggerConfig = logManagerConfig.UseDebugger()
-                                                     .Format<TraceEntry>()
-                                                     .Format<HttpRequestEntry>()
-                                                     .Format<HttpResponseEntry>();
+                var debuggerConfig = logManagerConfig.UseDebugger();
                 debuggerConfig.BackgroundLogging = backgroundThreadLogging;
-                traceManagerConfig.TraceTo(debuggerConfig, traceSwitches);
 
-                // Log to textwriter without timestamps
-                var textLogConfig0 = logManagerConfig.UseTextWriter(new StringWriter())
-                                                     .Format<TraceEntry>()
-                                                     .Format<HttpRequestEntry>()
-                                                     .Format<HttpResponseEntry>();
+                // Log to textwriter without trace timestamps (default)
+                var textLogConfig0 = logManagerConfig.UseTextWriter(new StringWriter());
                 textLogConfig0.BackgroundLogging = backgroundThreadLogging;
-                traceManagerConfig.TraceTo(textLogConfig0, traceSwitches);
 
-                // Log to TextWriter
-                var textLogConfig = logManagerConfig.UseTextWriter(logTarget)
+                // Log to TextWriter with Trace timestamps
+                var textLogConfig1 = logManagerConfig.UseTextWriter(logTarget)
                                                     .Format(new DefaultTraceFormatter()
                                                             {
                                                                 IncludeTimestamp = true
-                                                            })
-                                                    .Format(new HttpRequestFormatter())
-                                                    .Format(new HttpResponseFormatter());
-                textLogConfig.BackgroundLogging = backgroundThreadLogging;
-                traceManagerConfig.TraceTo(textLogConfig, traceSwitches);
+                                                            });
+                traceManagerConfig.TraceTo(textLogConfig1, traceSwitches);
 
-                appBuilder.LogHttpRequests(debuggerConfig, textLogConfig0, textLogConfig);
+                appBuilder.TraceTo(new ILogWriterConfig[] {debuggerConfig, textLogConfig0}, traceSwitches);
+                appBuilder.LogHttpRequestsToAll();
                 appBuilder.UseOwinTracerLogging();
             }
 

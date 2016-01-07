@@ -7,6 +7,11 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using LogJam.Writer.Text;
+
 namespace LogJam.Config
 {
     using System;
@@ -42,24 +47,43 @@ namespace LogJam.Config
             return writerConfig;
         }
 
+        /// <summary>
+        /// Ensures that a single <see cref="DebuggerLogWriterConfig"/> is configured in the <paramref name="logManagerConfig"/>.
+        /// </summary>
+        /// <param name="logManagerConfig"></param>
+        /// <returns></returns>
         public static DebuggerLogWriterConfig UseDebugger(this LogManagerConfig logManagerConfig)
         {
             Contract.Requires<ArgumentNullException>(logManagerConfig != null);
 
-            var debuggerConfig = new DebuggerLogWriterConfig();
-            logManagerConfig.Writers.Add(debuggerConfig);
+            var debuggerConfig = logManagerConfig.Writers.OfType<DebuggerLogWriterConfig>().FirstOrDefault();
+            if (debuggerConfig == null)
+            {
+                debuggerConfig = new DebuggerLogWriterConfig();
+                logManagerConfig.Writers.Add(debuggerConfig);
+            }
             return debuggerConfig;
         }
 
+        /// <summary>
+        /// Ensures that a single <see cref="ConsoleLogWriterConfig"/> is configured in the <paramref name="logManagerConfig"/>.
+        /// </summary>
+        /// <param name="logManagerConfig"></param>
+        /// <param name="colorize"></param>
+        /// <returns>The <see cref="ConsoleLogWriterConfig"/>, which can be altered as needed.</returns>
         public static ConsoleLogWriterConfig UseConsole(this LogManagerConfig logManagerConfig, bool colorize = true)
         {
             Contract.Requires<ArgumentNullException>(logManagerConfig != null);
 
-            var consoleWriterConfig = new ConsoleLogWriterConfig()
-                                      {
-                                          UseColor = colorize
-                                      };
-            logManagerConfig.Writers.Add(consoleWriterConfig);
+            var consoleWriterConfig = logManagerConfig.Writers.OfType<ConsoleLogWriterConfig>().FirstOrDefault();
+            if (consoleWriterConfig == null)
+            {
+                consoleWriterConfig = new ConsoleLogWriterConfig();
+                logManagerConfig.Writers.Add(consoleWriterConfig);
+            }
+
+            consoleWriterConfig.UseColor = colorize;
+
             return consoleWriterConfig;
         }
 
@@ -73,6 +97,41 @@ namespace LogJam.Config
             return useExistingConfig;
         }
 
+        /// <summary>
+        /// Adds <paramref name="entryFormatter"/> or the default formatter for <typeparamref name="TEntry"/> to each of
+        /// the <see cref="ILogWriterConfig"/> objects in <paramref name="logWriterConfigs"/> that are of type <see cref="TextLogWriterConfig"/>.
+        /// <para>This is a convenience function to make it easy to apply the same formatting for the same entry types to multiple logwriters.</para>
+        /// </summary>
+        /// <typeparam name="TEntry"></typeparam>
+        /// <param name="logWriterConfigs">A collection of <see cref="ILogWriterConfig"/> objects.</param>
+        /// <param name="entryFormatter">The <see cref="EntryFormatter{TEntry}"/> to use for all entries of type <typeparamref name="TEntry"/>;
+        /// or <c>null</c> to use the default entryformatter for <typeparamref name="TEntry"/>.</param>
+        /// <returns>The <paramref name="logWriterConfigs"/> parameter, for fluent call chaining.</returns>
+        public static IEnumerable<ILogWriterConfig> FormatAll<TEntry>(this IEnumerable<ILogWriterConfig> logWriterConfigs, EntryFormatter<TEntry> entryFormatter = null)
+            where TEntry : ILogEntry
+        {
+            Contract.Requires<ArgumentNullException>(logWriterConfigs != null);
+
+            if (entryFormatter == null)
+            {   // Try creating the default entry formatter
+                entryFormatter = DefaultFormatterAttribute.GetDefaultFormatterFor<TEntry>();
+                if (entryFormatter == null)
+                {
+                    throw new ArgumentNullException(nameof(entryFormatter),
+                                                    $"No [DefaultFormatter] attribute could be found for entry type {typeof(TEntry).FullName}, so {nameof(entryFormatter)} argument must be set.");
+                }
+            }
+
+            foreach (var logWriterConfig in logWriterConfigs)
+            {
+                var textLogWriterConfig = logWriterConfig as TextLogWriterConfig;
+                if (textLogWriterConfig != null)
+                {
+                    textLogWriterConfig.Format(entryFormatter);
+                }
+            }
+            return logWriterConfigs;
+        }
     }
 
 }

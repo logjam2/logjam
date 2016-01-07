@@ -32,17 +32,18 @@ namespace LogJam.Owin.Http
             buf.Clear();
             buf.Append(entry.RequestNumber);
             buf.Append('>');
-            formatWriter.WriteField(buf, ColorCategory.Markup, 5);
+            formatWriter.WriteField(buf, ColorCategory.Markup, 3);
 
             formatWriter.WriteTimestamp(entry.RequestStarted, ColorCategory.Detail);
 
-            formatWriter.WriteField(entry.Method, ColorCategory.Info, 6);
+            formatWriter.WriteField(entry.Method, ColorCategory.Info, 3);
             formatWriter.WriteField(entry.Uri, ColorCategory.Important);
 
             FormatterHelper.FormatHeaders(formatWriter, entry.RequestHeaders);
 
-            formatWriter.EndEntry();
             formatWriter.WriteLine(); // Extra line break for readability
+            formatWriter.EndEntry();
+
             formatWriter.IndentLevel++;
         }
 

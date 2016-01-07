@@ -21,9 +21,15 @@ namespace LogJam.Trace.Format
     /// </summary>
     public class DefaultTraceFormatter : EntryFormatter<TraceEntry>
     {
+        /// <summary>
+        /// The default value for <see cref="MaxIndentLevel"/> if no value is set.
+        /// </summary>
+        public const int DefaultMaxIndentLevel = 4;
 
         public DefaultTraceFormatter()
-        {}
+        {
+            MaxIndentLevel = DefaultMaxIndentLevel;
+        }
 
         #region Public Properties
 
@@ -38,42 +44,50 @@ namespace LogJam.Trace.Format
         public bool IncludeTimestamp { get; set; }
 
         /// <summary>
-        /// We don't yet support indenting based on context, but we do support indenting a constant amount. 
+        /// Set to a value to alter the trace entry indent level from what is set. 
         /// </summary>
-        public int IndentLevel { get; set; }
+        public int RelativeIndentLevel { get; set; }
+
+        /// <summary>
+        /// Don't indent any trace entries by more than this value.
+        /// </summary>
+        public int MaxIndentLevel { get; set; }
 
         #endregion
 
         #region Formatter methods
 
-        public override void Format(ref TraceEntry traceEntry, FormatWriter writer)
+        public override void Format(ref TraceEntry traceEntry, FormatWriter formatWriter)
         {
             ColorCategory color = ColorCategory.None;
-            if (writer.IsColorEnabled)
+            if (formatWriter.IsColorEnabled)
             {
                 color = TraceLevelToColorCategory(traceEntry.TraceLevel);
             }
 
-            writer.BeginEntry(writer.IndentLevel + IndentLevel);
+            int entryIndentLevel = formatWriter.IndentLevel + RelativeIndentLevel;
+            entryIndentLevel = Math.Min(entryIndentLevel, MaxIndentLevel);
+
+            formatWriter.BeginEntry(entryIndentLevel);
 
             if (IncludeDate)
             {
-                writer.WriteDate(traceEntry.TimestampUtc, ColorCategory.Debug);
+                formatWriter.WriteDate(traceEntry.TimestampUtc, ColorCategory.Debug);
             }
             if (IncludeTimestamp)
             {
-                writer.WriteTimestamp(traceEntry.TimestampUtc, ColorCategory.Debug);
+                formatWriter.WriteTimestamp(traceEntry.TimestampUtc, ColorCategory.Detail);
             }
-            writer.WriteField(TraceLevelToLabel(traceEntry.TraceLevel), color, 7);
-            writer.WriteAbbreviatedTypeName(traceEntry.TracerName, ColorCategory.Debug, 40);
-            writer.WriteField(traceEntry.Message.Trim(), color);
+            formatWriter.WriteField(TraceLevelToLabel(traceEntry.TraceLevel), color, 6);
+            formatWriter.WriteAbbreviatedTypeName(traceEntry.TracerName, ColorCategory.Debug, 36);
+            formatWriter.WriteField(traceEntry.Message.Trim(), color);
             if (traceEntry.Details != null)
             {
                 ColorCategory detailColor = color == ColorCategory.Debug ? ColorCategory.Debug : ColorCategory.Detail;
-                writer.WriteLines(traceEntry.Details.ToString(), detailColor, 1);
+                formatWriter.WriteLines(traceEntry.Details.ToString(), detailColor, 1);
             }
 
-            writer.EndEntry();
+            formatWriter.EndEntry();
         }
 
         #endregion

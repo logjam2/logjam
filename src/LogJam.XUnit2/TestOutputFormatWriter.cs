@@ -86,7 +86,7 @@ namespace LogJam.XUnit2
 
         #endregion
 
-        protected override void WriteEndLine()
+        public override void WriteEndLine()
         {
             _testOutput.WriteLine(_lineBuffer.ToString());
             _lineBuffer.Clear();
@@ -97,12 +97,12 @@ namespace LogJam.XUnit2
             _lineBuffer.Append(s);
         }
 
-        protected override void WriteText(string s, int startIndex, int length, ColorCategory colorCategory)
+        public override void WriteText(string s, int startIndex, int length, ColorCategory colorCategory)
         {
             _lineBuffer.Append(s, startIndex, length);
         }
 
-        protected override void WriteText(StringBuilder sb, int startIndex, int length, ColorCategory colorCategory)
+        public override void WriteText(StringBuilder sb, int startIndex, int length, ColorCategory colorCategory)
         {
             _lineBuffer.BufferedAppend(sb, startIndex, length, _charBuffer);
         }

@@ -48,7 +48,7 @@ namespace LogJam.Owin.UnitTests
                                          appBuilder.Properties["host.AppName"] = appName;
 
                                          // Use the specified setupLog
-                                         appBuilder.RegisterLogManager(setupLog);
+                                         appBuilder.RegisterLogManager(new TraceManager(setupLog));
 
                                          // Configure logging
                                          ConfigureLogging(appBuilder, logTarget, backgroundThreadLogging);

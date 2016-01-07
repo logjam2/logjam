@@ -105,12 +105,12 @@ namespace LogJam.Writer.Text
             _outputBuffer.Append(s);
         }
 
-        protected override void WriteText(string s, int startIndex, int length, ColorCategory colorCategory)
+        public override void WriteText(string s, int startIndex, int length, ColorCategory colorCategory)
         {
             _outputBuffer.Append(s, startIndex, length);
         }
 
-        protected override void WriteText(StringBuilder sb, int startIndex, int length, ColorCategory colorCategory)
+        public override void WriteText(StringBuilder sb, int startIndex, int length, ColorCategory colorCategory)
         {
             _outputBuffer.BufferedAppend(sb, startIndex, length, _charBuffer);
         }

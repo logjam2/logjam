@@ -28,6 +28,11 @@ namespace LogJam.Owin.Http
         public long RequestNumber;
 
         /// <summary>
+        /// When the HTTP request completed processing.
+        /// </summary>
+        public DateTimeOffset RequestCompleted;
+
+        /// <summary>
         /// Time-to-first-byte
         /// </summary>
         public TimeSpan Ttfb;

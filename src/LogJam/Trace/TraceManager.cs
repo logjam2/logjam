@@ -26,6 +26,7 @@ namespace LogJam.Trace
     /// </summary>
     public sealed class TraceManager : BaseLogJamManager, ITracerFactory
     {
+
         #region Static fields
 
         private static readonly Lazy<TraceManager> s_instance;
@@ -65,6 +66,16 @@ namespace LogJam.Trace
         /// </summary>
         public TraceManager()
             : this(TraceManagerConfig.Default())
+        {
+            // TODO: Check for local or remote config?
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="TraceManager" /> instance using default configuration and the specified <paramref name="setupLog"/>.
+        /// </summary>
+        /// <param name="setupLog"></param>
+        public TraceManager(SetupLog setupLog)
+            : this(TraceManagerConfig.Default(), setupLog)
         {
             // TODO: Check for local or remote config?
         }

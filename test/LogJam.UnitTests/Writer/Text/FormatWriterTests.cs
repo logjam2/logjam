@@ -26,9 +26,9 @@ namespace LogJam.UnitTests.Writer.Text
         [Theory]
         [InlineData("", 0, "")]
         [InlineData("a", 0, "a\r\n")]
-        [InlineData("a\rb", 1, "    a\r\n    b\r\n")]
-        [InlineData("a\r\nb\r\n\r\nc\r\n", 1, "    a\r\n    b\r\n    c\r\n")]
-        [InlineData("a\r\n \r\nc", 1, "    a\r\n     \r\n    c\r\n")]
+        [InlineData("a\rb", 1, "   a\r\n   b\r\n")]
+        [InlineData("a\r\nb\r\n\r\nc\r\n", 1, "   a\r\n   b\r\n   c\r\n")]
+        [InlineData("a\r\n \r\nc", 1, "   a\r\n    \r\n   c\r\n")]
         public void WriteLinesStringWorks(string lines, int indentLevel, string expectedOutput)
         {
             // Prepare
@@ -48,9 +48,9 @@ namespace LogJam.UnitTests.Writer.Text
         [Theory]
         [InlineData("", 0, "")]
         [InlineData("a", 0, "a\r\n")]
-        [InlineData("a\rb", 1, "    a\r\n    b\r\n")]
-        [InlineData("a\r\nb\r\n\r\nc\r\n", 1, "    a\r\n    b\r\n    c\r\n")]
-        [InlineData("a\r\n \r\nc", 1, "    a\r\n     \r\n    c\r\n")]
+        [InlineData("a\rb", 1, "   a\r\n   b\r\n")]
+        [InlineData("a\r\nb\r\n\r\nc\r\n", 1, "   a\r\n   b\r\n   c\r\n")]
+        [InlineData("a\r\n \r\nc", 1, "   a\r\n    \r\n   c\r\n")]
         public void WriteLinesStringBuilderWorks(string lines, int indentLevel, string expectedOutput)
         {
             // Prepare

@@ -130,7 +130,7 @@ namespace LogJam.Writer.Text
             }
         }
 
-        protected override void WriteText(string s, int startIndex, int length, ColorCategory colorCategory)
+        public override void WriteText(string s, int startIndex, int length, ColorCategory colorCategory)
         {
             var colorResolver = ColorResolver;
             if (colorResolver != null && colorCategory != ColorCategory.None)
@@ -148,7 +148,7 @@ namespace LogJam.Writer.Text
             }
         }
 
-        protected override void WriteText(StringBuilder sb, int startIndex, int length, ColorCategory colorCategory)
+        public override void WriteText(StringBuilder sb, int startIndex, int length, ColorCategory colorCategory)
         {
             var colorResolver = ColorResolver;
             if (colorResolver != null && colorCategory != ColorCategory.None)
