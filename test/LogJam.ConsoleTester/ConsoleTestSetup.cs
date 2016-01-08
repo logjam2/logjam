@@ -65,7 +65,7 @@ namespace LogJam.ConsoleTester
         /// </summary>
         public void FluentConfigForTrace()
         {
-            var traceWriterConfig = TraceManager.Config.TraceToConsole();
+            var traceWriterConfig = TraceManager.TraceToConsole();
 
             // Normally you don't have to extract the ConsoleLogWriterConfig, but for the purposes of this class we do
             ConsoleLogWriterConfig = traceWriterConfig.LogWriterConfig as ConsoleLogWriterConfig;
@@ -76,13 +76,13 @@ namespace LogJam.ConsoleTester
         /// </summary>
         public void FluentConfigForTraceEnableAllLevels()
         {
-            var traceWriterConfig = TraceManager.Config.TraceToConsole(new SwitchSet()
-                                                                       {
-                                                                           // Default threshold (info) for all tracers
-                                                                           { Tracer.All, new ThresholdTraceSwitch(TraceLevel.Info) },
-                                                                           // Enable all trace levels for ConsoleTestCases
-                                                                           { typeof(ConsoleTestCases), new OnOffTraceSwitch(true) }
-                                                                       });
+	        var traceWriterConfig = TraceManager.TraceToConsole(new SwitchSet()
+	                                                            {
+		                                                            // Default threshold (info) for all tracers
+		                                                            { Tracer.All, new ThresholdTraceSwitch(TraceLevel.Info) },
+		                                                            // Enable all trace levels for ConsoleTestCases
+		                                                            { typeof(ConsoleTestCases), new OnOffTraceSwitch(true) }
+	                                                            });
 
             // Normally you don't have to extract the ConsoleLogWriterConfig, but for the purposes of this class we do
             ConsoleLogWriterConfig = traceWriterConfig.LogWriterConfig as ConsoleLogWriterConfig;

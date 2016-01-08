@@ -26,8 +26,10 @@ namespace LogJam.Owin.UnitTests
     using Microsoft.Owin;
     using Microsoft.Owin.Testing;
 
+    using Xunit.Abstractions;
 
-    /// <summary>
+
+	/// <summary>
     /// Common OWIN test logic.
     /// </summary>
     public abstract class BaseOwinTest
@@ -37,7 +39,16 @@ namespace LogJam.Owin.UnitTests
         protected readonly PathString TracePath = new PathString("/trace");
         protected readonly PathString LogJamStatusPath = new PathString("/logjam/status");
 
-        public TestServer CreateTestServer(TextWriter logTarget, SetupLog setupLog, bool backgroundThreadLogging = true)
+		protected readonly ITestOutputHelper testOutputHelper;
+
+		protected BaseOwinTest(ITestOutputHelper testOutputHelper)
+		{
+			Contract.Requires<ArgumentNullException>(testOutputHelper != null);
+
+			this.testOutputHelper = testOutputHelper;
+		}
+
+		public TestServer CreateTestServer(TextWriter logTarget, SetupLog setupLog, bool backgroundThreadLogging = true)
         {
             Contract.Requires<ArgumentNullException>(logTarget != null);
 

@@ -36,8 +36,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FakeTestOutputHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ExampleTestTracing.cs" />
+    <Compile Include="TestOutputFormatWriterTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\LogJam.XUnit2\LogJam.XUnit2.csproj">
@@ -47,6 +49,10 @@
     <ProjectReference Include="..\..\src\LogJam\LogJam.csproj">
       <Project>{43f154ad-aa27-48b3-ba07-d02c92be4f45}</Project>
       <Name>LogJam</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LogJam.Test.Shared\LogJam.Test.Shared.csproj">
+      <Project>{fb3bef5b-a7f7-436d-bff2-ea2a9c620ccd}</Project>
+      <Name>LogJam.Test.Shared</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

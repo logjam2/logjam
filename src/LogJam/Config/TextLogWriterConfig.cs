@@ -54,7 +54,7 @@ namespace LogJam.Config
             _spacesPerIndent = FormatWriter.DefaultSpacesPerIndent;
             _timeZone = TimeZoneInfo.Local;
             IncludeDate = false;
-            IncludeTimestamp = true;
+            IncludeTime = true;
         }
 
         /// <summary>
@@ -92,7 +92,7 @@ namespace LogJam.Config
         /// <summary>
         /// <c>true</c> to include the Timestamp when formatting log entries with a date/time field. Default is <c>true</c>.
         /// </summary>
-        public bool IncludeTimestamp { get; set; }
+        public bool IncludeTime { get; set; }
 
         /// <summary>
         /// Specifies the TimeZone to use when formatting the timestamp for a log entry. Defaults to local time.
@@ -178,7 +178,7 @@ namespace LogJam.Config
             formatWriter.FieldDelimiter = FieldDelimiter;
             formatWriter.SpacesPerIndent = SpacesPerIndent; 
             formatWriter.IncludeDate = IncludeDate;
-            formatWriter.IncludeTimestamp = IncludeTimestamp;
+            formatWriter.IncludeTime = IncludeTime;
             formatWriter.OutputTimeZone = TimeZone;
 
             var logWriter = new TextLogWriter(setupTracerFactory, formatWriter);

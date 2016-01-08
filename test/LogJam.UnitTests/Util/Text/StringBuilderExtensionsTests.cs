@@ -24,7 +24,10 @@ namespace LogJam.UnitTests.Util.Text
 
         [Theory]
         [InlineData(0, 0, "0")]
-        [InlineData(-1, 0, "-1")]
+		[InlineData(0, 1, "0")]
+		[InlineData(0, 2, "00")]
+		[InlineData(0, 4, "0000")]
+		[InlineData(-1, 0, "-1")]
         [InlineData(-1, 3, "-01")]
         [InlineData(-9, 2, "-9")]
         [InlineData(-9, 4, "-009")]

@@ -118,7 +118,7 @@ namespace LogJam.Writer.Text
             _startedEntries = 0;
 
             // Set defaults
-            IncludeTimestamp = true;
+            IncludeTime = true;
             IncludeDate = false;
         }
 
@@ -189,7 +189,7 @@ namespace LogJam.Writer.Text
         /// <summary>
         /// <c>true</c> to include the Timestamp when formatting log entries with a date/time field.
         /// </summary>
-        public bool IncludeTimestamp { get; set; }
+        public bool IncludeTime { get; set; }
 
         /// <summary>
         /// The number of spaces for each indent level.
@@ -493,7 +493,7 @@ namespace LogJam.Writer.Text
 
         public virtual void WriteSpaces(int countSpaces)
         {
-            if (countSpaces == 0)
+            if (countSpaces <= 0)
             {
                 return;
             }

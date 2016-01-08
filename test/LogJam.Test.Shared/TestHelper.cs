@@ -49,6 +49,34 @@ namespace LogJam.Test.Shared
                 throw exception;
             }
         }
+
+        public static int CountLineBreaks(string text)
+        {
+            int countLineBreaks = 0;
+            int len = text.Length;
+            for (int i = 0; ;)
+            {
+                i = text.IndexOfAny(new[] { '\r', '\n' }, i);
+                if (i < 0)
+                {
+                    return countLineBreaks;
+                }
+                else
+                {
+                    if ((text[i] == '\r') && (i + 1 < len) && (text[i + 1] == '\n'))
+                    {
+                        countLineBreaks++;
+                        i += 2;
+                    }
+                    else
+                    {
+                        countLineBreaks++;
+                        i++;
+                    }
+                }
+            }
+        }
+
     }
 
 }

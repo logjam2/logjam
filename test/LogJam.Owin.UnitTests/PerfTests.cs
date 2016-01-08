@@ -31,18 +31,14 @@ namespace LogJam.Owin.UnitTests
     /// </summary>
     public sealed class PerfTests : BaseOwinTest
     {
-        private readonly ITestOutputHelper _testOutputHelper;
 
-        public PerfTests(ITestOutputHelper testOutputHelper)
-        {
-            Contract.Requires<ArgumentNullException>(testOutputHelper != null);
-
-            _testOutputHelper = testOutputHelper;
-        }
+		public PerfTests(ITestOutputHelper testOutputHelper)
+			: base(testOutputHelper)
+        {}
 
         [Theory]
         [InlineData(4, 1000, 0)]
-        [InlineData(4, 1000, 0)]
+        [InlineData(5, 1000, 0)]
         [InlineData(4, 1000, 10)]
         //[InlineData(40, 1000, 30)]
         public void ParallelTraceTest(int threads, int requestsPerThread, int tracesPerRequest)
@@ -57,7 +53,7 @@ namespace LogJam.Owin.UnitTests
                 Action testThread = () =>
                                     {
                                         int threadId = Thread.CurrentThread.ManagedThreadId;
-                                        _testOutputHelper.WriteLine("{0}: Starting requests on thread {1}", overallStopwatch.Elapsed, threadId);
+                                        testOutputHelper.WriteLine("{0}: Starting requests on thread {1}", overallStopwatch.Elapsed, threadId);
                                         var stopWatch = Stopwatch.StartNew();
 
                                         for (int i = 0; i < requestsPerThread; ++i)
@@ -66,7 +62,7 @@ namespace LogJam.Owin.UnitTests
                                         }
                                         stopWatch.Stop();
 
-                                        _testOutputHelper.WriteLine("{0}: Completed {1} requests on thread {2} in {3}",
+                                        testOutputHelper.WriteLine("{0}: Completed {1} requests on thread {2} in {3}",
                                                           overallStopwatch.Elapsed,
                                                           requestsPerThread,
                                                           threadId,

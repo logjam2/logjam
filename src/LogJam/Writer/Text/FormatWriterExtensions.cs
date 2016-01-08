@@ -22,8 +22,14 @@ namespace LogJam.Writer.Text
     public static class FormatWriterExtensions
     {
 
-        #region Format fields
-
+		/// <summary>
+		/// Formats an int field, with zero padding and space padding if specified.
+		/// </summary>
+		/// <param name="formatWriter">The <see cref="FormatWriter"/> being written to.</param>
+		/// <param name="number">The number to format.</param>
+		/// <param name="colorCategory">The color category for the output.</param>
+		/// <param name="zeroPaddedWidth">The minimum digit width to write. If <paramref name="number"/> has fewer digits the output is left-padded with zeros.</param>
+		/// <param name="spacePaddedWidth">The minimum character width to write. If the written characters are less than this width, the output is right-padded with spaces.</param>
         public static void WriteIntField(this FormatWriter formatWriter, int number, ColorCategory colorCategory = ColorCategory.Detail, int zeroPaddedWidth = 0, int spacePaddedWidth = 0)
         {
             Contract.Requires<ArgumentNullException>(formatWriter != null);
@@ -44,7 +50,49 @@ namespace LogJam.Writer.Text
             formatWriter.WriteField(fieldBuffer, colorCategory);
         }
 
-        public static void WriteAbbreviatedTypeName(this FormatWriter formatWriter, string typeName, ColorCategory colorCategory = ColorCategory.Detail, int padWidth = 0)
+		/// <summary>
+		/// Formats a time offset field
+		/// </summary>
+		/// <param name="timeOffset"></param>
+		/// <param name="colorCategory"></param>
+		public static void WriteTimeOffset(this FormatWriter formatWriter, TimeSpan timeOffset, ColorCategory colorCategory, int leftPaddedWidth = 9)
+		{
+			var buf = formatWriter.FieldBuffer;
+			buf.Clear();
+
+			// Handle negative timespans
+			if (timeOffset.Ticks < 0)
+			{
+				buf.Append('-');
+				timeOffset = timeOffset.Negate();
+			}
+
+			int hours = (int) Math.Floor(timeOffset.TotalHours);
+			if (hours > 0)
+			{
+				buf.Append(hours);
+				buf.Append(':');
+			}
+			int minutes = timeOffset.Minutes;
+			if (hours > 0)
+			{
+				buf.AppendPadZeroes(minutes, 2);
+			}
+			else
+			{
+				buf.Append(minutes);
+			}
+			buf.Append(':');
+			buf.AppendPadZeroes(timeOffset.Seconds, 2);
+			buf.Append('.');
+			buf.AppendPadZeroes(timeOffset.Milliseconds, 3);
+
+			int leftPadSpaces = leftPaddedWidth - buf.Length;
+			formatWriter.WriteSpaces(leftPadSpaces);
+			formatWriter.WriteField(buf, colorCategory);
+		}
+
+		public static void WriteAbbreviatedTypeName(this FormatWriter formatWriter, string typeName, ColorCategory colorCategory = ColorCategory.Detail, int padWidth = 0)
         {
             Contract.Requires<ArgumentNullException>(formatWriter != null);
             Contract.Requires<ArgumentNullException>(typeName != null);
@@ -103,8 +151,6 @@ namespace LogJam.Writer.Text
 
             formatWriter.WriteField(fieldBuffer, colorCategory);
         }
-
-        #endregion
 
     }
 

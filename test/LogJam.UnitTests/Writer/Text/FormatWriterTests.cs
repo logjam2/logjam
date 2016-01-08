@@ -9,7 +9,8 @@
 
 namespace LogJam.UnitTests.Writer.Text
 {
-    using System.IO;
+	using System;
+	using System.IO;
     using System.Text;
 
     using LogJam.Writer.Text;
@@ -67,6 +68,30 @@ namespace LogJam.UnitTests.Writer.Text
             Assert.Equal(expectedOutput, sbOut.ToString());
         }
 
-    }
+		[Theory]
+		[InlineData(0, " 0:00.000")]
+		[InlineData(10, " 0:00.010")]
+		[InlineData(2123, " 0:02.123")]
+		[InlineData(21230, " 0:21.230")]
+		[InlineData(452221230, "125:37:01.230")]
+		[InlineData(-21230, "-0:21.230")]
+		public void WriteTimeOffsetWorks(double milliseconds, string expectedOutput)
+		{
+			// Prepare
+			var setupLog = new SetupLog();
+			var sbOut = new StringBuilder();
+			var textWriter = new StringWriter(sbOut);
+			using (var formatWriter = new TextWriterFormatWriter(setupLog, textWriter))
+			{
+				// Test
+				var timeOffset = TimeSpan.FromMilliseconds(milliseconds);
+				formatWriter.WriteTimeOffset(timeOffset, ColorCategory.None);
+			}
+
+			// Verify
+			Assert.Equal(expectedOutput, sbOut.ToString());
+		}
+
+	}
 
 }

@@ -9,50 +9,61 @@
 
 namespace LogJam.XUnit2
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics.Contracts;
+	using System;
+	using System.Diagnostics.Contracts;
 
-    using LogJam.Config;
-    using LogJam.Trace;
-    using LogJam.Writer;
-    using LogJam.Writer.Text;
+	using LogJam.Config;
+	using LogJam.Trace;
+	using LogJam.Writer.Text;
 
-    using Xunit.Abstractions;
+	using Xunit.Abstractions;
 
 
-    /// <summary>
-    /// Creates a <see cref="TestOutputFormatWriter" /> using the specified xunit2 <see cref="ITestOutputHelper" />.
-    /// </summary>
-    public sealed class TestOutputLogWriterConfig : TextLogWriterConfig
-    {
+	/// <summary>
+	/// Creates a <see cref="TestOutputFormatWriter" /> using the specified xunit2 <see cref="ITestOutputHelper" />.
+	/// </summary>
+	public sealed class TestOutputLogWriterConfig : TextLogWriterConfig
+	{
 
-        public TestOutputLogWriterConfig()
-        {}
+		public TestOutputLogWriterConfig()
+		{
+			// By default, tests are logged with an offset from start time, and no clock timestamp
+			IncludeTimeOffset = true;
+			IncludeTime = false;
+		}
 
-        public TestOutputLogWriterConfig(ITestOutputHelper testOutput)
-        {
-            Contract.Requires<ArgumentNullException>(testOutput != null);
+		public TestOutputLogWriterConfig(ITestOutputHelper testOutput)
+			: this()
+		{
+			Contract.Requires<ArgumentNullException>(testOutput != null);
 
-            TestOutput = testOutput;
-        }
+			TestOutput = testOutput;
+		}
 
-        /// <summary>
-        /// The <see cref="ITestOutputHelper" /> to use to send log output to.  Must be set before logging begins.
-        /// </summary>
-        public ITestOutputHelper TestOutput { get; set; }
+		/// <summary>
+		/// The <see cref="ITestOutputHelper" /> to use to send log output to.  Must be set before logging begins.
+		/// </summary>
+		public ITestOutputHelper TestOutput { get; set; }
 
-        protected override FormatWriter CreateFormatWriter(ITracerFactory setupTracerFactory)
-        {
-            var testOutputHelper = TestOutput;
-            if (testOutputHelper == null)
-            {
-                throw new LogJamXUnitSetupException("TestOutputLogWriterConfig.TestOutput must be set before logging.", this);
-            }
+		/// <summary>
+		/// <c>true</c> to include the time offset (since <see cref="StartTimeUtc" />)  when formatting timestamps.
+		/// </summary>
+		public bool IncludeTimeOffset { get; set; }
 
-            return new TestOutputFormatWriter(testOutputHelper, setupTracerFactory, FieldDelimiter, SpacesPerIndent);
-        }
+		protected override FormatWriter CreateFormatWriter(ITracerFactory setupTracerFactory)
+		{
+			var testOutputHelper = TestOutput;
+			if (testOutputHelper == null)
+			{
+				throw new LogJamXUnitSetupException("TestOutputLogWriterConfig.TestOutput must be set before logging.", this);
+			}
 
-    }
+			return new TestOutputFormatWriter(testOutputHelper, setupTracerFactory)
+			{
+				IncludeTimeOffset = IncludeTimeOffset
+			};
+		}
+
+	}
 
 }

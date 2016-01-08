@@ -44,14 +44,19 @@ namespace LogJam.Util.Text
                 width--;
             }
 
-            int threshold = 1, i = 0;
+			int threshold = 1, i = 0;
             for (; i <= width && threshold <= number; ++i, threshold *= 10) {}
             int countZeroes = width - i;
 
             if (countZeroes > 0)
             {
                 sb.Append('0', countZeroes);
+                if (number == 0)
+                {   // To avoid writing an extra 0
+                    return;
+                }
             }
+
             sb.Append(number);
         }
 

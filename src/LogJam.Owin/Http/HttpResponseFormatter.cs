@@ -81,6 +81,7 @@ namespace LogJam.Owin.Http
             formatWriter.WriteText(buf, 0, buf.Length, responseColorCategory);
             formatWriter.WriteSpaces(1);
             formatWriter.WriteText(entry.HttpReasonPhrase, ColorCategory.Detail);
+            formatWriter.WriteLine();
 
             FormatterHelper.FormatHeaders(formatWriter, entry.ResponseHeaders);
 

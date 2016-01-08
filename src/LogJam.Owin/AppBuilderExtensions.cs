@@ -245,53 +245,6 @@ namespace Owin
         }
 
         /// <summary>
-        /// Enables sending trace messages to <paramref name="configuredLogWriters" />.  This method can be called multiple times
-        /// to
-        /// specify different switch settings for different logWriters; or <see cref="GetTraceManagerConfig" /> can
-        /// be used for finer-grained control of configuration.
-        /// </summary>
-        /// <param name="appBuilder"></param>
-        /// <param name="configuredLogWriters"></param>
-        /// <param name="switches"></param>
-        /// <param name="traceFormatter"></param>
-        /// <returns></returns>
-        public static void TraceTo(this IAppBuilder appBuilder,
-                                   IEnumerable<ILogWriterConfig> configuredLogWriters,
-                                   SwitchSet switches = null,
-                                   EntryFormatter<TraceEntry> traceFormatter = null)
-        {
-            Contract.Requires<ArgumentNullException>(appBuilder != null);
-            Contract.Requires<ArgumentNullException>(configuredLogWriters != null);
-
-            if (switches == null)
-            {
-                switches = TraceManagerConfig.CreateDefaultSwitchSet();
-            }
-
-            configuredLogWriters.FormatAll(traceFormatter);
-            foreach (var logWriterConfig in configuredLogWriters)
-            {
-                appBuilder.GetTraceManagerConfig().Writers.Add(new TraceWriterConfig(logWriterConfig, switches));
-            }
-        }
-
-        /// <summary>
-        /// Enables sending trace messages to all configured log writers.
-        /// </summary>
-        /// <param name="appBuilder"></param>
-        /// <param name="switches"></param>
-        /// <param name="traceFormatter"></param>
-        /// <returns></returns>
-        public static void TraceToAll(this IAppBuilder appBuilder,
-                                      SwitchSet switches = null,
-                                      EntryFormatter<TraceEntry> traceFormatter = null)
-        {
-            Contract.Requires<ArgumentNullException>(appBuilder != null);
-
-            TraceTo(appBuilder, appBuilder.GetLogManagerConfig().Writers, switches, traceFormatter);
-        }
-
-        /// <summary>
         /// Returns a <see cref="Tracer" /> for type <typeparamref name="T" />.
         /// </summary>
         /// <param name="appBuilder"></param>
