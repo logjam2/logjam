@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="DefaultTraceFormatter.cs">
-// Copyright (c) 2011-2015 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -10,8 +10,6 @@
 namespace LogJam.Trace.Format
 {
     using System;
-    using System.Diagnostics.Contracts;
-    using System.IO;
 
     using LogJam.Writer.Text;
 
@@ -21,8 +19,9 @@ namespace LogJam.Trace.Format
     /// </summary>
     public class DefaultTraceFormatter : EntryFormatter<TraceEntry>
     {
+
         /// <summary>
-        /// The default value for <see cref="MaxIndentLevel"/> if no value is set.
+        /// The default value for <see cref="MaxIndentLevel" /> if no value is set.
         /// </summary>
         public const int DefaultMaxIndentLevel = 4;
 
@@ -44,7 +43,7 @@ namespace LogJam.Trace.Format
         public bool IncludeTimestamp { get; set; }
 
         /// <summary>
-        /// Set to a value to alter the trace entry indent level from what is set. 
+        /// Set to a value to alter the trace entry indent level from what is set.
         /// </summary>
         public int RelativeIndentLevel { get; set; }
 

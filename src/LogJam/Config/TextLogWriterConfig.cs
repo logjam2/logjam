@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TextLogWriterConfig.cs">
-// Copyright (c) 2011-2015 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -42,7 +42,6 @@ namespace LogJam.Config
         /// TimeZone to use for formatting dates and times.
         /// </summary>
         private TimeZoneInfo _timeZone;
-
 
         /// <summary>
         /// Initializes a new <see cref="TextLogWriterConfig" />.
@@ -122,21 +121,24 @@ namespace LogJam.Config
         /// <summary>
         /// Sets formatting for entry types <typeparamref name="TEntry" /> using <paramref name="entryFormatter" />.
         /// </summary>
-        /// <typeparam name="TEntry">The log entry type for the specified <paramref name="entryFormatter"/>.</typeparam>
-        /// <param name="entryFormatter">The <see cref="EntryFormatter{TEntry}"/> to use to format <typeparamref name="TEntry"/> objects.
-        /// If <c>null</c>, the <see cref="DefaultFormatterAttribute"/> on <typeparamref name="TEntry"/> is used to resolve a
-        /// default formatter.</param>
+        /// <typeparam name="TEntry">The log entry type for the specified <paramref name="entryFormatter" />.</typeparam>
+        /// <param name="entryFormatter">
+        /// The <see cref="EntryFormatter{TEntry}" /> to use to format <typeparamref name="TEntry" /> objects.
+        /// If <c>null</c>, the <see cref="DefaultFormatterAttribute" /> on <typeparamref name="TEntry" /> is used to resolve a
+        /// default formatter.
+        /// </param>
         /// <returns><c>this</c>, to support chaining configuration calls in a fluent manner.</returns>
         /// <remarks>
-        /// If <see cref="Format{TEntry}(LogJam.Writer.Text.EntryFormatter{TEntry})"/> is called more than once for the same
-        /// <typeparamref name="TEntry"/> value, the last formatter is the only one used. In other words, repeating the call replaces
+        /// If <see cref="Format{TEntry}(LogJam.Writer.Text.EntryFormatter{TEntry})" /> is called more than once for the same
+        /// <typeparamref name="TEntry" /> value, the last formatter is the only one used. In other words, repeating the call
+        /// replaces
         /// earlier formatters.
         /// </remarks>
         public TextLogWriterConfig Format<TEntry>(EntryFormatter<TEntry> entryFormatter = null)
             where TEntry : ILogEntry
         {
             if (entryFormatter == null)
-            {   // Try creating the default entry formatter
+            { // Try creating the default entry formatter
                 entryFormatter = DefaultFormatterAttribute.GetDefaultFormatterFor<TEntry>();
                 if (entryFormatter == null)
                 {
@@ -176,7 +178,7 @@ namespace LogJam.Config
         {
             var formatWriter = CreateFormatWriter(setupTracerFactory);
             formatWriter.FieldDelimiter = FieldDelimiter;
-            formatWriter.SpacesPerIndent = SpacesPerIndent; 
+            formatWriter.SpacesPerIndent = SpacesPerIndent;
             formatWriter.IncludeDate = IncludeDate;
             formatWriter.IncludeTime = IncludeTime;
             formatWriter.OutputTimeZone = TimeZone;

@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TraceManagerConfigTests.cs">
-// Copyright (c) 2011-2015 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@ namespace LogJam.UnitTests.Trace
     using System.Linq;
     using System.Xml.Serialization;
 
-    using LogJam;
     using LogJam.Config;
     using LogJam.Config.Json;
     using LogJam.Trace;
@@ -37,6 +36,7 @@ namespace LogJam.UnitTests.Trace
     /// </summary>
     public sealed class TraceManagerConfigTests
     {
+
         private readonly ITestOutputHelper _testOutputHelper;
 
         public TraceManagerConfigTests(ITestOutputHelper testOutputHelper)

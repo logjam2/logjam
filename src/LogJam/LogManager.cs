@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="LogManager.cs">
-// Copyright (c) 2011-2015 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -180,17 +180,17 @@ namespace LogJam
 
                     ILogWriter logWriter = CreateLogWriter(logWriterConfig);
 
-	                if (logWriter != null)
-	                {
-		                (logWriter as IStartable).SafeStart(SetupTracerFactory);
+                    if (logWriter != null)
+                    {
+                        (logWriter as IStartable).SafeStart(SetupTracerFactory);
 
-		                _logWriters.Add(logWriterConfig, logWriter);
+                        _logWriters.Add(logWriterConfig, logWriter);
 
-		                if (logWriterConfig.DisposeOnStop)
-		                {
-			                DisposeOnStop(logWriter);
-		                }
-	                }
+                        if (logWriterConfig.DisposeOnStop)
+                        {
+                            DisposeOnStop(logWriter);
+                        }
+                    }
                 }
             }
         }

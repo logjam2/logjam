@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="BaseOwinTest.cs">
-// Copyright (c) 2011-2015 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ namespace LogJam.Owin.UnitTests
     using Xunit.Abstractions;
 
 
-	/// <summary>
+    /// <summary>
     /// Common OWIN test logic.
     /// </summary>
     public abstract class BaseOwinTest
@@ -39,16 +39,16 @@ namespace LogJam.Owin.UnitTests
         protected readonly PathString TracePath = new PathString("/trace");
         protected readonly PathString LogJamStatusPath = new PathString("/logjam/status");
 
-		protected readonly ITestOutputHelper testOutputHelper;
+        protected readonly ITestOutputHelper testOutputHelper;
 
-		protected BaseOwinTest(ITestOutputHelper testOutputHelper)
-		{
-			Contract.Requires<ArgumentNullException>(testOutputHelper != null);
+        protected BaseOwinTest(ITestOutputHelper testOutputHelper)
+        {
+            Contract.Requires<ArgumentNullException>(testOutputHelper != null);
 
-			this.testOutputHelper = testOutputHelper;
-		}
+            this.testOutputHelper = testOutputHelper;
+        }
 
-		public TestServer CreateTestServer(TextWriter logTarget, SetupLog setupLog, bool backgroundThreadLogging = true)
+        public TestServer CreateTestServer(TextWriter logTarget, SetupLog setupLog, bool backgroundThreadLogging = true)
         {
             Contract.Requires<ArgumentNullException>(logTarget != null);
 

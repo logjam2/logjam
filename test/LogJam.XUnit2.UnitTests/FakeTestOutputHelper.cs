@@ -1,4 +1,4 @@
-﻿// // --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="FakeTestOutputHelper.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2.  
 // </copyright>
@@ -9,49 +9,49 @@
 
 namespace LogJam.XUnit2.UnitTests
 {
-	using System.Text;
+    using System.Text;
 
-	using Xunit.Abstractions;
+    using Xunit.Abstractions;
 
 
-	/// <summary>
-	/// A test fake for <see cref="ITestOutputHelper"/>.
-	/// </summary>
-	internal sealed class FakeTestOutputHelper : ITestOutputHelper
-	{
+    /// <summary>
+    /// A test fake for <see cref="ITestOutputHelper" />.
+    /// </summary>
+    internal sealed class FakeTestOutputHelper : ITestOutputHelper
+    {
 
-		private readonly StringBuilder _sb;
+        private readonly StringBuilder _sb;
 
-		public FakeTestOutputHelper()
-		{
-			_sb = new StringBuilder(1024);
-		}
+        public FakeTestOutputHelper()
+        {
+            _sb = new StringBuilder(1024);
+        }
 
-		public FakeTestOutputHelper(StringBuilder sb)
-		{
-			_sb = sb;
-		}
+        public FakeTestOutputHelper(StringBuilder sb)
+        {
+            _sb = sb;
+        }
 
-		public void WriteLine(string message)
-		{
-			_sb.AppendLine(message);
-		}
+        public void WriteLine(string message)
+        {
+            _sb.AppendLine(message);
+        }
 
-		public void WriteLine(string format, params object[] args)
-		{
-			_sb.AppendFormat(format, args);
-			_sb.AppendLine();
-		}
+        public void WriteLine(string format, params object[] args)
+        {
+            _sb.AppendFormat(format, args);
+            _sb.AppendLine();
+        }
 
-		/// <summary>
-		/// Returns the accumulated test output.
-		/// </summary>
-		/// <returns></returns>
-		public string GetTestOutput()
-		{
-			return _sb.ToString();
-		}
+        /// <summary>
+        /// Returns the accumulated test output.
+        /// </summary>
+        /// <returns></returns>
+        public string GetTestOutput()
+        {
+            return _sb.ToString();
+        }
 
-	}
+    }
 
 }

@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="HttpLoggingMiddleware.cs">
-// Copyright (c) 2011-2015 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ namespace LogJam.Owin.Http
             foreach (var logWriterConfig in logWriterConfigs)
             {
                 ILogWriter logWriter;
-				if (! logManager.TryGetLogWriter(logWriterConfig, out logWriter))
+                if (! logManager.TryGetLogWriter(logWriterConfig, out logWriter))
                 {
                     _setupTracer.Error("Unable to setup HTTP logging for log target '{0}', no LogWriter exists for this configuration.", logWriterConfig);
                     continue;

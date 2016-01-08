@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="BackgroundMultiLogWriterUnitTests.cs">
-// Copyright (c) 2011-2015 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@ namespace LogJam.Internal.UnitTests.Writer
     using System.Linq;
     using System.Threading;
 
-    using LogJam;
     using LogJam.Config;
     using LogJam.Internal.UnitTests.Examples;
     using LogJam.Test.Shared.Writers;
@@ -399,20 +398,20 @@ namespace LogJam.Internal.UnitTests.Writer
             var stringWriter = new StringWriter();
 
             EntryFormatAction<LoggingTimer.StartRecord> formatStart = (startRecord, writer) =>
-                                                                 {
-                                                                     Assert.NotEqual(testThreadId, Thread.CurrentThread.ManagedThreadId);
-                                                                     writer.BeginEntry();
-                                                                     writer.WriteField((buffer) => buffer.AppendFormat(">{0}", startRecord.TimingId));
-                                                                     writer.EndEntry();
-                                                                 };
+                                                                      {
+                                                                          Assert.NotEqual(testThreadId, Thread.CurrentThread.ManagedThreadId);
+                                                                          writer.BeginEntry();
+                                                                          writer.WriteField((buffer) => buffer.AppendFormat(">{0}", startRecord.TimingId));
+                                                                          writer.EndEntry();
+                                                                      };
             EntryFormatAction<LoggingTimer.StopRecord> formatStop = (stopRecord, writer) =>
-                                                               {
-                                                                   Assert.NotEqual(testThreadId, Thread.CurrentThread.ManagedThreadId);
-                                                                   writer.BeginEntry();
-                                                                   writer.WriteField((buffer) => buffer.AppendFormat("<{0}", stopRecord.TimingId));
-                                                                   writer.WriteField(stopRecord.ElapsedTime.ToString());
-                                                                   writer.EndEntry();
-                                                               };
+                                                                    {
+                                                                        Assert.NotEqual(testThreadId, Thread.CurrentThread.ManagedThreadId);
+                                                                        writer.BeginEntry();
+                                                                        writer.WriteField((buffer) => buffer.AppendFormat("<{0}", stopRecord.TimingId));
+                                                                        writer.WriteField(stopRecord.ElapsedTime.ToString());
+                                                                        writer.EndEntry();
+                                                                    };
 
             var logManagerConfig = new LogManagerConfig();
             logManagerConfig.UseTextWriter(stringWriter)

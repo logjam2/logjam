@@ -1,6 +1,6 @@
-﻿// // --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TextWriterFormatWriter.cs">
-// Copyright (c) 2011-2015 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -19,10 +19,11 @@ namespace LogJam.Writer.Text
 
 
     /// <summary>
-    /// A <see cref="FormatWriter"/> that writes to a <see cref="TextWriter"/>.
+    /// A <see cref="FormatWriter" /> that writes to a <see cref="TextWriter" />.
     /// </summary>
     public class TextWriterFormatWriter : FormatWriter
     {
+
         private TextWriter _textWriter;
         private bool _disposeWriter;
         private bool _isDisposed;
@@ -30,7 +31,8 @@ namespace LogJam.Writer.Text
         private readonly char[] _charBuffer;
 
         /// <summary>
-        /// Creates a new <see cref="TextWriterFormatWriter" /> without a <see cref="TextWriter"/>.  <see cref="SetTextWriter"/> must be called
+        /// Creates a new <see cref="TextWriterFormatWriter" /> without a <see cref="TextWriter" />.  <see cref="SetTextWriter" />
+        /// must be called
         /// before this instance can be used.
         /// </summary>
         /// <param name="setupTracerFactory">The <see cref="ITracerFactory" /> to use for logging setup operations.</param>
@@ -45,7 +47,7 @@ namespace LogJam.Writer.Text
         }
 
         /// <summary>
-        /// Creates a new <see cref="TextWriterFormatWriter" /> with an existing <see cref="TextWriter"/>.
+        /// Creates a new <see cref="TextWriterFormatWriter" /> with an existing <see cref="TextWriter" />.
         /// </summary>
         /// <param name="setupTracerFactory">The <see cref="ITracerFactory" /> to use for logging setup operations.</param>
         /// <param name="textWriter">The <see cref="TextWriter" /> to write formatted log output to.</param>
@@ -68,7 +70,7 @@ namespace LogJam.Writer.Text
         }
 
         /// <summary>
-        /// Sets the <see cref="TextWriter"/> that is written to.
+        /// Sets the <see cref="TextWriter" /> that is written to.
         /// </summary>
         /// <param name="textWriter">The <see cref="TextWriter" /> to write formatted log output to.</param>
         /// <param name="disposeWriter">
@@ -78,7 +80,7 @@ namespace LogJam.Writer.Text
         public void SetTextWriter(TextWriter textWriter, bool disposeWriter)
         {
             Contract.Requires<ArgumentNullException>(textWriter != null);
-                
+
             _textWriter = textWriter;
             _isDisposed = false;
             _disposeWriter = disposeWriter;
@@ -116,7 +118,7 @@ namespace LogJam.Writer.Text
 
         public override void Dispose()
         {
-            if (_textWriter != null && !_isDisposed)
+            if (_textWriter != null && ! _isDisposed)
             {
                 _textWriter.Flush();
                 if (_disposeWriter)

@@ -1,6 +1,6 @@
-﻿// // --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ConsoleLoggingTests.cs">
-// Copyright (c) 2011-2015 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ namespace LogJam.UnitTests.Writer.Text
         }
 
         /// <summary>
-        /// Calls <c>LogJam.ConsoleTester.exe</c>, passing <paramref name="arguments"/>.
+        /// Calls <c>LogJam.ConsoleTester.exe</c>, passing <paramref name="arguments" />.
         /// </summary>
         /// <param name="arguments"></param>
         private void RunConsoleTester(string arguments, out string stdout, out string stderr)

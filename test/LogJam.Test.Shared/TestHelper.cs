@@ -1,4 +1,4 @@
-﻿// // --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TestHelper.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2.  
 // </copyright>
@@ -54,7 +54,7 @@ namespace LogJam.Test.Shared
         {
             int countLineBreaks = 0;
             int len = text.Length;
-            for (int i = 0; ;)
+            for (int i = 0;;)
             {
                 i = text.IndexOfAny(new[] { '\r', '\n' }, i);
                 if (i < 0)

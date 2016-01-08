@@ -1,141 +1,151 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="LogManagerConfigFluentExtensions.cs">
-// Copyright (c) 2011-2015 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
 
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using LogJam.Writer.Text;
-
 namespace LogJam.Config
 {
-	using System;
-	using System.Diagnostics.Contracts;
-	using System.IO;
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics.Contracts;
+    using System.IO;
+    using System.Linq;
 
-	using LogJam.Writer;
+    using LogJam.Writer;
+    using LogJam.Writer.Text;
 
 
-	/// <summary>
-	/// Extension methods to <see cref="LogManagerConfig" /> for configuring using fluent syntax.
-	/// </summary>
-	public static class LogManagerConfigFluentExtensions
-	{
+    /// <summary>
+    /// Extension methods to <see cref="LogManagerConfig" /> for configuring using fluent syntax.
+    /// </summary>
+    public static class LogManagerConfigFluentExtensions
+    {
 
-		public static TextWriterLogWriterConfig UseTextWriter(this LogManagerConfig logManagerConfig, TextWriter textWriter)
-		{
-			Contract.Requires<ArgumentNullException>(logManagerConfig != null);
-			Contract.Requires<ArgumentNullException>(textWriter != null);
+        public static TextWriterLogWriterConfig UseTextWriter(this LogManagerConfig logManagerConfig, TextWriter textWriter)
+        {
+            Contract.Requires<ArgumentNullException>(logManagerConfig != null);
+            Contract.Requires<ArgumentNullException>(textWriter != null);
 
-			var writerConfig = new TextWriterLogWriterConfig(textWriter);
-			logManagerConfig.Writers.Add(writerConfig);
-			return writerConfig;
-		}
+            var writerConfig = new TextWriterLogWriterConfig(textWriter);
+            logManagerConfig.Writers.Add(writerConfig);
+            return writerConfig;
+        }
 
-		public static TextWriterLogWriterConfig UseTextWriter(this LogManagerConfig logManagerConfig, Func<TextWriter> createTextWriterFunc)
-		{
-			Contract.Requires<ArgumentNullException>(logManagerConfig != null);
-			Contract.Requires<ArgumentNullException>(createTextWriterFunc != null);
+        public static TextWriterLogWriterConfig UseTextWriter(this LogManagerConfig logManagerConfig, Func<TextWriter> createTextWriterFunc)
+        {
+            Contract.Requires<ArgumentNullException>(logManagerConfig != null);
+            Contract.Requires<ArgumentNullException>(createTextWriterFunc != null);
 
-			var writerConfig = new TextWriterLogWriterConfig(createTextWriterFunc);
-			logManagerConfig.Writers.Add(writerConfig);
-			return writerConfig;
-		}
+            var writerConfig = new TextWriterLogWriterConfig(createTextWriterFunc);
+            logManagerConfig.Writers.Add(writerConfig);
+            return writerConfig;
+        }
 
-		/// <summary>
-		/// Ensures that a single <see cref="DebuggerLogWriterConfig"/> is configured in the <paramref name="logManagerConfig"/>.
-		/// </summary>
-		/// <param name="logManagerConfig"></param>
-		/// <returns></returns>
-		public static DebuggerLogWriterConfig UseDebugger(this LogManagerConfig logManagerConfig)
-		{
-			Contract.Requires<ArgumentNullException>(logManagerConfig != null);
+        /// <summary>
+        /// Ensures that a single <see cref="DebuggerLogWriterConfig" /> is configured in the <paramref name="logManagerConfig" />.
+        /// </summary>
+        /// <param name="logManagerConfig"></param>
+        /// <returns></returns>
+        public static DebuggerLogWriterConfig UseDebugger(this LogManagerConfig logManagerConfig)
+        {
+            Contract.Requires<ArgumentNullException>(logManagerConfig != null);
 
-			var debuggerConfig = logManagerConfig.Writers.OfType<DebuggerLogWriterConfig>().FirstOrDefault();
-			if (debuggerConfig == null)
-			{
-				debuggerConfig = new DebuggerLogWriterConfig();
-				logManagerConfig.Writers.Add(debuggerConfig);
-			}
-			return debuggerConfig;
-		}
+            var debuggerConfig = logManagerConfig.Writers.OfType<DebuggerLogWriterConfig>().FirstOrDefault();
+            if (debuggerConfig == null)
+            {
+                debuggerConfig = new DebuggerLogWriterConfig();
+                logManagerConfig.Writers.Add(debuggerConfig);
+            }
+            return debuggerConfig;
+        }
 
-		/// <summary>
-		/// Ensures that a single <see cref="ConsoleLogWriterConfig"/> is configured in the <paramref name="logManagerConfig"/>.
-		/// </summary>
-		/// <param name="logManagerConfig"></param>
-		/// <param name="colorize"></param>
-		/// <returns>The <see cref="ConsoleLogWriterConfig"/>, which can be altered as needed.</returns>
-		public static ConsoleLogWriterConfig UseConsole(this LogManagerConfig logManagerConfig, bool colorize = true)
-		{
-			Contract.Requires<ArgumentNullException>(logManagerConfig != null);
+        /// <summary>
+        /// Ensures that a single <see cref="ConsoleLogWriterConfig" /> is configured in the <paramref name="logManagerConfig" />.
+        /// </summary>
+        /// <param name="logManagerConfig"></param>
+        /// <param name="colorize"></param>
+        /// <returns>The <see cref="ConsoleLogWriterConfig" />, which can be altered as needed.</returns>
+        public static ConsoleLogWriterConfig UseConsole(this LogManagerConfig logManagerConfig, bool colorize = true)
+        {
+            Contract.Requires<ArgumentNullException>(logManagerConfig != null);
 
-			var consoleWriterConfig = logManagerConfig.Writers.OfType<ConsoleLogWriterConfig>().FirstOrDefault();
-			if (consoleWriterConfig == null)
-			{
-				consoleWriterConfig = new ConsoleLogWriterConfig();
-				logManagerConfig.Writers.Add(consoleWriterConfig);
-			}
+            var consoleWriterConfig = logManagerConfig.Writers.OfType<ConsoleLogWriterConfig>().FirstOrDefault();
+            if (consoleWriterConfig == null)
+            {
+                consoleWriterConfig = new ConsoleLogWriterConfig();
+                logManagerConfig.Writers.Add(consoleWriterConfig);
+            }
 
-			consoleWriterConfig.UseColor = colorize;
+            consoleWriterConfig.UseColor = colorize;
 
-			return consoleWriterConfig;
-		}
+            return consoleWriterConfig;
+        }
 
-		public static UseExistingLogWriterConfig UseLogWriter(this LogManagerConfig logManagerConfig, ILogWriter logWriter)
-		{
-			Contract.Requires<ArgumentNullException>(logManagerConfig != null);
-			Contract.Requires<ArgumentNullException>(logWriter != null);
+        public static UseExistingLogWriterConfig UseLogWriter(this LogManagerConfig logManagerConfig, ILogWriter logWriter)
+        {
+            Contract.Requires<ArgumentNullException>(logManagerConfig != null);
+            Contract.Requires<ArgumentNullException>(logWriter != null);
 
-			var useExistingConfig = new UseExistingLogWriterConfig(logWriter);
-			logManagerConfig.Writers.Add(useExistingConfig);
-			return useExistingConfig;
-		}
+            var useExistingConfig = new UseExistingLogWriterConfig(logWriter);
+            logManagerConfig.Writers.Add(useExistingConfig);
+            return useExistingConfig;
+        }
 
-		/// <summary>
-		/// Adds <paramref name="entryFormatter"/> or the default formatter for <typeparamref name="TEntry"/> to each of
-		/// the <see cref="ILogWriterConfig"/> objects in <paramref name="logWriterConfigs"/> that are of type <see cref="TextLogWriterConfig"/>.
-		/// <para>This is a convenience function to make it easy to apply the same formatting for the same entry types to multiple logwriters.</para>
-		/// </summary>
-		/// <typeparam name="TEntry"></typeparam>
-		/// <param name="logWriterConfigs">A collection of <see cref="ILogWriterConfig"/> objects.</param>
-		/// <param name="entryFormatter">The <see cref="EntryFormatter{TEntry}"/> to use for all entries of type <typeparamref name="TEntry"/>;
-		/// or <c>null</c> to use the default entryformatter for <typeparamref name="TEntry"/>.</param>
-		/// <param name="overwriteExistingFormatters">If <c>true</c>, existing formatters for <typeparamref name="TEntry"/> are overwritten with default formatters.</param>
-		/// <returns>The <paramref name="logWriterConfigs"/> parameter, for fluent call chaining.</returns>
-		public static IEnumerable<ILogWriterConfig> FormatAll<TEntry>(this IEnumerable<ILogWriterConfig> logWriterConfigs, EntryFormatter<TEntry> entryFormatter = null, bool overwriteExistingFormatters = false)
-			where TEntry : ILogEntry
-		{
-			Contract.Requires<ArgumentNullException>(logWriterConfigs != null);
+        /// <summary>
+        /// Adds <paramref name="entryFormatter" /> or the default formatter for <typeparamref name="TEntry" /> to each of
+        /// the <see cref="ILogWriterConfig" /> objects in <paramref name="logWriterConfigs" /> that are of type
+        /// <see cref="TextLogWriterConfig" />.
+        /// <para>
+        /// This is a convenience function to make it easy to apply the same formatting for the same entry types to multiple
+        /// logwriters.
+        /// </para>
+        /// </summary>
+        /// <typeparam name="TEntry"></typeparam>
+        /// <param name="logWriterConfigs">A collection of <see cref="ILogWriterConfig" /> objects.</param>
+        /// <param name="entryFormatter">
+        /// The <see cref="EntryFormatter{TEntry}" /> to use for all entries of type <typeparamref name="TEntry" />;
+        /// or <c>null</c> to use the default entryformatter for <typeparamref name="TEntry" />.
+        /// </param>
+        /// <param name="overwriteExistingFormatters">
+        /// If <c>true</c>, existing formatters for <typeparamref name="TEntry" /> are
+        /// overwritten with default formatters.
+        /// </param>
+        /// <returns>The <paramref name="logWriterConfigs" /> parameter, for fluent call chaining.</returns>
+        public static IEnumerable<ILogWriterConfig> FormatAll<TEntry>(this IEnumerable<ILogWriterConfig> logWriterConfigs,
+                                                                      EntryFormatter<TEntry> entryFormatter = null,
+                                                                      bool overwriteExistingFormatters = false)
+            where TEntry : ILogEntry
+        {
+            Contract.Requires<ArgumentNullException>(logWriterConfigs != null);
 
-			if (entryFormatter == null)
-			{   // Try creating the default entry formatter
-				entryFormatter = DefaultFormatterAttribute.GetDefaultFormatterFor<TEntry>();
-				if (entryFormatter == null)
-				{
-					throw new ArgumentNullException(nameof(entryFormatter),
-													$"No [DefaultFormatter] attribute could be found for entry type {typeof(TEntry).FullName}, so {nameof(entryFormatter)} argument must be set.");
-				}
-			}
+            if (entryFormatter == null)
+            { // Try creating the default entry formatter
+                entryFormatter = DefaultFormatterAttribute.GetDefaultFormatterFor<TEntry>();
+                if (entryFormatter == null)
+                {
+                    throw new ArgumentNullException(nameof(entryFormatter),
+                                                    $"No [DefaultFormatter] attribute could be found for entry type {typeof(TEntry).FullName}, so {nameof(entryFormatter)} argument must be set.");
+                }
+            }
 
-			foreach (var logWriterConfig in logWriterConfigs)
-			{
-				var textLogWriterConfig = logWriterConfig as TextLogWriterConfig;
-				if (textLogWriterConfig != null)
-				{
-					if (overwriteExistingFormatters || !textLogWriterConfig.HasFormatterFor<TEntry>())
-					{
-						textLogWriterConfig.Format(entryFormatter);
-					}
-				}
-			}
-			return logWriterConfigs;
-		}
-	}
+            foreach (var logWriterConfig in logWriterConfigs)
+            {
+                var textLogWriterConfig = logWriterConfig as TextLogWriterConfig;
+                if (textLogWriterConfig != null)
+                {
+                    if (overwriteExistingFormatters || ! textLogWriterConfig.HasFormatterFor<TEntry>())
+                    {
+                        textLogWriterConfig.Format(entryFormatter);
+                    }
+                }
+            }
+            return logWriterConfigs;
+        }
+
+    }
 
 }

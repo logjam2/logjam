@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TraceManager.cs">
-// Copyright (c) 2011-2015 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ namespace LogJam.Trace
     /// </summary>
     public sealed class TraceManager : BaseLogJamManager, ITracerFactory
     {
-
         #region Static fields
 
         private static readonly Lazy<TraceManager> s_instance;
@@ -71,7 +70,8 @@ namespace LogJam.Trace
         }
 
         /// <summary>
-        /// Creates a new <see cref="TraceManager" /> instance using default configuration and the specified <paramref name="setupLog"/>.
+        /// Creates a new <see cref="TraceManager" /> instance using default configuration and the specified
+        /// <paramref name="setupLog" />.
         /// </summary>
         /// <param name="setupLog"></param>
         public TraceManager(SetupLog setupLog)

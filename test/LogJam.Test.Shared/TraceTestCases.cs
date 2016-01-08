@@ -1,6 +1,6 @@
-﻿// // --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TraceTestCases.cs">
-// Copyright (c) 2011-2015 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -9,7 +9,6 @@
 
 namespace LogJam.Test.Shared
 {
-
     using LogJam.Trace;
 
     using Xunit;
@@ -36,7 +35,7 @@ namespace LogJam.Test.Shared
 
             Assert.True(TraceManager.IsStarted); // Getting a tracer starts the TraceManager
             Assert.True(TraceManager.LogManager.IsStarted);
-    
+
             Assert.True(tracer.IsInfoEnabled());
             Assert.False(tracer.IsVerboseEnabled());
 
@@ -63,7 +62,7 @@ namespace LogJam.Test.Shared
             tracer.Severe("Severe message");
             tracer.Error("Error message");
             tracer.Warn("Warning message");
-            
+
             TestHelper.WarnException(tracer, 5);
 
             tracer.Info("Info message");

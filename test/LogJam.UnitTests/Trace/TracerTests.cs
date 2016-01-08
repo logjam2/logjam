@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TracerTests.cs">
-// Copyright (c) 2011-2015 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -10,26 +10,19 @@
 namespace LogJam.UnitTests.Trace
 {
     using System;
-    using System.Diagnostics;
     using System.Diagnostics.Contracts;
     using System.Linq;
-    using System.Threading.Tasks;
 
     using LogJam.Config;
     using LogJam.Internal.UnitTests.Examples;
     using LogJam.Test.Shared.Writers;
     using LogJam.Trace;
     using LogJam.Trace.Config;
-    using LogJam.Trace.Format;
     using LogJam.Trace.Switches;
-    using LogJam.UnitTests.Examples;
     using LogJam.Writer;
 
     using Xunit;
     using Xunit.Abstractions;
-    using Xunit.Sdk;
-
-    using TraceLevel = LogJam.Trace.TraceLevel;
 
 
     /// <summary>

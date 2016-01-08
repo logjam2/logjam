@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TraceManagerTests.cs">
-// Copyright (c) 2011-2015 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ namespace LogJam.UnitTests.Trace
     using LogJam.Trace;
     using LogJam.Trace.Config;
     using LogJam.Trace.Switches;
-    using LogJam.UnitTests.Examples;
     using LogJam.Writer;
 
     using Xunit;
@@ -115,8 +114,10 @@ namespace LogJam.UnitTests.Trace
         /// Shows how to verify tracing for a class under test; and how to re-use the global <see cref="TraceManager.Instance" />.
         /// </summary>
         /// <remarks>
-        /// Using these global instances is not preferred for unit testing, but is workable, particularly if the trace log configuration is
-        /// the same for all tests. The main issue with using global instances is that tests run in parallel will all use the same instances.
+        /// Using these global instances is not preferred for unit testing, but is workable, particularly if the trace log
+        /// configuration is
+        /// the same for all tests. The main issue with using global instances is that tests run in parallel will all use the same
+        /// instances.
         /// </remarks>
         [Theory]
         [InlineData(ConfigForm.Fluent, 1)]
@@ -143,12 +144,13 @@ namespace LogJam.UnitTests.Trace
             TraceWriterConfig listTraceConfig;
             if (configForm == ConfigForm.ObjectGraph)
             {
-                listTraceConfig = new TraceWriterConfig(listWriter) {
-                    Switches =
+                listTraceConfig = new TraceWriterConfig(listWriter)
+                                  {
+                                      Switches =
                                       {
                                           { GetType(), new OnOffTraceSwitch(true) }
                                       }
-                };
+                                  };
                 config.Writers.Add(listTraceConfig);
             }
             else if (configForm == ConfigForm.Fluent)

@@ -1,6 +1,6 @@
-﻿// // --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="StringBuilderExtensionsTests.cs">
-// Copyright (c) 2011-2015 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -17,17 +17,17 @@ namespace LogJam.UnitTests.Util.Text
 
 
     /// <summary>
-    /// Validates functionality of <see cref="StringBuilderExtensions"/>.
+    /// Validates functionality of <see cref="StringBuilderExtensions" />.
     /// </summary>
     public sealed class StringBuilderExtensionsTests
     {
 
         [Theory]
         [InlineData(0, 0, "0")]
-		[InlineData(0, 1, "0")]
-		[InlineData(0, 2, "00")]
-		[InlineData(0, 4, "0000")]
-		[InlineData(-1, 0, "-1")]
+        [InlineData(0, 1, "0")]
+        [InlineData(0, 2, "00")]
+        [InlineData(0, 4, "0000")]
+        [InlineData(-1, 0, "-1")]
         [InlineData(-1, 3, "-01")]
         [InlineData(-9, 2, "-9")]
         [InlineData(-9, 4, "-009")]

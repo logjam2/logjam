@@ -1,6 +1,6 @@
-﻿// // --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ConsoleTestSetup.cs">
-// Copyright (c) 2011-2015 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -41,7 +41,8 @@ namespace LogJam.ConsoleTester
         }
 
         /// <summary>
-        /// Configures console tracing using object graph configuration (newing the config objects), and enables all trace levels for the <see cref="ConsoleTestCases"/> class.
+        /// Configures console tracing using object graph configuration (newing the config objects), and enables all trace levels
+        /// for the <see cref="ConsoleTestCases" /> class.
         /// </summary>
         public void ObjectGraphConfigForTraceEnableAllLevels()
         {
@@ -61,7 +62,7 @@ namespace LogJam.ConsoleTester
         }
 
         /// <summary>
-        /// Fluent version of <see cref="ObjectGraphConfigForTrace"/>.
+        /// Fluent version of <see cref="ObjectGraphConfigForTrace" />.
         /// </summary>
         public void FluentConfigForTrace()
         {
@@ -72,17 +73,17 @@ namespace LogJam.ConsoleTester
         }
 
         /// <summary>
-        /// Fluent version of <see cref="ObjectGraphConfigForTraceEnableAllLevels"/>.
+        /// Fluent version of <see cref="ObjectGraphConfigForTraceEnableAllLevels" />.
         /// </summary>
         public void FluentConfigForTraceEnableAllLevels()
         {
-	        var traceWriterConfig = TraceManager.TraceToConsole(new SwitchSet()
-	                                                            {
-		                                                            // Default threshold (info) for all tracers
-		                                                            { Tracer.All, new ThresholdTraceSwitch(TraceLevel.Info) },
-		                                                            // Enable all trace levels for ConsoleTestCases
-		                                                            { typeof(ConsoleTestCases), new OnOffTraceSwitch(true) }
-	                                                            });
+            var traceWriterConfig = TraceManager.TraceToConsole(new SwitchSet()
+                                                                {
+                                                                    // Default threshold (info) for all tracers
+                                                                    { Tracer.All, new ThresholdTraceSwitch(TraceLevel.Info) },
+                                                                    // Enable all trace levels for ConsoleTestCases
+                                                                    { typeof(ConsoleTestCases), new OnOffTraceSwitch(true) }
+                                                                });
 
             // Normally you don't have to extract the ConsoleLogWriterConfig, but for the purposes of this class we do
             ConsoleLogWriterConfig = traceWriterConfig.LogWriterConfig as ConsoleLogWriterConfig;

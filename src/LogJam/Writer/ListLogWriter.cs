@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ListLogWriter.cs">
-// Copyright (c) 2011-2015 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -11,13 +11,12 @@ namespace LogJam.Writer
 {
     using System.Collections;
     using System.Collections.Generic;
-    using System.Linq;
 
     using LogJam.Trace;
     using LogJam.Util;
 
 
-	/// <summary>
+    /// <summary>
     /// Appends all log entries to a <see cref="List{T}" />.
     /// </summary>
     public sealed class ListLogWriter<TEntry> : SingleEntryTypeLogWriter<TEntry>, IEnumerable<TEntry>, IStartable
@@ -81,7 +80,7 @@ namespace LogJam.Writer
 
         public IEnumerator<TEntry> GetEnumerator()
         {
-			return new GrowingListEnumerator<TEntry>(_entryList);
+            return new GrowingListEnumerator<TEntry>(_entryList);
         }
 
         IEnumerator IEnumerable.GetEnumerator()

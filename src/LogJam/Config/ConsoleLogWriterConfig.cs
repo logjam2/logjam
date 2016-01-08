@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ConsoleLogWriterConfig.cs">
-// Copyright (c) 2011-2015 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@ namespace LogJam.Config
 
     using LogJam.Config.Json;
     using LogJam.Trace;
-    using LogJam.Writer;
     using LogJam.Writer.Text;
 
 
@@ -55,7 +54,8 @@ namespace LogJam.Config
         }
 
         /// <summary>
-        /// Gets or sets a function that creates new <see cref="IConsoleColorResolver"/> instances for colorizing console log output.
+        /// Gets or sets a function that creates new <see cref="IConsoleColorResolver" /> instances for colorizing console log
+        /// output.
         /// May be <c>null</c>, in which case console log output is not colorized.
         /// </summary>
         public Func<IConsoleColorResolver> ColorResolverFactory { get; set; }

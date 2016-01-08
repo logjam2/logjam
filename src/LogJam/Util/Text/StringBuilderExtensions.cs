@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="StringBuilderExtensions.cs">
-// Copyright (c) 2011-2015 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -28,9 +28,9 @@ namespace LogJam.Util.Text
         #region Public Methods and Operators
 
         /// <summary>
-        /// Appends <see cref="i"/> to buffer, left-padding with zeroes to fill <paramref name="width"/> characters.
+        /// Appends <see cref="i" /> to buffer, left-padding with zeroes to fill <paramref name="width" /> characters.
         /// </summary>
-        /// <param name="sb">A <see cref="StringBuilder"/>.</param>
+        /// <param name="sb">A <see cref="StringBuilder" />.</param>
         /// <param name="number">A number to write.</param>
         /// <param name="width">The minimum number of characters to fill.</param>
         public static void AppendPadZeroes(this StringBuilder sb, int number, int width)
@@ -44,15 +44,16 @@ namespace LogJam.Util.Text
                 width--;
             }
 
-			int threshold = 1, i = 0;
-            for (; i <= width && threshold <= number; ++i, threshold *= 10) {}
+            int threshold = 1, i = 0;
+            for (; i <= width && threshold <= number; ++i, threshold *= 10)
+            {}
             int countZeroes = width - i;
 
             if (countZeroes > 0)
             {
                 sb.Append('0', countZeroes);
                 if (number == 0)
-                {   // To avoid writing an extra 0
+                { // To avoid writing an extra 0
                     return;
                 }
             }
@@ -61,9 +62,9 @@ namespace LogJam.Util.Text
         }
 
         /// <summary>
-        /// Appends indented lines to <paramref name="sb"/>.
+        /// Appends indented lines to <paramref name="sb" />.
         /// </summary>
-        /// <param name="sb">A <see cref="StringBuilder"/>.</param>
+        /// <param name="sb">A <see cref="StringBuilder" />.</param>
         /// <param name="s">The string to append.</param>
         /// <param name="indentSpaces">Number of spaces to indent.</param>
         /// <param name="linePrefix">The prefix for each line (before indentation).</param>
@@ -230,8 +231,8 @@ namespace LogJam.Util.Text
         }
 
         /// <summary>
-        /// Returns the first index of any of <paramref name="matchChars"/> in <paramref name="sb"/>, starting
-        /// at index <paramref name="startIndex"/> and ending just before <paramref name="macIndex"/>.
+        /// Returns the first index of any of <paramref name="matchChars" /> in <paramref name="sb" />, starting
+        /// at index <paramref name="startIndex" /> and ending just before <paramref name="macIndex" />.
         /// </summary>
         /// <param name="sb"></param>
         /// <param name="matchChars"></param>
@@ -261,7 +262,7 @@ namespace LogJam.Util.Text
         }
 
         /// <summary>
-        /// Remove all instances of characters in the buffer that match <paramref name="charsToRemove"/>.
+        /// Remove all instances of characters in the buffer that match <paramref name="charsToRemove" />.
         /// </summary>
         /// <param name="sb"></param>
         /// <param name="charsToRemove"></param>

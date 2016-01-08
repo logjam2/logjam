@@ -1,6 +1,6 @@
-﻿// // --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="FormatWriter.cs">
-// Copyright (c) 2011-2015 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -20,21 +20,27 @@ namespace LogJam.Writer.Text
 
 
     /// <summary>
-    /// Abstract base class for writing formatted log output to a text target.  A <c>FormatWriter</c> is primarily used by one or more
-    /// <see cref="EntryFormatter{TEntry}"/>s to write formatted text.  <c>FormatWriter</c> is the primary abstraction for writing
+    /// Abstract base class for writing formatted log output to a text target.  A <c>FormatWriter</c> is primarily used by one
+    /// or more
+    /// <see cref="EntryFormatter{TEntry}" />s to write formatted text.  <c>FormatWriter</c> is the primary abstraction for
+    /// writing
     /// to a text target.
     /// <para>
-    /// Text targets can be colorized and are generally optimized for readability.  In contrast, binary targets are generally optimized for
+    /// Text targets can be colorized and are generally optimized for readability.  In contrast, binary targets are generally
+    /// optimized for
     /// efficient and precise writing and parsing.
     /// </para>
     /// </summary>
     /// <remarks>
-    /// <c>FormatWriter</c> is <u>not</u> threadsafe.  It assumes that writes are synchronized at a higher level (typically using pluggable
-    /// <see cref="ISynchronizingLogWriter"/>s), so that the last entry is completely formatted/written before the next entry starts. 
-    /// <see cref="BeginEntry"/> and <see cref="EndEntry"/> provide basic checks for this assertion.
+    /// <c>FormatWriter</c> is <u>not</u> threadsafe.  It assumes that writes are synchronized at a higher level (typically
+    /// using pluggable
+    /// <see cref="ISynchronizingLogWriter" />s), so that the last entry is completely formatted/written before the next entry
+    /// starts.
+    /// <see cref="BeginEntry" /> and <see cref="EndEntry" /> provide basic checks for this assertion.
     /// </remarks>
     public abstract class FormatWriter : Startable, IDisposable
     {
+
         /// <summary>
         /// The default field delimiter is 2 spaces.
         /// </summary>
@@ -63,7 +69,7 @@ namespace LogJam.Writer.Text
         private TimeZoneInfo _outputTimeZone = TimeZoneInfo.Local;
 
         /// <summary>
-        /// SetupLog <see cref="Tracer"/>.
+        /// SetupLog <see cref="Tracer" />.
         /// </summary>
         protected readonly Tracer setupTracer;
 
@@ -100,7 +106,7 @@ namespace LogJam.Writer.Text
         #endregion
 
         /// <summary>
-        /// Initialize the <see cref="FormatWriter"/>.
+        /// Initialize the <see cref="FormatWriter" />.
         /// </summary>
         /// <param name="setupTracerFactory">The <see cref="ITracerFactory" /> to use for logging setup operations.</param>
         /// <param name="fieldDelimiter">The field delimiter for formatted text output.</param>
@@ -153,10 +159,11 @@ namespace LogJam.Writer.Text
         /// A buffer that can be used by custom formatting methods.
         /// </summary>
         /// <remarks>
-        /// This buffer can be reused by every field formatting method, under the assumption that no two fields will 
-        /// be formatted at the same time.  This invariant is maintained by synchronization at the <see cref="ILogWriter"/> level.
+        /// This buffer can be reused by every field formatting method, under the assumption that no two fields will
+        /// be formatted at the same time.  This invariant is maintained by synchronization at the <see cref="ILogWriter" /> level.
         /// <para>
-        /// Continually reusing the same buffer is a performance optimization - it reduces memory allocation and GC activity significantly.
+        /// Continually reusing the same buffer is a performance optimization - it reduces memory allocation and GC activity
+        /// significantly.
         /// </para>
         /// </remarks>
         public StringBuilder FieldBuffer
@@ -174,9 +181,9 @@ namespace LogJam.Writer.Text
         public abstract string LineDelimiter { get; }
 
         /// <summary>
-        /// When this <c>IsColorEnabled</c> returns <c>true</c>, <see cref="EntryFormatter{TEntry}"/>s
-        /// should determine and pass in <see cref="ColorCategory"/> values for all text.  When
-        /// <c>IsColorEnabled</c> returns <c>false</c>, any <see cref="ColorCategory"/> values
+        /// When this <c>IsColorEnabled</c> returns <c>true</c>, <see cref="EntryFormatter{TEntry}" />s
+        /// should determine and pass in <see cref="ColorCategory" /> values for all text.  When
+        /// <c>IsColorEnabled</c> returns <c>false</c>, any <see cref="ColorCategory" /> values
         /// are ignored.
         /// </summary>
         public abstract bool IsColorEnabled { get; }
@@ -216,6 +223,7 @@ namespace LogJam.Writer.Text
         }
 
         #endregion
+
         #region Public methods to write formatted log text
 
         /// <summary>
@@ -353,7 +361,7 @@ namespace LogJam.Writer.Text
             {
                 int indexEol = lines.IndexOfAny(EolChars, indexStartLine);
                 if (indexEol < 0)
-                {   // No more EOL chars in remainder of the string
+                { // No more EOL chars in remainder of the string
                     indexEol = lines.Length;
                 }
 
@@ -382,7 +390,7 @@ namespace LogJam.Writer.Text
             {
                 int indexEol = linesBuffer.IndexOfAny(EolChars, indexStartLine);
                 if (indexEol < 0)
-                {   // No more EOL chars in remainder of linesBuffer
+                { // No more EOL chars in remainder of linesBuffer
                     indexEol = bufLen;
                 }
 
@@ -429,6 +437,7 @@ namespace LogJam.Writer.Text
         {}
 
         #endregion
+
         #region Public methods to format field primitives
 
         public virtual void WriteDate(DateTime dateTimeUtc, ColorCategory colorCategory = ColorCategory.Detail)
@@ -464,7 +473,7 @@ namespace LogJam.Writer.Text
         }
 
         public virtual void WriteTimestamp(DateTimeOffset timestamp, ColorCategory colorCategory = ColorCategory.Detail)
-        {            
+        {
             DateTimeOffset outputTimestamp = TimeZoneInfo.ConvertTime(timestamp, _outputTimeZone);
 
             // Format time
@@ -508,11 +517,14 @@ namespace LogJam.Writer.Text
         /// </summary>
         /// <param name="s"></param>
         /// <param name="colorCategory"></param>
-        /// <param name="normalizeFieldText">If <c>true</c>, <paramref name="s"/> should be normalized for display as a field, eg tabs and line breaks removed.</param>
+        /// <param name="normalizeFieldText">
+        /// If <c>true</c>, <paramref name="s" /> should be normalized for display as a field, eg
+        /// tabs and line breaks removed.
+        /// </param>
         public virtual void WriteText(string s, ColorCategory colorCategory, bool normalizeFieldText = false)
         {
             if (s == null)
-            {   // Do nothing
+            { // Do nothing
             }
             else if (normalizeFieldText && (s.IndexOfAny(s_invalidFieldChars) >= 0))
             {
@@ -539,6 +551,7 @@ namespace LogJam.Writer.Text
         }
 
         #endregion
+
         #region Abstract write methods
 
         protected abstract void WriteText(string s, ColorCategory colorCategory);
@@ -548,7 +561,6 @@ namespace LogJam.Writer.Text
         public abstract void WriteText(StringBuilder sb, int startIndex, int length, ColorCategory colorCategory);
 
         #endregion
-  
     }
 
 }
