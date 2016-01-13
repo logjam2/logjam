@@ -77,7 +77,7 @@ namespace LogJam.Trace.Format
             {
                 formatWriter.WriteTimestamp(traceEntry.TimestampUtc, ColorCategory.Detail);
             }
-            formatWriter.WriteField(TraceLevelToLabel(traceEntry.TraceLevel), color, 6);
+            formatWriter.WriteField(TraceLevelToLabel(traceEntry.TraceLevel), color, 7);
             formatWriter.WriteAbbreviatedTypeName(traceEntry.TracerName, ColorCategory.Debug, 36);
             formatWriter.WriteField(traceEntry.Message.Trim(), color);
             if (traceEntry.Details != null)
