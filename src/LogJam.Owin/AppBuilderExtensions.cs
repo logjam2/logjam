@@ -160,13 +160,14 @@ namespace Owin
 
             if (traceManager == null)
             {
-                // Use global instance
-                traceManager = TraceManager.Instance;
+                // Create new instance - using a global instance by default is a bad idea (eg webapp tests running concurrently or without adequate cleanup)
+                traceManager = new TraceManager(logManager ?? new LogManager(), new TraceManagerConfig());
             }
             if (logManager == null)
             {
                 logManager = traceManager.LogManager;
             }
+
             if (logManager != traceManager.LogManager)
             {
                 throw new LogJamOwinSetupException("Not supported to register disassociated TraceManager and LogManager instances.", appBuilder);
