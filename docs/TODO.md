@@ -1,13 +1,29 @@
 # LogJam TODO
 
+1. Add LogManager.Config.UseConsoleIfAvailable() - no setuplog error if not available
+2. Add Log info for LogJam.Owin
+  * SetupLog text URL
+  * Log config (writers, formatters, started, etc)
+3. Add trace threshold json file - trace.config
+2. Config object refactor
+    * Tracewriter config objects directly reference the LogWriterConfig objects, or ?? for "all logs"
+    * Make logwriter config objects immutable when LogManager is started, and have logwriters reference their config objects instead of duplicating the properties.
+3. Add text file logging
+  * Create file failure should also report the current Windows user
+4. Add other text formats - eg JSON, XML, delimited text (TSV, CSV)
+5. Add useful log file headers - datetime opened, PID, entry point assembly, assembly version, CWD
+6. Support extending default logs - eg username for HTTP requests, thread ID and name for tracing
 1. Custom log rotator behavior - datetime changes, log size, etc
 3. Add flush support, so buffering log writers can be flushed on command.
   * Support periodic flushing eg every .5s (more efficient than "always flush")
 4. Make background logging multi log writer support periodic flushing, eg every 600ms by default.  Also support flushing from foreground delegated to background thread.
 5. Instruments: Counters, Timers, HealthItems
 1. Profile and perf test various use-cases
+1. Custom log rotator behavior - datetime changes, log size, etc
+4. Add property dependency injection for intra-LogWriter pipeline dependencies (eg SynchronizingLogWriter ref)
 1. Consider renaming TraceWriterConfig, TraceWriter to TraceCollector or TraceConfig/TracerConfig or similar; make internal?
 1. Create documentation site
+1. Create ASP.NET v5 version, with Kestrel example
 1. Consider renaming BackgroundMultiLogWriter to BackgroundThreadManager
 1. Add ILogJamComponent, so the tree of components can be walked
   * Rewrite SafeStart() to use the new tree
@@ -35,9 +51,11 @@
 # Done
 
 ## Version 1.0.0-beta
+* Use GitLink, include PDBs in NuGet packages, to enable source debugging
 * Text log formatting refactor - added FormatWriter
 ** Added support for colorizing text, including colorized Console output
 ** Major improvements to console logging behavior
+** Dramatically improved the GC load caused by text logging
 * Support for configuring synchronization
 ** Add property dependency injection for intra-LogWriter pipeline dependencies (eg SynchronizingLogWriter ref)
 * Upgrade all tests to xunit 2
