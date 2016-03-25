@@ -7,10 +7,13 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
+// ReSharper disable once CheckNamespace
 namespace System.Net.Http
 {
     using System.Collections.Generic;
     using System.Diagnostics.Contracts;
+
+    using LogJam.Config;
 
     using Microsoft.Owin;
 

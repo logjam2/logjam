@@ -40,9 +40,6 @@ namespace LogJam.UnitTests.Trace
 
                 traceManager.Start();
                 Assert.True(logManager.IsStarted);
-
-                traceManager.Stop();
-                Assert.False(logManager.IsStarted);
             }
         }
 
@@ -77,7 +74,7 @@ namespace LogJam.UnitTests.Trace
             var logManager = new LogManager(logConfig, setupLog);
 
             // The TraceManagerConfig includes a DebugTraceWriter, which adds to the LogManager.Writers
-            using (var traceManager = new TraceManager(logManager, new TraceManagerConfig(TraceManagerConfig.CreateDebugTraceWriterConfig())))
+            using (var traceManager = new TraceManager(logManager, TraceManagerConfig.CreateDebugTraceWriterConfig()))
             {
                 traceManager.Start();
 

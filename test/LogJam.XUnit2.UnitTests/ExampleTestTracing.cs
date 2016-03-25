@@ -33,11 +33,7 @@ namespace LogJam.XUnit2.UnitTests
             _traceSwitch = new ThresholdTraceSwitch(TraceLevel.Debug);
             _traceManager = new TraceManager();
             _traceManager.Config.TraceToTestOutput(testOutput,
-                                                   traceSwitch: _traceSwitch,
-                                                   traceFormatter: new DefaultTraceFormatter()
-                                                                   {
-                                                                       IncludeTimestamp = true
-                                                                   });
+                                                   traceSwitch: _traceSwitch);
         }
 
         public TraceLevel TraceThreshold { get { return _traceSwitch.Threshold; } set { _traceSwitch.Threshold = value; } }

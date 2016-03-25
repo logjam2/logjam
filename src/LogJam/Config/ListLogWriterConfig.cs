@@ -9,7 +9,9 @@
 
 namespace LogJam.Config
 {
-    using LogJam.Config.Json;
+	using System.Collections.Generic;
+
+	using LogJam.Config.Json;
     using LogJam.Trace;
     using LogJam.Writer;
 
@@ -22,9 +24,15 @@ namespace LogJam.Config
         where TEntry : ILogEntry
     {
 
-        public override ILogWriter CreateLogWriter(ITracerFactory setupTracerFactory)
+		/// <summary>
+		/// Gets or sets the list to write to.
+		/// </summary>
+		public IList<TEntry> List { get; set; }
+
+
+		public override ILogWriter CreateLogWriter(ITracerFactory setupTracerFactory)
         {
-            return new ListLogWriter<TEntry>(setupTracerFactory, Synchronized);
+            return new ListLogWriter<TEntry>(setupTracerFactory, List, Synchronized);
         }
 
     }

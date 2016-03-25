@@ -26,7 +26,6 @@ namespace LogJam.Writer.Text
 
         private TextWriter _textWriter;
         private bool _disposeWriter;
-        private bool _isDisposed;
         private string _lineDelimiter;
         private readonly char[] _charBuffer;
 
@@ -72,7 +71,7 @@ namespace LogJam.Writer.Text
         /// <summary>
         /// Sets the <see cref="TextWriter" /> that is written to.
         /// </summary>
-        /// <param name="textWriter">The <see cref="TextWriter" /> to write formatted log output to.</param>
+        /// <param name="textWriter">An open <see cref="TextWriter" /> to write formatted log output to.</param>
         /// <param name="disposeWriter">
         /// Whether to dispose <paramref name="textWriter" /> when the <c>TextWriterFormatWriter</c> is
         /// disposed.
@@ -82,7 +81,7 @@ namespace LogJam.Writer.Text
             Contract.Requires<ArgumentNullException>(textWriter != null);
 
             _textWriter = textWriter;
-            _isDisposed = false;
+            State = StartableState.Started;
             _disposeWriter = disposeWriter;
             _lineDelimiter = _textWriter.NewLine;
             atBeginningOfLine = true;
@@ -118,15 +117,16 @@ namespace LogJam.Writer.Text
 
         public override void Dispose()
         {
-            if (_textWriter != null && ! _isDisposed)
+            if (_textWriter != null && ! IsDisposed)
             {
+                State = StartableState.Disposing;
                 _textWriter.Flush();
                 if (_disposeWriter)
                 {
                     _textWriter.Dispose();
                 }
                 _textWriter = null;
-                _isDisposed = true;
+                State = StartableState.Disposed;
             }
         }
 

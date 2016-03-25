@@ -3,8 +3,9 @@
 1. Add LogManager.Config.UseConsoleIfAvailable() - no setuplog error if not available
 2. Add Log info for LogJam.Owin
   * SetupLog text URL
-  * Log config (writers, formatters, started, etc)
+  * Log config + status (which writers, formatters, started, etc)
 3. Add trace threshold json file - trace.config
+3. Determine if Owin middleware should use Task.ConfigureAwait(false)
 2. Config object refactor
     * Tracewriter config objects directly reference the LogWriterConfig objects, or ?? for "all logs"
     * Make logwriter config objects immutable when LogManager is started, and have logwriters reference their config objects instead of duplicating the properties.
@@ -49,6 +50,16 @@
 
 
 # Done
+
+## Version 1.0.4-beta
+* LogJam.Owin - only register 1 OWIN handler when owin builder methods are called multiple times
+* Add `StartableState` and make `IStartable` lifecycle more nuanced
+* Add capability to configure the List to write to in `ListLogWriterConfig<TEntry>`
+* Added `TraceManager.Config.TraceToList(IList<TraceEntry>)` and `LogManager.Config.UseList(IList<TEntry>)`
+* LogJam.XUnit2: Fix `LogManager.Config.UseTestOutput(ITestOutputHelper);`
+* Added `TraceManagerConfig.LogManagerConfig`; now whenever a TraceWriterConfig is added or removed the corresponding LogWriterConfig is instantly added or removed from the related LogManagerConfig.
+* Changed `DefaultTraceFormatter.IncludeTimestamp` to default to `true`.
+  
 
 ## Version 1.0.0-beta
 * Use GitLink, include PDBs in NuGet packages, to enable source debugging

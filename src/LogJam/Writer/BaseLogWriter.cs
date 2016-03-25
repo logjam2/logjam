@@ -26,7 +26,6 @@ namespace LogJam.Writer
     {
 
         private readonly ITracerFactory _setupTracerFactory;
-        private bool _disposed;
 
         private readonly Dictionary<Type, object> _entryWriters;
 
@@ -39,7 +38,6 @@ namespace LogJam.Writer
 
             _setupTracerFactory = setupTracerFactory;
 
-            _disposed = false;
             _entryWriters = new Dictionary<Type, object>();
         }
 
@@ -78,26 +76,24 @@ namespace LogJam.Writer
             Stop();
             lock (this)
             {
-                if (! _disposed)
+                if (! IsDisposed)
                 {
-                    _disposed = true;
-
+                    State = StartableState.Disposing;
                     Dispose(true);
                     GC.SuppressFinalize(this);
+                    State = StartableState.Disposed;
                 }
             }
         }
-
-        protected bool IsDisposed { get { return _disposed; } }
 
         protected virtual void Dispose(bool disposing)
         {}
 
         protected void EnsureNotDisposed()
         {
-            if (_disposed)
+            if (IsDisposed)
             {
-                throw new ObjectDisposedException(GetType().GetCSharpName());
+                throw new ObjectDisposedException(this.ToString());
             }
         }
 
@@ -129,24 +125,14 @@ namespace LogJam.Writer
 
         #region Startable overrides
 
-        public override void Start()
-        {
-            if (_disposed)
-            {
-                throw new ObjectDisposedException(GetType().GetCSharpName());
-            }
-
-            base.Start();
-        }
-
         protected override void InternalStart()
         {
-            EntryWriters.SafeStart(SetupTracerFactory);
+			EntryWriters.Select(kvp => kvp.Value).SafeStart(SetupTracerFactory);
         }
 
         protected override void InternalStop()
         {
-            EntryWriters.SafeStop(SetupTracerFactory);
+			EntryWriters.Select(kvp => kvp.Value).SafeStop(SetupTracerFactory);
         }
 
         #endregion

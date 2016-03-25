@@ -23,7 +23,7 @@ namespace LogJam
 
 
     /// <summary>
-    /// Manager object that manages all <see cref="ILogWriter" />s for a context - eg process, or test.
+    /// Manager object that manages all <see cref="ILogWriter" />s and their configuration.
     /// </summary>
     public sealed class LogManager : BaseLogJamManager
     {
@@ -156,6 +156,15 @@ namespace LogJam
         /// </summary>
         public override IEnumerable<TraceEntry> SetupLog { get { return _setupTracerFactory as IEnumerable<TraceEntry> ?? Enumerable.Empty<TraceEntry>(); } }
 
+        /// <summary>
+        /// Checks whether this <see cref="LogManager"/> should be restarted to pick up any config changes.
+        /// </summary>
+        /// <returns></returns>
+        internal bool IsRestartNeeded()
+        {
+            return (_logWriters.Count != Config.Writers.Count) || Config.Writers.IsProperSupersetOf(_logWriters.Keys);
+        }
+
         protected override void InternalStart()
         {
             lock (this)
@@ -239,7 +248,7 @@ namespace LogJam
         {
             lock (this)
             {
-                _logWriters.SafeStop(SetupTracerFactory);
+                _logWriters.Values.SafeStop(SetupTracerFactory);
                 _logWriters.Clear();
                 _backgroundMultiLogWriters.SafeStop(SetupTracerFactory);
                 _backgroundMultiLogWriters.Clear();
@@ -265,7 +274,7 @@ namespace LogJam
         public IEnumerable<IEntryWriter<TEntry>> GetEntryWriters<TEntry>() where TEntry : ILogEntry
         {
             // Even if Start() wasn't 100% successful, we still return any logwriters that are available.
-            EnsureStarted();
+            EnsureAutoStarted();
 
             lock (this)
             {
@@ -316,7 +325,7 @@ namespace LogJam
             Contract.Requires<ArgumentNullException>(logWriterConfig != null);
 
             // Even if Start() wasn't 100% successful, we still return any logwriters that were successfully started.
-            EnsureStarted();
+            EnsureAutoStarted();
 
             lock (this)
             {

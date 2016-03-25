@@ -23,12 +23,11 @@ namespace LogJam
     {
         #region Instance fields
 
-        private bool _isStarted;
+        private StartableState _startableState;
         private Exception _startException;
-        private bool _isStopped;
-        private bool _isDisposed;
 
-        private readonly List<WeakReference> _disposables = new List<WeakReference>();
+        private readonly List<WeakReference> _disposeOnStop = new List<WeakReference>();
+        private readonly List<IDisposable> _linkedDisposables = new List<IDisposable>();
 
         #endregion
 
@@ -44,21 +43,54 @@ namespace LogJam
         public abstract IEnumerable<TraceEntry> SetupLog { get; }
 
         /// <summary>
+        /// Returns <c>true</c> if <see cref="Start()"/> was called and succeeded.
+        /// </summary>
+        public bool IsStarted { get { return _startableState == StartableState.Started; } }
+
+        /// <summary>
+        /// Returns <c>true</c> if <see cref="Stop"/> or <see cref="Dispose"/> has been called.
+        /// </summary>
+        public bool IsStopped { get { return (_startableState == StartableState.Stopped) || (_startableState == StartableState.Disposed); } }
+
+        /// <summary>
+        /// Returns <c>true</c> if there have been no setup traces that are more severe than informational.
+        /// </summary>
+        /// <remarks>
+        /// This method will return <c>false</c> if any warn, error, or severe traces have been reported during configuration, startup, or shutdown.
+        /// </remarks>
+        public bool IsHealthy { get { return ! SetupLog.HasAnyExceeding(TraceLevel.Info); } }
+
+        /// <summary>
+        /// Returns the <see cref="StartableState"/> for this object.
+        /// </summary>
+        public StartableState State { get { return _startableState; } }
+
+        /// <summary>
+        /// Returns <c>true</c> if this object is in a state that can be <see cref="Start"/>ed.
+        /// </summary>
+        public bool ReadyToStart
+        {
+            get
+            {
+                var state = _startableState;
+                return (state == StartableState.Unstarted) || (state == StartableState.Stopped);
+            }
+        }
+
+        /// <summary>
         /// Ensures that <see cref="Start" /> is automatically called once, but <see cref="Start" /> is not automatically called
         /// again if an exception occurred during the initial start, or if <see cref="Stop" /> was called.
         /// </summary>
-        /// <returns>
-        /// <c>true</c> if this instance has been successfully started; returns <c>false</c> if the instance was
-        /// <see cref="Stop" />ped
-        /// or if the initial call to <see cref="Start" /> was not completely successful.
-        /// </returns>
-        public bool EnsureStarted()
+        /// <returns><c>true</c> if this instance has been successfully started; returns <c>false</c> if the instance was <see cref="Stop"/>ped 
+        /// or if the initial call to <see cref="Start"/> was not completely successful.</returns>
+        public bool EnsureAutoStarted()
         {
-            if (_isStarted)
+            var state = _startableState;
+            if ((state == StartableState.Started) || (state == StartableState.Starting))
             {
                 return true;
             }
-            if (_isStopped)
+            if (state >= StartableState.Stopping)
             {
                 return false;
             }
@@ -68,13 +100,13 @@ namespace LogJam
             }
 
             Start();
-            return _isStarted;
+            return IsStarted;
         }
 
         /// <summary>
         /// Starts the manager whether or not <c>Start()</c> has already been called.
         /// </summary>
-        /// <remarks>To avoid starting more than once, use <see cref="EnsureStarted" />.</remarks>
+        /// <remarks>To avoid starting more than once, use <see cref="EnsureAutoStarted" />.</remarks>
         public void Start()
         {
             var tracer = SetupTracerFactory.TracerFor(this);
@@ -85,6 +117,12 @@ namespace LogJam
                 tracer.Error(className + " cannot be started; it has been Dispose()ed.");
                 return;
             }
+            var state = _startableState;
+            if ((state == StartableState.Starting) || (state == StartableState.Stopping))
+            {
+                tracer.Error(className + " cannot be started; state is: " + state);
+                return;
+            }
 
             tracer.Debug("Starting " + className + "...");
 
@@ -92,15 +130,16 @@ namespace LogJam
             {
                 try
                 {
+                    _startableState = StartableState.Starting;
                     InternalStart();
-                    _isStarted = true;
-                    _isStopped = false;
+                    _startableState = StartableState.Started;
                     tracer.Info(className + " started.");
                 }
                 catch (Exception startException)
                 {
                     _startException = startException;
                     tracer.Error(startException, "Start failed: Exception occurred.");
+                    _startableState = StartableState.FailedToStart;
                 }
             }
         }
@@ -110,22 +149,29 @@ namespace LogJam
         /// </summary>
         public void Stop()
         {
-            lock (this)
+            if (IsStopped || (_startableState == StartableState.Unstarted) || (_startableState == StartableState.Stopping))
             {
-                if (_isStopped)
-                {
-                    return;
-                }
-                _isStopped = true;
+                return;
             }
 
             var tracer = SetupTracerFactory.TracerFor(this);
             string className = GetType().Name;
             tracer.Info("Stopping " + className + "...");
 
-            InternalStop();
+            try
+            {
+                _startableState = StartableState.Stopping;
+                InternalStop();
+                _startableState = StartableState.Stopped;
+            }
+            catch (Exception stopException)
+            {
+                _startException = stopException;
+                tracer.Error(stopException, "Stop failed: Exception occurred.");
+                _startableState = StartableState.FailedToStop;
+            }
 
-            foreach (var disposableRef in _disposables)
+            foreach (var disposableRef in _disposeOnStop)
             {
                 IDisposable disposable = disposableRef.Target as IDisposable;
                 if (disposable != null)
@@ -138,13 +184,13 @@ namespace LogJam
                     {} // No need to log this
                     catch (Exception exception)
                     {
-                        tracer.Error(exception, "Exception while disposing " + className + ".");
+                        tracer.Error(exception, "Exception while disposing " + disposable + ".");
                     }
                 }
             }
+            _disposeOnStop.Clear();
 
             tracer.Info(className + " stopped.");
-            _isStarted = false;
         }
 
         /// <summary>
@@ -193,25 +239,6 @@ namespace LogJam
         protected abstract void InternalReset();
 
         /// <summary>
-        /// Returns <c>true</c> if <see cref="Start()" /> was called and succeeded.
-        /// </summary>
-        public bool IsStarted { get { return _isStarted; } }
-
-        /// <summary>
-        /// Returns <c>true</c> if <see cref="Stop" /> or <see cref="Dispose" /> has been called.
-        /// </summary>
-        public bool IsStopped { get { return _isStopped; } }
-
-        /// <summary>
-        /// Returns <c>true</c> if there have been no setup traces that are more severe than informational.
-        /// </summary>
-        /// <remarks>
-        /// This method will return <c>false</c> if any warn, error, or severe traces have been reported during configuration,
-        /// startup, or shutdown.
-        /// </remarks>
-        public bool IsHealthy { get { return ! SetupLog.HasAnyExceeding(TraceLevel.Info); } }
-
-        /// <summary>
         /// Registers <paramref name="objectToDispose" /> for cleanup when <see cref="Stop" /> is called.
         /// </summary>
         /// <param name="objectToDispose"></param>
@@ -219,30 +246,66 @@ namespace LogJam
         {
             if (objectToDispose is IDisposable)
             {
-                _disposables.Add(new WeakReference(objectToDispose));
+                _disposeOnStop.Add(new WeakReference(objectToDispose));
+            }
+        }
+
+        /// <summary>
+        /// Registers <paramref name="objectToDispose" /> to also be disposed when <see cref="Dispose" /> is called.
+        /// </summary>
+        /// <param name="objectToDispose"></param>
+        public void LinkDispose(object objectToDispose)
+        {
+            if (objectToDispose is IDisposable)
+            {
+                _linkedDisposables.Add((IDisposable) objectToDispose);
             }
         }
 
         public void Dispose()
         {
-            if (! _isDisposed)
+            if (! IsDisposed)
             {
                 Dispose(true);
                 GC.SuppressFinalize(this);
-                _isDisposed = true;
             }
         }
 
         protected virtual void Dispose(bool disposing)
         {
-            if (! _isDisposed)
+            if (! IsDisposed)
             {
                 Stop();
-                _isDisposed = true;
+
+                // Protect against recursion (eg linked disposables could create a cycle)
+                _startableState = StartableState.Disposed;
+
+                if (disposing)
+                {
+                    // Dispose all the linked disposables
+                    foreach (var disposable in _linkedDisposables)
+                    {
+                        if (disposable != null)
+                        {
+                            try
+                            {
+                                disposable.Dispose();
+                            }
+                            catch (ObjectDisposedException)
+                            {} // No need to log this
+                            catch (Exception exception)
+                            {
+                                var tracer = SetupTracerFactory.TracerFor(this);
+                                tracer.Error(exception, "Exception while disposing " + disposable + ".");
+                            }
+                        }
+                    }
+                    _linkedDisposables.Clear();
+                }
             }
         }
 
-        protected bool IsDisposed { get { return _isDisposed; } }
+        protected bool IsDisposed { get { return _startableState == StartableState.Disposed; } }
 
         /// <summary>
         /// Returns the <see cref="ILogJamComponent.SetupTracerFactory" />, and ensures the same instance is shared by

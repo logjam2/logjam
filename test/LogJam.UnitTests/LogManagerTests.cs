@@ -122,9 +122,33 @@ namespace LogJam.UnitTests
 
             // LogManager.GetLogWriter starts the LogManager
             Assert.False(logManager.IsStarted);
-            Assert.NotNull(logManager.GetLogWriter(textLogWriterConfig));
+            var logWriter = logManager.GetLogWriter(textLogWriterConfig);
+            Assert.NotNull(logWriter);
+            Assert.True((logWriter as IStartable).IsStarted);
             Assert.True(logManager.IsStarted);
             Assert.True(logManager.IsHealthy);
+        }
+
+        [Fact]
+        public void StoppingLogManager_StopsLogWriters()
+        {
+            var traceList = new List<TraceEntry>();
+            var logManager = new LogManager();
+            var logWriterConfig = logManager.Config.UseList(traceList);
+            logWriterConfig.DisposeOnStop = false; // Disposing the LogWriter will also stop it; for this test, we don't want the Dispose() to cover up Stop() not being called.
+
+            // LogManager.GetLogWriter starts the LogManager
+            Assert.False(logManager.IsStarted);
+            var logWriter = logManager.GetLogWriter(logWriterConfig);
+            Assert.NotNull(logWriter);
+            Assert.True((logWriter as IStartable).IsStarted);
+            Assert.True(logManager.IsStarted);
+
+            logManager.Stop();
+            Assert.True(logManager.IsStopped);
+            Assert.True(logManager.IsHealthy);
+
+            Assert.False((logWriter as IStartable).IsStarted);
         }
 
         [Fact]

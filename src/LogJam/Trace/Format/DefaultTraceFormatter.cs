@@ -28,17 +28,18 @@ namespace LogJam.Trace.Format
         public DefaultTraceFormatter()
         {
             MaxIndentLevel = DefaultMaxIndentLevel;
+            IncludeTimestamp = true;
         }
 
         #region Public Properties
 
         /// <summary>
-        /// <c>true</c> to include the Date when formatting <see cref="TraceEntry" />s.
+        /// <c>true</c> to include the Date when formatting <see cref="TraceEntry" />s. Default is <c>false</c>.
         /// </summary>
         public bool IncludeDate { get; set; }
 
         /// <summary>
-        /// <c>true</c> to include the Timestamp when formatting <see cref="TraceEntry" />s.
+        /// <c>true</c> to include the Timestamp when formatting <see cref="TraceEntry" />s. Default is <c>true</c>.
         /// </summary>
         public bool IncludeTimestamp { get; set; }
 

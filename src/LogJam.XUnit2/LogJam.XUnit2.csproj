@@ -31,6 +31,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="LogJam.XUnit2.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

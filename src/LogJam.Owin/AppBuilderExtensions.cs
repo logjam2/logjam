@@ -158,10 +158,13 @@ namespace Owin
         {
             Contract.Requires<ArgumentNullException>(appBuilder != null);
 
+            const string keyUsingLogJamManagerMiddleware = "Using:LogJamManagerMiddleware";
+
+            var logManagerConfig = logManager?.Config ?? new LogManagerConfig();
             if (traceManager == null)
             {
                 // Create new instance - using a global instance by default is a bad idea (eg webapp tests running concurrently or without adequate cleanup)
-                traceManager = new TraceManager(logManager ?? new LogManager(), new TraceManagerConfig());
+                traceManager = new TraceManager(logManager ?? new LogManager(logManagerConfig));
             }
             if (logManager == null)
             {
@@ -180,7 +183,12 @@ namespace Owin
             appBuilder.Properties[c_tracerFactoryKey] = traceManager;
 
             // LogJamManagerMiddleware manages lifetime + registering the LogManager and TraceManager per request
-            appBuilder.Use<LogJamManagerMiddleware>(logManager, traceManager);
+            // Use the key to ensure that the middleware is only added once
+            if (! appBuilder.Properties.ContainsKey(keyUsingLogJamManagerMiddleware))
+            {
+                appBuilder.Use<LogJamManagerMiddleware>(logManager, traceManager);
+                appBuilder.Properties.Add(keyUsingLogJamManagerMiddleware, logManager);
+            }
 
             // Ensure LogManager.Dispose - LogJamManagerMiddleware.Dispose() is not reliably called.
             var properties = new AppProperties(appBuilder.Properties);
@@ -204,6 +212,8 @@ namespace Owin
             Contract.Requires<ArgumentNullException>(appBuilder != null);
             Contract.Requires<ArgumentNullException>(configuredLogWriters != null);
 
+            const string keyUsingHttpLoggingMiddleware = "Using:HttpLoggingMiddleware";
+
             var logManager = appBuilder.GetLogManager();
             var tracerFactory = appBuilder.GetTracerFactory();
 
@@ -212,7 +222,13 @@ namespace Owin
             {
                 logWriterConfigs.FormatAll<HttpRequestEntry>()
                                 .FormatAll<HttpResponseEntry>();
-                appBuilder.Use<HttpLoggingMiddleware>(logManager, tracerFactory, logWriterConfigs);
+
+                // Use the key to ensure that the middleware is only added once
+                if (! appBuilder.Properties.ContainsKey(keyUsingHttpLoggingMiddleware))
+                {
+                    appBuilder.Use<HttpLoggingMiddleware>(logManager, tracerFactory);
+                    appBuilder.Properties.Add(keyUsingHttpLoggingMiddleware, logManager);
+                }
             }
         }
 

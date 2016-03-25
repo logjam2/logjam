@@ -27,6 +27,8 @@
     <Compile Include="Config\TextLogWriterConfig.cs" />
     <Compile Include="Config\TextWriterLogWriterConfig.cs" />
     <Compile Include="Config\UseExistingLogWriterConfig.cs" />
+    <Compile Include="StartableState.cs" />
+    <Compile Include="Util\ObservableSet.cs" />
     <Compile Include="Writer\Text\DefaultConsoleColorResolver.cs" />
     <Compile Include="Writer\Text\EntryActionFormatter.cs" />
     <Compile Include="Encode\ILogDecoder.cs" />

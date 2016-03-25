@@ -15,6 +15,7 @@ namespace LogJam.Config
     using System.IO;
     using System.Linq;
 
+    using LogJam.Trace;
     using LogJam.Writer;
     using LogJam.Writer.Text;
 
@@ -85,6 +86,12 @@ namespace LogJam.Config
             return consoleWriterConfig;
         }
 
+        /// <summary>
+        /// Use the specified <paramref name="logWriter"/>.
+        /// </summary>
+        /// <param name="logManagerConfig"></param>
+        /// <param name="logWriter"></param>
+        /// <returns>A <see cref="UseExistingLogWriterConfig"/> that will return <paramref name="logWriter"/> when the <see cref="LogManager"/> is started.</returns>
         public static UseExistingLogWriterConfig UseLogWriter(this LogManagerConfig logManagerConfig, ILogWriter logWriter)
         {
             Contract.Requires<ArgumentNullException>(logManagerConfig != null);
@@ -93,6 +100,27 @@ namespace LogJam.Config
             var useExistingConfig = new UseExistingLogWriterConfig(logWriter);
             logManagerConfig.Writers.Add(useExistingConfig);
             return useExistingConfig;
+        }
+
+        /// <summary>
+        /// Log to <paramref name="list"/>.
+        /// </summary>
+        /// <typeparam name="TEntry">The <see cref="ILogEntry"/> type to log to the list.</typeparam>
+        /// <param name="logManagerConfig">The <see cref="LogManagerConfig"/> being configured.</param>
+        /// <param name="list">A list object.</param>
+        /// <returns>A <see cref="ListLogWriterConfig{TEntry}"/> holding the configuration for the <see cref="ListLogWriter{TEntry}"/>. Can be further configured.</returns>
+        public static ListLogWriterConfig<TEntry> UseList<TEntry>(this LogManagerConfig logManagerConfig, IList<TEntry> list)
+            where TEntry : ILogEntry
+        {
+            Contract.Requires<ArgumentNullException>(logManagerConfig != null);
+            Contract.Requires<ArgumentNullException>(list != null);
+
+            var listLogWriterConfig = new ListLogWriterConfig<TEntry>()
+            {
+                List = list
+            };
+            logManagerConfig.Writers.Add(listLogWriterConfig);
+            return listLogWriterConfig;
         }
 
         /// <summary>

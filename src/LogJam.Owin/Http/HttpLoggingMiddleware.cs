@@ -41,48 +41,24 @@ namespace LogJam.Owin.Http
         private readonly Tracer _setupTracer;
         private readonly Tracer _tracer;
 
-        public HttpLoggingMiddleware(OwinMiddleware next, LogManager logManager, ITracerFactory tracerFactory, ILogWriterConfig[] logWriterConfigs)
+        public HttpLoggingMiddleware(OwinMiddleware next, LogManager logManager, ITracerFactory tracerFactory)
             : base(next)
         {
             Contract.Requires<ArgumentNullException>(next != null);
             Contract.Requires<ArgumentNullException>(logManager != null);
             Contract.Requires<ArgumentNullException>(tracerFactory != null);
-            Contract.Requires<ArgumentNullException>(logWriterConfigs != null);
 
             _requestCounter = 0L;
 
             _setupTracer = logManager.SetupTracerFactory.TracerFor(this);
 
-            // Sort the configured LogWriters into request and response entry writers
-            var requestWriters = new List<IEntryWriter<HttpRequestEntry>>();
-            var responseWriters = new List<IEntryWriter<HttpResponseEntry>>();
-            foreach (var logWriterConfig in logWriterConfigs)
-            {
-                ILogWriter logWriter;
-                if (! logManager.TryGetLogWriter(logWriterConfig, out logWriter))
-                {
-                    _setupTracer.Error("Unable to setup HTTP logging for log target '{0}', no LogWriter exists for this configuration.", logWriterConfig);
-                    continue;
-                }
+            _requestEntryWriter = logManager.GetEntryWriter<HttpRequestEntry>();
+            _responseEntryWriter = logManager.GetEntryWriter<HttpResponseEntry>();
 
-                IEntryWriter<HttpRequestEntry> requestWriter;
-                if (logWriter.TryGetEntryWriter(out requestWriter))
-                {
-                    requestWriters.Add(requestWriter);
-                }
-                IEntryWriter<HttpResponseEntry> responseWriter;
-                if (logWriter.TryGetEntryWriter(out responseWriter))
-                {
-                    responseWriters.Add(responseWriter);
-                }
-            }
-
-            _requestEntryWriter = requestWriters.GetSingleEntryWriter();
-            _responseEntryWriter = responseWriters.GetSingleEntryWriter();
-
+            const string startedMessage = "OWIN HTTP logging started.";
+            _setupTracer.Info(startedMessage);
             _tracer = tracerFactory.TracerFor(this);
-
-            _setupTracer.Info("OWIN HTTP logging setup for: {0}", string.Join(", ", (IEnumerable<ILogWriterConfig>) logWriterConfigs));
+            _tracer.Info(startedMessage);
         }
 
         public void Dispose()

@@ -98,11 +98,7 @@ namespace LogJam.Owin.UnitTests
                                                                       res.ContentType = "text/plain";
                                                                       var sw = new StringWriter();
                                                                       LogManager logManager = owinContext.GetLogManager();
-                                                                      logManager.SetupLog.WriteEntriesTo(sw,
-                                                                                                         new DefaultTraceFormatter()
-                                                                                                         {
-                                                                                                             IncludeTimestamp = true
-                                                                                                         });
+                                                                      logManager.SetupLog.WriteEntriesTo(sw);
                                                                       res.Write(sw.ToString());
                                                                   }
                                                                   else
@@ -124,10 +120,7 @@ namespace LogJam.Owin.UnitTests
         protected virtual void ConfigureLogging(IAppBuilder appBuilder, TextWriter logTarget, bool backgroundThreadLogging)
         {
             var textLogConfig = appBuilder.GetLogManagerConfig().UseTextWriter(logTarget)
-                                          .Format(new DefaultTraceFormatter()
-                                                  {
-                                                      IncludeTimestamp = true
-                                                  })
+                                          .Format(new DefaultTraceFormatter())
                                           .Format(new HttpRequestFormatter())
                                           .Format(new HttpResponseFormatter());
             textLogConfig.BackgroundLogging = backgroundThreadLogging;

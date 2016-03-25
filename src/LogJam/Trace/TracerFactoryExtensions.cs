@@ -41,6 +41,13 @@ namespace LogJam.Trace
             Contract.Requires<ArgumentNullException>(tracerFactory != null);
             Contract.Requires<ArgumentNullException>(traceSource != null);
 
+            // Handle the case where Type is passed in, when an object was expected
+            Type traceSourceType = traceSource as Type;
+            if (traceSourceType != null)
+            {
+                return GetTracer(tracerFactory, traceSourceType);
+            }
+
             return tracerFactory.GetTracer(traceSource.GetType());
         }
 

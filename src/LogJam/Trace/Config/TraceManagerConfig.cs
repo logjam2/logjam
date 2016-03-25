@@ -31,20 +31,18 @@ namespace LogJam.Trace.Config
         /// <summary>
         /// Holds the configuration for <see cref="TraceWriter" />s.
         /// </summary>
-        private readonly ISet<TraceWriterConfig> _traceWriterConfigs;
+        private readonly ObservableSet<TraceWriterConfig> _traceWriterConfigs;
 
         #endregion
-
-        #region Constructors and Destructors
 
         /// <summary>
         /// Creates and returns a new <see cref="TraceManagerConfig" /> with default trace configuration,
         /// which means if a debugger is attached, trace output is logged to the debugger.
         /// </summary>
         /// <returns></returns>
-        public static TraceManagerConfig Default()
+        public static TraceManagerConfig Default(LogManagerConfig logManagerConfig)
         {
-            var traceManagerConfig = new TraceManagerConfig();
+            var traceManagerConfig = new TraceManagerConfig(logManagerConfig);
             traceManagerConfig.SetToDefaultConfiguration();
             return traceManagerConfig;
         }
@@ -53,25 +51,38 @@ namespace LogJam.Trace.Config
         /// Empty configuration, no traces written.
         /// </summary>
         public TraceManagerConfig()
+            : this(new LogManagerConfig())
+        {}
+
+        /// <summary>
+        /// Empty trace configuration, connected to <paramref name="logManagerConfig"/>.
+        /// </summary>
+        public TraceManagerConfig(LogManagerConfig logManagerConfig)
         {
-            _traceWriterConfigs = new HashSet<TraceWriterConfig>();
+            Contract.Requires<ArgumentNullException>(logManagerConfig != null);
+
+            LogManagerConfig = logManagerConfig;
+            _traceWriterConfigs = new ObservableSet<TraceWriterConfig>();
+            _traceWriterConfigs.AddingItem += TraceWriterConfigsOnAddingItem;
+            _traceWriterConfigs.RemovingItem += TraceWriterConfigsOnRemovingItem;
         }
 
         public TraceManagerConfig(TraceWriterConfig traceWriterConfig)
+            : this(new LogManagerConfig())
         {
             Contract.Requires<ArgumentNullException>(traceWriterConfig != null);
 
-            _traceWriterConfigs = new HashSet<TraceWriterConfig>();
             _traceWriterConfigs.Add(traceWriterConfig);
         }
 
         public TraceManagerConfig(params TraceWriterConfig[] traceWriterConfigs)
+            : this(new LogManagerConfig())
         {
             Contract.Requires<ArgumentNullException>(traceWriterConfigs != null);
             Contract.Requires<ArgumentException>(traceWriterConfigs.Length > 0);
             Contract.Requires<ArgumentNullException>(traceWriterConfigs.All(config => config != null));
 
-            _traceWriterConfigs = new HashSet<TraceWriterConfig>(traceWriterConfigs);
+            _traceWriterConfigs.UnionWith(traceWriterConfigs);
         }
 
         /// <summary>
@@ -108,25 +119,31 @@ namespace LogJam.Trace.Config
             return new ThresholdTraceSwitch(TraceLevel.Info);
         }
 
-        #endregion
-
-        #region Public Events
-
         /// <summary>
-        /// The global config changed.
+        /// Returns the <see cref="LogManagerConfig"/> object associated with this <see cref="TraceManagerConfig"/> object.
         /// </summary>
-        /// <summary>
-        /// An event that is raised when a <see cref="TracerConfig" /> instance is added.
+        public LogManagerConfig LogManagerConfig { get; }
+
         /// <summary>
         /// Gets the set of <see cref="TraceWriterConfig" /> objects that the <see cref="TraceManager" /> is configured from.
         /// </summary>
         public ISet<TraceWriterConfig> Writers { get { return _traceWriterConfigs; } }
 
-        #endregion
+        private void TraceWriterConfigsOnAddingItem(TraceWriterConfig traceWriterConfig)
+        {
+            if (traceWriterConfig != null)
+            {
+                LogManagerConfig.Writers.UnionWith(new ILogWriterConfig[] { traceWriterConfig.LogWriterConfig });
+            }
+        }
 
-        #region Public Methods and Operators
-
-        #endregion
+        private void TraceWriterConfigsOnRemovingItem(TraceWriterConfig traceWriterConfig)
+        {
+            if (traceWriterConfig != null)
+            {
+                LogManagerConfig.Writers.Remove(traceWriterConfig.LogWriterConfig);
+            }
+        }
 
         public bool Equals(TraceManagerConfig other)
         {

@@ -24,11 +24,11 @@ namespace LogJam.Util
     internal sealed class GrowingListEnumerator<T> : IEnumerator<T>
     {
 
-        private readonly List<T> _list;
+        private readonly IList<T> _list;
         private int _currentIndex;
         private int _lastKnownCount;
 
-        public GrowingListEnumerator(List<T> list)
+        public GrowingListEnumerator(IList<T> list)
         {
             Contract.Requires<ArgumentNullException>(list != null);
             _list = list;

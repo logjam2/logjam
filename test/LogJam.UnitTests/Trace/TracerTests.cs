@@ -10,6 +10,7 @@
 namespace LogJam.UnitTests.Trace
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics.Contracts;
     using System.Linq;
 
@@ -46,58 +47,61 @@ namespace LogJam.UnitTests.Trace
         [Fact]
         public void TracingCanBeVerifiedUsingListLogWriter()
         {
-            var setupTracerFactory = new SetupLog();
-            var listWriter = new ListLogWriter<TraceEntry>(setupTracerFactory);
+            var list = new List<TraceEntry>();
 
             // Default threshold: Info for everything
             Tracer tracer;
-            using (var traceManager = new TraceManager(listWriter))
+            using (var traceManager = new TraceManager())
             {
+	            traceManager.Config.TraceToList(list);
+
                 tracer = traceManager.TracerFor(this);
                 tracer.Info("By default info is enabled");
                 tracer.Debug("This message won't be logged");
             }
-            Assert.Single(listWriter);
-            listWriter.Clear();
+            Assert.Single(list);
+			list.Clear();
 
             // Tracing after TraceManager is disposed does nothing
             tracer.Info("Not logged, b/c TraceManager has been disposed.");
-            Assert.Empty(listWriter);
+            Assert.Empty(list);
 
             // Trace everything for the test class, nothing for other types
-            using (var traceManager = new TraceManager(listWriter, new OnOffTraceSwitch(true), GetType().FullName))
+            using (var traceManager = new TraceManager())
             {
+	            traceManager.Config.TraceToList(list, GetType().FullName, new OnOffTraceSwitch(true));
+
                 tracer = traceManager.TracerFor(this);
                 tracer.Debug("Now debug is enabled for this class");
             }
-            Assert.Single(listWriter);
+            Assert.Single(list);
         }
 
         [Fact]
         public void LogWriterExceptionsDontPropagate()
         {
-            var setupTracerFactory = new SetupLog();
-            var exceptionLogWriter = new ExceptionThrowingLogWriter<TraceEntry>(setupTracerFactory);
-            var listLogWriter = new ListLogWriter<TraceEntry>(setupTracerFactory);
-            var traceManagerConfig = new TraceManagerConfig(
-                new TraceWriterConfig()
-                {
-                    LogWriterConfig = new UseExistingLogWriterConfig(exceptionLogWriter, disposeOnStop: true),
-                    Switches =
-                    {
-                        { Tracer.All, new OnOffTraceSwitch(true) }
-                    }
-                },
-                new TraceWriterConfig(listLogWriter)
-                {
-                    LogWriterConfig = new UseExistingLogWriterConfig(listLogWriter, disposeOnStop: true),
-                    Switches =
-                    {
-                        { Tracer.All, new OnOffTraceSwitch(true) }
-                    }
-                });
+            var setupLog = new SetupLog();
+            var exceptionLogWriter = new ExceptionThrowingLogWriter<TraceEntry>(setupLog);
+            var listLogWriter = new ListLogWriter<TraceEntry>(setupLog);
 
-            var traceManager = new TraceManager(traceManagerConfig, setupTracerFactory);
+            var traceManager = new TraceManager(setupLog);
+            traceManager.Config.Writers.Add(new TraceWriterConfig()
+                                            {
+                                                LogWriterConfig = new UseExistingLogWriterConfig(exceptionLogWriter, disposeOnStop: true),
+                                                Switches =
+                                                {
+                                                    { Tracer.All, new OnOffTraceSwitch(true) }
+                                                }
+                                            });
+            traceManager.Config.Writers.Add(new TraceWriterConfig()
+                                            {
+                                                LogWriterConfig = new UseExistingLogWriterConfig(listLogWriter, disposeOnStop: true),
+                                                Switches =
+                                                {
+                                                    { Tracer.All, new OnOffTraceSwitch(true) }
+                                                }
+                                            });
+
             using (traceManager)
             {
                 traceManager.Start();

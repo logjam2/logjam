@@ -33,6 +33,7 @@ namespace LogJam.XUnit2
             Contract.Requires<ArgumentNullException>(testOutput != null);
 
             var testOutputLogWriterConfig = new TestOutputLogWriterConfig(testOutput);
+            logManagerConfig.Writers.Add(testOutputLogWriterConfig);
             return testOutputLogWriterConfig;
         }
 

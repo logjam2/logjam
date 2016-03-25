@@ -49,6 +49,22 @@ namespace LogJam.Config
             return _logWriter;
         }
 
+        /// <summary>
+        /// Override <c>GetHashCode()</c> and <see cref="Equals"/> so that 2 references to the same ILogWriter don't result in duplicate config entries.
+        /// </summary>
+        /// <returns></returns>
+        public override int GetHashCode()
+        {
+            return _logWriter.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            var other = obj as UseExistingLogWriterConfig;
+            return ((other != null) &&
+                    Equals(this._logWriter, other._logWriter));
+        }
+
     }
 
 }

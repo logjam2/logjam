@@ -50,6 +50,22 @@ namespace LogJam.Writer
         public abstract void Write(ref TEntry entry);
 
         #endregion
+        #region Startable overrides
+
+        /// <summary>
+        /// Override <c>InternalStart</c> to NOT start the <see cref="EntryWriters"/>, since the <see cref="IEntryWriter{TEntry}"/> is <c>this</c>.
+        /// </summary>
+        protected override void InternalStart()
+        {}
+
+        /// <summary>
+        /// Override <c>InternalStart</c> to NOT stop the <see cref="EntryWriters"/>, since the <see cref="IEntryWriter{TEntry}"/> is <c>this</c>.
+        /// </summary>
+        protected override void InternalStop()
+        {}
+        
+        #endregion
+
     }
 
 }

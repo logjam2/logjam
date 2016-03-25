@@ -7,8 +7,12 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
-namespace LogJam.Util
+namespace LogJam
 {
+    using System;
+
+    using LogJam.Util;
+
 
     /// <summary>
     /// Base class for <see cref="IStartable" /> implementations.
@@ -16,23 +20,70 @@ namespace LogJam.Util
     public abstract class Startable : IStartable
     {
 
-        private bool _isStarted;
+        private StartableState _startableState;
 
         protected Startable()
         {
-            _isStarted = false;
+            _startableState = StartableState.Unstarted;
         }
+
+        /// @inheritdoc
+        public StartableState State { get { return _startableState; } protected set { _startableState = value; } }
+
+        /// @inheritdoc
+        public bool IsStarted { get { return _startableState == StartableState.Started; } }
+
+        /// <summary>
+        /// Returns <c>true</c> if this object is in a state that can be <see cref="Start"/>ed.
+        /// </summary>
+        public virtual bool ReadyToStart
+        {
+            get
+            {
+                var state = _startableState;
+                return ((state == StartableState.Unstarted) || (state == StartableState.Stopped));
+            }
+        }
+
+        /// <summary>
+        /// Returns <c>true</c> if this object is being disposed or has been disposed.
+        /// </summary>
+        protected bool IsDisposed { get { return _startableState >= StartableState.Disposing; } }
 
         /// @inheritdoc
         public virtual void Start()
         {
             lock (this)
             {
-                if (! _isStarted)
-                {
-                    InternalStart();
-                    _isStarted = true;
+                if (IsStarted || (_startableState == StartableState.Starting))
+                { // Do nothing if already started or starting.
+                    return;
                 }
+                if (_startableState >= StartableState.Disposing)
+                { // Do nothing if already started.
+                    throw new ObjectDisposedException(this.ToString(), "Cannot be started; state is: " + _startableState);
+                }
+                if (! ReadyToStart)
+                {
+                    throw new LogJamStartException(this + " cannot be started; state is: " + _startableState, this);
+                }
+                _startableState = StartableState.Starting;
+            }
+
+            try
+            {
+                InternalStart();
+                _startableState = StartableState.Started;
+            }
+            catch (LogJamStartException)
+            {
+                _startableState = StartableState.FailedToStart;
+                throw;
+            }
+            catch (Exception exception)
+            {
+                _startableState = StartableState.FailedToStart;
+                throw new LogJamStartException("Exception starting " + this, exception, this);
             }
         }
 
@@ -47,11 +98,22 @@ namespace LogJam.Util
         {
             lock (this)
             {
-                if (_isStarted)
+                if (! IsStarted)
                 {
-                    InternalStop();
-                    _isStarted = false;
+                    return;
                 }
+                _startableState = StartableState.Stopping;
+            }
+
+            try
+            {
+                InternalStop();
+                _startableState = StartableState.Stopped;
+            }
+            catch (Exception exception)
+            {
+                _startableState = StartableState.FailedToStop;
+                throw new LogJamException("Exception stopping " + this, exception, this);
             }
         }
 
@@ -60,9 +122,6 @@ namespace LogJam.Util
         /// </summary>
         protected virtual void InternalStop()
         {}
-
-        /// @inheritdoc
-        public virtual bool IsStarted { get { return _isStarted; } }
 
         /// <summary>
         /// Override ToString() to provide more descriptive start/stop logging.

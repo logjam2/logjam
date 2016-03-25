@@ -53,10 +53,7 @@ namespace LogJam.ConsoleTester
                         testSetup.FluentConfigForTraceEnableAllLevels();
                     }
 
-                    if (args.Contains("trace-timestamps"))
-                    {
-                        testSetup.TraceTimestamps();
-                    }
+                    testSetup.TraceTimestamps(args.Contains("trace-timestamps"));
 
                     if (args.Contains("setup-color"))
                     {

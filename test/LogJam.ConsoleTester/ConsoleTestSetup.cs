@@ -66,7 +66,7 @@ namespace LogJam.ConsoleTester
         /// </summary>
         public void FluentConfigForTrace()
         {
-            var traceWriterConfig = TraceManager.TraceToConsole();
+            var traceWriterConfig = TraceManager.Config.TraceToConsole();
 
             // Normally you don't have to extract the ConsoleLogWriterConfig, but for the purposes of this class we do
             ConsoleLogWriterConfig = traceWriterConfig.LogWriterConfig as ConsoleLogWriterConfig;
@@ -77,7 +77,7 @@ namespace LogJam.ConsoleTester
         /// </summary>
         public void FluentConfigForTraceEnableAllLevels()
         {
-            var traceWriterConfig = TraceManager.TraceToConsole(new SwitchSet()
+            var traceWriterConfig = TraceManager.Config.TraceToConsole(new SwitchSet()
                                                                 {
                                                                     // Default threshold (info) for all tracers
                                                                     { Tracer.All, new ThresholdTraceSwitch(TraceLevel.Info) },
@@ -89,11 +89,11 @@ namespace LogJam.ConsoleTester
             ConsoleLogWriterConfig = traceWriterConfig.LogWriterConfig as ConsoleLogWriterConfig;
         }
 
-        public void TraceTimestamps()
+        public void TraceTimestamps(bool includeTimestamp)
         {
             ConsoleLogWriterConfig.Format(new DefaultTraceFormatter()
                                           {
-                                              IncludeTimestamp = true
+                                              IncludeTimestamp = includeTimestamp
                                           });
         }
 

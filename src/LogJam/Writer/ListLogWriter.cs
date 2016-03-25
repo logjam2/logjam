@@ -9,8 +9,10 @@
 
 namespace LogJam.Writer
 {
-    using System.Collections;
+	using System;
+	using System.Collections;
     using System.Collections.Generic;
+    using System.Diagnostics.Contracts;
 
     using LogJam.Trace;
     using LogJam.Util;
@@ -23,7 +25,7 @@ namespace LogJam.Writer
         where TEntry : ILogEntry
     {
 
-        private readonly List<TEntry> _entryList;
+        private readonly IList<TEntry> _entryList;
         private readonly bool _isSynchronized;
 
         /// <summary>
@@ -39,16 +41,38 @@ namespace LogJam.Writer
         public ListLogWriter(ITracerFactory setupTracerFactory, bool synchronize = true)
             : base(setupTracerFactory)
         {
+			Contract.Requires<ArgumentNullException>(setupTracerFactory != null);
+
             _entryList = new List<TEntry>();
             _isSynchronized = synchronize;
         }
 
-        #region ILogWriter
+	    /// <summary>
+	    /// Creates a new <see cref="ListLogWriter{TEntry}" /> using <paramref name="entryList"/>.
+	    /// </summary>
+	    /// <param name="setupTracerFactory"></param>
+	    /// <param name="entryList">The <see cref="IList{T}"/> to write to.</param>
+	    /// <param name="synchronize">
+	    /// If set to <c>true</c> (the default), writes are synchronized, meaning entries are only added to
+	    /// the list one thread at a time using a <c>lock</c>.  If <c>false</c>, writes are not synchronized by this class, so
+	    /// another
+	    /// mechanism must be used to synchronize writes from multiple threads.
+	    /// </param>
+	    public ListLogWriter(ITracerFactory setupTracerFactory, IList<TEntry> entryList, bool synchronize = true)
+			: base(setupTracerFactory)
+		{
+			Contract.Requires<ArgumentNullException>(setupTracerFactory != null);
 
-        /// <summary>
-        /// Returns <c>true</c> if calls to this object's methods and properties are synchronized.
-        /// </summary>
-        public override bool IsSynchronized { get { return _isSynchronized; } }
+			_entryList = entryList ?? new List<TEntry>();
+			_isSynchronized = synchronize;
+		}
+
+		#region ILogWriter
+
+		/// <summary>
+		/// Returns <c>true</c> if calls to this object's methods and properties are synchronized.
+		/// </summary>
+		public override bool IsSynchronized { get { return _isSynchronized; } }
 
         #endregion
 

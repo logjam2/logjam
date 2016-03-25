@@ -37,19 +37,15 @@ namespace LogJam.XUnit2.UnitTests
                            {
                                { Tracer.All, new OnOffTraceSwitch(true) }
                            };
-            var traceFormatter = new DefaultTraceFormatter()
-                                 {
-                                     IncludeTimestamp = true
-                                 };
 
             using (var traceManager = new TraceManager())
             {
                 var testOutputLogWriterConfig = traceManager.LogManager.Config.UseTestOutput(testOutput);
                 testOutputLogWriterConfig.IncludeTimeOffset = false; // Turn this off so test log formatting matches the text logging default
                 testOutputLogWriterConfig.IncludeTime = true; // Turn this on so test log formatting matches the text logging default
-                traceManager.Config.TraceTo(testOutputLogWriterConfig, switches, traceFormatter);
+                traceManager.Config.TraceTo(testOutputLogWriterConfig, switches);
 
-                traceManager.Config.TraceTo(textWriter, switches, traceFormatter);
+                traceManager.Config.TraceTo(textWriter, switches);
 
                 // Some test traces
                 var tracer = traceManager.TracerFor(this);

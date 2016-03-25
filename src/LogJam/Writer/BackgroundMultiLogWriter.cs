@@ -29,7 +29,7 @@ namespace LogJam.Writer
     /// writers,
     /// however abnormal termination of an application can result in queued entries not being written.
     /// </summary>
-    internal sealed class BackgroundMultiLogWriter : IStartable, IDisposable, ILogJamComponent
+    internal sealed class BackgroundMultiLogWriter : Startable, IDisposable, ILogJamComponent
     {
 
         /// <summary>
@@ -47,8 +47,6 @@ namespace LogJam.Writer
         // Queued actions to invoke on the background thread.
         private readonly ConcurrentQueue<Action> _backgroundActionQueue;
 
-        private bool _isDisposed;
-
         private BackgroundThread _backgroundThread;
 
         internal BackgroundMultiLogWriter(ITracerFactory setupTracerFactory)
@@ -62,7 +60,6 @@ namespace LogJam.Writer
             _proxyEntryWriters = new List<object>();
             _backgroundActionQueue = new ConcurrentQueue<Action>();
 
-            _isDisposed = false;
             _backgroundThread = null;
         }
 
@@ -199,11 +196,10 @@ namespace LogJam.Writer
 
         #region IStartable
 
-        public void Start()
+        protected override void InternalStart()
         {
             lock (this)
             {
-                EnsureNotDisposed();
                 if (_backgroundThread == null)
                 {
                     _backgroundThread = new BackgroundThread(_setupTracerFactory, _backgroundActionQueue);
@@ -215,7 +211,7 @@ namespace LogJam.Writer
             _backgroundThread.Start();
         }
 
-        public void Stop()
+        protected override void InternalStop()
         {
             lock (this)
             {
@@ -228,8 +224,6 @@ namespace LogJam.Writer
                 }
             }
         }
-
-        public bool IsStarted { get { return (_backgroundThread != null) && _backgroundThread.IsStarted; } }
 
         #endregion
 
@@ -244,11 +238,12 @@ namespace LogJam.Writer
 
         private void Dispose(bool disposing)
         {
-            if (_isDisposed)
+            if (IsDisposed)
             {
                 return;
             }
 
+            State = StartableState.Disposing;
             var backgroundThread = _backgroundThread;
             if (backgroundThread != null)
             {
@@ -256,19 +251,18 @@ namespace LogJam.Writer
                 _proxyEntryWriters.SafeDispose(_setupTracerFactory);
                 _backgroundActionQueue.Enqueue(() => _proxyEntryWriters.Clear());
 
-                _isDisposed = true;
                 backgroundThread.Stop();
                 _backgroundThread = null;
             }
 
-            _isDisposed = true;
+            State = StartableState.Disposed;
         }
 
         private void EnsureNotDisposed()
         {
-            if (_isDisposed)
+            if (IsDisposed)
             {
-                throw new ObjectDisposedException(GetType().GetCSharpName());
+                throw new ObjectDisposedException(this.ToString());
             }
         }
 
@@ -377,7 +371,7 @@ namespace LogJam.Writer
         /// thread.
         /// </summary>
         /// <typeparam name="TEntry"></typeparam>
-        private class BlockingQueueEntryWriter<TEntry> : IQueueEntryWriter<TEntry>, IBackgroundThreadLogWriterActions, IDisposable
+        private class BlockingQueueEntryWriter<TEntry> : Startable, IQueueEntryWriter<TEntry>, IBackgroundThreadLogWriterActions, IDisposable
             where TEntry : ILogEntry
         {
 
@@ -389,9 +383,6 @@ namespace LogJam.Writer
             private readonly ConcurrentQueue<Action> _backgroundActionQueue;
             // References parent._setupTracerFactory
             private readonly ITracerFactory _setupTracerFactory;
-
-            private bool _isStarted;
-            private bool _isDisposed;
 
             internal BlockingQueueEntryWriter(IEntryWriter<TEntry> innerEntryWriter, BackgroundMultiLogWriter parent, int maxQueueLength)
             {
@@ -406,8 +397,7 @@ namespace LogJam.Writer
                 _backgroundActionQueue = parent._backgroundActionQueue;
                 _setupTracerFactory = parent._setupTracerFactory;
 
-                _isStarted = _innerEntryWriter.IsEnabled;
-                _isDisposed = false;
+                State = _innerEntryWriter.IsEnabled ? StartableState.Started : StartableState.Unstarted;
             }
 
             private void QueueBackgroundAction(Action backgroundAction)
@@ -417,7 +407,7 @@ namespace LogJam.Writer
 
             public void Write(ref TEntry entry)
             {
-                if (! _isStarted)
+                if (! IsEnabled)
                 {
                     return;
                 }
@@ -432,7 +422,7 @@ namespace LogJam.Writer
                 QueueBackgroundAction(DequeAndWriteEntry);
             }
 
-            public bool IsEnabled { get { return _isStarted; } }
+            public bool IsEnabled => IsStarted;
 
             public bool IsSynchronized { get { return true; } }
 
@@ -448,71 +438,71 @@ namespace LogJam.Writer
                 return success;
             }
 
-            public void Start()
+            protected override void InternalStart()
             {
-                lock (this)
-                {
-                    if (_isStarted)
-                    {
-                        return;
-                    }
-                    if (_isDisposed)
-                    {
-                        throw new ObjectDisposedException(GetType().GetCSharpName());
-                    }
-                    _isStarted = true;
-                }
-
                 if (_innerEntryWriter is IStartable)
                 {
                     QueueBackgroundAction(StartInnerWriter);
                 }
+
+                // The QueueEntryWriter is considered started as soon as the start signal is sent;
+                // state should be "started" when Start() returns.
+                // In the case of the QueueEntryWriter, "Started" means "ready to accept entries".
+                // We could wait for a queued action to execute before changing the state to started,
+                // but that seems like an unnecessary wait.
             }
 
-            public void Stop()
+            protected override void InternalStop()
             {
-                lock (this)
-                {
-                    if (! _isStarted)
-                    {
-                        return;
-                    }
-                    _isStarted = false;
-                }
-
-                // Blocks if maxQueueLength is exceeded
-                _slotsLeftInQueue.Wait();
-
                 if (_innerEntryWriter is IStartable)
                 {
+                    // Blocks if maxQueueLength is exceeded
+                    _slotsLeftInQueue.Wait();
+
                     QueueBackgroundAction(StopInnerWriter);
                 }
-            }
 
-            public bool IsStarted { get { return _isStarted; } }
+                // Wait for stop to finish on the background thread
+                var waitEvent = new ManualResetEventSlim();
+                QueueBackgroundAction(() =>
+                                      {
+                                          waitEvent.Set();
+                                      });
+                waitEvent.Wait(1000); // REVIEW: Add support for cancellation token to the BackgroundMultiLogWriter?
+            }
 
             public void Dispose()
             {
                 lock (this)
                 {
-                    if (_isDisposed)
+                    if (IsDisposed)
                     {
                         return;
                     }
-                    _isDisposed = true;
+                    State = StartableState.Disposing;
                 }
 
-                Stop();
-
-                if (! (_innerEntryWriter is IDisposable))
+                if (_innerEntryWriter is IStartable)
                 {
-                    return;
+                    // Blocks if maxQueueLength is exceeded
+                    _slotsLeftInQueue.Wait();
+
+                    QueueBackgroundAction(StopInnerWriter);
                 }
 
-                // Blocks if maxQueueLength is exceeded
-                _slotsLeftInQueue.Wait();
+                if (_innerEntryWriter is IDisposable)
+                {
+                    // Blocks if maxQueueLength is exceeded
+                    _slotsLeftInQueue.Wait();
 
-                QueueBackgroundAction(DisposeInnerWriter);
+                    QueueBackgroundAction(DisposeInnerWriter);
+                }
+
+                // No need to wait for dispose to finish on the background thread:
+                // This class is private and is controlled by BackgroundMultiLogWriter.Dispose(), which doesn't return
+                // until the thread exits.
+                // Plus, if this class is called in the finalizer, there's no guarantee the thread hasn't already exited.
+                State = StartableState.Disposed;
             }
 
             #region IBackgroundThreadLogWriterActions
@@ -562,7 +552,7 @@ namespace LogJam.Writer
             private readonly Tracer _tracer;
             // Queued actions to invoke on the background thread.
             private readonly ConcurrentQueue<Action> _backgroundActionQueue;
-            private volatile bool _isStarted;
+            private volatile StartableState _startableState;
             private Thread _thread;
 
             // REVIEW: Important that this object + ThreadProc has NO reference to the parent BackgroundMultiLogWriter.
@@ -575,23 +565,37 @@ namespace LogJam.Writer
 
                 _tracer = setupTracerFactory.TracerFor(this);
                 _backgroundActionQueue = backgroundActionQueue;
-                _isStarted = false;
             }
 
             #region IStartable
+
+            public StartableState State { get { return _startableState; } }
+
+            /// @inheritdoc
+            public bool IsStarted { get { return _startableState == StartableState.Started; } }
+
+            /// @inheritdoc
+            public bool ReadyToStart
+            {
+                get
+                {
+                    var state = _startableState;
+                    return ((state == StartableState.Unstarted) || (state == StartableState.Stopped));
+                }
+            }
 
             public void Start()
             {
                 lock (this)
                 {
-                    if (_isStarted)
+                    if (IsStarted)
                     {
                         return;
                     }
 
                     Debug.Assert(! IsThreadRunning);
 
-                    _isStarted = true;
+                    _startableState = StartableState.Starting;
                     _thread = new Thread(BackgroundThreadProc)
                               {
                                   Name = "BackgroundMultiLogWriter.BackgroundThread"
@@ -607,15 +611,13 @@ namespace LogJam.Writer
                     var thread = _thread;
                     if (thread != null)
                     {
-                        _isStarted = false;
+                        _startableState = StartableState.Stopping;
                         thread.Join();
                     }
 
-                    _isStarted = false;
+                    _startableState = StartableState.Stopped;
                 }
             }
-
-            public bool IsStarted { get { return _isStarted; } }
 
             #endregion
 
@@ -647,6 +649,7 @@ namespace LogJam.Writer
             /// </summary>
             private void BackgroundThreadProc()
             {
+                _startableState = StartableState.Started;
                 _tracer.Info("Started background thread.");
 
                 SpinWait spinWait = new SpinWait();
@@ -666,7 +669,7 @@ namespace LogJam.Writer
 
                         spinWait.Reset();
                     }
-                    else if (spinWait.NextSpinWillYield && ! _isStarted)
+                    else if (spinWait.NextSpinWillYield && _startableState == StartableState.Stopping)
                     {
                         // No queued actions, and logwriter is stopped: Time to exit the background thread
                         break;

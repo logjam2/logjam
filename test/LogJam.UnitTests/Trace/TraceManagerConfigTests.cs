@@ -393,7 +393,6 @@ namespace LogJam.UnitTests.Trace
                 Assert.True(tracerA.IsInfoEnabled());
                 Assert.False(tracerB.IsInfoEnabled());
 
-                // Not yet implemented - this works if you add a new TraceWriterConfig, below
                 // Option 1: Change the config
                 traceWriterConfig.Switches.Add("B", new OnOffTraceSwitch(true));
                 traceManager.Start(); // Explicit restart required

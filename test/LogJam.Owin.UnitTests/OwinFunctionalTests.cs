@@ -33,10 +33,10 @@ namespace LogJam.Owin.UnitTests
     /// <summary>
     /// Functional tests for <see cref="LogJam.Owin" />.
     /// </summary>
-    public sealed class FunctionalTests : BaseOwinTest
+    public sealed class OwinFunctionalTests : BaseOwinTest
     {
 
-        public FunctionalTests(ITestOutputHelper testOutputHelper)
+        public OwinFunctionalTests(ITestOutputHelper testOutputHelper)
             : base(testOutputHelper)
         {}
 
@@ -152,10 +152,7 @@ namespace LogJam.Owin.UnitTests
 
                 // Log to TextWriter with Trace timestamps
                 var textLogConfig = logManagerConfig.UseTextWriter(logTarget)
-                                                    .Format(new DefaultTraceFormatter()
-                                                            {
-                                                                IncludeTimestamp = true
-                                                            });
+                                                    .Format(new DefaultTraceFormatter());
 
                 traceManagerConfig.TraceTo(new ILogWriterConfig[] { debuggerConfig, testOutputConfig, textLogConfig }, traceSwitches);
                 appBuilder.LogHttpRequestsToAll();
