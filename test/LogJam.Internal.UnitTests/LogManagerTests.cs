@@ -39,7 +39,7 @@ namespace LogJam.Internal.UnitTests
             using (var logManager = new LogManager())
             {
                 logManager.Config.UseList(new List<TraceEntry>());
-                logManager.Config.UseList(new List<MessageEntry>());
+                var listConfig2 = logManager.Config.UseList(new List<MessageEntry>());
 
                 Assert.True(logManager.IsRestartNeeded());
 
@@ -49,10 +49,23 @@ namespace LogJam.Internal.UnitTests
                 Assert.False(logManager.IsRestartNeeded());
 
                 // Add a new LogWriter
-                logManager.Config.UseTestOutput(_testOutput);
+                var testOutputConfig = logManager.Config.UseTestOutput(_testOutput);
 
                 // Now a restart is justified.
                 Assert.True(logManager.IsRestartNeeded());
+
+                // Remove a logwriter (gets us to 2 configured and 2 in use - but they're different, so restart should be needed)
+                Assert.True(logManager.Config.Writers.Remove(listConfig2));
+
+                // Restart should still occur
+                Assert.True(logManager.IsRestartNeeded());
+
+                // Restore to the state that was started
+                Assert.True(logManager.Config.Writers.Remove(testOutputConfig));
+                logManager.Config.Writers.Add(listConfig2);
+
+                // Now, no need to restart
+                Assert.False(logManager.IsRestartNeeded());
             }
         }
 

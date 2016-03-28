@@ -13,6 +13,7 @@ namespace LogJam.Config
     using System.Collections.Generic;
     using System.Diagnostics.Contracts;
 
+    using LogJam.Util;
     using LogJam.Writer;
 
 
@@ -26,7 +27,7 @@ namespace LogJam.Config
         /// <summary>
         /// Holds the configuration for <see cref="ILogWriter" />s.
         /// </summary>
-        private readonly ISet<ILogWriterConfig> _logWriterConfigs;
+        private readonly ObservableSet<ILogWriterConfig> _logWriterConfigs;
 
         #endregion
 
@@ -35,7 +36,7 @@ namespace LogJam.Config
         /// </summary>
         public LogManagerConfig()
         {
-            _logWriterConfigs = new HashSet<ILogWriterConfig>();
+            _logWriterConfigs = new ObservableSet<ILogWriterConfig>();
         }
 
         /// <summary>
@@ -45,7 +46,7 @@ namespace LogJam.Config
         {
             Contract.Requires<ArgumentNullException>(logWriterConfigs != null);
 
-            _logWriterConfigs = new HashSet<ILogWriterConfig>(logWriterConfigs);
+            _logWriterConfigs = new ObservableSet<ILogWriterConfig>(new HashSet<ILogWriterConfig>(logWriterConfigs));
         }
 
         /// <summary>

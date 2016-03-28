@@ -6,6 +6,7 @@
   * Log config + status (which writers, formatters, started, etc)
 3. Add trace threshold json file - trace.config
 3. Determine if Owin middleware should use Task.ConfigureAwait(false)
+4. Add `LogManager.Restarting` and `LogManager.Restarted` events - so eg HttpLoggingOwinMiddleware can change to write to the newest log writers
 2. Config object refactor
     * Tracewriter config objects directly reference the LogWriterConfig objects, or ?? for "all logs"
     * Make logwriter config objects immutable when LogManager is started, and have logwriters reference their config objects instead of duplicating the properties.

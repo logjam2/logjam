@@ -62,9 +62,13 @@ namespace LogJam.Trace.Config
             Contract.Requires<ArgumentNullException>(logManagerConfig != null);
 
             LogManagerConfig = logManagerConfig;
+
             _traceWriterConfigs = new ObservableSet<TraceWriterConfig>();
-            _traceWriterConfigs.AddingItem += TraceWriterConfigsOnAddingItem;
-            _traceWriterConfigs.RemovingItem += TraceWriterConfigsOnRemovingItem;
+            _traceWriterConfigs.AddingItem += OnAddingTraceWriterConfig;
+            _traceWriterConfigs.RemovingItem += OnRemovingTraceWriterConfig;
+
+            var observableLogWriterConfigSet = (ObservableSet<ILogWriterConfig>) logManagerConfig.Writers;
+            observableLogWriterConfigSet.RemovingItem += OnRemovingLogWriterConfig;
         }
 
         public TraceManagerConfig(TraceWriterConfig traceWriterConfig)
@@ -106,6 +110,10 @@ namespace LogJam.Trace.Config
             return new TraceWriterConfig(new DebuggerLogWriterConfig().Format(new DefaultTraceFormatter()), CreateDefaultSwitchSet());
         }
 
+        /// <summary>
+        /// Creates a <see cref="SwitchSet"/> containing default values - ie log the <see cref="TraceLevel.Info"/> level and above for all <see cref="Tracer"/> names.
+        /// </summary>
+        /// <returns></returns>
         public static SwitchSet CreateDefaultSwitchSet()
         {
             return new SwitchSet()
@@ -129,7 +137,7 @@ namespace LogJam.Trace.Config
         /// </summary>
         public ISet<TraceWriterConfig> Writers { get { return _traceWriterConfigs; } }
 
-        private void TraceWriterConfigsOnAddingItem(TraceWriterConfig traceWriterConfig)
+        private void OnAddingTraceWriterConfig(TraceWriterConfig traceWriterConfig)
         {
             if (traceWriterConfig != null)
             {
@@ -137,11 +145,26 @@ namespace LogJam.Trace.Config
             }
         }
 
-        private void TraceWriterConfigsOnRemovingItem(TraceWriterConfig traceWriterConfig)
+        private void OnRemovingTraceWriterConfig(TraceWriterConfig traceWriterConfig)
         {
-            if (traceWriterConfig != null)
+            // Don't remove the TraceWriterConfig, b/c we can't be sure that other formatters/encoders/etc don't support it.
+
+            //if (traceWriterConfig != null)
+            //{
+            //    LogManagerConfig.Writers.Remove(traceWriterConfig.LogWriterConfig);
+            //}
+        }
+
+        /// <summary>
+        /// Event handler called when <paramref name="logWriterConfig"/> is removed from the <c>LogManager.Config.Writers</c> collection.
+        /// </summary>
+        /// <param name="logWriterConfig"></param>
+        private void OnRemovingLogWriterConfig(ILogWriterConfig logWriterConfig)
+        {
+            if (logWriterConfig != null)
             {
-                LogManagerConfig.Writers.Remove(traceWriterConfig.LogWriterConfig);
+                var removeSet = Writers.Where(twc => twc.LogWriterConfig == logWriterConfig);
+                Writers.ExceptWith(removeSet);
             }
         }
 

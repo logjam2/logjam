@@ -7,7 +7,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
-namespace LogJam.UnitTests.Trace
+namespace LogJam.UnitTests.Trace.Config
 {
     using System;
     using System.Collections.Generic;
@@ -18,6 +18,7 @@ namespace LogJam.UnitTests.Trace
 
     using LogJam.Config;
     using LogJam.Config.Json;
+    using LogJam.Internal.UnitTests.Examples;
     using LogJam.Trace;
     using LogJam.Trace.Config;
     using LogJam.Trace.Format;
@@ -97,7 +98,7 @@ namespace LogJam.UnitTests.Trace
                 tracer.Debug("Debug message not written");
             }
 
-            Assert.Matches(@"Info\s+LJ\.UT\.Trace\.TraceManagerConfigTests\s+Info message\r\n", stringWriter.ToString());
+            Assert.Matches(@"Info\s+LJ\.UT\.T\.Config\.TraceManagerConfigTests\s+Info message\r\n", stringWriter.ToString());
 
             _testOutputHelper.WriteEntries(traceManager.SetupLog);
 
@@ -288,31 +289,6 @@ namespace LogJam.UnitTests.Trace
             }
         }
 
-        [Fact]
-        public void CustomTraceFormatting()
-        {
-            // Text output is written here
-            StringWriter traceOutput = new StringWriter();
-
-            // Can either use a EntryFormatAction, or subclass EntryFormatter<TEntry>.  Here we're using a EntryFormatAction.
-            // Note that subclassing EntryFormatter<TEntry> provides a slightly more efficient code-path.
-            EntryFormatAction<TraceEntry> format = (traceEntry, formatWriter) =>
-                                                   {
-                                                       formatWriter.BeginEntry();
-                                                       formatWriter.WriteField(traceEntry.TraceLevel.ToString());
-                                                       formatWriter.EndEntry();
-                                                   };
-
-            using (var traceManager = new TraceManager(new TextWriterLogWriterConfig(traceOutput).Format(format)))
-            {
-                var tracer = traceManager.TracerFor(this);
-                tracer.Info("m");
-                tracer.Error("m");
-            }
-
-            Assert.Equal("Info\r\nError\r\n", traceOutput.ToString());
-        }
-
         public static IEnumerable<object[]> TestTraceManagerConfigs
         {
             get
@@ -432,6 +408,104 @@ namespace LogJam.UnitTests.Trace
 
                 Assert.True(tracerB.IsInfoEnabled());
                 Assert.True(tracerB.IsDebugEnabled());
+            }
+        }
+
+        [Fact]
+        public void AddingTraceWriterConfigUpdatesLogManagerConfig()
+        {
+            var textWriterLogWriterConfig = new TextWriterLogWriterConfig(new StringWriter());
+
+            var logWriterConfigs = new ILogWriterConfig[]
+                                   {
+                                       new ListLogWriterConfig<TraceEntry>(),
+                                       textWriterLogWriterConfig
+                                   };
+
+            using (var traceManager = new TraceManager())
+            {
+                foreach (var logWriterConfig in logWriterConfigs)
+                {
+                    traceManager.Config.Writers.Add(new TraceWriterConfig(logWriterConfig, TraceManagerConfig.CreateDefaultSwitchSet()));
+
+                    Assert.Contains(traceManager.LogManager.Config.Writers, lwc => lwc == logWriterConfig);
+                }
+            }
+        }
+
+        [Fact]
+        public void RemovingTraceWriterConfigDoesNotRemoveLogWriterConfigs()
+        {
+            var textWriterLogWriterConfig = new TextWriterLogWriterConfig(new StringWriter());
+
+            var logWriterConfigs = new ILogWriterConfig[]
+                                   {
+                                       new ListLogWriterConfig<TraceEntry>(),
+                                       textWriterLogWriterConfig
+                                   };
+            var traceWriterConfigs = new List<TraceWriterConfig>();
+
+            using (var traceManager = new TraceManager())
+            {
+                foreach (var logWriterConfig in logWriterConfigs)
+                {
+                    traceWriterConfigs.Add(new TraceWriterConfig(logWriterConfig, TraceManagerConfig.CreateDefaultSwitchSet()));
+                }
+                traceManager.Config.Writers.UnionWith(traceWriterConfigs);
+
+                // Test removing each
+                for (int i = 0; i < logWriterConfigs.Length; ++i)
+                {
+                    var logWriterConfig = logWriterConfigs[i];
+                    var traceWriterConfig = traceWriterConfigs[i];
+
+                    // Each logWriterConfig should exist in the LogManagerConfig before it is removed from the TraceManagerConfig
+                    Assert.Contains(traceManager.LogManager.Config.Writers, lwc => lwc == logWriterConfig);
+
+                    traceManager.Config.Writers.Remove(traceWriterConfig);
+                    Assert.DoesNotContain(traceManager.Config.Writers, twc => twc == traceWriterConfig);
+
+                    // LogWriters are left in place, because they may be used for other purposes
+                    Assert.Contains(traceManager.LogManager.Config.Writers, lwc => lwc == logWriterConfig);
+                }
+            }
+        }
+
+        [Fact]
+        public void RemovingTraceWriterConfigLeavesWritersFormattedForOtherEntryTypes()
+        {
+            var textWriterLogWriterConfig = new TextWriterLogWriterConfig(new StringWriter());
+            textWriterLogWriterConfig.Format<MessageEntry>();
+
+            using (var traceManager = new TraceManager())
+            {
+                // Add tracing to the textWriter
+                var traceWriterConfig = traceManager.Config.TraceTo(textWriterLogWriterConfig);
+
+                // The textWriterLogWriter should now include formatters for 2 entry types
+                Assert.True(textWriterLogWriterConfig.HasFormatterFor<TraceEntry>());
+                Assert.True(textWriterLogWriterConfig.HasFormatterFor<MessageEntry>());
+
+                // Remove the LogWriter from LogManager.Config
+                traceManager.LogManager.Config.Writers.Remove(textWriterLogWriterConfig);
+
+                // Now it should not exist either in the TraceManagerConfig or the LogManagerConfig
+                Assert.DoesNotContain(traceManager.LogManager.Config.Writers, lwc => lwc == textWriterLogWriterConfig);
+                Assert.DoesNotContain(traceManager.Config.Writers, twc => twc == traceWriterConfig);
+
+                // Add tracing to the textWriter (again)
+                traceWriterConfig = traceManager.Config.TraceTo(textWriterLogWriterConfig);
+
+                // Now it should exist in both the TraceManagerConfig and the LogManagerConfig
+                Assert.Contains(traceManager.LogManager.Config.Writers, lwc => lwc == textWriterLogWriterConfig);
+                Assert.Contains(traceManager.Config.Writers, twc => twc == traceWriterConfig);
+
+                // Remove tracing to the textWriter
+                Assert.True(traceManager.Config.Writers.Remove(traceWriterConfig));
+
+                // Now it should exist only in the LogManagerConfig
+                Assert.Contains(traceManager.LogManager.Config.Writers, lwc => lwc == textWriterLogWriterConfig);
+                Assert.DoesNotContain(traceManager.Config.Writers, twc => twc == traceWriterConfig);
             }
         }
 

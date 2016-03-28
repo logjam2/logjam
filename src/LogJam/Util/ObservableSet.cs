@@ -12,6 +12,7 @@ namespace LogJam.Util
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Linq;
 
 
     /// <summary>
@@ -89,8 +90,13 @@ namespace LogJam.Util
 
         public void ExceptWith(IEnumerable<T> other)
         {
-            throw new NotImplementedException();
-            // _innerSet.ExceptWith(other);
+            foreach (var item in other.ToList())
+            {
+                if (Contains(item))
+                {
+                    Remove(item);
+                }
+            }
         }
 
         public void SymmetricExceptWith(IEnumerable<T> other)
@@ -113,8 +119,15 @@ namespace LogJam.Util
 
         public bool Add(T item)
         {
-            OnAddingItem(item);
-            return _innerSet.Add(item);
+            if (_innerSet.Add(item))
+            {
+                OnAddingItem(item);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         void ICollection<T>.Add(T item)
@@ -124,11 +137,12 @@ namespace LogJam.Util
 
         public void Clear()
         {
-            foreach (var item in _innerSet)
+            var innerList = _innerSet.ToList();
+            _innerSet.Clear();
+            foreach (var item in innerList)
             {
                 OnRemovingItem(item);
             }
-            _innerSet.Clear();
         }
 
         public bool Contains(T item) => _innerSet.Contains(item);
@@ -137,8 +151,15 @@ namespace LogJam.Util
 
         public bool Remove(T item)
         {
-            OnRemovingItem(item);
-            return _innerSet.Remove(item);
+            if (_innerSet.Remove(item))
+            {
+                OnRemovingItem(item);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public int Count => _innerSet.Count;

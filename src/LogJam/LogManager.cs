@@ -162,7 +162,7 @@ namespace LogJam
         /// <returns></returns>
         internal bool IsRestartNeeded()
         {
-            return (_logWriters.Count != Config.Writers.Count) || Config.Writers.IsProperSupersetOf(_logWriters.Keys);
+            return ! ((_logWriters.Count == Config.Writers.Count) && Config.Writers.SetEquals(_logWriters.Keys));
         }
 
         protected override void InternalStart()
@@ -275,6 +275,12 @@ namespace LogJam
         {
             // Even if Start() wasn't 100% successful, we still return any logwriters that are available.
             EnsureAutoStarted();
+
+            // If the config has changed since starting, restart
+            if (IsRestartNeeded())
+            {
+                Start();
+            }
 
             lock (this)
             {

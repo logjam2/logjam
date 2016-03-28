@@ -91,7 +91,8 @@
     <Compile Include="LogManagerTests.cs" />
     <Compile Include="Config\Json\JsonTypeConverterProblem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Trace\TraceManagerConfigTests.cs" />
+    <Compile Include="Trace\Config\TraceManagerConfigTests.cs" />
+    <Compile Include="Trace\TraceFormattingTests.cs" />
     <Compile Include="Trace\TraceManagerTests.cs" />
     <Compile Include="Util\Text\StringBuilderExtensionsTests.cs" />
     <Compile Include="Writer\SynchronizedLogWriterTests.cs" />
