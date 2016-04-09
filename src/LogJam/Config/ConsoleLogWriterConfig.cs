@@ -1,48 +1,71 @@
-﻿// // --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ConsoleLogWriterConfig.cs">
-// Copyright (c) 2011-2015 logjam.codeplex.com.  
+// Copyright (c) 2011-2016 https://github.com/logjam2.  
 // </copyright>
-// Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
+// Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
 
 namespace LogJam.Config
 {
-	using LogJam.Config.Json;
-	using LogJam.Trace;
-	using LogJam.Util;
-	using LogJam.Writer;
+    using System;
+
+    using LogJam.Config.Json;
+    using LogJam.Trace;
+    using LogJam.Writer.Text;
 
 
-	/// <summary>
-	/// Configures a log writer that writes log output to the console, aka stdout.
-	/// </summary>
-	[JsonTypeHint("Target", "Console")]
-	public sealed class ConsoleLogWriterConfig : TextLogWriterConfig
-	{
+    /// <summary>
+    /// Configures a log writer that writes log output to the console, aka stdout.
+    /// </summary>
+    [JsonTypeHint("Target", "Console")]
+    public sealed class ConsoleLogWriterConfig : TextLogWriterConfig
+    {
 
-		/// <summary>
-		/// Creates a new <see cref="ConsoleLogWriterConfig"/>.
-		/// </summary>
-		public ConsoleLogWriterConfig()
-		{
-			// Default Synchronized to false
-			Synchronized = false;
-		}
+        /// <summary>
+        /// Creates a new <see cref="ConsoleLogWriterConfig" />.
+        /// </summary>
+        public ConsoleLogWriterConfig()
+        {}
 
-		/// <summary>
-		/// Gets or sets a value that specifies whether created <see cref="ConsoleLogWriter"/>s will write colored text output.
-		/// </summary>
-		public bool UseColor { get; set; }
+        /// <summary>
+        /// Gets or sets a value that specifies whether created <see cref="ConsoleFormatWriter" />s will write colored text output.
+        /// </summary>
+        public bool UseColor
+        {
+            get { return ColorResolverFactory != null; }
+            set
+            {
+                if (UseColor == value)
+                {
+                    return;
+                }
 
-		public override ILogWriter CreateLogWriter(ITracerFactory setupTracerFactory)
-		{
-			var writer = new ConsoleLogWriter(setupTracerFactory, UseColor, Synchronized);
-			ApplyConfiguredFormatters(writer);
-			return writer;
-		}
+                if (value)
+                {
+                    ColorResolverFactory = () => new DefaultConsoleColorResolver();
+                }
+                else
+                {
+                    ColorResolverFactory = null;
+                }
+            }
+        }
 
-	}
+        /// <summary>
+        /// Gets or sets a function that creates new <see cref="IConsoleColorResolver" /> instances for colorizing console log
+        /// output.
+        /// May be <c>null</c>, in which case console log output is not colorized.
+        /// </summary>
+        public Func<IConsoleColorResolver> ColorResolverFactory { get; set; }
+
+        protected override FormatWriter CreateFormatWriter(ITracerFactory setupTracerFactory)
+        {
+            IConsoleColorResolver colorResolver = ColorResolverFactory == null ? null : ColorResolverFactory();
+            return new ConsoleFormatWriter(setupTracerFactory, colorResolver);
+        }
+
+    }
 
 }

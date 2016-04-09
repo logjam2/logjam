@@ -15,6 +15,8 @@ Provides unit test build functionality using xunit.
 		<!-- Use msbuild ... /p:ContinueOnxUnitFailures=true to continue the build even when tests fail. -->
 		<xUnitVerbose Condition=" $(XUnitVerbose) == '' ">False</xUnitVerbose>
 		<ContinueOnxUnitFailures Condition=" $(ContinueOnxUnitFailures) == '' ">False</ContinueOnxUnitFailures>
+
+		<RunUnitTests Condition=" '$(RunUnitTests)' == '' And '$(RunTests)' == 'true' " >true</RunUnitTests>
 	</PropertyGroup>
 
 	<UsingTask AssemblyFile="$(xUnitRunnerAssembly)"

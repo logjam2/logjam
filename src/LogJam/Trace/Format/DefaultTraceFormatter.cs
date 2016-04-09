@@ -1,116 +1,138 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="DefaultTraceFormatter.cs">
-// Copyright (c) 2011-2014 logjam.codeplex.com.  
+// Copyright (c) 2011-2016 https://github.com/logjam2.  
 // </copyright>
-// Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
+// Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
+
 namespace LogJam.Trace.Format
 {
-	using System;
-	using System.Diagnostics.Contracts;
-	using System.IO;
+    using System;
 
-	using LogJam.Format;
+    using LogJam.Writer.Text;
 
 
-	/// <summary>
-	/// The debugger trace formatter.
-	/// </summary>
-	public class DefaultTraceFormatter : LogFormatter<TraceEntry>
-	{
-		#region Fields
+    /// <summary>
+    /// The debugger trace formatter.
+    /// </summary>
+    public class DefaultTraceFormatter : EntryFormatter<TraceEntry>
+    {
 
-		private TimeZoneInfo _outputTimeZone = TimeZoneInfo.Local;
+        /// <summary>
+        /// The default value for <see cref="MaxIndentLevel" /> if no value is set.
+        /// </summary>
+        public const int DefaultMaxIndentLevel = 4;
 
-		#endregion
+        public DefaultTraceFormatter()
+        {
+            MaxIndentLevel = DefaultMaxIndentLevel;
+            IncludeTimestamp = true;
+        }
 
-		public DefaultTraceFormatter()
-		{}
+        #region Public Properties
 
-		#region Public Properties
+        /// <summary>
+        /// <c>true</c> to include the Date when formatting <see cref="TraceEntry" />s. Default is <c>false</c>.
+        /// </summary>
+        public bool IncludeDate { get; set; }
 
-		/// <summary>
-		/// <c>true</c> to include the Timestamp when formatting <see cref="TraceEntry"/>s.
-		/// </summary>
-		public bool IncludeTimestamp { get; set; }
+        /// <summary>
+        /// <c>true</c> to include the Timestamp when formatting <see cref="TraceEntry" />s. Default is <c>true</c>.
+        /// </summary>
+        public bool IncludeTimestamp { get; set; }
 
-		/// <summary>
-		/// Specifies the TimeZone to use when formatting the Timestamp for a <see cref="TraceEntry"/>.
-		/// </summary>
-		public TimeZoneInfo OutputTimeZone
-		{
-			get { return _outputTimeZone; }
-			set
-			{
-				Contract.Requires<ArgumentNullException>(value != null);
+        /// <summary>
+        /// Set to a value to alter the trace entry indent level from what is set.
+        /// </summary>
+        public int RelativeIndentLevel { get; set; }
 
-				_outputTimeZone = value;
-			}
-		}
+        /// <summary>
+        /// Don't indent any trace entries by more than this value.
+        /// </summary>
+        public int MaxIndentLevel { get; set; }
 
-		#endregion
+        #endregion
 
-		#region Public Methods and Operators
+        #region Formatter methods
 
-		/// <summary>
-		/// Formats the trace entry for debugger windows
-		/// </summary>
-		public override string Format(ref TraceEntry traceEntry)
-		{
-			int indentSpaces = 0;
+        public override void Format(ref TraceEntry traceEntry, FormatWriter formatWriter)
+        {
+            ColorCategory color = ColorCategory.None;
+            if (formatWriter.IsColorEnabled)
+            {
+                color = TraceLevelToColorCategory(traceEntry.TraceLevel);
+            }
 
-			var sw = new StringWriter();
-			var newLine = sw.NewLine;
-			var newLineLength = newLine.Length;
+            int entryIndentLevel = formatWriter.IndentLevel + RelativeIndentLevel;
+            entryIndentLevel = Math.Min(entryIndentLevel, MaxIndentLevel);
 
-			//if (TraceManager.Config.ActivityTracingEnabled)
-			//{
-			//	// Compute indent spaces based on current ActivityRecord scope
-			//}
+            formatWriter.BeginEntry(entryIndentLevel);
 
-			//sw.Repeat(' ', indentSpaces);
+            if (IncludeDate)
+            {
+                formatWriter.WriteDate(traceEntry.TimestampUtc, ColorCategory.Debug);
+            }
+            if (IncludeTimestamp)
+            {
+                formatWriter.WriteTimestamp(traceEntry.TimestampUtc, ColorCategory.Detail);
+            }
+            formatWriter.WriteField(TraceLevelToLabel(traceEntry.TraceLevel), color, 7);
+            formatWriter.WriteAbbreviatedTypeName(traceEntry.TracerName, ColorCategory.Debug, 36);
+            formatWriter.WriteField(traceEntry.Message.Trim(), color);
+            if (traceEntry.Details != null)
+            {
+                ColorCategory detailColor = color == ColorCategory.Debug ? ColorCategory.Debug : ColorCategory.Detail;
+                formatWriter.WriteLines(traceEntry.Details.ToString(), detailColor, 1);
+            }
 
-			sw.Write("{0,-7}\t", traceEntry.TraceLevel);
+            formatWriter.EndEntry();
+        }
 
-			if (IncludeTimestamp)
-			{
-#if PORTABLE
-				DateTime outputTime = TimeZoneInfo.ConvertTime(timestampUtc, _outputTimeZone);
-#else
-				DateTime outputTime = TimeZoneInfo.ConvertTimeFromUtc(traceEntry.TimestampUtc, _outputTimeZone);
-#endif
-				// TODO: Implement own formatting to make this more efficient
-				sw.Write(outputTime.ToString("HH:mm:ss.fff\t"));
-			}
+        #endregion
 
-			var message = traceEntry.Message.Trim();
-			sw.Write("{0,-50}     {1}", traceEntry.TracerName, message);
-			if (!message.EndsWith(newLine))
-			{
-				sw.WriteLine();
-			}
+        protected ColorCategory TraceLevelToColorCategory(TraceLevel traceLevel)
+        {
+            switch (traceLevel)
+            {
+                case TraceLevel.Info:
+                    return ColorCategory.Info;
+                case TraceLevel.Verbose:
+                    return ColorCategory.Detail;
+                case TraceLevel.Debug:
+                    return ColorCategory.Debug;
+                case TraceLevel.Warn:
+                    return ColorCategory.Warning;
+                case TraceLevel.Error:
+                    return ColorCategory.Error;
+                case TraceLevel.Severe:
+                    return ColorCategory.SevereError;
+                default:
+                    return ColorCategory.None;
+            }
+        }
 
-			if (traceEntry.Details != null)
-			{
-				//sw.Repeat(' ', indentSpaces);
-				string detailsMessage = traceEntry.Details.ToString();
-				sw.Write(detailsMessage);
-				if (!detailsMessage.EndsWith(newLine))
-				{
-					sw.WriteLine();
-				}
-			}
+        protected string TraceLevelToLabel(TraceLevel traceLevel)
+        {
+            switch (traceLevel)
+            {
+                case TraceLevel.Info:
+                    return "Info";
+                case TraceLevel.Verbose:
+                    return "Verbose";
+                case TraceLevel.Debug:
+                    return "Debug";
+                case TraceLevel.Warn:
+                    return "Warn";
+                case TraceLevel.Error:
+                    return "Error";
+                case TraceLevel.Severe:
+                    return "SEVERE";
+                default:
+                    return "";
+            }
+        }
 
-			return sw.ToString();
-		}
-
-		public override void Format(ref TraceEntry traceEntry, TextWriter writer)
-		{
-			writer.Write(Format(ref traceEntry));
-		}
-
-		#endregion
-	}
+    }
 }

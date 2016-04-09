@@ -33,9 +33,9 @@ using System.Reflection;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 
-[assembly: AssemblyVersion("0.9.0.0")]
-[assembly: AssemblyFileVersion("0.9.0.0")]
+[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyFileVersion("1.0.0.0")]
 
 // Semantic version (http://semver.org). Assembly version changes less than the semver; semver must increment for every release.
 
-[assembly: AssemblyInformationalVersion("0.9.6-beta")]
+[assembly: AssemblyInformationalVersion("1.0.4-beta")]

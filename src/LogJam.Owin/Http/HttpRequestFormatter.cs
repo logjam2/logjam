@@ -1,32 +1,51 @@
-﻿// // --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="HttpRequestFormatter.cs">
-// Copyright (c) 2011-2015 logjam.codeplex.com.  
+// Copyright (c) 2011-2016 https://github.com/logjam2.  
 // </copyright>
-// Licensed under the <a href="http://logjam.codeplex.com/license">Apache License, Version 2.0</a>;
+// Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
 
 namespace LogJam.Owin.Http
 {
-	using System.IO;
+    using System.Text;
 
-	using LogJam.Format;
+    using LogJam.Writer.Text;
 
 
-	/// <summary>
-	/// Formats <see cref="HttpRequestEntry"/> instances to a text stream.
-	/// </summary>
-	public sealed class HttpRequestFormatter : LogFormatter<HttpRequestEntry>
-	{
-		/// <inheritdoc/>
-		public override void Format(ref HttpRequestEntry entry, TextWriter textWriter)
-		{
-			textWriter.WriteLine("{0}>\t{1:HH:mm:ss.fff}\t{2}\t{3}", entry.RequestNumber, entry.RequestStarted, entry.Method, entry.Uri);
-			FormatterHelper.FormatHeaders(textWriter, entry.RequestHeaders);
-			textWriter.WriteLine(); // Extra line break for readability
-		}
+    /// <summary>
+    /// Formats <see cref="HttpRequestEntry" /> instances to a text stream.
+    /// </summary>
+    public sealed class HttpRequestFormatter : EntryFormatter<HttpRequestEntry>
+    {
 
-	}
+        /// <inheritdoc />
+        public override void Format(ref HttpRequestEntry entry, FormatWriter formatWriter)
+        {
+            StringBuilder buf = formatWriter.FieldBuffer;
+
+            formatWriter.BeginEntry(0);
+
+            // RequestNumber
+            buf.Clear();
+            buf.Append(entry.RequestNumber);
+            buf.Append('>');
+            formatWriter.WriteField(buf, ColorCategory.Markup, 3);
+
+            formatWriter.WriteTimestamp(entry.RequestStarted, ColorCategory.Detail);
+
+            formatWriter.WriteField(entry.Method, ColorCategory.Info, 3);
+            formatWriter.WriteField(entry.Uri, ColorCategory.Important);
+
+            FormatterHelper.FormatHeaders(formatWriter, entry.RequestHeaders);
+
+            formatWriter.WriteLine(); // Extra line break for readability
+            formatWriter.EndEntry();
+
+            formatWriter.IndentLevel++;
+        }
+
+    }
 
 }

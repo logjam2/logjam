@@ -1,5 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\..\packages\xunit.runner.visualstudio.2.1.0\build\net20\xunit.runner.visualstudio.props" Condition="Exists('..\..\packages\xunit.runner.visualstudio.2.1.0\build\net20\xunit.runner.visualstudio.props')" />
+  <Import Project="..\..\packages\xunit.runner.msbuild.2.1.0\build\portable-net45+win8+wp8+wpa81\xunit.runner.msbuild.props" Condition="Exists('..\..\packages\xunit.runner.msbuild.2.1.0\build\portable-net45+win8+wp8+wpa81\xunit.runner.msbuild.props')" />
   <Import Project="$(PackagesDir)\xunit.runner.msbuild.2.0.0\build\portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.runner.msbuild.props" Condition="Exists('$(PackagesDir)\xunit.runner.msbuild.2.0.0\build\portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.runner.msbuild.props')" />
   <Import Project="$(PackagesDir)\xunit.runner.visualstudio.2.0.0\build\net20\xunit.runner.visualstudio.props" Condition="Exists('$(PackagesDir)\xunit.runner.visualstudio.2.0.0\build\net20\xunit.runner.visualstudio.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
@@ -8,8 +10,10 @@
     <ProjectGuid>{6274E396-7957-43E1-B76B-51921F9C6AC3}</ProjectGuid>
     <RootNamespace>LogJam.UnitTests</RootNamespace>
     <AssemblyName>LogJam.UnitTests</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
-    <NuGetPackageImportStamp>2a5a37a8</NuGetPackageImportStamp>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -62,12 +66,20 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml" />
-    <Reference Include="xunit">
-      <HintPath>$(PackagesDir)\xunit.1.9.2\lib\net20\xunit.dll</HintPath>
+    <Reference Include="xunit.abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\xunit.abstractions.2.0.0\lib\net35\xunit.abstractions.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="xunit.extensions">
-      <HintPath>$(PackagesDir)\xunit.extensions.1.9.2\lib\net20\xunit.extensions.dll</HintPath>
+    <Reference Include="xunit.assert, Version=2.1.0.3179, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\xunit.assert.2.1.0\lib\dotnet\xunit.assert.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="xunit.core, Version=2.1.0.3179, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\xunit.extensibility.core.2.1.0\lib\dotnet\xunit.core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="xunit.execution.desktop, Version=2.1.0.3179, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\xunit.extensibility.execution.2.1.0\lib\net45\xunit.execution.desktop.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
@@ -79,9 +91,14 @@
     <Compile Include="LogManagerTests.cs" />
     <Compile Include="Config\Json\JsonTypeConverterProblem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Trace\TraceManagerConfigTests.cs" />
+    <Compile Include="Trace\Config\TraceManagerConfigTests.cs" />
+    <Compile Include="Trace\TraceFormattingTests.cs" />
     <Compile Include="Trace\TraceManagerTests.cs" />
-    <Compile Include="Writer\TextWriterLogWriterUnitTests.cs" />
+    <Compile Include="Util\Text\StringBuilderExtensionsTests.cs" />
+    <Compile Include="Writer\SynchronizedLogWriterTests.cs" />
+    <Compile Include="Writer\Text\ConsoleLoggingTests.cs" />
+    <Compile Include="Writer\Text\FormatWriterTests.cs" />
+    <Compile Include="Writer\Text\TextLoggingTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Trace\TracerTests.cs" />
@@ -96,13 +113,25 @@
     <None Include="Trace\ConfigFiles\logjam.trace.config.json" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\LogJam.XUnit2\LogJam.XUnit2.csproj">
+      <Project>{2774ca60-3cad-493b-bfcb-f77ea7f191e3}</Project>
+      <Name>LogJam.XUnit2</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\LogJam\LogJam.csproj">
       <Project>{43f154ad-aa27-48b3-ba07-d02c92be4f45}</Project>
       <Name>LogJam</Name>
     </ProjectReference>
+    <ProjectReference Include="..\LogJam.ConsoleTester\LogJam.ConsoleTester.csproj">
+      <Project>{e4374b5e-5de2-43ed-b8f3-a46206a953c3}</Project>
+      <Name>LogJam.ConsoleTester</Name>
+    </ProjectReference>
     <ProjectReference Include="..\LogJam.Internal.UnitTests\LogJam.Internal.UnitTests.csproj">
       <Project>{d3f3f56f-0a43-4464-8fd5-b33a9f44136d}</Project>
       <Name>LogJam.Internal.UnitTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LogJam.Test.Shared\LogJam.Test.Shared.csproj">
+      <Project>{fb3bef5b-a7f7-436d-bff2-ea2a9c620ccd}</Project>
+      <Name>LogJam.Test.Shared</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -117,5 +146,12 @@
   -->
   <Target Name="AfterBuild">
     <CallTarget Targets="Test" Condition="'$(RunUnitTests)' == 'true'" />
+  </Target>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\packages\xunit.runner.msbuild.2.1.0\build\portable-net45+win8+wp8+wpa81\xunit.runner.msbuild.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\xunit.runner.msbuild.2.1.0\build\portable-net45+win8+wp8+wpa81\xunit.runner.msbuild.props'))" />
+    <Error Condition="!Exists('..\..\packages\xunit.runner.visualstudio.2.1.0\build\net20\xunit.runner.visualstudio.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\xunit.runner.visualstudio.2.1.0\build\net20\xunit.runner.visualstudio.props'))" />
   </Target>
 </Project>
