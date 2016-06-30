@@ -24,7 +24,7 @@ namespace LogJam.Writer
         where TEntry : ILogEntry
     {
 
-        private readonly IEntryWriter<TEntry> _innerEntryWriter;
+	    private IEntryWriter<TEntry> _innerEntryWriter;
         private bool _disposed = false;
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace LogJam.Writer
         {
             if (! _disposed)
             {
-                IDisposable innerDisposable = _innerEntryWriter as IDisposable;
+                IDisposable innerDisposable = InnerEntryWriter as IDisposable;
                 if (innerDisposable != null)
                 {
                     innerDisposable.Dispose();
@@ -51,11 +51,19 @@ namespace LogJam.Writer
             }
         }
 
-        /// <summary>
-        /// Returns the inner <see cref="IEntryWriter{TEntry}" /> that this <c>ProxyEntryWriter</c>
-        /// forwards to.
-        /// </summary>
-        public IEntryWriter<TEntry> InnerEntryWriter { get { return _innerEntryWriter; } }
+	    /// <summary>
+	    /// Returns the inner <see cref="IEntryWriter{TEntry}" /> that this <c>ProxyEntryWriter</c>
+	    /// forwards to.
+	    /// </summary>
+	    public IEntryWriter<TEntry> InnerEntryWriter
+	    {
+		    get { return _innerEntryWriter;}
+		    protected set
+		    {
+			    Contract.Requires<ArgumentNullException>(value != null);
+			    _innerEntryWriter = value;
+		    }
+	    }
 
         public virtual bool IsEnabled { get { return InnerEntryWriter.IsEnabled; } }
 

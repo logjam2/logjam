@@ -137,7 +137,7 @@ namespace LogJam
             if (! IsDisposed)
             {
                 var tracer = SetupTracerFactory.TracerFor(this);
-                tracer.Error("In finalizer (~BackgroundMultiLogWriter) - forgot to Dispose()?");
+                tracer.Error("In finalizer (~LogManager) - forgot to Dispose()?");
                 Dispose(false);
             }
         }

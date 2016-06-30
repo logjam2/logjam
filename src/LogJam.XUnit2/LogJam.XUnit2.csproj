@@ -17,8 +17,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ITestOutputLogWriterConfig.cs" />
+    <Compile Include="LogJamManagerExtensions.cs" />
     <Compile Include="LogJamXUnitSetupException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Util\ReflectionUtil.cs" />
+    <Compile Include="TestOuputLogWriter.cs" />
     <Compile Include="TestOutputHelperExtensions.cs" />
     <Compile Include="TestOutputFormatWriter.cs" />
     <Compile Include="TestOutputLogWriterConfig.cs" />
