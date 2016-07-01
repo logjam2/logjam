@@ -50,7 +50,7 @@ namespace LogJam.XUnit2
 
 		#region ILogWriter
 
-		public override bool IsSynchronized => true;
+		public override bool IsSynchronized => _innerLogWriter.IsSynchronized;
 
 		#endregion
 
