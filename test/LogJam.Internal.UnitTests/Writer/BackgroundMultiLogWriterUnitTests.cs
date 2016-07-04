@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="BackgroundMultiLogWriterUnitTests.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -104,7 +104,7 @@ namespace LogJam.Internal.UnitTests.Writer
             SetupBackgroundLogWriter(slowLogWriter, out backgroundMultiLogWriter, out queueEntryWriter);
             stopwatch.Stop();
             Assert.True((stopwatch.ElapsedMilliseconds <= operationDelayMs) || _inDebugger,
-                        "Starting should be fast, slowLogWriter start delay should occur on background thread.  Elapsed: " + stopwatch.ElapsedMilliseconds);
+                        "Starting should be fast, slowLogWriter start delay should occur on background thread. Elapsed: " + stopwatch.ElapsedMilliseconds);
             _testOutputHelper.WriteLine("Created + started BackgroundMultiLogWriter in {0}", stopwatch.Elapsed);
 
             using (backgroundMultiLogWriter)
@@ -304,7 +304,7 @@ namespace LogJam.Internal.UnitTests.Writer
                                 "Expect blocking until 1 element is written - elapsed: " + elapsedMilliseconds);
                     // This assert is not passing on hqs01 - re-check another time.
                     // Timing-sensitive tests are always a bit delicate
-                    //Assert.True((i == 0) || (elapsedMilliseconds < 2 * opDelayMs) || _inDebugger, "First write may be delayed; after that blocking should only occur for the duration of writing 1 entry.  i=" + i + " Elapsed: " + elapsedMilliseconds);
+                    //Assert.True((i == 0) || (elapsedMilliseconds < 2 * opDelayMs) || _inDebugger, "First write may be delayed; after that blocking should only occur for the duration of writing 1 entry. i=" + i + " Elapsed: " + elapsedMilliseconds);
                 }
 
                 stopwatch.Restart();

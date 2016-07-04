@@ -37,7 +37,7 @@ Provides unit test build functionality using xunit.
 		-->
 		<CallTarget Targets="build" Condition=" !Exists($(TargetPath)) " />
 		
-		<!-- After a build, xunit.dll must be in the TargetDir.  If not, tests can't be run. -->
+		<!-- After a build, xunit.dll must be in the TargetDir. If not, tests can't be run. -->
 		<Error Condition=" !Exists($(xUnit1Lib)) And !Exists($(xUnit2Lib)) " Text="Unit tests cannot be run without a NuGet dependency on xUnit1 or xUnit2." />
 
 		<!-- It seems that *.xunit config files are not currently used by the MSBuild task

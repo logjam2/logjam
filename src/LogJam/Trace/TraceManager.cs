@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TraceManager.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -86,12 +86,12 @@ namespace LogJam.Trace
         /// </summary>
         /// <param name="logWriterConfig">The <see cref="ILogWriterConfig" /> to use to configure tracing.</param>
         /// <param name="traceSwitch">
-        /// A <see cref="ITraceSwitch" /> to use for all <see cref="Tracer" />s.  If
+        /// A <see cref="ITraceSwitch" /> to use for all <see cref="Tracer" />s. If
         /// <c>null</c>, all <see cref="Tracer" /> calls of severity <see cref="TraceLevel.Info" /> or higher are written.
         /// </param>
         /// <param name="tracerNamePrefix">
-        /// The <see cref="Tracer.Name" /> prefix to use.  Tracing will not occur if the
-        /// <c>Tracer.Name</c> doesn't match this prefix.  By default, <see cref="Tracer.All" /> is used.
+        /// The <see cref="Tracer.Name" /> prefix to use. Tracing will not occur if the
+        /// <c>Tracer.Name</c> doesn't match this prefix. By default, <see cref="Tracer.All" /> is used.
         /// </param>
         public TraceManager(ILogWriterConfig logWriterConfig, ITraceSwitch traceSwitch = null, string tracerNamePrefix = Tracer.All)
         {
@@ -138,12 +138,12 @@ namespace LogJam.Trace
         /// </summary>
         /// <param name="logWriter">The <see cref="IEntryWriter{TEntry}" /> to use.</param>
         /// <param name="traceSwitch">
-        /// A <see cref="ITraceSwitch" /> to use for all <see cref="Tracer" />s.  If
+        /// A <see cref="ITraceSwitch" /> to use for all <see cref="Tracer" />s. If
         /// <c>null</c>, all <see cref="Tracer" /> calls of severity <see cref="TraceLevel.Info" /> or higher are written.
         /// </param>
         /// <param name="tracerNamePrefix">
-        /// The <see cref="Tracer.Name" /> prefix to use.  Tracing will not occur if the
-        /// <c>Tracer.Name</c> doesn't match this prefix.  By default, <see cref="Tracer.All" /> is used.
+        /// The <see cref="Tracer.Name" /> prefix to use. Tracing will not occur if the
+        /// <c>Tracer.Name</c> doesn't match this prefix. By default, <see cref="Tracer.All" /> is used.
         /// </param>
         public TraceManager(ILogWriter logWriter, ITraceSwitch traceSwitch = null, string tracerNamePrefix = Tracer.All)
             : this(new UseExistingLogWriterConfig(logWriter), traceSwitch, tracerNamePrefix)
@@ -171,11 +171,11 @@ namespace LogJam.Trace
         /// <param name="logWriter">The <see cref="IEntryWriter{TEntry}" /> to use.</param>
         /// <param name="traceThreshold">The minimum <see cref="TraceLevel" /> that will be logged.</param>
         /// <param name="tracerNamePrefix">
-        /// The <see cref="Tracer.Name" /> prefix to use.  Tracing will not occur if the
-        /// <c>Tracer.Name</c> doesn't match this prefix.  By default, <see cref="Tracer.All" /> is used.
+        /// The <see cref="Tracer.Name" /> prefix to use. Tracing will not occur if the
+        /// <c>Tracer.Name</c> doesn't match this prefix. By default, <see cref="Tracer.All" /> is used.
         /// </param>
         /// <param name="setupTracerFactory">
-        /// The <see cref="SetupTracerFactory" /> to use for tracing setup operations.  This should be the
+        /// The <see cref="SetupTracerFactory" /> to use for tracing setup operations. This should be the
         /// same <see cref="SetupTracerFactory" /> used to initialize <paramref name="logWriter" />.
         /// </param>
         public TraceManager(ILogWriter logWriter, TraceLevel traceThreshold, string tracerNamePrefix = Tracer.All)

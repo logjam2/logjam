@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="Tracer.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ namespace LogJam.Trace
         /// Initializes a new instance of the <see cref="Tracer" /> class.
         /// </summary>
         /// <param name="name">
-        /// The <see cref="Tracer" /> name.  Uniquely identifies a <see cref="Tracer" /> within an <see cref="ITracerFactory" />.
+        /// The <see cref="Tracer" /> name. Uniquely identifies a <see cref="Tracer" /> within an <see cref="ITracerFactory" />.
         /// Often is the class name or namespace name.
         /// </param>
         /// <param name="traceWriters">
@@ -76,7 +76,7 @@ namespace LogJam.Trace
         #region Public Properties
 
         /// <summary>
-        /// The name of this <see cref="Tracer" />.  This is usually the full name of the class that is calling <c>Tracer</c>
+        /// The name of this <see cref="Tracer" />. This is usually the full name of the class that is calling <c>Tracer</c>
         /// methods.
         /// </summary>
         public string Name { get { return _name; } }

@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="BaseLogJamManager.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -313,7 +313,7 @@ namespace LogJam
         /// </summary>
         /// <param name="components"></param>
         /// <returns></returns>
-        // REVIEW: The need for this is messy.  Perhaps each component should manage its messages, and we just walk the tree of components to collect them?
+        // REVIEW: The need for this is messy. Perhaps each component should manage its messages, and we just walk the tree of components to collect them?
         internal ITracerFactory GetSetupTracerFactoryForComponents(IEnumerable<ILogJamComponent> components)
         {
             ITracerFactory setupTracerFactory = null;

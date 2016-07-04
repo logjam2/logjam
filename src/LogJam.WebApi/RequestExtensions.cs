@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="RequestExtensions.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ namespace System.Net.Http
         private const string c_lastLoggedExceptionKey = "LogJam.WebApi.LastLoggedException";
 
         /// <summary>
-        /// Returns the request number (ordinal) for the request described by <paramref name="webApiRequest" />.  This
+        /// Returns the request number (ordinal) for the request described by <paramref name="webApiRequest" />. This
         /// method will return monotonically increasing request numbers if OWIN request logging is enabled
         /// via <see cref="AppBuilderExtensions.LogHttpRequests(IAppBuilder, IEnumerable{ILogWriterConfig})" />.
         /// </summary>
@@ -55,7 +55,7 @@ namespace System.Net.Http
         /// logging of the exception.
         /// </summary>
         /// <param name="webApiRequest">An <see cref="HttpRequestMessage" /> for the current request.</param>
-        /// <param name="exception">An exception to store.  If <c>null</c>, the stored exception is cleared.</param>
+        /// <param name="exception">An exception to store. If <c>null</c>, the stored exception is cleared.</param>
         public static void LoggedRequestException(this HttpRequestMessage webApiRequest, Exception exception)
         {
             Contract.Requires<ArgumentNullException>(webApiRequest != null);
@@ -74,11 +74,11 @@ namespace System.Net.Http
 
         /// <summary>
         /// Returns <c>true</c> if <see cref="LoggedRequestException" /> was previously called for the same request,
-        /// and same exception.  Reference comparison is used to match the exception.  This method is used to
+        /// and same exception. Reference comparison is used to match the exception. This method is used to
         /// prevent duplicate logging of the exception.
         /// </summary>
         /// <param name="webApiRequest">An <see cref="HttpRequestMessage" /> for the current request.</param>
-        /// <param name="exception">An exception to compare to a stored exception.  May not be <c>null</c>.</param>
+        /// <param name="exception">An exception to compare to a stored exception. May not be <c>null</c>.</param>
         /// <returns><c>true</c> if <paramref name="exception" /> has already been logged for this request.</returns>
         public static bool HasRequestExceptionBeenLogged(this HttpRequestMessage webApiRequest, Exception exception)
         {

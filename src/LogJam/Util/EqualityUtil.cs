@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="EqualityUtil.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ namespace LogJam.Util
     {
 
         /// <summary>
-        /// Hashes a variable using its <see cref="object.GetHashCode" /> implementation, but tolerates nulls.  Also left-shifts by
+        /// Hashes a variable using its <see cref="object.GetHashCode" /> implementation, but tolerates nulls. Also left-shifts by
         /// <paramref name="leftShift" />.
         /// </summary>
         /// <param name="o"></param>
@@ -44,7 +44,7 @@ namespace LogJam.Util
 
         /// <summary>
         /// Returns <c>true</c> if <paramref name="e1" /> and <paramref name="e2" /> contain the same quantity
-        /// of equal elements.  The order of the elements within the enumerable doesn't matter.
+        /// of equal elements. The order of the elements within the enumerable doesn't matter.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="e1"></param>

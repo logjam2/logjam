@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ProxyEntryWriter.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ namespace LogJam.Writer
         /// <summary>
         /// Creates a new <see cref="ProxyEntryWriter{TEntry}" />.
         /// </summary>
-        /// <param name="innerEntryWriter">The inner <see cref="IEntryWriter{TEntry}" /> to delegate to.  Must not be <c>null</c>.</param>
+        /// <param name="innerEntryWriter">The inner <see cref="IEntryWriter{TEntry}" /> to delegate to. Must not be <c>null</c>.</param>
         protected ProxyEntryWriter(IEntryWriter<TEntry> innerEntryWriter)
         {
             Contract.Requires<ArgumentNullException>(innerEntryWriter != null);

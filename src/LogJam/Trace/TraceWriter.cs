@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TraceWriter.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ namespace LogJam.Trace
         /// <param name="traceSwitch"></param>
         /// <param name="traceEntryWriter"></param>
         /// <param name="setupTracerFactory">
-        /// The <see cref="ITracerFactory" /> to use to report exceptions.  If <c>null</c>,
+        /// The <see cref="ITracerFactory" /> to use to report exceptions. If <c>null</c>,
         /// logging exceptions are not reported.
         /// </param>
         public TraceWriter(ITraceSwitch traceSwitch, IEntryWriter<TraceEntry> traceEntryWriter, ITracerFactory setupTracerFactory)

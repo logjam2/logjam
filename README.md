@@ -4,7 +4,7 @@
 # What is LogJam?
 LogJam is a modern, efficient, and productive system for trace logging and metrics logging for all projects. 
 
-LogJam is currently in beta and is initially focused on the needs of C# and web developers.  
+LogJam is currently in beta and is initially focused on the needs of C# and web developers. 
 
 LogJam packages are available via NuGet: [http://www.nuget.org/packages?q=logjam](http://www.nuget.org/packages?q=logjam)
 

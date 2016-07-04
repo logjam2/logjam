@@ -18,7 +18,7 @@
 1. Custom log rotator behavior - datetime changes, log size, etc
 3. Add flush support, so buffering log writers can be flushed on command.
   * Support periodic flushing eg every .5s (more efficient than "always flush")
-4. Make background logging multi log writer support periodic flushing, eg every 600ms by default.  Also support flushing from foreground delegated to background thread.
+4. Make background logging multi log writer support periodic flushing, eg every 600ms by default. Also support flushing from foreground delegated to background thread.
 5. Instruments: Counters, Timers, HealthItems
 1. Profile and perf test various use-cases
 1. Custom log rotator behavior - datetime changes, log size, etc
@@ -34,7 +34,7 @@
 	approach that doesn't require that.
 2. background logging multi log writer tests
   * Test that entries are logged immediately
-5. SetupLog pruning - ensure it doesn't hold unneeded information.  Add a trace count?
+5. SetupLog pruning - ensure it doesn't hold unneeded information. Add a trace count?
 
 2. Add status support, expose it from logmanager/tracemanager
 3. Remote logging via protobuf
@@ -75,7 +75,7 @@
 ## Version 0.9.0-beta
 * Rename ILogWriter<tentry>
 	-> IEntryWriter<tentry>
-		, and IMultiLogWriter -> ILogWriter.  All log writers have 0 or more entrywriters within them.  Some LogWriters can only support one type.
+		, and IMultiLogWriter -> ILogWriter. All log writers have 0 or more entrywriters within them. Some LogWriters can only support one type.
 * Added fluent configuration, refactored configuration approach
 * Significantly improved unit test coverage, including multithreaded tests
 * Added LogJam.XUnit2 library, for logging within xunit2 tests

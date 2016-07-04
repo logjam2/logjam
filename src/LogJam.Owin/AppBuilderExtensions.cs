@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="AppBuilderExtensions.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -118,7 +118,7 @@ namespace Owin
         }
 
         /// <summary>
-        /// Logs to the OWIN <c>host.TraceOutput</c> stream.  It seems slow, so developer beware...
+        /// Logs to the OWIN <c>host.TraceOutput</c> stream. It seems slow, so developer beware...
         /// </summary>
         /// <param name="appBuilder"></param>
         /// <returns></returns>
@@ -139,7 +139,7 @@ namespace Owin
 
         /// <summary>
         /// Registers <see cref="LogManager" /> and <see cref="TraceManager" /> instances, along with
-        /// <see cref="LogManagerConfig" /> and <see cref="TraceManagerConfig" />, with the <paramref name="appBuilder" />.  In
+        /// <see cref="LogManagerConfig" /> and <see cref="TraceManagerConfig" />, with the <paramref name="appBuilder" />. In
         /// addition,
         /// this method registers OWIN middleware that associates the application <see cref="LogManager" /> and
         /// <see cref="TraceManager" /> with each request.
@@ -150,7 +150,7 @@ namespace Owin
         /// <remarks>
         /// LogManager and TraceManager registration is run automatically by several other configuration methods, so usually does
         /// not need to
-        /// be explicitly called.  If it IS explicitly called (for example to use a custom <see cref="LogManager" /> for testing),
+        /// be explicitly called. If it IS explicitly called (for example to use a custom <see cref="LogManager" /> for testing),
         /// it should be
         /// called before any other <c>LogJam.Owin</c> configuration methods.
         /// </remarks>

@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ListLogWriter.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ namespace LogJam.Writer
         /// <param name="setupTracerFactory"></param>
         /// <param name="synchronize">
         /// If set to <c>true</c> (the default), writes are synchronized, meaning entries are only added to
-        /// the list one thread at a time using a <c>lock</c>.  If <c>false</c>, writes are not synchronized by this class, so
+        /// the list one thread at a time using a <c>lock</c>. If <c>false</c>, writes are not synchronized by this class, so
         /// another
         /// mechanism must be used to synchronize writes from multiple threads.
         /// </param>
@@ -54,7 +54,7 @@ namespace LogJam.Writer
 	    /// <param name="entryList">The <see cref="IList{T}"/> to write to.</param>
 	    /// <param name="synchronize">
 	    /// If set to <c>true</c> (the default), writes are synchronized, meaning entries are only added to
-	    /// the list one thread at a time using a <c>lock</c>.  If <c>false</c>, writes are not synchronized by this class, so
+	    /// the list one thread at a time using a <c>lock</c>. If <c>false</c>, writes are not synchronized by this class, so
 	    /// another
 	    /// mechanism must be used to synchronize writes from multiple threads.
 	    /// </param>

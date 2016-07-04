@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ListDictionary.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -16,11 +16,11 @@ namespace LogJam.Util
 
 
     /// <summary>
-    /// Implements <see cref="IDictionary{TKey,TValue}" /> using a list.  It's not efficient, but it preserves the order of key
+    /// Implements <see cref="IDictionary{TKey,TValue}" /> using a list. It's not efficient, but it preserves the order of key
     /// value pairs.
     /// </summary>
     /// <remarks>
-    /// Unlike a normal <c>Dictionary</c>, order matters when determining equality.  This is more like a list of
+    /// Unlike a normal <c>Dictionary</c>, order matters when determining equality. This is more like a list of
     /// <see cref="KeyValuePair{TKey,TValue}" />s,
     /// but with support for <see cref="IDictionary{TKey,TValue}" /> operations.
     /// <para>This collection is not thread-safe.</para>

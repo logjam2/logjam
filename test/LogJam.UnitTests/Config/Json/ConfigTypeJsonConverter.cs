@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ConfigTypeJsonConverter.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -83,7 +83,7 @@ namespace LogJam.Config.Json
                 throw new InvalidOperationException("Can't convert type " + objectType + "; expected " + _baseType);
             }
 
-            // Load JObject from stream.  Turns out we're also called for null arrays of our objects,
+            // Load JObject from stream. Turns out we're also called for null arrays of our objects,
             // so handle a null by returning one.
             var jToken = JToken.Load(reader);
             if (jToken.Type == JTokenType.Null)
@@ -138,7 +138,7 @@ namespace LogJam.Config.Json
             else
             {
                 // Multiple types match: if a single type is inherited by all other candidate types, then that's the one we want (it's
-                // marked as serialisable and there's nothing to prompt us to deserialise as one of its subtypes instead).  Otherwise,
+                // marked as serialisable and there's nothing to prompt us to deserialise as one of its subtypes instead). Otherwise,
                 // we have an ambiguity: there are two or more sibling types matching the same fields, and no clear (winning) supertype.
                 var commonBaseType = remainingTypes.SingleOrDefault(baseType => remainingTypes.All(childType => baseType.IsAssignableFrom(childType)));
                 if (commonBaseType != null)

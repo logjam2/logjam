@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="LogJamWebApiTraceWriter.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -42,14 +42,14 @@ namespace LogJam.WebApi
         /// permitted at the given category and level.
         /// </summary>
         /// <param name="request">
-        /// The current <see cref="System.Net.Http.HttpRequestMessage" />.   It may be null but doing so will prevent subsequent
+        /// The current <see cref="System.Net.Http.HttpRequestMessage" />.  It may be null but doing so will prevent subsequent
         /// trace analysis
         /// from correlating the trace to a particular request.
         /// </param>
-        /// <param name="category">The logical category for the trace.  Users can define their own.</param>
+        /// <param name="category">The logical category for the trace. Users can define their own.</param>
         /// <param name="level">The <see cref="System.Web.Http.Tracing.TraceLevel" /> at which to write this trace.</param>
         /// <param name="traceAction">
-        /// The action to invoke if tracing is enabled.  The caller is expected to fill in the fields of the
+        /// The action to invoke if tracing is enabled. The caller is expected to fill in the fields of the
         /// given <see cref="System.Web.Http.Tracing.TraceRecord" /> in this action.
         /// </param>
         public void Trace(HttpRequestMessage request, string category, System.Web.Http.Tracing.TraceLevel level, Action<System.Web.Http.Tracing.TraceRecord> traceAction)
