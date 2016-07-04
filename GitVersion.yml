@@ -2,6 +2,8 @@ assembly-versioning-scheme: MajorMinorPatch
 assembly-informational-format: '{SemVer}'
 mode: ContinuousDeployment
 branches:
+  master:
+    tag: beta
   develop:
     tag: dev
 ignore:
