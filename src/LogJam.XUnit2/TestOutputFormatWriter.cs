@@ -24,12 +24,12 @@ namespace LogJam.XUnit2
     /// Formats and writes log entries to an <see cref="ITestOutputHelper" />. This enables
     /// capturing trace and other log output and writing it to a test's xunit 2.0 test output.
     /// </summary>
-    public sealed class TestOutputFormatWriter : FormatWriter
+    public sealed class TestOutputFormatWriter : FormatWriter, ITestOutputAccessor
     {
 
         private const int c_bufferSize = 512;
 
-        private readonly ITestOutputHelper _testOutput;
+        private ITestOutputHelper _testOutput;
         private readonly StringBuilder _lineBuffer;
         private readonly char[] _charBuffer;
 
@@ -46,10 +46,9 @@ namespace LogJam.XUnit2
                                       int spacesPerIndentLevel = DefaultSpacesPerIndent)
             : base(setupTracerFactory, fieldDelimiter, spacesPerIndentLevel)
         {
-            Contract.Requires<ArgumentNullException>(testOutput != null);
             Contract.Requires<ArgumentNullException>(setupTracerFactory != null);
 
-            _testOutput = testOutput;
+            _testOutput = testOutput ?? new NullTestOutput();
             atBeginningOfLine = true; // Must be true, since test output only writes whole lines.
             _lineBuffer = new StringBuilder(c_bufferSize);
             _charBuffer = new char[c_bufferSize];
@@ -60,6 +59,29 @@ namespace LogJam.XUnit2
             IncludeTime = false;
             IncludeTimeOffset = true;
         }
+
+        #region ITestOutputAccessor
+
+        public ITestOutputHelper TestOutput
+        {
+            get { return _testOutput; }
+            set
+            {
+                // End the current line on the old test output if needed
+                if (! atBeginningOfLine)
+                {
+                    WriteEndLine();
+                }
+
+                if (value == null)
+                {
+                    value = new NullTestOutput();
+                }
+                _testOutput = value;
+            }
+        }
+
+        #endregion
 
         #region Public Properties
 

@@ -130,6 +130,14 @@ namespace LogJam.Trace
                                    }
                                }
                            };
+
+            // Ensure trace formatting is enabled for logWriterConfig, if it's a text writer.
+            var textLogWriterConfig = logWriterConfig as TextLogWriterConfig;
+            if ((textLogWriterConfig != null)
+                && ! textLogWriterConfig.HasFormatterFor<TraceEntry>())
+            {
+                textLogWriterConfig.Format<TraceEntry>();
+            }
         }
 
         /// <summary>
