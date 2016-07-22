@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="OwinContextExtensions.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ namespace Microsoft.Owin
         internal const string LogManagerKey = "LogJam.LogManager";
 
         /// <summary>
-        /// Returns the request number (ordinal) for the request described by <paramref name="owinContext" />.  For each
+        /// Returns the request number (ordinal) for the request described by <paramref name="owinContext" />. For each
         /// Owin app, this number starts at 1 upon initialization.
         /// </summary>
         /// <param name="owinContext">An <see cref="IOwinContext" /> for the current request.</param>
@@ -47,7 +47,7 @@ namespace Microsoft.Owin
         /// logging of the exception.
         /// </summary>
         /// <param name="owinContext">An <see cref="IOwinContext" /> for the current request.</param>
-        /// <param name="exception">An exception to store.  If <c>null</c>, the stored exception is cleared.</param>
+        /// <param name="exception">An exception to store. If <c>null</c>, the stored exception is cleared.</param>
         public static void LoggedRequestException(this IOwinContext owinContext, Exception exception)
         {
             Contract.Requires<ArgumentNullException>(owinContext != null);
@@ -57,11 +57,11 @@ namespace Microsoft.Owin
 
         /// <summary>
         /// Returns <c>true</c> if <see cref="LoggedRequestException" /> was previously called for the same request,
-        /// and same exception.  Reference comparison is used to match the exception.  This method is used to
+        /// and same exception. Reference comparison is used to match the exception. This method is used to
         /// prevent duplicate logging of the exception.
         /// </summary>
         /// <param name="owinContext">An <see cref="IOwinContext" /> for the current request.</param>
-        /// <param name="exception">An exception to compare to a stored exception.  May not be <c>null</c>.</param>
+        /// <param name="exception">An exception to compare to a stored exception. May not be <c>null</c>.</param>
         /// <returns><c>true</c> if <paramref name="exception" /> has already been logged for this request.</returns>
         public static bool HasRequestExceptionBeenLogged(this IOwinContext owinContext, Exception exception)
         {

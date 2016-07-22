@@ -2,7 +2,7 @@
 ***********************************************************************************************
 CsprojCommon.targets
 
-This file provides common build functionality for the LogJam projects.  It needs to 
+This file provides common build functionality for the LogJam projects. It needs to 
 be imported into csproj files using:
 
 	<Import Project="..\..\build\CsprojCommon.targets" />

@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ILogWriter.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ namespace LogJam.Writer
         /// Returns <c>true</c> if calls to this object's methods and its <see cref="IEntryWriter{TEntry}" />s are synchronized.
         /// </summary>
         /// <value>
-        /// If <c>true</c>, calls on this object are threadsafe.  If <c>false</c>, thread-safety is not guaranteed.
+        /// If <c>true</c>, calls on this object are threadsafe. If <c>false</c>, thread-safety is not guaranteed.
         /// </value>
         bool IsSynchronized { get; }
 

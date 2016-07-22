@@ -20,18 +20,30 @@ namespace LogJam.XUnit2
 
 
     /// <summary>
-    /// Creates a <see cref="TestOutputFormatWriter" /> using the specified xunit2 <see cref="ITestOutputHelper" />.
+    /// Creates a <see cref="TextLogWriter" /> that writes to a <see cref="TestOutputFormatWriter"/> using the specified xunit2 <see cref="ITestOutputHelper" />.
     /// </summary>
-    public sealed class TestOutputLogWriterConfig : TextLogWriterConfig
+    public sealed class TestOutputLogWriterConfig : TextLogWriterConfig, ITestOutputAccessor
     {
 
+        private readonly ProxyTestOutputAccessor _proxyTestOutputAccessor;
+
+        /// <summary>
+        /// Initializes a new <see cref="TestOutputLogWriterConfig"/>.
+        /// </summary>
         public TestOutputLogWriterConfig()
         {
+            _proxyTestOutputAccessor = new ProxyTestOutputAccessor();
+            _proxyTestOutputAccessor.AddTarget(this);
+
             // By default, tests are logged with an offset from start time, and no clock timestamp
             IncludeTimeOffset = true;
             IncludeTime = false;
         }
 
+        /// <summary>
+        /// Creates a new <see cref="TestOutputLogWriterConfig"/> that is configured to use <paramref name="testOutput"/>.
+        /// </summary>
+        /// <param name="testOutput"></param>
         public TestOutputLogWriterConfig(ITestOutputHelper testOutput)
             : this()
         {
@@ -41,9 +53,14 @@ namespace LogJam.XUnit2
         }
 
         /// <summary>
-        /// The <see cref="ITestOutputHelper" /> to use to send log output to.  Must be set before logging begins.
+        /// The <see cref="ITestOutputHelper" /> to use to send log output to.
         /// </summary>
         public ITestOutputHelper TestOutput { get; set; }
+
+        /// <summary>
+        /// A <see cref="ITestOutputAccessor" /> that can be used to change the test output target after logging is started.
+        /// </summary>
+        public ITestOutputAccessor TestOutputAccessor { get { return _proxyTestOutputAccessor; } }
 
         /// <summary>
         /// <c>true</c> to include the time offset (since <see cref="StartTimeUtc" />)  when formatting timestamps.
@@ -53,15 +70,13 @@ namespace LogJam.XUnit2
         protected override FormatWriter CreateFormatWriter(ITracerFactory setupTracerFactory)
         {
             var testOutputHelper = TestOutput;
-            if (testOutputHelper == null)
-            {
-                throw new LogJamXUnitSetupException("TestOutputLogWriterConfig.TestOutput must be set before logging.", this);
-            }
 
-            return new TestOutputFormatWriter(testOutputHelper, setupTracerFactory)
-                   {
-                       IncludeTimeOffset = IncludeTimeOffset
-                   };
+            var formatWriter = new TestOutputFormatWriter(testOutputHelper, setupTracerFactory)
+                               {
+                                   IncludeTimeOffset = IncludeTimeOffset
+                               };
+            _proxyTestOutputAccessor.AddTarget(formatWriter);
+            return formatWriter;
         }
 
     }

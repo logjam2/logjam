@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="BackgroundMultiLogWriter.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ namespace LogJam.Writer
     /// Provides multiple synchronized <see cref="IEntryWriter{TEntry}" />s and <see cref="ILogWriter" />s that write to
     /// corresponding <see cref="IEntryWriter{TEntry}" />s on a single background thread.
     /// This implementation minimizes the performance impact of writing to logs by allowing clients to "send and forget",
-    /// until the queue is full.  In normal cases all logged entries are guaranteed to be written to the background log
+    /// until the queue is full. In normal cases all logged entries are guaranteed to be written to the background log
     /// writers,
     /// however abnormal termination of an application can result in queued entries not being written.
     /// </summary>
@@ -95,7 +95,7 @@ namespace LogJam.Writer
         /// <typeparam name="TEntry">The log entry type.</typeparam>
         /// <param name="innerEntryWriter">A <see cref="IEntryWriter{TEntry}" /> that is written to in a background thread.</param>
         /// <param name="maxQueueLength">
-        /// The max length for the queue.  If more than this number of log entries is queued, the
+        /// The max length for the queue. If more than this number of log entries is queued, the
         /// writer will block.
         /// </param>
         /// <returns></returns>
@@ -281,7 +281,7 @@ namespace LogJam.Writer
 
 
         /// <summary>
-        /// The set of operations that are executed on the background thread.  All these methods must be valid
+        /// The set of operations that are executed on the background thread. All these methods must be valid
         /// <see cref="Action" />s.
         /// </summary>
         private interface IBackgroundThreadLogWriterActions
@@ -643,7 +643,7 @@ namespace LogJam.Writer
             }
 
             /// <summary>
-            /// ThreadProc for the background thread.  At any one time, there should be 0 or 1 background threads for each
+            /// ThreadProc for the background thread. At any one time, there should be 0 or 1 background threads for each
             /// <see cref="BackgroundMultiLogWriter" />
             /// instance.
             /// </summary>

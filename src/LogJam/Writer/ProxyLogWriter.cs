@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ProxyLogWriter.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ namespace LogJam.Writer
         /// Creates a new <see cref="ProxyLogWriter" />.
         /// </summary>
         /// <param name="setupTracerFactory">The <see cref="ITracerFactory" /> tracing setup operations.</param>
-        /// <param name="innerLogWriter">The inner <see cref="ILogWriter" /> to delegate to.  Must not be <c>null</c>.</param>
+        /// <param name="innerLogWriter">The inner <see cref="ILogWriter" /> to delegate to. Must not be <c>null</c>.</param>
         protected ProxyLogWriter(ITracerFactory setupTracerFactory, ILogWriter innerLogWriter)
         {
             Contract.Requires<ArgumentNullException>(setupTracerFactory != null);

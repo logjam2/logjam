@@ -39,7 +39,9 @@
     <Compile Include="FakeTestOutputHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ExampleTestTracing.cs" />
+    <Compile Include="SharedTestFixtureTests.cs" />
     <Compile Include="TestOutputFormatWriterTests.cs" />
+    <Compile Include="TestOutputLoggingTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\LogJam.XUnit2\LogJam.XUnit2.csproj">

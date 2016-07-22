@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="LogJamCollectionExtensions.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -109,7 +109,7 @@ namespace LogJam
         /// <param name="logWriterCollection"></param>
         /// <param name="entryWriter"></param>
         /// <returns>
-        /// <c>true</c> if one or more <see cref="IEntryWriter{TEntry}" /> instances were found.  <c>false</c> if no
+        /// <c>true</c> if one or more <see cref="IEntryWriter{TEntry}" /> instances were found. <c>false</c> if no
         /// matching objects were found.
         /// </returns>
         public static bool GetSingleEntryWriter<TEntry>(this IEnumerable<ILogWriter> logWriterCollection, out IEntryWriter<TEntry> entryWriter)
@@ -142,7 +142,7 @@ namespace LogJam
         /// <typeparam name="TEntry"></typeparam>
         /// <param name="entryWriterCollection"></param>
         /// <returns>
-        /// <c>true</c> if one or more <see cref="IEntryWriter{TEntry}" /> instances were found.  <c>false</c> if no
+        /// <c>true</c> if one or more <see cref="IEntryWriter{TEntry}" /> instances were found. <c>false</c> if no
         /// matching objects were found.
         /// </returns>
         public static IEntryWriter<TEntry> GetSingleEntryWriter<TEntry>(this IEnumerable<IEntryWriter<TEntry>> entryWriterCollection)

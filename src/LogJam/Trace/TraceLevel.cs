@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TraceLevel.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ namespace LogJam.Trace
     {
 
         /// <summary>
-        /// Debug trace level - containing comprehensive information for debugging.  This level should
+        /// Debug trace level - containing comprehensive information for debugging. This level should
         /// only be enabled when debugging a problem due to the amount of log data and potential for
         /// performance degradation due to high volume logging.
         /// </summary>

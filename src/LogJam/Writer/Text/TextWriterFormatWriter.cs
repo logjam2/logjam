@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TextWriterFormatWriter.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -30,13 +30,13 @@ namespace LogJam.Writer.Text
         private readonly char[] _charBuffer;
 
         /// <summary>
-        /// Creates a new <see cref="TextWriterFormatWriter" /> without a <see cref="TextWriter" />.  <see cref="SetTextWriter" />
+        /// Creates a new <see cref="TextWriterFormatWriter" /> without a <see cref="TextWriter" />. <see cref="SetTextWriter" />
         /// must be called
         /// before this instance can be used.
         /// </summary>
         /// <param name="setupTracerFactory">The <see cref="ITracerFactory" /> to use for logging setup operations.</param>
         /// <param name="fieldDelimiter">The field delimiter for formatted text output.</param>
-        /// <param name="spacesPerIndentLevel">The number of spaces per indent level.  Can be 0 for no indenting.</param>
+        /// <param name="spacesPerIndentLevel">The number of spaces per indent level. Can be 0 for no indenting.</param>
         public TextWriterFormatWriter(ITracerFactory setupTracerFactory,
                                       string fieldDelimiter = DefaultFieldDelimiter,
                                       int spacesPerIndentLevel = DefaultSpacesPerIndent)
@@ -55,7 +55,7 @@ namespace LogJam.Writer.Text
         /// disposed.
         /// </param>
         /// <param name="fieldDelimiter">The field delimiter for formatted text output.</param>
-        /// <param name="spacesPerIndentLevel">The number of spaces per indent level.  Can be 0 for no indenting.</param>
+        /// <param name="spacesPerIndentLevel">The number of spaces per indent level. Can be 0 for no indenting.</param>
         public TextWriterFormatWriter(ITracerFactory setupTracerFactory,
                                       TextWriter textWriter,
                                       bool disposeWriter = false,

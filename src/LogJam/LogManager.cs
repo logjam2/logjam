@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="LogManager.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -137,7 +137,7 @@ namespace LogJam
             if (! IsDisposed)
             {
                 var tracer = SetupTracerFactory.TracerFor(this);
-                tracer.Error("In finalizer (~BackgroundMultiLogWriter) - forgot to Dispose()?");
+                tracer.Error("In finalizer (~LogManager) - forgot to Dispose()?");
                 Dispose(false);
             }
         }
@@ -183,7 +183,7 @@ namespace LogJam
                     {
                         // Occurs when the logWriterConfig already exists - this shouldn't happen
                         var tracer = SetupTracerFactory.TracerFor(logWriterConfig);
-                        tracer.Severe("LogWriterConfig {0} is already active - this shouldn't happen.  Skipping it...", logWriterConfig);
+                        tracer.Severe("LogWriterConfig {0} is already active - this shouldn't happen. Skipping it...", logWriterConfig);
                         continue;
                     }
 
@@ -268,7 +268,7 @@ namespace LogJam
         /// <typeparam name="TEntry">The logentry type written by the returned <see cref="IEntryWriter{TEntry}" />s.</typeparam>
         /// <returns>
         /// All successfully started <see cref="IEntryWriter{TEntry}" />s that are type-compatible with
-        /// <typeparamref name="TEntry" />.  May return an empty enumerable.
+        /// <typeparamref name="TEntry" />. May return an empty enumerable.
         /// </returns>
         /// <remarks>Even if Start() wasn't 100% successful, we still return any logwriters that were successfully started.</remarks>
         public IEnumerable<IEntryWriter<TEntry>> GetEntryWriters<TEntry>() where TEntry : ILogEntry
@@ -317,7 +317,7 @@ namespace LogJam
         }
 
         /// <summary>
-        /// Returns the <see cref="ILogWriter" /> created from the specified <paramref name="logWriterConfig" />.  If this
+        /// Returns the <see cref="ILogWriter" /> created from the specified <paramref name="logWriterConfig" />. If this
         /// <c>LogManager</c> has not yet been started, it is started first.
         /// </summary>
         /// <param name="logWriterConfig"></param>
@@ -387,7 +387,7 @@ namespace LogJam
             ILogWriter logWriter = null;
             logWriter = GetLogWriter(logWriterConfig);
             if (logWriter == null)
-            { // This occurs when entryWriter.Start() fails.  In this case, the desired behavior is to return a functioning logwriter.
+            { // This occurs when entryWriter.Start() fails. In this case, the desired behavior is to return a functioning logwriter.
                 var tracer = SetupTracerFactory.TracerFor(this);
                 tracer.Warn("Returning a NoOpEntryWriter<{0}> for log writer config: {1} - check start errors.", typeof(TEntry).Name, logWriterConfig);
                 return new NoOpEntryWriter<TEntry>();

@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="IConsoleColorResolver.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@ namespace LogJam.Writer.Text
 
 
     /// <summary>
-    /// An object that converts <see cref="ColorCategory" /> values to <see cref="ConsoleColor" /> values.  May be passed to
+    /// An object that converts <see cref="ColorCategory" /> values to <see cref="ConsoleColor" /> values. May be passed to
     /// a <see cref="ConsoleFormatWriter" />, or configured on a <see cref="ConsoleLogWriterConfig" />.
     /// </summary>
     public interface IConsoleColorResolver

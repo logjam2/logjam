@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="EntryFormatter.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ namespace LogJam.Writer.Text
     /// <param name="writer">The <see cref="FormatWriter" /> that receives formatted log output.</param>
     /// <remarks>
     /// Note that subclassing <see cref="EntryFormatter{TEntry}" /> is more efficient for value-typed
-    /// <c>TEntry</c>, because the log entry is not copied.  In this delegate, <paramref name="entry" />
+    /// <c>TEntry</c>, because the log entry is not copied. In this delegate, <paramref name="entry" />
     /// is not a <c>ref</c> parameter to allow lambda functions to be used for formatting.
     /// </remarks>
     public delegate void EntryFormatAction<in TEntry>(TEntry entry, FormatWriter writer)

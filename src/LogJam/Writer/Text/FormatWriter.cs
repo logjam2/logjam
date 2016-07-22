@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="FormatWriter.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -20,19 +20,19 @@ namespace LogJam.Writer.Text
 
 
     /// <summary>
-    /// Abstract base class for writing formatted log output to a text target.  A <c>FormatWriter</c> is primarily used by one
+    /// Abstract base class for writing formatted log output to a text target. A <c>FormatWriter</c> is primarily used by one
     /// or more
-    /// <see cref="EntryFormatter{TEntry}" />s to write formatted text.  <c>FormatWriter</c> is the primary abstraction for
+    /// <see cref="EntryFormatter{TEntry}" />s to write formatted text. <c>FormatWriter</c> is the primary abstraction for
     /// writing
     /// to a text target.
     /// <para>
-    /// Text targets can be colorized and are generally optimized for readability.  In contrast, binary targets are generally
+    /// Text targets can be colorized and are generally optimized for readability. In contrast, binary targets are generally
     /// optimized for
     /// efficient and precise writing and parsing.
     /// </para>
     /// </summary>
     /// <remarks>
-    /// <c>FormatWriter</c> is <u>not</u> threadsafe.  It assumes that writes are synchronized at a higher level (typically
+    /// <c>FormatWriter</c> is <u>not</u> threadsafe. It assumes that writes are synchronized at a higher level (typically
     /// using pluggable
     /// <see cref="ISynchronizingLogWriter" />s), so that the last entry is completely formatted/written before the next entry
     /// starts.
@@ -94,7 +94,7 @@ namespace LogJam.Writer.Text
         protected bool atBeginningOfLine;
 
         /// <summary>
-        /// The number of started and not completed entries.  Should be 0 or 1 at all times (this is a class invariant).
+        /// The number of started and not completed entries. Should be 0 or 1 at all times (this is a class invariant).
         /// </summary>
         private int _startedEntries;
 
@@ -110,7 +110,7 @@ namespace LogJam.Writer.Text
         /// </summary>
         /// <param name="setupTracerFactory">The <see cref="ITracerFactory" /> to use for logging setup operations.</param>
         /// <param name="fieldDelimiter">The field delimiter for formatted text output.</param>
-        /// <param name="spacesPerIndentLevel">The number of spaces per indent level.  Can be 0 for no indenting.</param>
+        /// <param name="spacesPerIndentLevel">The number of spaces per indent level. Can be 0 for no indenting.</param>
         protected FormatWriter(ITracerFactory setupTracerFactory, string fieldDelimiter = DefaultFieldDelimiter, int spacesPerIndentLevel = DefaultSpacesPerIndent)
         {
             Contract.Requires<ArgumentNullException>(setupTracerFactory != null);
@@ -160,7 +160,7 @@ namespace LogJam.Writer.Text
         /// </summary>
         /// <remarks>
         /// This buffer can be reused by every field formatting method, under the assumption that no two fields will
-        /// be formatted at the same time.  This invariant is maintained by synchronization at the <see cref="ILogWriter" /> level.
+        /// be formatted at the same time. This invariant is maintained by synchronization at the <see cref="ILogWriter" /> level.
         /// <para>
         /// Continually reusing the same buffer is a performance optimization - it reduces memory allocation and GC activity
         /// significantly.
@@ -182,7 +182,7 @@ namespace LogJam.Writer.Text
 
         /// <summary>
         /// When this <c>IsColorEnabled</c> returns <c>true</c>, <see cref="EntryFormatter{TEntry}" />s
-        /// should determine and pass in <see cref="ColorCategory" /> values for all text.  When
+        /// should determine and pass in <see cref="ColorCategory" /> values for all text. When
         /// <c>IsColorEnabled</c> returns <c>false</c>, any <see cref="ColorCategory" /> values
         /// are ignored.
         /// </summary>
@@ -204,7 +204,7 @@ namespace LogJam.Writer.Text
         public int SpacesPerIndent { get; internal set; }
 
         /// <summary>
-        /// The current indent level.  May be increased or decreased as needed by the formatter.
+        /// The current indent level. May be increased or decreased as needed by the formatter.
         /// </summary>
         public int IndentLevel { get; set; }
 

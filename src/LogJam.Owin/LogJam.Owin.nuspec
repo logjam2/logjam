@@ -15,7 +15,7 @@
     <copyright>Copyright 2011-2015</copyright>
     <tags>Log Trace Tracing OWIN Logging Katana LogJam</tags>
     <dependencies>
-      <dependency id="LogJam" version="$version$" />
+      <dependency id="LogJam" version="1.0.4" />
     </dependencies>
 
     <!-- Explicitly specify which assemblys are referenced when this project is referenced (to not link to the CodeContracts DLL). -->

@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="IEntryWriter.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ namespace LogJam.Writer
         /// Returns <c>true</c> if this <see cref="ILogWriter" /> can write entries to its target.
         /// </summary>
         /// <value>
-        /// If <c>true</c>, this <c>IEntryWriter</c> can write entries.  If <c>false</c>, <see cref="IEntryWriter{TEntry}.Write" />
+        /// If <c>true</c>, this <c>IEntryWriter</c> can write entries. If <c>false</c>, <see cref="IEntryWriter{TEntry}.Write" />
         /// should not be called.
         /// </value>
         bool IsEnabled { get; }

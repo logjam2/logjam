@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TextLogWriter.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ namespace LogJam.Writer.Text
 
     /// <summary>
     /// A <see cref="ILogWriter" />s that writes log entries to a target that receives formatted text.
-    /// Text targets can be colorized and are generally optimized for readability.  In contrast, binary targets are
+    /// Text targets can be colorized and are generally optimized for readability. In contrast, binary targets are
     /// generally optimized for efficient and precise writing and parsing.
     /// </summary>
     public class TextLogWriter : BaseLogWriter

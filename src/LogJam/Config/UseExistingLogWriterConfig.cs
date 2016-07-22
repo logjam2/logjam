@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="UseExistingLogWriterConfig.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2.  
+// Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ namespace LogJam.Config
         /// <param name="logWriter"></param>
         /// <param name="disposeOnStop">
         /// Set to <c>true</c> to dispose <paramref name="logWriter" /> when the
-        /// <see cref="LogManager" /> is stopped.  By default <c>disposeOnStop</c> is false.
+        /// <see cref="LogManager" /> is stopped. By default <c>disposeOnStop</c> is false.
         /// </param>
         public UseExistingLogWriterConfig(ILogWriter logWriter, bool disposeOnStop = false)
         {
