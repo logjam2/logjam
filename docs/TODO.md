@@ -1,5 +1,6 @@
 # LogJam TODO
 
+1. Fix: Severe error in startup log for console logging failing to start
 1. Add LogManager.Config.UseConsoleIfAvailable() - no setuplog error if not available
 2. Add Log info for LogJam.Owin
   * SetupLog text URL
@@ -7,6 +8,7 @@
 3. Add trace threshold json file - trace.config
 3. Determine if Owin middleware should use Task.ConfigureAwait(false)
 4. Add `LogManager.Restarting` and `LogManager.Restarted` events - so eg HttpLoggingOwinMiddleware can change to write to the newest log writers
+5. Add support for partial restart - eg remove logwriters that no longer exist, and add new log writers, leaving unchanged logwriters alone.  Still raise the Restarted event if changes occurred.
 2. Config object refactor
     * Tracewriter config objects directly reference the LogWriterConfig objects, or ?? for "all logs"
     * Make logwriter config objects immutable when LogManager is started, and have logwriters reference their config objects instead of duplicating the properties.
@@ -18,6 +20,7 @@
 1. Custom log rotator behavior - datetime changes, log size, etc
 3. Add flush support, so buffering log writers can be flushed on command.
   * Support periodic flushing eg every .5s (more efficient than "always flush")
+  * Support `LogManager.Flush()` or similar method, so it can be done before shutdown or on similar events
 4. Make background logging multi log writer support periodic flushing, eg every 600ms by default.  Also support flushing from foreground delegated to background thread.
 5. Instruments: Counters, Timers, HealthItems
 1. Profile and perf test various use-cases
