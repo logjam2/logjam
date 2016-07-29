@@ -84,8 +84,16 @@ namespace LogJam.Util
 
         public void IntersectWith(IEnumerable<T> other)
         {
-            throw new NotImplementedException();
-            // _innerSet.IntersectWith(other);
+            // exceptSet: The set of items in this, that are not in other
+            var exceptSet = new HashSet<T>(_innerSet);
+            foreach (var t in other)
+            {
+                exceptSet.Remove(t);
+            }
+            foreach (var item in exceptSet)
+            {
+                Remove(item);
+            }
         }
 
         public void ExceptWith(IEnumerable<T> other)
