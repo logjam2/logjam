@@ -37,7 +37,6 @@
     <Compile Include="Writer\Text\DefaultFormatterAttribute.cs" />
     <Compile Include="Writer\Text\FormatWriter.cs" />
     <Compile Include="ILogEntry.cs" />
-    <Compile Include="Internal\ILogJamComponent.cs" />
     <Compile Include="LogJamException.cs" />
     <Compile Include="LogJamCollectionExtensions.cs" />
     <Compile Include="LogJamSetupException.cs" />
