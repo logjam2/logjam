@@ -19,14 +19,18 @@
   <ItemGroup>
     <Compile Include="BaseLogJamManager.cs" />
     <Compile Include="Config\ConsoleLogWriterConfig.cs" />
+    <Compile Include="Config\ILogFileWriterConfig.cs" />
     <Compile Include="Config\ILogWriterConfig.cs" />
     <Compile Include="Config\Json\JsonTypeHintAttribute.cs" />
+    <Compile Include="Config\LogFileConfig.cs" />
     <Compile Include="Config\LogJamConfigTypes.cs" />
     <Compile Include="Config\LogManagerConfig.cs" />
     <Compile Include="Config\LogManagerConfigFluentExtensions.cs" />
+    <Compile Include="Config\TextLogFileWriterConfig.cs" />
     <Compile Include="Config\TextLogWriterConfig.cs" />
     <Compile Include="Config\TextWriterLogWriterConfig.cs" />
     <Compile Include="Config\UseExistingLogWriterConfig.cs" />
+    <Compile Include="Internal\ILogJamComponent.cs" />
     <Compile Include="StartableState.cs" />
     <Compile Include="Util\ObservableSet.cs" />
     <Compile Include="Writer\Text\DefaultConsoleColorResolver.cs" />
@@ -72,7 +76,6 @@
     <Compile Include="Util\StartableExtensions.cs" />
     <Compile Include="Util\Text\TextWriterExtensions.cs" />
     <Compile Include="Config\DebuggerLogWriterConfig.cs" />
-    <Compile Include="Config\FileLogWriterConfig.cs" />
     <Compile Include="Writer\BackgroundMultiLogWriter.cs" />
     <Compile Include="Writer\FanOutEntryWriter.cs" />
     <Compile Include="Config\NoOpLogWriterConfig.cs" />

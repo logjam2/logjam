@@ -21,14 +21,14 @@ namespace LogJam.Config
     public class TextLogFileWriterConfig : TextLogWriterConfig, ILogFileWriterConfig
     {
         /// <summary>
-        /// The default encoding for writing to text files 
+        /// The default encoding for writing to text files.
         /// </summary>
         public const string DefaultEncoding = "UTF-8";
 
         /// <summary>
         /// The encoding to use for writing to the log file.
         /// </summary>
-        public string Encoding { get; set; }
+        public string Encoding { get; set; } = DefaultEncoding;
 
         /// <summary>
         /// Returns the <see cref="LogFileConfig"/>, which is used to configure the log file.
@@ -37,8 +37,10 @@ namespace LogJam.Config
 
         protected override FormatWriter CreateFormatWriter(ITracerFactory setupTracerFactory)
         {
-            TextWriter textWriter = new StreamWriter();
-            return new TextWriterFormatWriter(setupTracerFactory, CreateTextWriter(), true, FieldDelimiter, SpacesPerIndent);
+            var fileStream = LogFile.CreateNewLogFileStream();
+            TextWriter textWriter = new StreamWriter(fileStream, System.Text.Encoding.GetEncoding(Encoding));
+            // TODO: Add support for configuring which FormatWriter is used.
+            return new TextWriterFormatWriter(setupTracerFactory, textWriter, true, FieldDelimiter, SpacesPerIndent);
         }
 
     }

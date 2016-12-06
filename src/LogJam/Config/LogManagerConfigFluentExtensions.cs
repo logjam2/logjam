@@ -124,6 +124,60 @@ namespace LogJam.Config
         }
 
         /// <summary>
+        /// Log to a text log file with the specified name and directory functions.
+        /// </summary>
+        /// <param name="logManagerConfig">The <see cref="LogManagerConfig"/> being configured.</param>
+        /// <param name="fileNameFunc">A function which returns a log file name when called.</param>
+        /// <param name="directoryFunc">A function which returns a log directory path when called; or <c>null</c> to create the log file in the current directory.</param>
+        /// <returns>A <see cref="TextLogFileWriterConfig"/> holding the configuration for the log file. Can be further configured.</returns>
+        public static TextLogFileWriterConfig UseTextLogFile(this LogManagerConfig logManagerConfig, Func<string> fileNameFunc, Func<string> directoryFunc = null)
+        {
+            Contract.Requires<ArgumentNullException>(logManagerConfig != null);
+            Contract.Requires<ArgumentNullException>(fileNameFunc != null);
+
+            var logfileConfig = new TextLogFileWriterConfig()
+                                {
+                                    LogFile =
+                                    {
+                                        FilenameFunc = fileNameFunc
+                                    }
+                                };
+            if (directoryFunc != null)
+            {
+                logfileConfig.LogFile.DirectoryFunc = directoryFunc;
+            }
+            logManagerConfig.Writers.Add(logfileConfig);
+            return logfileConfig;
+        }
+
+        /// <summary>
+        /// Log to a text log file with the specified name and directory.
+        /// </summary>
+        /// <param name="logManagerConfig">The <see cref="LogManagerConfig"/> being configured.</param>
+        /// <param name="fileName">The log file name.</param>
+        /// <param name="directory">The directory path to create the log file in; or <c>null</c> to create the log file in the current directory.</param>
+        /// <returns>A <see cref="TextLogFileWriterConfig"/> holding the configuration for the log file. Can be further configured.</returns>
+        public static TextLogFileWriterConfig UseTextLogFile(this LogManagerConfig logManagerConfig, string fileName, string directory = null)
+        {
+            Contract.Requires<ArgumentNullException>(logManagerConfig != null);
+            Contract.Requires<ArgumentNullException>(! string.IsNullOrWhiteSpace(fileName));
+
+            var logfileConfig = new TextLogFileWriterConfig()
+                                {
+                                    LogFile =
+                                    {
+                                        Filename = fileName
+                                    }
+                                };
+            if (directory != null)
+            {
+                logfileConfig.LogFile.Directory = directory;
+            }
+            logManagerConfig.Writers.Add(logfileConfig);
+            return logfileConfig;
+        }
+
+        /// <summary>
         /// Adds <paramref name="entryFormatter" /> or the default formatter for <typeparamref name="TEntry" /> to each of
         /// the <see cref="ILogWriterConfig" /> objects in <paramref name="logWriterConfigs" /> that are of type
         /// <see cref="TextLogWriterConfig" />.

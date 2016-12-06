@@ -11,11 +11,15 @@ namespace LogJam.Config
 {
     using System;
     using System.Diagnostics.Contracts;
+    using System.IO;
 
 
     /// <summary>
     /// Configures the directory, filename, and behavior of log files.
     /// </summary>
+    /// <remarks>
+    /// This configuration type is used for both text log files, and binary log files.
+    /// </remarks>
     public class LogFileConfig
     {
 
@@ -25,6 +29,11 @@ namespace LogJam.Config
         /// The default filename, used if both <see cref="Filename"/> and <see cref="FilenameFunc"/> are not set.
         /// </summary>
         public const string DefaultFilename = "LogJam.log";
+
+        /// <summary>
+        /// The default buffer size for writing to text files.
+        /// </summary>
+        public const int DefaultBufferSize = 4096;
 
         /// <summary>
         /// The default directory function, used if both <see cref="Directory"/> and <see cref="DirectoryFunc"/> are not set.
@@ -79,6 +88,30 @@ namespace LogJam.Config
         /// Default is <c>true</c>.
         /// </summary>
         public bool Append { get { return _append ?? true; } set { _append = value; } }
+
+        /// <summary>
+        /// The size of the buffer used for writing to the log file. Larger buffers are generally faster,
+        /// smaller buffers ensure that log entries are written to disk more quickly.
+        /// </summary>
+        public int BufferSize { get; set; } = DefaultBufferSize;
+
+        /// <summary>
+        /// Returns the full path for a new log file.
+        /// </summary>
+        /// <returns></returns>
+        public string GetNewLogFileFullPath()
+        {
+            return Path.Combine(Directory, Filename);
+        }
+
+        /// <summary>
+        /// Creates and returns a <see cref="FileStream"/> which writes to a new logfile.
+        /// </summary>
+        /// <returns></returns>
+        public FileStream CreateNewLogFileStream()
+        {
+            return new FileStream(GetNewLogFileFullPath(), Append ? FileMode.Append : FileMode.CreateNew, FileAccess.Write, FileShare.Read, BufferSize);
+        }
 
     }
 

@@ -2,12 +2,17 @@
 
 1. Test that multiple debugger outputs configured results in a single instance
 1. TextFileWriter 
-2. Merge rotating TextFileWriter
+1. Headers and footers for text files
+2. Events for creating and disposing log writers - unless this is costly, in which case just add this for log file writers
+2. Merge rotating log file writers
 3. Benchmark file writing perf
 1. Add LogManager.Config.UseConsoleIfAvailable() - no setuplog error if not available
+3. JSON text logwriter
+3. Delimited text LogWriter 
 2. Add Log info for LogJam.Owin
   * SetupLog text URL
   * Log config + status (which writers, formatters, started, etc)
+4. Text log file perf tests - eg buffer size tuning
 3. Add trace threshold json file - trace.config
 3. Determine if Owin middleware should use Task.ConfigureAwait(false)
 4. Add `LogManager.Restarting` and `LogManager.Restarted` events - so eg HttpLoggingOwinMiddleware can change to write to the newest log writers
@@ -46,6 +51,7 @@
 2. Add status support, expose it from logmanager/tracemanager
 3. Remote logging via protobuf
 1. Implement Web API ITraceManager - more efficient than just implementing ITraceWriter?
+1. Entity Framework tracing
 1. Better tracing of individual LogWriter setup/shutdown
 
 1. Support extending/customizing the TraceEntry used for tracing

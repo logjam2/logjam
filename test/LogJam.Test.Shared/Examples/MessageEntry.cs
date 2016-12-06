@@ -49,7 +49,10 @@ namespace LogJam.Internal.UnitTests.Examples
             public override void Format(ref MessageEntry entry, FormatWriter formatWriter)
             {
                 formatWriter.BeginEntry(0);
-                formatWriter.WriteTimestamp(entry.Timestamp);
+                if (formatWriter.IncludeTime)
+                {
+                    formatWriter.WriteTimestamp(entry.Timestamp);
+                }
 
                 var buf = formatWriter.FieldBuffer;
                 buf.Clear();
