@@ -14,7 +14,7 @@ namespace LogJam.Config
 
 
     /// <summary>
-    /// Base interface for types that configure <see cref="ILogWriter" />s.  An <see cref="ILogWriterConfig" />
+    /// Base interface for types that configure and create <see cref="ILogWriter" />s.  An <see cref="ILogWriterConfig" />
     /// acts as a factory for an <c>ILogWriter</c>.
     /// </summary>
     /// <remarks>

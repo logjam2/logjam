@@ -18,7 +18,8 @@ namespace LogJam.Config
 
 
     /// <summary>
-    /// Configures use of a <see cref="TextWriterLogWriter" />.
+    /// Configures use of a <see cref="TextWriterLogWriter" />, which writes text log output to
+    /// any <see cref="TextWriter"/>.
     /// </summary>
     public class TextWriterLogWriterConfig : TextLogWriterConfig
     {
