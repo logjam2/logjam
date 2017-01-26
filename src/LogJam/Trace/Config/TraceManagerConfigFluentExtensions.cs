@@ -46,7 +46,7 @@ namespace LogJam.Trace.Config
 
             var traceWriterConfig = new TraceWriterConfig(textLogWriterConfig, switchSet);
             textLogWriterConfig.Format(traceFormatter);
-            traceManagerConfig.Add(traceWriterConfig);
+            traceManagerConfig.Writers.Add(traceWriterConfig);
             return traceWriterConfig;
         }
 
@@ -86,7 +86,7 @@ namespace LogJam.Trace.Config
             Contract.Requires<ArgumentNullException>(switchSet != null);
 
             var traceWriterConfig = new TraceWriterConfig(logWriterConfig, switchSet);
-            traceManagerConfig.Add(traceWriterConfig);
+            traceManagerConfig.Writers.Add(traceWriterConfig);
             return traceWriterConfig;
         }
 
@@ -184,7 +184,7 @@ namespace LogJam.Trace.Config
             logWriterConfigs.FormatAll(traceFormatter);
             foreach (var logWriterConfig in logWriterConfigs)
             {
-                traceManagerConfig.Add(new TraceWriterConfig(logWriterConfig, switches));
+                traceManagerConfig.Writers.Add(new TraceWriterConfig(logWriterConfig, switches));
             }
         }
 
@@ -217,7 +217,7 @@ namespace LogJam.Trace.Config
             Contract.Requires<ArgumentNullException>(switchSet != null);
 
             var traceWriterConfig = new TraceWriterConfig(logWriter, switchSet);
-            config.Add(traceWriterConfig);
+            config.Writers.Add(traceWriterConfig);
             return traceWriterConfig;
         }
 

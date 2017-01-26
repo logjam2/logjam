@@ -164,7 +164,7 @@ namespace LogJam.UnitTests.Trace
             var listLogWriter = new ListLogWriter<TraceEntry>(setupLog);
 
             var traceManager = new TraceManager(setupLog);
-            traceManager.Config.Add(new TraceWriterConfig()
+            traceManager.Config.Writers.Add(new TraceWriterConfig()
                                     {
                                         LogWriterConfig = new UseExistingLogWriterConfig(exceptionLogWriter, disposeOnStop: true),
                                         Switches =
@@ -172,7 +172,7 @@ namespace LogJam.UnitTests.Trace
                                             { Tracer.All, new OnOffTraceSwitch(true) }
                                         }
                                     });
-            traceManager.Config.Add(new TraceWriterConfig()
+            traceManager.Config.Writers.Add(new TraceWriterConfig()
                                     {
                                         LogWriterConfig = new UseExistingLogWriterConfig(listLogWriter, disposeOnStop: true),
                                         Switches =

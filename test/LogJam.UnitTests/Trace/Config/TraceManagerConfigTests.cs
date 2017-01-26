@@ -423,7 +423,7 @@ namespace LogJam.UnitTests.Trace.Config
             {
                 foreach (var logWriterConfig in logWriterConfigs)
                 {
-                    traceManager.Config.Add(new TraceWriterConfig(logWriterConfig, TraceManagerConfig.CreateDefaultSwitchSet()));
+                    traceManager.Config.Writers.Add(new TraceWriterConfig(logWriterConfig, TraceManagerConfig.CreateDefaultSwitchSet()));
 
                     Assert.Contains(traceManager.LogManager.Config.Writers, lwc => lwc == logWriterConfig);
                 }
