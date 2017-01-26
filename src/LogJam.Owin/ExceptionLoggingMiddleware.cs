@@ -27,37 +27,18 @@ namespace LogJam.Owin
 
         private readonly Tracer _tracer;
         private readonly Func<IOwinContext, string> _messageFormatter;
-        private readonly bool _logUnhandled;
-        private bool _loggingFirstChance;
 
         private static readonly Boolean s_isMono = Type.GetType("Mono.Runtime") != null;
 
         public ExceptionLoggingMiddleware(OwinMiddleware next,
                                           Tracer tracer,
-                                          Func<IOwinContext, string> messageFormatter = null,
-                                          bool logFirstChance = false,
-                                          bool logUnhandled = true)
+                                          Func<IOwinContext, string> messageFormatter = null)
             : base(next)
         {
             Contract.Requires<ArgumentNullException>(tracer != null);
 
             _tracer = tracer;
             _messageFormatter = messageFormatter ?? DefaultMessageFormatter;
-            _logUnhandled = logUnhandled;
-
-            if (logFirstChance)
-            {
-                if (! s_isMono)
-                {
-#if MONO
-					AppDomain.CurrentDomain.FirstChanceException += TraceFirstChanceException;
-#endif
-                }
-                else
-                {
-                    _tracer.Warn("FirstChanceException is unsupported on Mono");
-                }
-            }
         }
 
         public string DefaultMessageFormatter(IOwinContext context)
@@ -74,11 +55,8 @@ namespace LogJam.Owin
             }
             catch (Exception ex)
             {
-                if (_logUnhandled)
-                {
-                    TraceUnhandledException(owinContext, ex);
-                }
-                throw;
+               TraceUnhandledException(owinContext, ex);
+               throw;
             }
         }
 
@@ -87,25 +65,6 @@ namespace LogJam.Owin
             if (_tracer.IsErrorEnabled())
             {
                 _tracer.Error(exception, _messageFormatter(owinContext));
-            }
-        }
-
-        public void TraceFirstChanceException(object sender, FirstChanceExceptionEventArgs exceptionEventArgs)
-        {
-            // Prevent reentrancy
-            if (_loggingFirstChance)
-            {
-                return;
-            }
-
-            try
-            {
-                _loggingFirstChance = true;
-                _tracer.Warn(exceptionEventArgs.Exception, "First chance exception:");
-            }
-            finally
-            {
-                _loggingFirstChance = false;
             }
         }
 

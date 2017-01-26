@@ -287,17 +287,41 @@ namespace Owin
         /// Turns on tracing of first-chance and/or unhandled OWIN exceptions.
         /// </summary>
         /// <param name="appBuilder"></param>
+        /// <param name="messageFormatter">An optional message formatter which overrides the default message formatter when unhandled exceptions are caught.</param>
+        /// <returns></returns>
+        public static IAppBuilder TraceUnhandledExceptions(this IAppBuilder appBuilder, Func<IOwinContext, string> messageFormatter = null)
+        {
+            Contract.Requires<ArgumentNullException>(appBuilder != null);
+            var tracer = appBuilder.TracerFor<ExceptionLoggingMiddleware>();
+
+            appBuilder.Use<ExceptionLoggingMiddleware>(tracer, messageFormatter);
+
+            return appBuilder;
+        }
+
+        /// <summary>
+        /// Turns on tracing of first-chance and/or unhandled OWIN exceptions.
+        /// </summary>
+        /// <param name="appBuilder"></param>
         /// <param name="logFirstChance"><c>true</c> to log first-chance exceptions - logs every exception that is thrown.</param>
         /// <param name="logUnhandled"><c>true</c> to log unhandled exceptions in the Owin pipeline.</param>
         /// <returns></returns>
+        [Obsolete("Use TraceUnhandledExceptions() instead.")]
         public static IAppBuilder TraceExceptions(this IAppBuilder appBuilder, bool logFirstChance = false, bool logUnhandled = true)
         {
             Contract.Requires<ArgumentNullException>(appBuilder != null);
-            if (logFirstChance || logUnhandled)
+            if (logUnhandled)
             {
                 var tracer = appBuilder.TracerFor<ExceptionLoggingMiddleware>();
 
-                appBuilder.Use<ExceptionLoggingMiddleware>(tracer, null, logFirstChance, logUnhandled);
+                appBuilder.Use<ExceptionLoggingMiddleware>(tracer, null);
+            }
+
+            // Tracing of first chance exceptions is done through TraceManagerConfig.TraceFirstChanceExceptions
+            // For backward compatibility, we still support this in this API.
+            if (logFirstChance)
+            {
+                appBuilder.GetTraceManagerConfig().TraceFirstChanceExceptions = true;
             }
 
             return appBuilder;

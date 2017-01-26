@@ -253,6 +253,12 @@ namespace LogJam.Trace
 
         protected override void InternalStart()
         {
+            // Call initializers
+            foreach (var initializer in Config.Initializers)
+            {
+                initializer.OnStarting(this);
+            }
+
             lock (this)
             {
                 if (_logManager.IsRestartNeeded())

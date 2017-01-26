@@ -15,6 +15,7 @@ namespace LogJam.Trace.Config
     using System.Linq;
 
     using LogJam.Config;
+    using LogJam.Trace.Config.Initializer;
     using LogJam.Trace.Format;
     using LogJam.Trace.Switches;
     using LogJam.Util;
@@ -33,7 +34,17 @@ namespace LogJam.Trace.Config
         /// </summary>
         private readonly ObservableSet<TraceWriterConfig> _traceWriterConfigs;
 
+        /// <summary>
+        /// Holds initializers that are applied during startup.
+        /// </summary>
+        private readonly List<ITraceInitializer> _initializers;
+
         #endregion
+
+        public static readonly IEnumerable<ITraceInitializer> DefaultInitializers = new ITraceInitializer[]
+                                                                                    {
+                                                                                        new FirstChanceExceptionTracerInitializer()
+                                                                                    };
 
         /// <summary>
         /// Creates and returns a new <see cref="TraceManagerConfig" /> with default trace configuration,
@@ -62,6 +73,8 @@ namespace LogJam.Trace.Config
             Contract.Requires<ArgumentNullException>(logManagerConfig != null);
 
             LogManagerConfig = logManagerConfig;
+
+            _initializers = new List<ITraceInitializer>(DefaultInitializers);
 
             _traceWriterConfigs = new ObservableSet<TraceWriterConfig>();
             _traceWriterConfigs.AddingItem += OnAddingTraceWriterConfig;
@@ -92,13 +105,18 @@ namespace LogJam.Trace.Config
         /// <summary>
         /// Default configuration for tracing writes to the debugger when the debugger is attached.
         /// </summary>
-        internal void SetToDefaultConfiguration()
+        public void SetToDefaultConfiguration()
         {
             _traceWriterConfigs.Clear();
             if (DebuggerFormatWriter.IsDebuggerActive())
             {
                 _traceWriterConfigs.Add(CreateDebugTraceWriterConfig());
             }
+
+            _initializers.Clear();
+            _initializers.AddRange(DefaultInitializers);
+
+            TraceFirstChanceExceptions = false;
         }
 
         /// <summary>
@@ -136,6 +154,18 @@ namespace LogJam.Trace.Config
         /// Gets the set of <see cref="TraceWriterConfig" /> objects that the <see cref="TraceManager" /> is configured from.
         /// </summary>
         public ISet<TraceWriterConfig> Writers { get { return _traceWriterConfigs; } }
+
+
+        /// <summary>
+        /// Returns a collection of initializers that are called when the <see cref="TraceManager"/> is started and stopped.
+        /// </summary>
+        public ICollection<ITraceInitializer> Initializers { get { return _initializers; } }
+
+        /// <summary>
+        /// Set to <c>true</c> to Trace first-chance exceptions as warnings. This traces all exceptions as they're thrown
+        /// so can be verbose.
+        /// </summary>
+        public bool TraceFirstChanceExceptions { get; set; }
 
         private void OnAddingTraceWriterConfig(TraceWriterConfig traceWriterConfig)
         {

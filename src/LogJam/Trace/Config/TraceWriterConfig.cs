@@ -20,17 +20,10 @@ namespace LogJam.Trace.Config
     /// <summary>
     /// Holds configuration for a single trace writer.
     /// </summary>
-    /// <remarks>
-    /// <c>TraceWriterConfig</c> subclasses should generally not override <see cref="object.GetHashCode" /> or
-    /// <see cref="object.Equals(object)" />,
-    /// because they are identified by reference. It should be valid to have two <c>TraceWriterConfig</c> objects with the
-    /// same values stored
-    /// in a set or dictionary.
-    /// </remarks>
     public sealed class TraceWriterConfig
     {
 
-        private ILogWriterConfig _tracelogWriterConfig;
+        private ILogWriterConfig _logWriterConfig;
         private readonly SwitchSet _switches;
 
         /// <summary>
@@ -47,7 +40,7 @@ namespace LogJam.Trace.Config
         {
             Contract.Requires<ArgumentNullException>(logWriterConfig != null);
 
-            _tracelogWriterConfig = logWriterConfig;
+            _logWriterConfig = logWriterConfig;
             _switches = switches ?? new SwitchSet();
         }
 
@@ -63,18 +56,22 @@ namespace LogJam.Trace.Config
             get
             {
                 Contract.Ensures(Contract.Result<ILogWriterConfig>() != null);
-                if (_tracelogWriterConfig == null)
+                if (_logWriterConfig == null)
                 {
-                    _tracelogWriterConfig = new NoOpLogWriterConfig();
+                    _logWriterConfig = new NoOpLogWriterConfig();
                 }
 
-                return _tracelogWriterConfig;
+                return _logWriterConfig;
             }
             set
             {
                 Contract.Requires<ArgumentNullException>(value != null);
+                if (_logWriterConfig != null)
+                {
+                    throw new LogJamSetupException("LogWriterConfig property cannot be set more than once", this);
+                }
 
-                _tracelogWriterConfig = value;
+                _logWriterConfig = value;
             }
         }
 

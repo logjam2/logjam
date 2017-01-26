@@ -9,6 +9,8 @@
 
 namespace LogJam.ConsoleTester
 {
+    using System;
+
     using LogJam.Config;
     using LogJam.Trace;
     using LogJam.Trace.Config;
@@ -22,13 +24,28 @@ namespace LogJam.ConsoleTester
     public sealed class ConsoleTestSetup
     {
 
+        private ConsoleLogWriterConfig _consoleLogWriterConfig;
+
         public ConsoleTestSetup(TraceManager traceManager)
         {
             TraceManager = traceManager;
+            TraceManager.Config.TraceFirstChanceExceptions = true;
         }
 
-        public TraceManager TraceManager { get; set; }
-        public ConsoleLogWriterConfig ConsoleLogWriterConfig { get; set; }
+        public TraceManager TraceManager { get; }
+
+        public ConsoleLogWriterConfig ConsoleLogWriterConfig
+        {
+            get
+            {
+                if (_consoleLogWriterConfig == null)
+                {
+                    throw new Exception("A *Config* method must be called before ConsoleLogWriterConfig property can be accessed.");
+                }
+                return _consoleLogWriterConfig;
+            }
+            set { _consoleLogWriterConfig = value; }
+        }
 
         /// <summary>
         /// Configures console tracing using object graph configuration (newing the config objects).
@@ -37,7 +54,7 @@ namespace LogJam.ConsoleTester
         {
             ConsoleLogWriterConfig = new ConsoleLogWriterConfig();
             ConsoleLogWriterConfig.Format(new DefaultTraceFormatter());
-            TraceManager.Config.Writers.Add(new TraceWriterConfig(ConsoleLogWriterConfig, TraceManagerConfig.CreateDefaultSwitchSet()));
+            TraceManager.Config.Add(new TraceWriterConfig(ConsoleLogWriterConfig, TraceManagerConfig.CreateDefaultSwitchSet()));
         }
 
         /// <summary>
@@ -58,7 +75,7 @@ namespace LogJam.ConsoleTester
                                  { typeof(ConsoleTestCases), new OnOffTraceSwitch(true) }
                              }
                          };
-            TraceManager.Config.Writers.Add(config);
+            TraceManager.Config.Add(config);
         }
 
         /// <summary>
