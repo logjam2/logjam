@@ -66,6 +66,23 @@ namespace LogJam.Config
             return new ConsoleFormatWriter(setupTracerFactory, colorResolver);
         }
 
+        /// <summary>
+        /// Equals and <see cref="GetHashCode"/> are overridden so no more than a single ConsoleLogWriterConfig instance
+        /// will be stored in <see cref="LogManager.Config"/>.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public override bool Equals(object obj)
+        {
+            return (obj is ConsoleLogWriterConfig);
+        }
+
+        public override int GetHashCode()
+        {
+            // All instances of ConsoleLogWriterConfig have the same hash code, and are equal.
+            return GetType().GetHashCode();
+        }
+
     }
 
 }

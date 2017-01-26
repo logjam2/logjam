@@ -218,9 +218,38 @@ namespace LogJam.Trace.Config
             return (_traceWriterConfigs != null ? _traceWriterConfigs.GetUnorderedCollectionHashCode() : 0);
         }
 
-        public void Clear()
+        /// <summary>
+        /// Adds <paramref name="traceWriterConfig"/> to <see cref="Writers"/>, with merge semantics. This is needed to
+        /// handle duplicate set elements, eg if 2 <see cref="ConsoleLogWriterConfig"/> objects are configured.
+        /// </summary>
+        /// <param name="traceWriterConfig"></param>
+        public void Add(TraceWriterConfig traceWriterConfig)
         {
-            _traceWriterConfigs.Clear();
+            Contract.Requires<ArgumentNullException>(traceWriterConfig != null);
+
+            if (Writers.Contains(traceWriterConfig))
+            {
+                // There is an equal configuration already present, the 2 need to be merged, with the new one taking precedent.
+                var previousEqualConfig = Writers.Single(c => c.Equals(traceWriterConfig));
+                if (! Writers.Remove(previousEqualConfig))
+                {   // Exception should never happen
+                    throw new LogJamSetupException("Unable to Remove equal TraceWriterConfig", this);
+                }
+
+                // Merge the 2 SwitchSets
+                foreach (var kvp in previousEqualConfig.Switches)
+                {
+                    if (!traceWriterConfig.Switches.ContainsKey(kvp.Key))
+                    {
+                        traceWriterConfig.Switches.Add(kvp.Key, kvp.Value);
+                    }
+                }
+            }
+
+            if (! Writers.Add(traceWriterConfig))
+            {   // Exception should never happen
+                throw new LogJamSetupException("Unable to Add TraceWriterConfig", this);
+            }
         }
 
     }

@@ -32,6 +32,23 @@ namespace LogJam.Config
             return new DebuggerFormatWriter(setupTracerFactory);
         }
 
+        /// <summary>
+        /// Equals and <see cref="GetHashCode"/> are overridden so no more than a single DebuggerLogWriterConfig instance
+        /// will be stored in <see cref="LogManager.Config"/>.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public override bool Equals(object obj)
+        {
+            return (obj is DebuggerLogWriterConfig);
+        }
+
+        public override int GetHashCode()
+        {
+            // All instances of DebuggerLogWriterConfig have the same hash code, and are equal.
+            return GetType().GetHashCode();
+        }
+
     }
 
 }

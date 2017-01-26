@@ -506,6 +506,78 @@ namespace LogJam.UnitTests.Trace.Config
             }
         }
 
+        /// <summary>
+        /// Even if trace to debugger is configured several times, only a single instance will exist in config. This is
+        /// handled by using a single hashcode + equality for all instances of <see cref="DebuggerLogWriterConfig"/>.
+        /// </summary>
+        [Fact]
+        public void TraceToDebuggerDoesNotDuplicateWriters()
+        {
+            using (var traceManager = new TraceManager())
+            {
+                traceManager.Config.Writers.Clear();
+                Assert.Empty(traceManager.Config.Writers);
+                Assert.Empty(traceManager.LogManager.Config.Writers);
+
+                traceManager.Config.TraceToDebugger("1", new OnOffTraceSwitch(true));
+                Assert.Single(traceManager.Config.Writers);
+                Assert.Single(traceManager.LogManager.Config.Writers);
+
+                traceManager.Config.TraceToDebugger("2", new OnOffTraceSwitch(true));
+                Assert.Single(traceManager.Config.Writers);
+                Assert.Single(traceManager.LogManager.Config.Writers);
+
+                traceManager.Config.Add(new TraceWriterConfig(new DebuggerLogWriterConfig(),
+                                                              new SwitchSet()
+                                                              {
+                                                                  { "3", new OnOffTraceSwitch(true) }
+                                                              }));
+                Assert.Single(traceManager.Config.Writers);
+                Assert.Single(traceManager.LogManager.Config.Writers);
+
+                Assert.True(traceManager.IsHealthy);
+
+                // The trace switches should be combined
+                Assert.True(traceManager.GetTracer("1").IsInfoEnabled());
+                Assert.True(traceManager.GetTracer("2").IsInfoEnabled());
+                Assert.True(traceManager.GetTracer("3").IsInfoEnabled());
+                Assert.False(traceManager.GetTracer("foo").IsInfoEnabled());
+            }
+        }
+
+        /// <summary>
+        /// Even if trace to console is configured several times, only a single instance will exist in config. This is
+        /// handled by using a single hashcode + quality for all instances of <see cref="ConsoleLogWriterConfig"/>.
+        /// </summary>
+        [Fact]
+        public void TraceToConsoleDoesNotDuplicateWriters()
+        {
+            using (var traceManager = new TraceManager())
+            {
+                traceManager.Config.TraceToConsole("1", new OnOffTraceSwitch(true));
+                Assert.Single(traceManager.Config.Writers);
+                Assert.Single(traceManager.LogManager.Config.Writers);
+
+                traceManager.Config.TraceToConsole("2", new OnOffTraceSwitch(true));
+                Assert.Single(traceManager.Config.Writers);
+                Assert.Single(traceManager.LogManager.Config.Writers);
+
+                traceManager.Config.Add(new TraceWriterConfig(new ConsoleLogWriterConfig(),
+                                                              new SwitchSet()
+                                                              {
+                                                                  { "3", new OnOffTraceSwitch(true) }
+                                                              }));
+                Assert.Single(traceManager.Config.Writers);
+                Assert.Single(traceManager.LogManager.Config.Writers);
+
+                // The first 2 add trace switches; the last one doesn't.
+                Assert.True(traceManager.GetTracer("1").IsInfoEnabled());
+                Assert.True(traceManager.GetTracer("2").IsInfoEnabled());
+                Assert.True(traceManager.GetTracer("3").IsInfoEnabled());
+                Assert.False(traceManager.GetTracer("foo").IsInfoEnabled());
+            }
+        }
+
     }
 
 }

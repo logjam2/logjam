@@ -77,6 +77,30 @@ namespace LogJam.Trace.Config
 
         public SwitchSet Switches { get { return _switches; } }
 
+        /// <summary>
+        /// Equals and GetHashCode delegate to the <see cref="LogWriterConfig"/> equality to avoid duplicate trace configuration of the same logwriter.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+            var other = obj as TraceWriterConfig;
+            return (other != null) && (LogWriterConfig.Equals(other.LogWriterConfig));
+        }
+
+        public override int GetHashCode()
+        {
+            return LogWriterConfig.GetHashCode();
+        }
+
     }
 
 }
