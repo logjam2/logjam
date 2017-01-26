@@ -24,7 +24,6 @@ namespace LogJam.UnitTests.Trace.Config
     using LogJam.Trace.Format;
     using LogJam.Trace.Switches;
     using LogJam.Writer;
-    using LogJam.Writer.Text;
 
     using Newtonsoft.Json;
 
@@ -82,14 +81,12 @@ namespace LogJam.UnitTests.Trace.Config
             using (traceManager)
             {
                 var tracer = traceManager.TracerFor(this);
-                Assert.True(traceManager.IsStarted);
-                Assert.True(traceManager.LogManager.IsStarted);
+                Assert.True(traceManager.IsStarted());
+                Assert.True(traceManager.LogManager.IsStarted());
 
                 Assert.True(tracer.IsInfoEnabled());
                 Assert.False(tracer.IsVerboseEnabled());
 
-                Assert.False(traceManager.IsStopped);
-                Assert.False(traceManager.LogManager.IsStopped);
                 Assert.True(traceManager.IsHealthy);
 
                 //Assert.Single(tracer.Writers);
@@ -102,10 +99,10 @@ namespace LogJam.UnitTests.Trace.Config
 
             _testOutputHelper.WriteEntries(traceManager.SetupLog);
 
-            Assert.False(traceManager.IsStarted);
-            Assert.False(traceManager.LogManager.IsStarted);
-            Assert.True(traceManager.IsStopped);
-            Assert.True(traceManager.LogManager.IsStopped);
+            Assert.False(traceManager.IsStarted());
+            Assert.False(traceManager.LogManager.IsStarted());
+            Assert.True(traceManager.State == StartableState.Disposed);
+            Assert.True(traceManager.LogManager.State == StartableState.Disposed);
             Assert.True(traceManager.IsHealthy);
         }
 
@@ -295,23 +292,23 @@ namespace LogJam.UnitTests.Trace.Config
             {
                 // test TraceManagerConfig #1
                 var config = new TraceManagerConfig(
-                    new TraceWriterConfig()
-                    {
-                        LogWriterConfig = new ListLogWriterConfig<TraceEntry>(),
-                        Switches =
-                        {
-                            { Tracer.All, new ThresholdTraceSwitch(TraceLevel.Info) },
-                            { "Microsoft.WebApi.", new ThresholdTraceSwitch(TraceLevel.Warn) }
-                        }
-                    },
-                    new TraceWriterConfig()
-                    {
-                        LogWriterConfig = new DebuggerLogWriterConfig(),
-                        Switches =
-                        {
-                            { Tracer.All, new ThresholdTraceSwitch(TraceLevel.Info) },
-                        }
-                    });
+                                                    new TraceWriterConfig()
+                                                    {
+                                                        LogWriterConfig = new ListLogWriterConfig<TraceEntry>(),
+                                                        Switches =
+                                                        {
+                                                            { Tracer.All, new ThresholdTraceSwitch(TraceLevel.Info) },
+                                                            { "Microsoft.WebApi.", new ThresholdTraceSwitch(TraceLevel.Warn) }
+                                                        }
+                                                    },
+                                                    new TraceWriterConfig()
+                                                    {
+                                                        LogWriterConfig = new DebuggerLogWriterConfig(),
+                                                        Switches =
+                                                        {
+                                                            { Tracer.All, new ThresholdTraceSwitch(TraceLevel.Info) },
+                                                        }
+                                                    });
                 yield return new object[] { config };
             }
         }
@@ -363,8 +360,8 @@ namespace LogJam.UnitTests.Trace.Config
                 var tracerA = traceManager.GetTracer("A");
                 var tracerB = traceManager.GetTracer("B");
 
-                Assert.True(traceManager.IsStarted);
-                Assert.True(traceManager.LogManager.IsStarted);
+                Assert.True(traceManager.IsStarted());
+                Assert.True(traceManager.LogManager.IsStarted());
 
                 Assert.True(tracerA.IsInfoEnabled());
                 Assert.False(tracerB.IsInfoEnabled());
@@ -394,7 +391,7 @@ namespace LogJam.UnitTests.Trace.Config
             {
                 var tracerA = traceManager.GetTracer("A");
                 var tracerB = traceManager.GetTracer("B");
-                Assert.True(traceManager.IsStarted);
+                Assert.True(traceManager.IsStarted());
 
                 Assert.True(tracerA.IsInfoEnabled());
                 Assert.False(tracerB.IsInfoEnabled());
@@ -426,7 +423,7 @@ namespace LogJam.UnitTests.Trace.Config
             {
                 foreach (var logWriterConfig in logWriterConfigs)
                 {
-                    traceManager.Config.Writers.Add(new TraceWriterConfig(logWriterConfig, TraceManagerConfig.CreateDefaultSwitchSet()));
+                    traceManager.Config.Add(new TraceWriterConfig(logWriterConfig, TraceManagerConfig.CreateDefaultSwitchSet()));
 
                     Assert.Contains(traceManager.LogManager.Config.Writers, lwc => lwc == logWriterConfig);
                 }

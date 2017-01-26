@@ -9,6 +9,7 @@
 
 namespace LogJam.Config
 {
+    using System;
     using System.IO;
 
     using LogJam.Trace;
@@ -20,6 +21,7 @@ namespace LogJam.Config
     /// </summary>
     public class TextLogFileWriterConfig : TextLogWriterConfig, ILogFileWriterConfig
     {
+
         /// <summary>
         /// The default encoding for writing to text files.
         /// </summary>
@@ -34,6 +36,16 @@ namespace LogJam.Config
         /// Returns the <see cref="LogFileConfig"/>, which is used to configure the log file.
         /// </summary>
         public LogFileConfig LogFile { get; } = new LogFileConfig();
+
+        /// <summary>
+        /// A delegate called to write a log file header.
+        /// </summary>
+        public Action<FileInfo, TextWriter> WriteHeader { get; set; }
+
+        /// <summary>
+        /// A delegate called to write a log file footer.
+        /// </summary>
+        public Action<FileInfo, TextWriter> WriteFooter { get; set; }
 
         protected override FormatWriter CreateFormatWriter(ITracerFactory setupTracerFactory)
         {

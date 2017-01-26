@@ -84,7 +84,7 @@ namespace LogJam.Writer
         /// <param name="entry">A <typeparamref name="TEntry" />.</param>
         public override void Write(ref TEntry entry)
         {
-            if (IsStarted)
+            if (IsEnabled)
             {
                 if (! _isSynchronized)
                 {

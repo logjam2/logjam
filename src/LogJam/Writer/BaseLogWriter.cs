@@ -27,7 +27,7 @@ namespace LogJam.Writer
 
         private readonly ITracerFactory _setupTracerFactory;
 
-        private readonly Dictionary<Type, object> _entryWriters;
+        private readonly Dictionary<Type, IEntryWriter> _entryWriters;
 
         /// <summary>
         /// Creates a new <see cref="BaseLogWriter" />.
@@ -38,22 +38,28 @@ namespace LogJam.Writer
 
             _setupTracerFactory = setupTracerFactory;
 
-            _entryWriters = new Dictionary<Type, object>();
+            _entryWriters = new Dictionary<Type, IEntryWriter>();
         }
 
         /// <summary>
         /// Returns the <see cref="ITracerFactory" /> to use when logging setup operations.
         /// </summary>
-        protected ITracerFactory SetupTracerFactory { get { return _setupTracerFactory; } }
+        protected ITracerFactory SetupTracerFactory
+        {
+            get { return _setupTracerFactory; }
+        }
 
-        ITracerFactory ILogJamComponent.SetupTracerFactory { get { return _setupTracerFactory; } }
+        ITracerFactory ILogJamComponent.SetupTracerFactory
+        {
+            get { return _setupTracerFactory; }
+        }
 
         protected internal void AddEntryWriter<TEntry>(IEntryWriter<TEntry> entryWriter)
             where TEntry : ILogEntry
         {
             Contract.Requires<ArgumentNullException>(entryWriter != null);
 
-            if (IsStarted)
+            if (State == StartableState.Started)
             {
                 throw new LogJamSetupException("New entry writers cannot be added after starting.", this);
             }
@@ -68,6 +74,14 @@ namespace LogJam.Writer
                 {
                     throw new LogJamSetupException("Cannot add 2nd writer for Entry type " + typeof(TEntry), argExcp, this);
                 }
+            }
+        }
+
+        protected virtual void ClearEntryWriters()
+        {
+            lock (this)
+            {
+                _entryWriters.Clear();
             }
         }
 
@@ -99,13 +113,16 @@ namespace LogJam.Writer
 
         #region ILogWriter
 
-        public virtual bool IsSynchronized { get { return false; } }
+        public virtual bool IsSynchronized
+        {
+            get { return false; }
+        }
 
         public virtual bool TryGetEntryWriter<TEntry>(out IEntryWriter<TEntry> entryWriter) where TEntry : ILogEntry
         {
             lock (this)
             {
-                object untypedEntryWriter;
+                IEntryWriter untypedEntryWriter;
                 if (_entryWriters.TryGetValue(typeof(TEntry), out untypedEntryWriter))
                 {
                     entryWriter = (IEntryWriter<TEntry>) untypedEntryWriter;
@@ -119,7 +136,10 @@ namespace LogJam.Writer
             }
         }
 
-        public virtual IEnumerable<KeyValuePair<Type, object>> EntryWriters { get { return _entryWriters.ToArray(); } }
+        public virtual IEnumerable<KeyValuePair<Type, IEntryWriter>> EntryWriters
+        {
+            get { return _entryWriters.ToArray(); }
+        }
 
         #endregion
 
@@ -127,12 +147,12 @@ namespace LogJam.Writer
 
         protected override void InternalStart()
         {
-			EntryWriters.Select(kvp => kvp.Value).SafeStart(SetupTracerFactory);
+            EntryWriters.Select(kvp => kvp.Value).SafeStart(SetupTracerFactory);
         }
 
         protected override void InternalStop()
         {
-			EntryWriters.Select(kvp => kvp.Value).SafeStop(SetupTracerFactory);
+            EntryWriters.Select(kvp => kvp.Value).SafeStop(SetupTracerFactory);
         }
 
         #endregion

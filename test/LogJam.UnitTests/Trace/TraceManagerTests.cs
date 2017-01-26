@@ -36,10 +36,10 @@ namespace LogJam.UnitTests.Trace
             {
                 var logManager = traceManager.LogManager;
                 Assert.NotNull(logManager);
-                Assert.Equal(traceManager.IsStarted, logManager.IsStarted);
+                Assert.Equal(traceManager.IsStarted(), logManager.IsStarted());
 
                 traceManager.Start();
-                Assert.True(logManager.IsStarted);
+                Assert.True(logManager.IsStarted());
             }
         }
 
@@ -49,17 +49,17 @@ namespace LogJam.UnitTests.Trace
             TraceManager traceManager;
             using (traceManager = new TraceManager())
             {
-                Assert.False(traceManager.IsStarted);
-                Assert.False(traceManager.LogManager.IsStarted);
+                Assert.False(traceManager.IsStarted());
+                Assert.False(traceManager.LogManager.IsStarted());
 
                 var tracer = traceManager.TracerFor(this);
 
-                Assert.True(traceManager.IsStarted);
-                Assert.True(traceManager.LogManager.IsStarted);
+                Assert.True(traceManager.IsStarted());
+                Assert.True(traceManager.LogManager.IsStarted());
             }
 
-            Assert.False(traceManager.IsStarted);
-            Assert.False(traceManager.LogManager.IsStarted);
+            Assert.False(traceManager.IsStarted());
+            Assert.False(traceManager.LogManager.IsStarted());
         }
 
         [Fact]
@@ -79,10 +79,10 @@ namespace LogJam.UnitTests.Trace
                 traceManager.Start();
 
                 // Starting the TraceManager starts the LogManager
-                Assert.True(logManager.IsStarted);
+                Assert.True(logManager.IsStarted());
 
                 // There should be two started LogWriters - one is the DebuggerLogWriter for tracing; the other is messageListWriter
-                Assert.Equal(2, logManager.Config.Writers.Where(writerConfig => ((IStartable) logManager.GetLogWriter(writerConfig)).IsStarted).Count());
+                Assert.Equal(2, logManager.Config.Writers.Where(writerConfig => ((IStartable) logManager.GetLogWriter(writerConfig)).IsStarted()).Count());
 
                 Assert.True(logManager.IsHealthy); // Ensure no warnings or errors
             }

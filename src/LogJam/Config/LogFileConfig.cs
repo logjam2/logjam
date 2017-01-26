@@ -31,7 +31,7 @@ namespace LogJam.Config
         public const string DefaultFilename = "LogJam.log";
 
         /// <summary>
-        /// The default buffer size for writing to text files.
+        /// The default buffer size for writing to log files.
         /// </summary>
         public const int DefaultBufferSize = 4096;
 

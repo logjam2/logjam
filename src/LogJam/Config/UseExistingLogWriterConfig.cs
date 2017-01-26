@@ -25,6 +25,7 @@ namespace LogJam.Config
 
         private readonly ILogWriter _logWriter;
 
+
         /// <summary>
         /// Creates a new <see cref="UseExistingLogWriterConfig" /> instance, which will result in
         /// log entries being written to <paramref name="logWriter" />.

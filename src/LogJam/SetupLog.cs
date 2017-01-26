@@ -9,6 +9,7 @@
 
 namespace LogJam
 {
+    using System;
     using System.Collections;
     using System.Collections.Generic;
 
@@ -87,7 +88,15 @@ namespace LogJam
             return GetEnumerator();
         }
 
-        public bool IsEnabled { get { return true; } }
+        public bool IsEnabled
+        {
+            get { return true; }
+        }
+
+        public Type LogEntryType
+        {
+            get { return typeof(TraceEntry); }
+        }
 
         public void Write(ref TraceEntry entry)
         {

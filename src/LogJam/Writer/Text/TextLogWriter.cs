@@ -24,6 +24,9 @@ namespace LogJam.Writer.Text
     public class TextLogWriter : BaseLogWriter
     {
 
+        // Set to true when this is started.
+        private bool _isStarted;
+
         private readonly FormatWriter _formatWriter;
 
         /// <summary>
@@ -45,7 +48,7 @@ namespace LogJam.Writer.Text
         /// <summary>
         /// Returns <c>true</c> when this logwriter and its entrywriters are ready to log.
         /// </summary>
-        public virtual bool IsEnabled { get { return IsStarted && _formatWriter.IsEnabled; } }
+        public virtual bool IsEnabled { get { return _isStarted && _formatWriter.IsEnabled; } }
 
         /// <summary>
         /// Gets or sets a value indicating whether the <see cref="TextLogWriter" /> will call <see cref="FormatWriter.Flush" />
@@ -98,6 +101,7 @@ namespace LogJam.Writer.Text
 
         protected override void InternalStart()
         {
+            _isStarted = true;
             (_formatWriter as IStartable).SafeStart(SetupTracerFactory);
 
             base.InternalStart();
@@ -105,6 +109,7 @@ namespace LogJam.Writer.Text
 
         protected override void InternalStop()
         {
+            _isStarted = false;
             base.InternalStop();
 
             (_formatWriter as IStartable).SafeStop(SetupTracerFactory);
@@ -128,7 +133,7 @@ namespace LogJam.Writer.Text
         protected virtual void WriteFormattedEntry<TEntry>(ref TEntry entry, EntryFormatter<TEntry> entryFormatter)
             where TEntry : ILogEntry
         {
-            if (IsStarted && _formatWriter.IsEnabled)
+            if (_formatWriter.IsEnabled)
             {
                 entryFormatter.Format(ref entry, _formatWriter);
                 if (AutoFlush)
@@ -161,10 +166,13 @@ namespace LogJam.Writer.Text
                 _parent.WriteFormattedEntry(ref entry, _formatter);
             }
 
-            public bool IsEnabled { get { return _parent.IsEnabled; } }
+            public bool IsEnabled => _parent.IsEnabled;
 
-            internal EntryFormatter<TEntry> Formatter { get { return _formatter; } }
-            internal TextLogWriter Parent { get { return _parent; } }
+            public Type LogEntryType => typeof(TEntry);
+
+            internal EntryFormatter<TEntry> Formatter => _formatter;
+
+            internal TextLogWriter Parent => _parent;
 
         }
 

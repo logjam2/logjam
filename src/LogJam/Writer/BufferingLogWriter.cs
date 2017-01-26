@@ -15,6 +15,7 @@ namespace LogJam.Writer
     /// <summary>
     /// Shared functionality for log writers that write to buffers.
     /// </summary>
+    [Obsolete]
     public static class BufferingLogWriter
     {
 

@@ -34,7 +34,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="LogManagerTests.cs" />
+    <Compile Include="Examples\TestEntry.cs" />
+    <Compile Include="Examples\LoadHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Trace\TraceManagerConfigTests.cs" />
     <Compile Include="Writer\BackgroundMultiLogWriterUnitTests.cs" />

@@ -9,6 +9,8 @@
 
 namespace LogJam.Writer
 {
+    using System;
+
 
     /// <summary>
     /// An <see cref="IEntryWriter{TEntry}" /> that does nothing.
@@ -20,7 +22,9 @@ namespace LogJam.Writer
         public NoOpEntryWriter()
         {}
 
-        public bool IsEnabled { get { return false; } }
+        public bool IsEnabled => false;
+
+        public Type LogEntryType => typeof(TEntry);
 
         public void Write(ref TEntry entry)
         {}

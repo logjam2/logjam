@@ -40,7 +40,7 @@ namespace LogJam.UnitTests.Config
             using (var logManager = new LogManager())
             {
                 Assert.Empty(logManager.Config.Writers);
-                Assert.False(logManager.IsStarted);
+                Assert.False(logManager.IsStarted());
                 Assert.True(logManager.IsHealthy);
             }
         }

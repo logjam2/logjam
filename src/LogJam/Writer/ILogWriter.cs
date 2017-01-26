@@ -15,7 +15,8 @@ namespace LogJam.Writer
 
 
     /// <summary>
-    /// A log writer writes to one or more log targets.
+	/// A log writer writes to one or more log targets.  A log writer supports one or more log entry types via contained
+	/// entry writers.
     /// </summary>
     /// <seealso cref="IEntryWriter{TEntry}" />
     /// .
@@ -24,15 +25,22 @@ namespace LogJam.Writer
     {
 
         /// <summary>
-        /// Returns <c>true</c> if calls to this object's methods and its <see cref="IEntryWriter{TEntry}" />s are synchronized.
+		/// Returns <c>true</c> if calls to this object's methods and its <see cref="IEntryWriter{TEntry}"/>s are synchronized
+		/// by this log writer, or by a downstream log writer.
         /// </summary>
         /// <value>
         /// If <c>true</c>, calls on this object are threadsafe. If <c>false</c>, thread-safety is not guaranteed.
         /// </value>
+		/// <remarks>
+		/// In normal operation, the <see cref="ILogWriter"/>s returned to callers from <see cref="LogManager"/> should have
+		/// <c>IsSynchronized = true</c>.  However there is often a chain of log writers, and the downstream logwriters may have
+		/// <c>IsSynchronized = false</c>.  This is expected, as synchronization is typically provided by upstream proxy providers
+		/// such as <see cref="BackgroundMultiLogWriter"/> or <see cref="SynchronizingProxyLogWriter"/>.
+		/// </remarks>
         bool IsSynchronized { get; }
 
         /// <summary>
-        /// Returns an <see cref="IEntryWriter{TEntry}" /> if one exists for base entry type <typeparamref name="TEntry" />.
+		/// Returns an <see cref="IEntryWriter{TEntry}"/> if one exists for log entry base type <typeparamref name="TEntry"/>.
         /// </summary>
         /// <typeparam name="TEntry">The log entry type.</typeparam>
         /// <returns></returns>
@@ -40,10 +48,11 @@ namespace LogJam.Writer
             where TEntry : ILogEntry;
 
         /// <summary>
-        /// Returns the set of <see cref="IEntryWriter{TEntry}" />s available for this <c>ILogWriter</c>.
+		/// Returns the set of <see cref="IEntryWriter{TEntry}"/>s supported by this <c>ILogWriter</c>; the collection contains
+		/// <see cref="KeyValuePair{TKey,TValue}"/>s with the log entry type and <see cref="IEntryWriter"/>.
         /// </summary>
         /// <returns></returns>
-        IEnumerable<KeyValuePair<Type, object>> EntryWriters { get; }
+		IEnumerable<KeyValuePair<Type, IEntryWriter>> EntryWriters { get; }
 
     }
 
@@ -59,11 +68,11 @@ namespace LogJam.Writer
             throw new System.NotImplementedException();
         }
 
-        public IEnumerable<KeyValuePair<Type, object>> EntryWriters
+		public IEnumerable<KeyValuePair<Type, IEntryWriter>> EntryWriters
         {
             get
             {
-                Contract.Ensures(Contract.Result<IEnumerable<KeyValuePair<Type, object>>>() != null);
+				Contract.Ensures(Contract.Result<IEnumerable<KeyValuePair<Type, IEntryWriter>>>() != null);
 
                 throw new NotImplementedException();
             }

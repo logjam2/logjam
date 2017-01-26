@@ -94,6 +94,8 @@ namespace LogJam.Writer
             }
         }
 
+		public Type LogEntryType { get { return typeof(TEntry); } }
+
     }
 
 }

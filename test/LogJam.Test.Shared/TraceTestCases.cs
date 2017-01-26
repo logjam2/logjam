@@ -33,8 +33,8 @@ namespace LogJam.Test.Shared
             // Default threshold: Info
             var tracer = TraceManager.TracerFor(this);
 
-            Assert.True(TraceManager.IsStarted); // Getting a tracer starts the TraceManager
-            Assert.True(TraceManager.LogManager.IsStarted);
+            Assert.True(TraceManager.IsStarted()); // Getting a tracer starts the TraceManager
+            Assert.True(TraceManager.LogManager.IsStarted());
 
             Assert.True(tracer.IsInfoEnabled());
             Assert.False(tracer.IsVerboseEnabled());

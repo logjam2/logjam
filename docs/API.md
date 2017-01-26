@@ -1,3 +1,5 @@
+## Configuration API Examples
+
 		var logConfig = new LogManagerConfig();
 		var textConfig = logConfig.UseTextWriter(textWriter).Format(new TraceFormatter()).Format(new RequestFormatter()).Format(new ResponseFormatter());
 			and/or
@@ -7,10 +9,10 @@
 			and/or
 		var remoteConfig = logConfig.UseRemoting(url).Encode<TraceEntry>().Encode<HttpRequestEntry>().Encode<HttpResponseEntry>();
 		logConfig.ProxyWritingToBackgroundThread();
-		logConfig.DisableSynchronizingProxy()
 
 		var logManager = new LogManager(logConfig);
 
 		var traceConfig = new TraceManagerConfig();
-		traceConfig.For(textConfig).UseSwitches({ "prefix", new ThresholdTraceSwitch() }, { "prefix", new ThresholdTraceSwitch() });
+		traceConfig.With(textConfig).UseSwitches({ "prefix", new ThresholdTraceSwitch() }, { "prefix", new ThresholdTraceSwitch() });
     var traceManager = new TraceManager(traceConfig, logManager);
+	

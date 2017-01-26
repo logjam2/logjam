@@ -285,6 +285,7 @@ namespace LogJam.Trace
                 // Reset TraceWriter for each Tracer
                 ForEachTracer(tracer => tracer.Configure(GetTraceWritersFor(tracer.Name)));
             }
+
         }
 
         protected override void InternalStop()
@@ -302,7 +303,6 @@ namespace LogJam.Trace
         protected override void InternalReset()
         {
             // Stop has already been called
-
             _traceConfig.SetToDefaultConfiguration();
         }
 

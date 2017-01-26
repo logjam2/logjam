@@ -1,6 +1,6 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ProxyLogWriter.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2. 
+﻿// // --------------------------------------------------------------------------------------------------------------------
+// <copyright file="IProxyLogWriter.cs">
+// Copyright (c) 2011-2015 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -9,92 +9,86 @@
 
 namespace LogJam.Writer
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics.Contracts;
+	using System;
+	using System.Collections.Generic;
+	using System.Diagnostics.Contracts;
 
-    using LogJam.Internal;
-    using LogJam.Trace;
-    using LogJam.Util;
+	using LogJam.Internal;
+	using LogJam.Trace;
+	using LogJam.Util;
 
 
-    /// <summary>
-    /// An <see cref="ILogWriter" /> that delegates to an inner <see cref="ILogWriter" />.
-    /// </summary>
-    public abstract class ProxyLogWriter : Startable, ILogWriter, IDisposable, ILogJamComponent
-    {
+	/// <summary>
+	/// An <see cref="ILogWriter"/> that delegates to an inner <see cref="ILogWriter"/>.
+	/// </summary>
+	public abstract class ProxyLogWriter : BaseLogWriter
+	{
+		private ILogWriter _innerLogWriter;
 
-        private readonly ITracerFactory _setupTracerFactory;
+		/// <summary>
+		/// Creates a new <see cref="ProxyLogWriter"/>.
+		/// </summary>
+		/// <param name="setupTracerFactory">The <see cref="ITracerFactory"/> tracing setup operations.</param>
+		/// <param name="innerLogWriter">The inner <see cref="ILogWriter"/> to delegate to.  Must not be <c>null</c>.</param>
+		protected ProxyLogWriter(ITracerFactory setupTracerFactory, ILogWriter innerLogWriter)
+			: base(setupTracerFactory)
+		{
+			Contract.Requires<ArgumentNullException>(innerLogWriter != null);
 
-        private readonly ILogWriter _innerLogWriter;
-        private bool _disposed = false;
+			_innerLogWriter = innerLogWriter;
+		}
 
-        /// <summary>
-        /// Creates a new <see cref="ProxyLogWriter" />.
-        /// </summary>
-        /// <param name="setupTracerFactory">The <see cref="ITracerFactory" /> tracing setup operations.</param>
-        /// <param name="innerLogWriter">The inner <see cref="ILogWriter" /> to delegate to. Must not be <c>null</c>.</param>
-        protected ProxyLogWriter(ITracerFactory setupTracerFactory, ILogWriter innerLogWriter)
-        {
-            Contract.Requires<ArgumentNullException>(setupTracerFactory != null);
-            Contract.Requires<ArgumentNullException>(innerLogWriter != null);
+		/// <summary>
+		/// Returns the inner <see cref="ILogWriter"/> that this <c>ProxyLogWriter</c>
+		/// forwards to. 
+		/// </summary>
+		/// <remarks>
+		/// Subclasses may set the <c>InnerLogWriter</c> property; however they need to be careful about synchronization issues,
+		/// and also take care to switch all the contained entry writers to match the semantics of switching the proxied logwriter.
+		/// </remarks>
+		public ILogWriter InnerLogWriter
+		{
+			get { return _innerLogWriter; }
+			protected set
+			{
+				Contract.Requires<ArgumentNullException>(value != null);
+				_innerLogWriter = value;
+			}
+		}
 
-            _setupTracerFactory = setupTracerFactory;
-            _innerLogWriter = innerLogWriter;
-        }
+		#region ILogWriter
 
-        /// <summary>
-        /// Returns the inner <see cref="ILogWriter" /> that this <c>ProxyLogWriter</c>
-        /// forwards to.
-        /// </summary>
-        public ILogWriter InnerLogWriter { get { return _innerLogWriter; } }
+		public override bool IsSynchronized { get { return InnerLogWriter.IsSynchronized; } }
 
-        #region ILogWriter
+		#endregion
+		#region Startable overrides
 
-        public virtual bool IsSynchronized { get { return InnerLogWriter.IsSynchronized; } }
+		protected override void InternalStart()
+		{
+			(InnerLogWriter as IStartable).SafeStart(SetupTracerFactory);
 
-        public abstract bool TryGetEntryWriter<TEntry>(out IEntryWriter<TEntry> entryWriter) where TEntry : ILogEntry;
+			base.InternalStart();
+		}
 
-        public abstract IEnumerable<KeyValuePair<Type, object>> EntryWriters { get; }
+		protected override void InternalStop()
+		{
+			base.InternalStop();
 
-        #endregion
+			(InnerLogWriter as IStartable).SafeStop(SetupTracerFactory);
+		}
 
-        #region Startable overrides
+		#endregion
+		#region IDisposable
 
-        protected override void InternalStart()
-        {
-            (InnerLogWriter as IStartable).SafeStart(SetupTracerFactory);
-        }
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				(_innerLogWriter as IDisposable).SafeDispose(SetupTracerFactory);
+			}
+		}
 
-        protected override void InternalStop()
-        {
-            (InnerLogWriter as IStartable).SafeStop(SetupTracerFactory);
-        }
-
-        #endregion
-
-        #region IDisposable
-
-        public virtual void Dispose()
-        {
-            if (! _disposed)
-            {
-                IDisposable innerDisposable = _innerLogWriter as IDisposable;
-                if (innerDisposable != null)
-                {
-                    innerDisposable.Dispose();
-                }
-                _disposed = true;
-            }
-        }
-
-        #endregion
-
-        #region ILogJamComponent
-
-        public ITracerFactory SetupTracerFactory { get { return _setupTracerFactory; } }
-
-        #endregion
-    }
+		#endregion
+	}
 
 }
