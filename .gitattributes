@@ -1,4 +1,4 @@
 * text=auto
 
-*.cs diff=csharp
+*.cs text diff=csharp
 *.md text
