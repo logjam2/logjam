@@ -118,7 +118,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Trace\Config\TraceManagerConfig.cs" />
-    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Trace\ITracerFactory.cs" />
     <Compile Include="Trace\TraceEntry.cs" />
     <Compile Include="Trace\TracerFactoryExtensions.cs" />
