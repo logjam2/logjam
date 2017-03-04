@@ -1,5 +1,5 @@
 ﻿// // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="RotatingLogFileUnitTests.cs">
+// <copyright file="RotatingLogFileTests.cs">
 // Copyright (c) 2011-2015 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
@@ -10,12 +10,15 @@
 namespace LogJam.UnitTests.Writer.Rotator
 {
     using System;
+    using System.IO;
     using System.Linq;
 
     using LogJam.Config;
     using LogJam.Internal.UnitTests.Examples;
     using LogJam.Trace.Format;
     using LogJam.Writer.Rotator;
+
+    using NSubstitute;
 
     using Xunit;
     using Xunit.Abstractions;
@@ -24,18 +27,57 @@ namespace LogJam.UnitTests.Writer.Rotator
     /// <summary>
     /// Exercises <see cref="RotatingLogFileWriter"/>.
     /// </summary>
-    public sealed class RotatingLogFileUnitTests
+    public sealed class RotatingLogFileTests
     {
 
         private readonly ITestOutputHelper _testOutput;
 
-        public RotatingLogFileUnitTests(ITestOutputHelper testOutput)
+        public RotatingLogFileTests(ITestOutputHelper testOutput)
         {
             _testOutput = testOutput;
         }
 
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void WhenRotateIsCalledPreviousLogWriterIsClosed(bool backgroundLogging)
+        {
+            var file1 = new FileInfo("1.log");
+            var file2 = new FileInfo("2.log");
+            var rotator = Substitute.For<ILogFileRotator>();
+            rotator.CurrentLogFile.Returns(file1);
+            rotator.Rotate(Arg.Any<RotatingLogFileWriter>(), Arg.Any<RotateLogFileEventArgs>()).Returns(callInfo =>
+                                                                                                        {
+                                                                                                            var rotatingLogFileWriter = (RotatingLogFileWriter) callInfo[0];
+                                                                                                            rotatingLogFileWriter.SwitchLogFileWriterTo(file2);
+                                                                                                            rotator.CurrentLogFile.Returns(file2);
+                                                                                                            return null; // No cleanup action
+                                                                                                        });
+
+            var fakeLogFileWriterConfig = new FakeLogFileLogWriter<TestEntry>.Config();
+
+            var logManager = new LogManager();
+            using (logManager)
+            {
+                var rotatingLogFileWriterConfig = logManager.Config.UseRotatingLogFileWriter(rotator, fakeLogFileWriterConfig);
+                rotatingLogFileWriterConfig.BackgroundLogging = backgroundLogging;
+                logManager.Start();
+                Assert.True(logManager.IsHealthy);
+
+                var logWriter = logManager.GetEntryWriter<TestEntry>();
+                int counter = 0;
+                LoadHelper.LogTestEntries(ref counter, logWriter, 1);
+
+                // Trigger rotation
+                rotator.TriggerRotate += Raise.EventWith(new RotateLogFileEventArgs(rotator, rotator.CurrentLogFile, file2));
+
+                LoadHelper.LogTestEntries(ref counter, logWriter, 1);
+            }
+            Assert.True(logManager.IsHealthy);
+        }
+
         /// <summary>
-        /// Test log file rotation using FakeLogFileLogWriter instead of writing to real log files, and using either SynchronizingProxyLogWriter for synchronization. or background logging for synchronization.
+        /// Test log file rotation using FakeLogFileLogWriter instead of writing to real log files, with log writing occurring simultaneously on multiple threads.
         /// </summary>
         [Theory]
         [InlineData(false, 20, 8, 60)]
@@ -53,6 +95,7 @@ namespace LogJam.UnitTests.Writer.Rotator
             {
                 var rotatingLogFileWriterConfig = logManager.Config.UseRotatingLogFileWriter(logFileRotatorConfig, fakeLogFileWriterConfig);
                 rotatingLogFileWriterConfig.BackgroundLogging = backgroundLogging;
+                // TODO: Should this be provided by EntryCountLogFileRotator.Config ?
                 rotatingLogFileWriterConfig.Initializers.Add((dependencies) =>
                                                              {
                                                                  logFileRotator = dependencies.Get<EntryCountLogFileRotator>();

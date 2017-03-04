@@ -23,7 +23,7 @@ namespace LogJam.UnitTests.Writer.Rotator
 	/// <summary>
 	/// Instead of writing to a real log file, stores the log file name in memory and accumulates the logged entries in memory.
 	/// </summary>
-	public sealed class FakeLogFileLogWriter<TEntry> : TestLogWriter<TEntry>
+	public class FakeLogFileLogWriter<TEntry> : TestLogWriter<TEntry>
 		where TEntry : ILogEntry
 	{
 

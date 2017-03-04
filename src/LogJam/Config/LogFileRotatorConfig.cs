@@ -9,18 +9,21 @@
 
 namespace LogJam.Config
 {
-	using LogJam.Writer;
-	using LogJam.Writer.Rotator;
+    using LogJam.Writer.Rotator;
 
 
-	/// <summary>
-	/// Base class for configuring <see cref="ILogFileRotator"/>s.
-	/// </summary>
-	public abstract class LogFileRotatorConfig
-	{
+    /// <summary>
+    /// Base class for configuring <see cref="ILogFileRotator"/>s.
+    /// </summary>
+    public abstract class LogFileRotatorConfig
+    {
 
-		public abstract ILogFileRotator CreateLogFileRotator();
+        /// <summary>
+        /// Returns an <see cref="ILogFileRotator"/>.
+        /// </summary>
+        /// <returns></returns>
+        public abstract ILogFileRotator CreateLogFileRotator();
 
-	}
+    }
 
 }

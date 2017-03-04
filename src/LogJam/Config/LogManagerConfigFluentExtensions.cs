@@ -87,6 +87,14 @@ namespace LogJam.Config
             return consoleWriterConfig;
         }
 
+        /// <summary>
+        /// Adds a new <see cref="RotatingLogFileWriterConfig"/> which uses <paramref name="logFileRotatorConfig"/> 
+        /// and <paramref name="logFileWriterConfig"/>.
+        /// </summary>
+        /// <param name="logManagerConfig"></param>
+        /// <param name="logFileRotatorConfig"></param>
+        /// <param name="logFileWriterConfig"></param>
+        /// <returns></returns>
         public static RotatingLogFileWriterConfig UseRotatingLogFileWriter(this LogManagerConfig logManagerConfig,
                                                                            LogFileRotatorConfig logFileRotatorConfig,
                                                                            ILogFileWriterConfig logFileWriterConfig)
@@ -96,6 +104,27 @@ namespace LogJam.Config
             Contract.Requires<ArgumentNullException>(logFileWriterConfig != null);
 
             var useExistingConfig = new RotatingLogFileWriterConfig(logFileRotatorConfig, logFileWriterConfig);
+            logManagerConfig.Writers.Add(useExistingConfig);
+            return useExistingConfig;
+        }
+
+        /// <summary>
+        /// Adds a new <see cref="RotatingLogFileWriterConfig"/> which uses <paramref name="logFileRotator"/> 
+        /// and <paramref name="logFileWriterConfig"/>.
+        /// </summary>
+        /// <param name="logManagerConfig"></param>
+        /// <param name="logFileRotator"></param>
+        /// <param name="logFileWriterConfig"></param>
+        /// <returns></returns>
+        public static RotatingLogFileWriterConfig UseRotatingLogFileWriter(this LogManagerConfig logManagerConfig,
+                                                                           ILogFileRotator logFileRotator,
+                                                                           ILogFileWriterConfig logFileWriterConfig)
+        {
+            Contract.Requires<ArgumentNullException>(logManagerConfig != null);
+            Contract.Requires<ArgumentNullException>(logFileRotator != null);
+            Contract.Requires<ArgumentNullException>(logFileWriterConfig != null);
+
+            var useExistingConfig = new RotatingLogFileWriterConfig(new UseExistingLogFileRotatorConfig(logFileRotator), logFileWriterConfig);
             logManagerConfig.Writers.Add(useExistingConfig);
             return useExistingConfig;
         }

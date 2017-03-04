@@ -21,7 +21,7 @@ namespace LogJam.UnitTests.Writer.Rotator
 
 
 	/// <summary>
-	/// A <see cref="ILogFileRotator"/> for unit testing - creates a new log file after every X entries are written.
+	/// An <see cref="ILogFileRotator"/> for unit testing - creates a new log file after every X entries are written.
 	/// </summary>
 	internal sealed class EntryCountLogFileRotator : ILogFileRotator
 	{

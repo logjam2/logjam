@@ -14,10 +14,11 @@ namespace LogJam.Config.Initializer
 	using System.Diagnostics.Contracts;
 
 
-	/// <summary>
-	/// Holds strongly typed dependencies by type.  Provides a lightweight form of a service locator for components.
-	/// </summary>
-	public sealed class DependencyDictionary
+    /// <summary>
+    /// Holds strongly typed dependencies by type.  Provides a lightweight form of a service locator for components,
+    /// usually scoped to a single LogWriter pipeline.
+    /// </summary>
+    public sealed class DependencyDictionary
 	{
 		/// <summary>
 		/// Dictionary of dependency types to objects.

@@ -15,7 +15,7 @@ namespace LogJam.Writer.Rotator
 
 
 	/// <summary>
-	/// Defines the pluggable interface for implementing file rotation logic.
+	/// An object that implements file rotation logic.
 	/// </summary>
 	public interface ILogFileRotator
 	{

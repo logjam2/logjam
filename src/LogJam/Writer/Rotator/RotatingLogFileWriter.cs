@@ -42,7 +42,7 @@ namespace LogJam.Writer.Rotator
 		/// </summary>
 		private readonly ILogFileRotator _logFileRotator;
 		/// <summary>
-		/// Supports synchronizing file rotation while file writes and flushes aren't executing. 
+		/// Supports synchronizing file rotation so that rotation occurs while file writes and flushes aren't executing. 
 		/// </summary>
 		private ISynchronizingLogWriter _synchronizingLogWriter;
 
@@ -194,10 +194,7 @@ namespace LogJam.Writer.Rotator
 				foreach (var kvp in EntryWriters)
 				{
 					IRotatingEntryWriter rotatingEntryWriter = kvp.Value as IRotatingEntryWriter;
-					if (rotatingEntryWriter != null)
-					{
-						rotatingEntryWriter.SwitchInnerWriter(newLogWriter, SetupTracerFactory);
-					}
+				    rotatingEntryWriter?.SwitchInnerWriter(newLogWriter, SetupTracerFactory);
 				}
 				_currentLogWriter = newLogWriter;
 
