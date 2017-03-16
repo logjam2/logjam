@@ -9,110 +9,134 @@
 
 namespace LogJam.Config
 {
-	using System;
-	using System.Diagnostics.Contracts;
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics.Contracts;
+    using System.Linq;
 
-	using LogJam.Config.Initializer;
-	using LogJam.Trace;
-	using LogJam.Writer;
-	using LogJam.Writer.Rotator;
+    using LogJam.Config.Initializer;
+    using LogJam.Trace;
+    using LogJam.Writer;
+    using LogJam.Writer.Rotator;
 
 
-	/// <summary>
-	/// Configures a rotating log file writer.
-	/// </summary>
-	public sealed class RotatingLogFileWriterConfig : LogWriterConfig, ILogWriterPipelineInitializer, IImportInitializer
-	{
+    /// <summary>
+    /// Configures a rotating log file writer.
+    /// </summary>
+    public sealed class RotatingLogFileWriterConfig : LogWriterConfig, IExtendLogWriterPipelineInitializer, IImportInitializer
+    {
 
-		public RotatingLogFileWriterConfig(LogFileRotatorConfig logFileRotatorConfig, ILogFileWriterConfig logFileWriterConfig)
-		{
-			Contract.Requires<ArgumentNullException>(logFileRotatorConfig != null);
-			Contract.Requires<ArgumentNullException>(logFileWriterConfig != null);
+        public RotatingLogFileWriterConfig(LogFileRotatorConfig logFileRotatorConfig, ILogFileWriterConfig logFileWriterConfig)
+        {
+            Contract.Requires<ArgumentNullException>(logFileRotatorConfig != null);
+            Contract.Requires<ArgumentNullException>(logFileWriterConfig != null);
 
-			LogFileRotator = logFileRotatorConfig;
-			LogFileWriter = logFileWriterConfig;
+            LogFileRotator = logFileRotatorConfig;
+            LogFileWriter = logFileWriterConfig;
 
-			Initializers.Add(this);
-		}
+            Initializers.Add(this);
+        }
 
-		/// <summary>
-		/// Configures the writer for individual files.
-		/// </summary>
-		public ILogFileWriterConfig LogFileWriter { get; set; }
+        /// <summary>
+        /// Configures the writer for individual files.
+        /// </summary>
+        public ILogFileWriterConfig LogFileWriter { get; set; }
 
-		/// <summary>
-		/// Configures the <see cref="ILogFileRotator"/> used to implement file rotation logic.
-		/// </summary>
-		public LogFileRotatorConfig LogFileRotator { get; set; }
+        /// <summary>
+        /// Configures the <see cref="ILogFileRotator"/> used to implement file rotation logic.
+        /// </summary>
+        public LogFileRotatorConfig LogFileRotator { get; set; }
 
-		/// <summary>
-		/// Event that is fired after a log file is rotated.
-		/// </summary>
-		public event EventHandler<AfterRotateLogFileEventArgs> AfterRotate;
+        /// <summary>
+        /// Event that is fired after a log file is rotated.
+        /// </summary>
+        public event EventHandler<AfterRotateLogFileEventArgs> AfterRotate;
 
-		/// <summary>
-		/// This property can only be <c>true</c>; file rotation is dependent on synchronization.
-		/// </summary>
-		public override bool Synchronize
-		{
-			get { return true; }
-			set
-			{
-				if (value != true)
-				{
-					throw new LogJamSetupException("RotatingLogFileWriterConfig.Synchronize cannot be set to false.", this);
-				}
-			}
-		}
+        /// <summary>
+        /// This property can only be <c>true</c>; file rotation is dependent on synchronization.
+        /// </summary>
+        public override bool Synchronize
+        {
+            get { return true; }
+            set
+            {
+                if (value != true)
+                {
+                    throw new LogJamSetupException("RotatingLogFileWriterConfig.Synchronize cannot be set to false.", this);
+                }
+            }
+        }
 
-		public override ILogWriter CreateLogWriter(ITracerFactory setupTracerFactory)
-		{
-			ILogFileWriterConfig logFileWriterConfig = LogFileWriter;
-			LogFileRotatorConfig rotatorConfig = LogFileRotator;
-			Tracer tracer = setupTracerFactory.TracerFor(this);
+        public override ILogWriter CreateLogWriter(ITracerFactory setupTracerFactory)
+        {
+            ILogFileWriterConfig logFileWriterConfig = LogFileWriter;
+            LogFileRotatorConfig rotatorConfig = LogFileRotator;
+            Tracer tracer = setupTracerFactory.TracerFor(this);
 
-			if (logFileWriterConfig == null)
-			{
-				tracer.Error("LogFileWriter (config object) must be set to create a RotatingLogFileWriter.");
-			}
-			if (rotatorConfig == null)
-			{
-				tracer.Error("LogFileRotator (config object) must be set to create a RotatingLogFileWriter.");
-			}
-			if ((logFileWriterConfig == null) || (rotatorConfig == null))
-			{
-				return null;
-			}
+            if (logFileWriterConfig == null)
+            {
+                tracer.Error("LogFileWriter (config object) must be set to create a RotatingLogFileWriter.");
+            }
+            if (rotatorConfig == null)
+            {
+                tracer.Error("LogFileRotator (config object) must be set to create a RotatingLogFileWriter.");
+            }
+            if ((logFileWriterConfig == null) || (rotatorConfig == null))
+            {
+                return null;
+            }
 
-			var rotatingLogFileWriter = new RotatingLogFileWriter(setupTracerFactory,
-			                                                      logFileWriterConfig,
-			                                                      rotatorConfig.CreateLogFileRotator());
-			rotatingLogFileWriter.AfterRotate += AfterRotate;
-			return rotatingLogFileWriter;
-		}
+            var rotatingLogFileWriter = new RotatingLogFileWriter(setupTracerFactory,
+                                                                  logFileWriterConfig,
+                                                                  rotatorConfig.CreateLogFileRotator());
+            rotatingLogFileWriter.AfterRotate += AfterRotate;
+            return rotatingLogFileWriter;
+        }
 
-		public ILogWriter InitializeLogWriter(ITracerFactory setupTracerFactory, ILogWriter logWriter, DependencyDictionary dependencyDictionary)
-		{
-			// export the LogFileRotator
-			var rotatingLogFileWriter = dependencyDictionary.Get<RotatingLogFileWriter>();
-			dependencyDictionary.Add(typeof(ILogFileRotator), rotatingLogFileWriter.LogFileRotator);
-			dependencyDictionary.Add(rotatingLogFileWriter.LogFileRotator.GetType(), rotatingLogFileWriter.LogFileRotator);
+        /// <summary>
+        /// Returns combined <see cref="ILogWriterInitializer"/>s from this <see cref="RotatingLogFileWriterConfig"/>, and the
+        /// <see cref="LogFileRotatorConfig"/>.
+        /// </summary>
+        public override ICollection<ILogWriterInitializer> Initializers
+        {
+            get
+            {
+                var rotatorInitializers = LogFileRotator.Initializers;
+                if (rotatorInitializers.Count == 0)
+                {
+                    return base.Initializers;
+                }
+                else
+                {
+                    var combinedInitializers = new HashSet<ILogWriterInitializer>(base.Initializers);
+                    combinedInitializers.UnionWith(rotatorInitializers);
+                    return combinedInitializers;
+                }
+            }
+        }
 
-			return logWriter;
-		}
+        public ILogWriter InitializeLogWriter(ITracerFactory setupTracerFactory, ILogWriter logWriter, DependencyDictionary dependencyDictionary)
+        {
+            // export the LogFileRotator
+            var rotatingLogFileWriter = dependencyDictionary.Get<RotatingLogFileWriter>();
+            dependencyDictionary.Add(typeof(ILogFileRotator), rotatingLogFileWriter.LogFileRotator);
+            dependencyDictionary.Add(rotatingLogFileWriter.LogFileRotator.GetType(), rotatingLogFileWriter.LogFileRotator);
 
-		public void ImportDependencies(ITracerFactory setupTracerFactory, DependencyDictionary dependencyDictionary)
-		{
-			// Connect the RotatingLogFileWriter to the ISynchronizingLogWriter
-			var rotatingLogFileWriter = dependencyDictionary.Get<RotatingLogFileWriter>();
-			ISynchronizingLogWriter synchronizingLogWriter;
-			if (! dependencyDictionary.TryGet(out synchronizingLogWriter))
-			{
-				throw new LogJamSetupException("Cannot create RotatingLogFileWriter because ISynchronizingLogWriter reference is not available.", this);
-			}
-			rotatingLogFileWriter.SetSynchronizingLogWriter(synchronizingLogWriter);
-		}
+            return logWriter;
+        }
 
-	}
+        public void ImportDependencies(ITracerFactory setupTracerFactory, DependencyDictionary dependencyDictionary)
+        {
+            // Connect the RotatingLogFileWriter to the ISynchronizingLogWriter
+            var rotatingLogFileWriter = dependencyDictionary.Get<RotatingLogFileWriter>();
+            ISynchronizingLogWriter synchronizingLogWriter;
+            if (! dependencyDictionary.TryGet(out synchronizingLogWriter))
+            {
+                throw new LogJamSetupException("Cannot create RotatingLogFileWriter because ISynchronizingLogWriter reference is not available.", this);
+            }
+            rotatingLogFileWriter.SetSynchronizingLogWriter(synchronizingLogWriter);
+        }
+
+    }
 
 }

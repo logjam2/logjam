@@ -263,7 +263,7 @@ namespace LogJam.Writer
         /// <remarks>
         /// This initializer is included in <see cref="LogManagerConfig.Initializers"/> by default.
         /// </remarks>
-        public sealed class Initializer : ILogWriterPipelineInitializer
+        public sealed class Initializer : IExtendLogWriterPipeline
         {
 
             public ILogWriter InitializeLogWriter(ITracerFactory setupTracerFactory, ILogWriter logWriter, DependencyDictionary dependencyDictionary)

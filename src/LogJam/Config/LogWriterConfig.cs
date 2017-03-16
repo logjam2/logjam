@@ -9,25 +9,23 @@
 
 namespace LogJam.Config
 {
-	using System;
-	using System.Collections.Generic;
+    using System;
+    using System.Collections.Generic;
 
-	using LogJam.Config.Initializer;
+    using LogJam.Config.Initializer;
     using LogJam.Trace;
     using LogJam.Trace.Config;
     using LogJam.Writer;
 
 
     /// <summary>
-	/// Base class for logwriter configuration.
+    /// Base class for logwriter configuration.
     /// </summary>
     /// <see cref="TraceWriterConfig.LogWriterConfig" />
     public abstract class LogWriterConfig : ILogWriterConfig
     {
 
-		private bool _synchronized = true;
-        private bool _disposeOnStop = true;
-		private readonly ICollection<ILogWriterInitializer> _initializers = new List<ILogWriterInitializer>();
+        private bool _synchronized = true;
 
         /// <summary>
         /// Sets or gets whether the <see cref="IEntryWriter{TEntry}" /> returned from <see cref="CreateLogWriter" /> should have
@@ -35,7 +33,11 @@ namespace LogJam.Config
         /// <see cref="BackgroundLogging" />
         /// is <c>true</c>, to avoid synchronization overhead when logging on a single background thread.
         /// </summary>
-        public virtual bool Synchronize { get { return _synchronized && ! BackgroundLogging; } set { _synchronized = value; } }
+        public virtual bool Synchronize
+        {
+            get { return _synchronized && ! BackgroundLogging; }
+            set { _synchronized = value; }
+        }
 
         /// <summary>
         /// Sets or gets whether log writes should be queued from the logging thread, and written on a single background thread.
@@ -47,12 +49,13 @@ namespace LogJam.Config
         /// Sets or gets whether the <see cref="ILogWriter" /> created by <see cref="CreateLogWriter" /> should be disposed
         /// when the <see cref="LogManager" /> is stopped. Default is <c>true</c>.
         /// </summary>
-        public virtual bool DisposeOnStop { get { return _disposeOnStop; } set { _disposeOnStop = value; } }
+        public virtual bool DisposeOnStop { get; set; } = true;
 
         /// <inheritdoc />
         public abstract ILogWriter CreateLogWriter(ITracerFactory setupTracerFactory);
 
-		public ICollection<ILogWriterInitializer> Initializers { get { return _initializers; } }
+        /// <inheritdoc />
+        public virtual ICollection<ILogWriterInitializer> Initializers { get; } = new HashSet<ILogWriterInitializer>();
 
     }
 

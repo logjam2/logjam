@@ -10,10 +10,8 @@
 namespace LogJam.Writer
 {
 	using System;
-	using System.Collections.Generic;
 	using System.Diagnostics.Contracts;
 
-	using LogJam.Internal;
 	using LogJam.Trace;
 	using LogJam.Util;
 

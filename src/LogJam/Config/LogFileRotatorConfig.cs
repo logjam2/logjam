@@ -9,6 +9,10 @@
 
 namespace LogJam.Config
 {
+    using System.Collections.Generic;
+
+    using LogJam.Config.Initializer;
+    using LogJam.Writer;
     using LogJam.Writer.Rotator;
 
 
@@ -23,6 +27,12 @@ namespace LogJam.Config
         /// </summary>
         /// <returns></returns>
         public abstract ILogFileRotator CreateLogFileRotator();
+
+        /// <summary>
+        /// Returns a collection of initializers that are applied to any <see cref="RotatingLogFileWriter" />s that
+        /// are associated with this <see cref="LogFileRotatorConfig"/>.
+        /// </summary>
+        public ICollection<ILogWriterInitializer> Initializers { get; } = new HashSet<ILogWriterInitializer>();
 
     }
 

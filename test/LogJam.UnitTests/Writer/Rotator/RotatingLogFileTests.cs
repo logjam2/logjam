@@ -40,21 +40,33 @@ namespace LogJam.UnitTests.Writer.Rotator
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void WhenRotateIsCalledPreviousLogWriterIsClosed(bool backgroundLogging)
+        public void AfterRotateIsCalledPreviousLogWriterIsClosed(bool backgroundLogging)
         {
             var file1 = new FileInfo("1.log");
             var file2 = new FileInfo("2.log");
             var rotator = Substitute.For<ILogFileRotator>();
             rotator.CurrentLogFile.Returns(file1);
-            rotator.Rotate(Arg.Any<RotatingLogFileWriter>(), Arg.Any<RotateLogFileEventArgs>()).Returns(callInfo =>
-                                                                                                        {
-                                                                                                            var rotatingLogFileWriter = (RotatingLogFileWriter) callInfo[0];
-                                                                                                            rotatingLogFileWriter.SwitchLogFileWriterTo(file2);
-                                                                                                            rotator.CurrentLogFile.Returns(file2);
-                                                                                                            return null; // No cleanup action
-                                                                                                        });
+            rotator.Rotate(Arg.Any<RotatingLogFileWriter>(), Arg.Any<RotateLogFileEventArgs>())
+                   .Returns(callInfo =>
+                            {
+                                var rotatingLogFileWriter = (RotatingLogFileWriter) callInfo[0];
+                                var cleanupAction = rotatingLogFileWriter.SwitchLogFileWriterTo(file2);
+                                rotator.CurrentLogFile.Returns(file2);
+                                return cleanupAction;
+                            });
 
+            int countEntriesLogged = 0;
             var fakeLogFileWriterConfig = new FakeLogFileLogWriter<TestEntry>.Config();
+            fakeLogFileWriterConfig.EntryLogged += (sender, args) =>
+                                                   {
+                                                       countEntriesLogged++;
+                                                       if (countEntriesLogged > 1)
+                                                       {
+                                                           // This test rotates to logfile "2.log" after 1 entry is written; 
+                                                           // So when the 2nd entry is written, "1.log" should be stopped.
+                                                           Assert.Equal(StartableState.Stopped, fakeLogFileWriterConfig.CreatedLogWriters.First().State);
+                                                       }
+                                                   };
 
             var logManager = new LogManager();
             using (logManager)
