@@ -64,16 +64,17 @@ namespace LogJam
         /// @inheritdoc
         public virtual void Start()
         {
+            if (IsDisposed)
+            {
+                throw new ObjectDisposedException(this.ToString(), "Cannot be started; state is: " + _startableState);
+            }
+
             lock (this)
             {
                 var state = _startableState;
                 if ((state == StartableState.Started) || (state == StartableState.Starting))
                 { // Do nothing if already started or starting.
                     return;
-                }
-                if (IsDisposed)
-                {
-                    throw new ObjectDisposedException(this.ToString(), "Cannot be started; state is: " + _startableState);
                 }
                 if (! IsReadyToStart)
                 {

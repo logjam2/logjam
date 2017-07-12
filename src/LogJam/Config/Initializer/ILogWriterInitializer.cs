@@ -18,10 +18,10 @@ namespace LogJam.Config.Initializer
 	/// for cross-cutting concerns, and as a form of lightweight dependency injection that is resolved just after the log writer is created (before it is started).
 	/// </summary>
 	/// <remarks>
-	/// Each log writer initializer should implement one or more of <see cref="IExtendLogWriterPipelineInitializer"/> and
+	/// Each log writer initializer should implement one or more of <see cref="IExtendLogWriterPipeline"/> and
 	/// <see cref="IImportInitializer"/>.  Initializers are called in this order:
 	/// <list type="number">
-	/// <item><term><see cref="IExtendLogWriterPipelineInitializer"/></term>
+	/// <item><term><see cref="IExtendLogWriterPipeline"/></term>
 	/// <description>are called in order, to modify the logwriter pipeline, eg to create a <see cref="ProxyLogWriter"/> that enhances the behavior of the logwriter. In addition,
 	/// initializers should export any objects of interest to other participants in the pipeline, via the <see cref="DependencyDictionary"/>.</description></item>
 	/// <item><term><see cref="IImportInitializer"/></term>

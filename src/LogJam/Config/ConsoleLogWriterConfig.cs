@@ -62,8 +62,8 @@ namespace LogJam.Config
 
         protected override FormatWriter CreateFormatWriter(ITracerFactory setupTracerFactory)
         {
-            IConsoleColorResolver colorResolver = ColorResolverFactory == null ? null : ColorResolverFactory();
-            return new ConsoleFormatWriter(setupTracerFactory, colorResolver);
+            IConsoleColorResolver colorResolver = ColorResolverFactory?.Invoke();
+            return new ConsoleFormatWriter(setupTracerFactory, colorResolver, FieldDelimiter, SpacesPerIndent);
         }
 
     }

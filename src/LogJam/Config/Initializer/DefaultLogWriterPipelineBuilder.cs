@@ -76,7 +76,7 @@ namespace LogJam.Config.Initializer
         /// <returns></returns>
         protected virtual ILogWriter ExtendLogWriterPipeline(ILogWriter logWriter, List<ILogWriterInitializer> initializers, DependencyDictionary dependencyDictionary, ITracerFactory setupTracerFactory)
         {
-            foreach (var pipelineInitializer in initializers.OfType<IExtendLogWriterPipelineInitializer>())
+            foreach (var pipelineInitializer in initializers.OfType<IExtendLogWriterPipeline>())
             {
                 logWriter = pipelineInitializer.InitializeLogWriter(setupTracerFactory, logWriter, dependencyDictionary);
                 dependencyDictionary.AddIfNotDefined(logWriter.GetType(), logWriter);

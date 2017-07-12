@@ -23,7 +23,7 @@ namespace LogJam.Config
     /// <summary>
     /// Configures a rotating log file writer.
     /// </summary>
-    public sealed class RotatingLogFileWriterConfig : LogWriterConfig, IExtendLogWriterPipelineInitializer, IImportInitializer
+    public sealed class RotatingLogFileWriterConfig : LogWriterConfig, IExtendLogWriterPipeline, IImportInitializer
     {
 
         public RotatingLogFileWriterConfig(LogFileRotatorConfig logFileRotatorConfig, ILogFileWriterConfig logFileWriterConfig)
