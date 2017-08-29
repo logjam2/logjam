@@ -40,12 +40,12 @@ namespace LogJam.Config
         /// <summary>
         /// A delegate called to write a log file header.
         /// </summary>
-        public Action<FileInfo, TextWriter> WriteHeader { get; set; }
+        public Action<FileInfo, FormatWriter> WriteHeader { get; set; }
 
         /// <summary>
         /// A delegate called to write a log file footer.
         /// </summary>
-        public Action<FileInfo, TextWriter> WriteFooter { get; set; }
+        public Action<FileInfo, FormatWriter> WriteFooter { get; set; }
 
         protected override FormatWriter CreateFormatWriter(ITracerFactory setupTracerFactory)
         {
