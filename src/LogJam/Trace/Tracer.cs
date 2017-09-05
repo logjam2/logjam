@@ -10,8 +10,9 @@
 namespace LogJam.Trace
 {
     using System;
-    using System.Diagnostics.Contracts;
     using System.Linq;
+
+    using LogJam.Shared.Internal;
 
 
     /// <summary>
@@ -64,8 +65,8 @@ namespace LogJam.Trace
         /// </param>
         internal Tracer(string name, TraceWriter[] traceWriters)
         {
-            Contract.Requires<ArgumentNullException>(name != null);
-            Contract.Requires<ArgumentNullException>(traceWriters != null);
+            Arg.NotNull(name, nameof(name));
+            Arg.NotNull(traceWriters, nameof(traceWriters));
 
             _name = name.Trim();
             Configure(traceWriters);
@@ -111,7 +112,7 @@ namespace LogJam.Trace
 
         public void Trace(TraceLevel traceLevel, string message)
         {
-            Contract.Requires<ArgumentNullException>(message != null);
+            Arg.NotNull(message, nameof(message));
 
             if (IsTraceEnabled(traceLevel))
             {
@@ -122,7 +123,7 @@ namespace LogJam.Trace
 
         public void Trace(TraceLevel traceLevel, object details, string message)
         {
-            Contract.Requires<ArgumentNullException>(message != null);
+            Arg.NotNull(message, nameof(message));
 
             if (IsTraceEnabled(traceLevel))
             {
@@ -133,14 +134,14 @@ namespace LogJam.Trace
 
         public void Trace(TraceLevel traceLevel, Exception exception, string message)
         {
-            Contract.Requires<ArgumentNullException>(message != null);
+            Arg.NotNull(message, nameof(message));
 
             Trace(traceLevel, (object) exception, message);
         }
 
         public void Trace(TraceLevel traceLevel, Exception exception, string message, object arg0)
         {
-            Contract.Requires<ArgumentNullException>(message != null);
+            Arg.NotNull(message, nameof(message));
 
             if (IsTraceEnabled(traceLevel))
             {
@@ -152,7 +153,7 @@ namespace LogJam.Trace
 
         public void Trace(TraceLevel traceLevel, Exception exception, string message, object arg0, object arg1)
         {
-            Contract.Requires<ArgumentNullException>(message != null);
+            Arg.NotNull(message, nameof(message));
 
             if (IsTraceEnabled(traceLevel))
             {
@@ -164,7 +165,7 @@ namespace LogJam.Trace
 
         public void Trace(TraceLevel traceLevel, Exception exception, string message, object arg0, object arg1, object arg2)
         {
-            Contract.Requires<ArgumentNullException>(message != null);
+            Arg.NotNull(message, nameof(message));
 
             if (IsTraceEnabled(traceLevel))
             {
@@ -176,8 +177,8 @@ namespace LogJam.Trace
 
         public void Trace(TraceLevel traceLevel, Exception exception, string message, params object[] args)
         {
-            Contract.Requires<ArgumentNullException>(message != null);
-            Contract.Requires<ArgumentNullException>(args != null);
+            Arg.NotNull(message, nameof(message));
+            Arg.NotNull(args, nameof(args));
 
             if (IsTraceEnabled(traceLevel))
             {
@@ -205,8 +206,7 @@ namespace LogJam.Trace
         /// </returns>
         internal TraceWriter[] Configure(TraceWriter[] traceWriters)
         {
-            Contract.Requires<ArgumentNullException>(traceWriters != null);
-            Contract.Requires<ArgumentException>(traceWriters.All(writer => writer != null));
+            Arg.NoneNull(traceWriters, nameof(traceWriters));
 
             ITraceWriter newWriter;
             if (traceWriters.Length == 0)

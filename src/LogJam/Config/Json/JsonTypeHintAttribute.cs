@@ -11,8 +11,10 @@ namespace LogJam.Config.Json
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.Contracts;
     using System.Linq;
+    using System.Reflection;
+
+    using LogJam.Shared.Internal;
 
 
     /// <summary>
@@ -31,7 +33,7 @@ namespace LogJam.Config.Json
         /// <param name="value"></param>
         public JsonTypeHintAttribute(string property, string value)
         {
-            Contract.Requires<ArgumentException>(! string.IsNullOrWhiteSpace(property));
+            Arg.NotNullOrWhitespace(property, nameof(property));
 
             Property = property;
             Value = value;
@@ -88,7 +90,7 @@ namespace LogJam.Config.Json
         /// <returns></returns>
         public static IEnumerable<JsonTypeHintAttribute> For(Type type)
         {
-            Contract.Requires<ArgumentNullException>(type != null);
+            Arg.NotNull(type, nameof(type));
 
             return type.GetCustomAttributes(typeof(JsonTypeHintAttribute), false).Cast<JsonTypeHintAttribute>();
         }

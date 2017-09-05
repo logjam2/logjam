@@ -11,11 +11,10 @@ namespace LogJam.Trace
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.Contracts;
-    using System.Linq;
 
     using LogJam.Config;
     using LogJam.Internal;
+    using LogJam.Shared.Internal;
     using LogJam.Trace.Config;
     using LogJam.Trace.Switches;
     using LogJam.Writer;
@@ -95,7 +94,7 @@ namespace LogJam.Trace
         /// </param>
         public TraceManager(ILogWriterConfig logWriterConfig, ITraceSwitch traceSwitch = null, string tracerNamePrefix = Tracer.All)
         {
-            Contract.Requires<ArgumentNullException>(logWriterConfig != null);
+            Arg.NotNull(logWriterConfig, nameof(logWriterConfig));
 
             if (traceSwitch == null)
             {
@@ -156,7 +155,7 @@ namespace LogJam.Trace
         public TraceManager(ILogWriter logWriter, ITraceSwitch traceSwitch = null, string tracerNamePrefix = Tracer.All)
             : this(new UseExistingLogWriterConfig(logWriter), traceSwitch, tracerNamePrefix)
         {
-            Contract.Requires<ArgumentNullException>(logWriter != null);
+            Arg.NotNull(logWriter, nameof(logWriter));
         }
 
         /// <summary>
@@ -168,8 +167,8 @@ namespace LogJam.Trace
         public TraceManager(ILogWriter logWriter, SwitchSet switches)
             : this(new TraceWriterConfig(logWriter, switches))
         {
-            Contract.Requires<ArgumentNullException>(logWriter != null);
-            Contract.Requires<ArgumentNullException>(switches != null);
+            Arg.NotNull(logWriter, nameof(logWriter));
+            Arg.NotNull(switches, nameof(switches));
         }
 
         /// <summary>
@@ -189,7 +188,7 @@ namespace LogJam.Trace
         public TraceManager(ILogWriter logWriter, TraceLevel traceThreshold, string tracerNamePrefix = Tracer.All)
             : this(new UseExistingLogWriterConfig(logWriter), new ThresholdTraceSwitch(traceThreshold))
         {
-            Contract.Requires<ArgumentNullException>(logWriter != null);
+            Arg.NotNull(logWriter, nameof(logWriter));
         }
 
         /// <summary>
@@ -200,7 +199,7 @@ namespace LogJam.Trace
         public TraceManager(TraceWriterConfig traceWriterConfig, SetupLog setupLog = null)
             : this(new TraceManagerConfig(traceWriterConfig), setupLog)
         {
-            Contract.Requires<ArgumentNullException>(traceWriterConfig != null);
+            Arg.NotNull(traceWriterConfig, nameof(traceWriterConfig));
         }
 
         /// <summary>
@@ -211,8 +210,8 @@ namespace LogJam.Trace
         public TraceManager(LogManager logManager, params TraceWriterConfig[] traceWriterConfigs)
             : this(logManager)
         {
-            Contract.Requires<ArgumentNullException>(logManager != null);
-            Contract.Requires<ArgumentNullException>(traceWriterConfigs != null);
+            Arg.NotNull(logManager, nameof(logManager));
+            Arg.NotNull(traceWriterConfigs, nameof(traceWriterConfigs));
 
             Config.Writers.UnionWith(traceWriterConfigs);
         }
@@ -225,7 +224,7 @@ namespace LogJam.Trace
         public TraceManager(TraceManagerConfig configuration, SetupLog setupLog = null)
             : this(new LogManager(configuration.LogManagerConfig, setupLog), configuration)
         {
-            Contract.Requires<ArgumentNullException>(configuration != null);
+            Arg.NotNull(configuration, nameof(configuration));
 
             // This TraceManager owns the LogManager, so dispose it on this.Dispose()
             LinkDispose(_logManager);
@@ -239,12 +238,18 @@ namespace LogJam.Trace
         /// <param name="configuration">The <see cref="TraceManagerConfig" /> to use to configure this <c>TraceManager</c>.</param>
         private TraceManager(LogManager logManager, TraceManagerConfig configuration = null)
         {
-            Contract.Requires<ArgumentNullException>(logManager != null);
-            Contract.Requires<ArgumentException>(configuration == null || ReferenceEquals(logManager.Config, configuration.LogManagerConfig));
+            Arg.NotNull(logManager, nameof(logManager));
+#if CODECONTRACTS
+            System.Diagnostics.Contracts.Contract.Requires<ArgumentException>(configuration == null || ReferenceEquals(logManager.Config, configuration.LogManagerConfig));
+#endif
 
             if (configuration == null)
             {
                 configuration = new TraceManagerConfig(logManager.Config);
+            }
+            else if (! ReferenceEquals(logManager.Config, configuration.LogManagerConfig))
+            {
+                throw new ArgumentException();
             }
 
             _logManager = logManager;

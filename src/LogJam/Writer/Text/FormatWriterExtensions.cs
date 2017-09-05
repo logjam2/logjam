@@ -10,9 +10,9 @@
 namespace LogJam.Writer.Text
 {
     using System;
-    using System.Diagnostics.Contracts;
     using System.Text;
 
+    using LogJam.Shared.Internal;
     using LogJam.Util.Text;
 
 
@@ -42,7 +42,7 @@ namespace LogJam.Writer.Text
                                          int zeroPaddedWidth = 0,
                                          int spacePaddedWidth = 0)
         {
-            Contract.Requires<ArgumentNullException>(formatWriter != null);
+            Arg.NotNull(formatWriter, nameof(formatWriter));
 
             StringBuilder fieldBuffer = formatWriter.FieldBuffer;
             fieldBuffer.Clear();
@@ -104,8 +104,8 @@ namespace LogJam.Writer.Text
 
         public static void WriteAbbreviatedTypeName(this FormatWriter formatWriter, string typeName, ColorCategory colorCategory = ColorCategory.Detail, int padWidth = 0)
         {
-            Contract.Requires<ArgumentNullException>(formatWriter != null);
-            Contract.Requires<ArgumentNullException>(typeName != null);
+            Arg.NotNull(formatWriter, nameof(formatWriter));
+            Arg.NotNull(typeName, nameof(typeName));
 
             // Count the dots
             int countDots = 0;

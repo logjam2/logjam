@@ -11,8 +11,8 @@ namespace LogJam.Config
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.Contracts;
 
+    using LogJam.Shared.Internal;
     using LogJam.Util;
     using LogJam.Writer;
 
@@ -44,7 +44,7 @@ namespace LogJam.Config
         /// </summary>
         public LogManagerConfig(params ILogWriterConfig[] logWriterConfigs)
         {
-            Contract.Requires<ArgumentNullException>(logWriterConfigs != null);
+            Arg.NotNull(logWriterConfigs, nameof(logWriterConfigs));
 
             _logWriterConfigs = new ObservableSet<ILogWriterConfig>(new HashSet<ILogWriterConfig>(logWriterConfigs));
         }

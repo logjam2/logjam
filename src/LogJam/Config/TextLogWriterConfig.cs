@@ -11,9 +11,9 @@ namespace LogJam.Config
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.Contracts;
     using System.Linq;
 
+    using LogJam.Shared.Internal;
     using LogJam.Trace;
     using LogJam.Writer;
     using LogJam.Writer.Text;
@@ -64,7 +64,8 @@ namespace LogJam.Config
             get { return _fieldDelimiter; }
             set
             {
-                Contract.Requires<ArgumentNullException>(value != null);
+                Arg.NotNull(value, nameof(value));
+
                 _fieldDelimiter = value;
             }
         }
@@ -77,8 +78,8 @@ namespace LogJam.Config
             get { return _spacesPerIndent; }
             set
             {
-                Contract.Requires<ArgumentOutOfRangeException>(value >= 0);
-                Contract.Requires<ArgumentOutOfRangeException>(value <= 100);
+                Arg.InRange(value, 0, 100, nameof(value));
+
                 _spacesPerIndent = value;
             }
         }
@@ -101,7 +102,7 @@ namespace LogJam.Config
             get { return _timeZone; }
             set
             {
-                Contract.Requires<ArgumentNullException>(value != null);
+                Arg.NotNull(value, nameof(value));
 
                 _timeZone = value;
             }
@@ -166,7 +167,7 @@ namespace LogJam.Config
         public TextLogWriterConfig Format<TEntry>(EntryFormatAction<TEntry> formatAction)
             where TEntry : ILogEntry
         {
-            Contract.Requires<ArgumentNullException>(formatAction != null);
+            Arg.NotNull(formatAction, nameof(formatAction));
 
             return Format((EntryFormatter<TEntry>) formatAction);
         }

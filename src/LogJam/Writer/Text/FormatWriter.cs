@@ -10,10 +10,13 @@
 namespace LogJam.Writer.Text
 {
     using System;
+#if CODECONTRACTS
     using System.Diagnostics.Contracts;
+#endif
     using System.Text;
     using System.Threading;
 
+    using LogJam.Shared.Internal;
     using LogJam.Trace;
     using LogJam.Util;
     using LogJam.Util.Text;
@@ -113,8 +116,8 @@ namespace LogJam.Writer.Text
         /// <param name="spacesPerIndentLevel">The number of spaces per indent level. Can be 0 for no indenting.</param>
         protected FormatWriter(ITracerFactory setupTracerFactory, string fieldDelimiter = DefaultFieldDelimiter, int spacesPerIndentLevel = DefaultSpacesPerIndent)
         {
-            Contract.Requires<ArgumentNullException>(setupTracerFactory != null);
-            Contract.Requires<ArgumentNullException>(fieldDelimiter != null);
+            Arg.NotNull(setupTracerFactory, nameof(setupTracerFactory));
+            Arg.NotNull(fieldDelimiter, nameof(fieldDelimiter));
 
             setupTracer = setupTracerFactory.TracerFor(this);
             _fieldDelimiter = fieldDelimiter;
@@ -145,7 +148,7 @@ namespace LogJam.Writer.Text
         {
             internal set
             {
-                Contract.Requires<ArgumentNullException>(value != null);
+                Arg.NotNull(value, nameof(value));
                 _fieldDelimiter = value;
             }
             get
@@ -216,7 +219,7 @@ namespace LogJam.Writer.Text
             get { return _outputTimeZone; }
             set
             {
-                Contract.Requires<ArgumentNullException>(value != null);
+                Arg.NotNull(value, nameof(value));
 
                 _outputTimeZone = value;
             }
@@ -283,7 +286,7 @@ namespace LogJam.Writer.Text
 
         public virtual void WriteField(StringBuilder buffer, ColorCategory colorCategory = ColorCategory.None, int padWidth = 0)
         {
-            Contract.Requires<ArgumentNullException>(buffer != null);
+            Arg.NotNull(buffer, nameof(buffer));
 
             if (atBeginningOfLine)
             {
@@ -305,7 +308,7 @@ namespace LogJam.Writer.Text
 
         public virtual void WriteField(StringBuilder buffer, int startIndex, int length, ColorCategory colorCategory = ColorCategory.None, int padWidth = 0)
         {
-            Contract.Requires<ArgumentNullException>(buffer != null);
+            Arg.NotNull(buffer, nameof(buffer));
 
             if (atBeginningOfLine)
             {
@@ -327,7 +330,7 @@ namespace LogJam.Writer.Text
 
         public virtual void WriteField(Action<StringBuilder> formatFieldAction, ColorCategory colorCategory = ColorCategory.None, int padWidth = 0)
         {
-            Contract.Requires<ArgumentNullException>(formatFieldAction != null);
+            Arg.NotNull(formatFieldAction, nameof(formatFieldAction));
 
             if (atBeginningOfLine)
             {

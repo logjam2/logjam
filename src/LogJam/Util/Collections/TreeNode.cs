@@ -10,29 +10,31 @@ namespace LogJam.Util.Collections
 {
 	using System;
 	using System.Collections.Generic;
-	using System.Diagnostics.Contracts;
+    using System.Diagnostics.Contracts;
+
+    using LogJam.Shared.Internal;
 
 
-	/// <summary>
-	/// A base class for an ordered tree structure containing homogeneous nodes of type <typeparamref name="T"/>.
-	/// The order of the tree structure is determined both by <see cref="WouldBeDescendent"/>, <see cref="Equals"/>, and <see cref="Compare"/>.
-	/// Children are maintained in sorted order using <see cref="Compare"/>.  In addition, each tree node is
-	/// placed in a depth of the tree such that its parent returns <c>true</c> from <see cref="WouldBeDescendent"/> when passed the node, the node's
-	/// <see cref="WouldBeDescendent"/> returns <c>true</c> when passed all it's children.
-	/// </summary>
-	/// <typeparam name="T">The type of all nodes within this tree.</typeparam>
-	/// <remarks>This class is not threadsafe.</remarks>
+    /// <summary>
+    /// A base class for an ordered tree structure containing homogeneous nodes of type <typeparamref name="T"/>.
+    /// The order of the tree structure is determined both by <see cref="WouldBeDescendent"/>, <see cref="Equals"/>, and <see cref="Compare"/>.
+    /// Children are maintained in sorted order using <see cref="Compare"/>.  In addition, each tree node is
+    /// placed in a depth of the tree such that its parent returns <c>true</c> from <see cref="WouldBeDescendent"/> when passed the node, the node's
+    /// <see cref="WouldBeDescendent"/> returns <c>true</c> when passed all it's children.
+    /// </summary>
+    /// <typeparam name="T">The type of all nodes within this tree.</typeparam>
+    /// <remarks>This class is not threadsafe.</remarks>
 	[ContractClass(typeof(TreeNodeContract<>))]
-	public abstract class TreeNode<T> : IComparer<T>
+    public abstract class TreeNode<T> : IComparer<T>
 		where T : TreeNode<T>
 	{
-		#region Fields
+#region Fields
 
 		private readonly List<T> _children = new List<T>(3);
 
-		#endregion
+#endregion
 
-		#region Public Properties
+#region Public Properties
 
 		/// <summary>
 		/// Gets the children.
@@ -71,9 +73,9 @@ namespace LogJam.Util.Collections
 			}
 		}
 
-		#endregion
+#endregion
 
-		#region Public Methods and Operators
+#region Public Methods and Operators
 
 		/// <summary>
 		/// Specifies whether <paramref name="node"/> should be a descendent or ancestor of this when added to the tree.
@@ -92,7 +94,7 @@ namespace LogJam.Util.Collections
 		/// <returns>The root of the tree after inserting <param name="node"/>.</returns>
 		public T InsertNode(T node)
 		{
-			Contract.Requires<ArgumentNullException>(node != null);
+            Arg.NotNull(node, nameof(node));
 
 			if (WouldBeDescendent(node))
 			{
@@ -189,11 +191,12 @@ namespace LogJam.Util.Collections
 		/// </returns>
 		public abstract int Compare(T x, T y);
 
-		#endregion
+#endregion
 
 	}
 
 
+#if CODECONTRACTS
 	[ContractClassFor(typeof(TreeNode<>))]
 	internal abstract class TreeNodeContract<T> : TreeNode<T>
 		where T : TreeNodeContract<T>
@@ -212,4 +215,6 @@ namespace LogJam.Util.Collections
 		}
 
 	}
+#endif
+
 }

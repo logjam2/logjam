@@ -11,10 +11,10 @@ namespace LogJam.Trace.Config
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.Contracts;
     using System.Linq;
 
     using LogJam.Config;
+    using LogJam.Shared.Internal;
     using LogJam.Trace.Format;
     using LogJam.Trace.Switches;
     using LogJam.Util;
@@ -59,7 +59,7 @@ namespace LogJam.Trace.Config
         /// </summary>
         public TraceManagerConfig(LogManagerConfig logManagerConfig)
         {
-            Contract.Requires<ArgumentNullException>(logManagerConfig != null);
+            Arg.NotNull(logManagerConfig, nameof(logManagerConfig));
 
             LogManagerConfig = logManagerConfig;
 
@@ -74,7 +74,7 @@ namespace LogJam.Trace.Config
         public TraceManagerConfig(TraceWriterConfig traceWriterConfig)
             : this(new LogManagerConfig())
         {
-            Contract.Requires<ArgumentNullException>(traceWriterConfig != null);
+            Arg.NotNull(traceWriterConfig, nameof(traceWriterConfig));
 
             _traceWriterConfigs.Add(traceWriterConfig);
         }
@@ -82,9 +82,8 @@ namespace LogJam.Trace.Config
         public TraceManagerConfig(params TraceWriterConfig[] traceWriterConfigs)
             : this(new LogManagerConfig())
         {
-            Contract.Requires<ArgumentNullException>(traceWriterConfigs != null);
-            Contract.Requires<ArgumentException>(traceWriterConfigs.Length > 0);
-            Contract.Requires<ArgumentNullException>(traceWriterConfigs.All(config => config != null));
+            Arg.NotNullOrEmpty(traceWriterConfigs, nameof(traceWriterConfigs));
+            Arg.NoneNull(traceWriterConfigs, nameof(traceWriterConfigs));
 
             _traceWriterConfigs.UnionWith(traceWriterConfigs);
         }

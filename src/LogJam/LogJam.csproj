@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Import Project="..\..\build\CsprojCommon.targets" />
   <PropertyGroup>
@@ -7,9 +7,10 @@
     <RootNamespace>LogJam</RootNamespace>
     <AssemblyName>LogJam</AssemblyName>
     <DocumentationFile>bin\$(Configuration)\LogJam.xml</DocumentationFile>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <DocumentationFile />
+    <!-- Needed due to old project and new project in same directory: https://github.com/NuGet/Home/issues/5126 -->
+    <BaseIntermediateOutputPath>obj_netfx\</BaseIntermediateOutputPath>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -121,8 +122,17 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="LogJam.nuspec" />
+    <None Include="packages.config" />
   </ItemGroup>
+  <Import Project="..\Shared-Internal\Shared-Internal.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\..\packages\CodeContracts.MSBuild.1.9.10714.3\build\CodeContracts.MSBuild.targets" Condition="Exists('..\..\packages\CodeContracts.MSBuild.1.9.10714.3\build\CodeContracts.MSBuild.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\packages\CodeContracts.MSBuild.1.9.10714.3\build\CodeContracts.MSBuild.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\CodeContracts.MSBuild.1.9.10714.3\build\CodeContracts.MSBuild.targets'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

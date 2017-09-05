@@ -10,7 +10,11 @@
 namespace LogJam.Writer.Text
 {
     using System;
-    using System.Diagnostics.Contracts;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
+
+    using LogJam.Shared.Internal;
 
 
     /// <summary>
@@ -24,7 +28,7 @@ namespace LogJam.Writer.Text
 
         public DefaultFormatterAttribute(Type formatterType)
         {
-            Contract.Requires<ArgumentNullException>(formatterType != null);
+            Arg.NotNull(formatterType, nameof(formatterType));
 
             _formatterType = formatterType;
         }

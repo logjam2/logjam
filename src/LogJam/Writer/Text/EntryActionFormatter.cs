@@ -10,7 +10,8 @@
 namespace LogJam.Writer.Text
 {
     using System;
-    using System.Diagnostics.Contracts;
+
+    using LogJam.Shared.Internal;
 
 
     /// <summary>
@@ -24,7 +25,7 @@ namespace LogJam.Writer.Text
 
         public EntryActionFormatter(EntryFormatAction<TEntry> formatAction)
         {
-            Contract.Requires<ArgumentNullException>(formatAction != null);
+            Arg.NotNull(formatAction, nameof(formatAction));
 
             _formatAction = formatAction;
         }

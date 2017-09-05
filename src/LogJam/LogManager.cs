@@ -11,12 +11,12 @@ namespace LogJam
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.Contracts;
     using System.Linq;
     using System.Threading;
 
     using LogJam.Config;
     using LogJam.Internal;
+    using LogJam.Shared.Internal;
     using LogJam.Trace;
     using LogJam.Util;
     using LogJam.Writer;
@@ -97,7 +97,7 @@ namespace LogJam
         /// <param name="setupTracerFactory">The <see cref="ITracerFactory" /> to use for tracking internal operations.</param>
         public LogManager(LogManagerConfig logManagerConfig, ITracerFactory setupTracerFactory = null)
         {
-            Contract.Requires<ArgumentNullException>(logManagerConfig != null);
+            Arg.NotNull(logManagerConfig, nameof(logManagerConfig));
 
             _setupTracerFactory = setupTracerFactory ?? new SetupLog();
             _config = logManagerConfig;
@@ -328,7 +328,7 @@ namespace LogJam
         /// <returns><c>true</c> if a <paramref name="logWriter" /> was found; <c>false</c> if no match was found.</returns>
         public bool TryGetLogWriter(ILogWriterConfig logWriterConfig, out ILogWriter logWriter)
         {
-            Contract.Requires<ArgumentNullException>(logWriterConfig != null);
+            Arg.NotNull(logWriterConfig, nameof(logWriterConfig));
 
             // Even if Start() wasn't 100% successful, we still return any logwriters that were successfully started.
             EnsureAutoStarted();
@@ -350,7 +350,7 @@ namespace LogJam
         /// </exception>
         public ILogWriter GetLogWriter(ILogWriterConfig logWriterConfig)
         {
-            Contract.Requires<ArgumentNullException>(logWriterConfig != null);
+            Arg.NotNull(logWriterConfig, nameof(logWriterConfig));
 
             ILogWriter logWriter = null;
             if (! TryGetLogWriter(logWriterConfig, out logWriter))
@@ -382,7 +382,7 @@ namespace LogJam
         /// </remarks>
         public IEntryWriter<TEntry> GetEntryWriter<TEntry>(ILogWriterConfig logWriterConfig) where TEntry : ILogEntry
         {
-            Contract.Requires<ArgumentNullException>(logWriterConfig != null);
+            Arg.NotNull(logWriterConfig, nameof(logWriterConfig));
 
             ILogWriter logWriter = null;
             logWriter = GetLogWriter(logWriterConfig);

@@ -11,7 +11,6 @@ namespace LogJam.Writer
 {
     using System.Diagnostics.Contracts;
 
-
     /// <summary>
     /// Supports writing strongly-typed log entries to a log target.
     /// </summary>
@@ -62,4 +61,5 @@ namespace LogJam.Writer
         }
 
     }
+
 }

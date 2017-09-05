@@ -10,8 +10,8 @@
 namespace LogJam.Trace
 {
     using System;
-    using System.Diagnostics.Contracts;
 
+    using LogJam.Shared.Internal;
     using LogJam.Util;
 
 
@@ -23,8 +23,8 @@ namespace LogJam.Trace
 
         public static Tracer GetTracer(this ITracerFactory tracerFactory, Type type)
         {
-            Contract.Requires<ArgumentNullException>(tracerFactory != null);
-            Contract.Requires<ArgumentNullException>(type != null);
+            Arg.NotNull(tracerFactory, nameof(tracerFactory));
+            Arg.NotNull(type, nameof(type));
 
             // ? Convert generic types to their generic type definition - so the same
             // Tracer is used for ArrayList<T> regardless of the type parameter T.
@@ -38,8 +38,8 @@ namespace LogJam.Trace
 
         public static Tracer TracerFor(this ITracerFactory tracerFactory, object traceSource)
         {
-            Contract.Requires<ArgumentNullException>(tracerFactory != null);
-            Contract.Requires<ArgumentNullException>(traceSource != null);
+            Arg.NotNull(tracerFactory, nameof(tracerFactory));
+            Arg.NotNull(traceSource, nameof(traceSource));
 
             // Handle the case where Type is passed in, when an object was expected
             Type traceSourceType = traceSource as Type;
@@ -53,7 +53,7 @@ namespace LogJam.Trace
 
         public static Tracer TracerFor<T>(this ITracerFactory tracerFactory)
         {
-            Contract.Requires<ArgumentNullException>(tracerFactory != null);
+            Arg.NotNull(tracerFactory, nameof(tracerFactory));
 
             return tracerFactory.GetTracer(typeof(T));
         }

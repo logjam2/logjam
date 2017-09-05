@@ -10,8 +10,9 @@
 namespace LogJam.Trace.Config
 {
     using System;
-    using System.Diagnostics.Contracts;
+    using System.Reflection;
 
+    using LogJam.Shared.Internal;
     using LogJam.Util;
 
 
@@ -56,8 +57,8 @@ namespace LogJam.Trace.Config
         /// <param name="traceSwitch">An <see cref="ITraceSwitch" />.</param>
         public void Add(Type tracerType, ITraceSwitch traceSwitch)
         {
-            Contract.Requires<ArgumentNullException>(tracerType != null);
-            Contract.Requires<ArgumentNullException>(traceSwitch != null);
+            Arg.NotNull(tracerType, nameof(tracerType));
+            Arg.NotNull(traceSwitch, nameof(traceSwitch));
 
             string tracerName = tracerType.GetCSharpName();
             if (tracerType.IsGenericTypeDefinition)

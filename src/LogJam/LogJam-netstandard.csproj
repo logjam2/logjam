@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.3</TargetFramework>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <DefineConstants>$(DefineConstants);NETSTANDARD</DefineConstants> 
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\build\Version.cs">
+      <Link>Properties\Version.cs</Link>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CodeContracts.MSBuild" Version="1.9.10714.3" />
+    <PackageReference Include="JetBrains.Annotations" Version="11.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="JetBrains.Annotations" />
+  </ItemGroup>
+
+  <Import Project="..\Shared-Internal\Shared-Internal.projitems" Label="Shared" />
+
+</Project>

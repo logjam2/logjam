@@ -48,7 +48,7 @@ namespace LogJam
         public bool IsStarted { get { return _startableState == StartableState.Started; } }
 
         /// <summary>
-        /// Returns <c>true</c> if <see cref="Stop"/> or <see cref="Dispose"/> has been called.
+        /// Returns <c>true</c> if <see cref="Stop"/> or <c>Dispose</c> has been called.
         /// </summary>
         public bool IsStopped { get { return (_startableState == StartableState.Stopped) || (_startableState == StartableState.Disposed); } }
 

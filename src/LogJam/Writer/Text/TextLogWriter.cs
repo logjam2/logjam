@@ -10,8 +10,8 @@
 namespace LogJam.Writer.Text
 {
     using System;
-    using System.Diagnostics.Contracts;
 
+    using LogJam.Shared.Internal;
     using LogJam.Trace;
     using LogJam.Util;
 
@@ -30,11 +30,12 @@ namespace LogJam.Writer.Text
         /// Creates a new <see cref="TextLogWriter" />.
         /// </summary>
         /// <param name="setupTracerFactory">The <see cref="ITracerFactory" /> to use for logging setup operations.</param>
+        /// <param name="formatWriter">The <see cref="FormatWriter"/> to use for formatting log entries.</param>
         public TextLogWriter(ITracerFactory setupTracerFactory, FormatWriter formatWriter)
             : base(setupTracerFactory)
         {
-            Contract.Requires<ArgumentNullException>(setupTracerFactory != null);
-            Contract.Requires<ArgumentNullException>(formatWriter != null);
+            Arg.NotNull(setupTracerFactory, nameof(setupTracerFactory));
+            Arg.NotNull(formatWriter, nameof(formatWriter));
 
             _formatWriter = formatWriter;
 
@@ -91,7 +92,7 @@ namespace LogJam.Writer.Text
         public TextLogWriter AddFormat<TEntry>(EntryFormatAction<TEntry> formatAction)
             where TEntry : ILogEntry
         {
-            Contract.Requires<ArgumentNullException>(formatAction != null);
+            Arg.NotNull(formatAction, nameof(formatAction));
 
             return AddFormat((EntryFormatter<TEntry>) formatAction);
         }
