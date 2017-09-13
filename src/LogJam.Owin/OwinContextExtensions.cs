@@ -133,7 +133,7 @@ namespace Microsoft.Owin
                 }
                 else
                 {
-                    tracer.Error("Different LogManager instance was stored in IOwinContext (skipping). Should not be possible.");
+                    tracer.Error("Different LogManager instance was stored in IOwinContext (skipping). This can occur if multiple OWIN pipelines are created, and OWIN Startup is run more than once - see https://github.com/logjam2/logjam/issues/22.");
                 }
             }
             else
@@ -155,14 +155,15 @@ namespace Microsoft.Owin
 
             if (owinContext.Environment.ContainsKey(TracerFactoryKey))
             {
-                var tracer = tracerFactory.GetTracer(typeof(LogJamManagerMiddleware));
-                if (ReferenceEquals(tracerFactory, owinContext.GetTracerFactory()))
+                var owinContextExistingTracerFactory = owinContext.GetTracerFactory();
+                var tracer = owinContextExistingTracerFactory.GetTracer(typeof(LogJamManagerMiddleware));
+                if (ReferenceEquals(tracerFactory, owinContextExistingTracerFactory))
                 {
                     tracer.Warn("Same ITracerFactory instance was stored in IOwinContext more than once (skipping). Is more than one LogJamManagerMiddleware instance in the OWIN pipeline?");
                 }
                 else
                 {
-                    tracer.Error("Different ITracerFactory instance was stored in IOwinContext (skipping). Should not be possible.");
+                    tracer.Error("Different ITracerFactory instance was stored in IOwinContext (skipping). This can occur if multiple OWIN pipelines are created, and OWIN Startup is run more than once - see https://github.com/logjam2/logjam/issues/22.");
                 }
             }
             else
