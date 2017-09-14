@@ -22,7 +22,7 @@ test:
     except:
     - LogJam.ConsoleTester.exe
     - LogJam.Test.Shared.dll
-    - *\CodeContracts\*
+    - **\CodeContracts\*
 
 cache:
   - C:\ProgramData\chocolatey\lib -> appveyor.yml
