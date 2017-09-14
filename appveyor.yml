@@ -5,10 +5,10 @@ assembly_info:
   patch: false
 
 init:
-  - ps: gitversion /l console /output buildserver /updateAssemblyInfo
-  - ps: Update-AppveyorBuild -Version "$env:GitVersion_NuGetVersion"
 
 before_build:
+  - ps: gitversion /l console /output buildserver /updateAssemblyInfo
+  - ps: Update-AppveyorBuild -Version "$env:GitVersion_NuGetVersion"
   - ps: nuget restore
 
 build:
