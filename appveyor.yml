@@ -1,0 +1,28 @@
+install:
+  - choco install gitversion.portable -pre -y
+
+assembly_info:
+  patch: false
+
+init:
+  - ps: gitversion /l console /output buildserver /updateAssemblyInfo
+  - ps: Update-AppveyorBuild -Version "$env:GitVersion_NuGetVersion"
+
+before_build:
+  - ps: nuget restore
+
+build:
+  project: LogJam.sln
+  publish_nuget: true
+  publish_nuget_symbols: true
+  verbosity: normal
+
+test:
+  assemblies:
+    except:
+    - LogJam.ConsoleTester.exe
+    - LogJam.Test.Shared.dll
+
+cache:
+  - C:\ProgramData\chocolatey\lib -> appveyor.yml
+  - packages -> **\packages.config
