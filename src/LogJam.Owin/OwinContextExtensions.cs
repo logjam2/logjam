@@ -14,6 +14,7 @@ namespace Microsoft.Owin
     using System.Diagnostics.Contracts;
 
     using LogJam;
+    using LogJam.Owin;
     using LogJam.Owin.Http;
     using LogJam.Trace;
 
@@ -123,7 +124,22 @@ namespace Microsoft.Owin
             Contract.Requires<ArgumentNullException>(owinContext != null);
             Contract.Requires<ArgumentNullException>(logManager != null);
 
-            owinContext.Environment.Add(LogManagerKey, logManager);
+            if (owinContext.Environment.ContainsKey(LogManagerKey))
+            {
+                var tracer = owinContext.GetTracerFactory().GetTracer(typeof(LogJamManagerMiddleware));
+                if (ReferenceEquals(logManager, owinContext.GetLogManager()))
+                {
+                    tracer.Warn("Same LogManager instance was stored in IOwinContext more than once (skipping). Is more than one LogJamManagerMiddleware instance in the OWIN pipeline?");
+                }
+                else
+                {
+                    tracer.Error("Different LogManager instance was stored in IOwinContext (skipping). This can occur if multiple OWIN pipelines are created, and OWIN Startup is run more than once - see https://github.com/logjam2/logjam/issues/22.");
+                }
+            }
+            else
+            {
+                owinContext.Environment.Add(LogManagerKey, logManager);
+            }
         }
 
         /// <summary>
@@ -137,7 +153,23 @@ namespace Microsoft.Owin
             Contract.Requires<ArgumentNullException>(owinContext != null);
             Contract.Requires<ArgumentNullException>(tracerFactory != null);
 
-            owinContext.Environment.Add(TracerFactoryKey, tracerFactory);
+            if (owinContext.Environment.ContainsKey(TracerFactoryKey))
+            {
+                var owinContextExistingTracerFactory = owinContext.GetTracerFactory();
+                var tracer = owinContextExistingTracerFactory.GetTracer(typeof(LogJamManagerMiddleware));
+                if (ReferenceEquals(tracerFactory, owinContextExistingTracerFactory))
+                {
+                    tracer.Warn("Same ITracerFactory instance was stored in IOwinContext more than once (skipping). Is more than one LogJamManagerMiddleware instance in the OWIN pipeline?");
+                }
+                else
+                {
+                    tracer.Error("Different ITracerFactory instance was stored in IOwinContext (skipping). This can occur if multiple OWIN pipelines are created, and OWIN Startup is run more than once - see https://github.com/logjam2/logjam/issues/22.");
+                }
+            }
+            else
+            {
+                owinContext.Environment.Add(TracerFactoryKey, tracerFactory);
+            }
         }
 
     }
