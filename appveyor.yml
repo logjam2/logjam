@@ -7,7 +7,7 @@ assembly_info:
 init:
 
 before_build:
-  - ps: gitversion /l console /output buildserver /updateAssemblyInfo
+  - ps: gitversion /l console /output buildserver /updateAssemblyInfo .\build\Version.cs
   - ps: Update-AppveyorBuild -Version "$env:GitVersion_NuGetVersion"
   - ps: nuget restore
 
