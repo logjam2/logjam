@@ -19,10 +19,8 @@ build:
 
 test:
   assemblies:
-    except:
-    - LogJam.ConsoleTester.exe
-    - LogJam.Test.Shared.dll
-    - **\CodeContracts\*
+    # only assemblies to test
+    - 'test\**\*Tests.dll'
 
 cache:
   - C:\ProgramData\chocolatey\lib -> appveyor.yml
