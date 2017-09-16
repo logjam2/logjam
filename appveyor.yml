@@ -22,6 +22,9 @@ test:
     # only assemblies to test
     - 'test\**\*Tests.dll'
 
+artifacts:
+  - path: '**\*.nupkg' # find all NuGet packages recursively
+
 cache:
   - C:\ProgramData\chocolatey\lib -> appveyor.yml
   - packages -> **\packages.config
