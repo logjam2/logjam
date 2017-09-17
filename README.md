@@ -2,13 +2,16 @@
 *This project was previously hosted at [https://logjam.codeplex.com/](https://logjam.codeplex.com/)*
 
 # What is LogJam?
-LogJam is a modern, efficient, and productive system for trace logging and metrics logging for all projects. 
+LogJam is a modern, efficient, and productive system for trace logging and metrics logging for all projects.
 
-LogJam is currently in beta and is initially focused on the needs of C# and web developers. 
+LogJam is currently in beta and is initially focused on the needs of C# and web developers.
 
 LogJam packages are available via NuGet: [http://www.nuget.org/packages?q=logjam](http://www.nuget.org/packages?q=logjam)
 
 The main LogJam library targets .NET 4.0 and later, though LogJam integrations may use later versions based on the requirements of the project that is integrated with.
+
+<a href="https://ci.appveyor.com/api/projects/status/github/logjam2/logjam">
+<img src="https://ci.appveyor.com/api/projects/status/github/logjam2/logjam?svg=true" alt="Appveyor build status" width="150" style="margin:1em"></a>
 
 # Current Status
 LogJam is productive and useful for these types of projects:

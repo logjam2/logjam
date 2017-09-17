@@ -21,6 +21,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{BE3BFA82-C90B-476C-A474-BF5206FDB4EB}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		appveyor.yml = appveyor.yml
 		build\CsprojCommon.targets = build\CsprojCommon.targets
 		NuGet.config = NuGet.config
 		build\Version.cs = build\Version.cs

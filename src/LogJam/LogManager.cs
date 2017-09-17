@@ -251,6 +251,7 @@ namespace LogJam
                 _logWriters.Values.SafeStop(SetupTracerFactory);
                 _logWriters.Clear();
                 _backgroundMultiLogWriters.SafeStop(SetupTracerFactory);
+                _backgroundMultiLogWriters.SafeDispose(SetupTracerFactory);
                 _backgroundMultiLogWriters.Clear();
             }
         }
