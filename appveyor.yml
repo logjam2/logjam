@@ -12,7 +12,7 @@ before_build:
   - ps: nuget restore
 
 build:
-  project: LogJam.sln
+  # project: LogJam.sln
   publish_nuget: true
   publish_nuget_symbols: true
   verbosity: normal
