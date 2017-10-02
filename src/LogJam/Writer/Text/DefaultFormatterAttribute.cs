@@ -48,15 +48,23 @@ namespace LogJam.Writer.Text
             where TEntry : ILogEntry
         {
             Type entryType = typeof(TEntry);
-            var attributes = entryType.GetCustomAttributes(typeof(DefaultFormatterAttribute), inherit: true);
-            if (attributes.Length == 0)
+            IEnumerable<object> attributes;
+#if NETSTANDARD
+            attributes = entryType.GetTypeInfo().GetCustomAttributes(typeof(DefaultFormatterAttribute), inherit: true);
+#else
+            attributes = entryType.GetCustomAttributes(typeof(DefaultFormatterAttribute), inherit: true);
+#endif
+            if (! (attributes.FirstOrDefault() is DefaultFormatterAttribute defaultFormatterAttribute))
             {
                 return null;
             }
 
-            var defaultFormatterAttribute = (DefaultFormatterAttribute) attributes[0];
             Type formatterType = defaultFormatterAttribute.FormatterType;
+#if NETSTANDARD
+            if (! typeof(EntryFormatter<TEntry>).GetTypeInfo().IsAssignableFrom(formatterType.GetTypeInfo()))
+#else
             if (! typeof(EntryFormatter<TEntry>).IsAssignableFrom(formatterType))
+#endif
             {
                 throw new LogJamSetupException(string.Format("FormatterType={0} cannot be converted to EntryFormatter<{1}> - check [DefaultFormatter] attribute on {1}",
                                                              formatterType.FullName,

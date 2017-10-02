@@ -1,5 +1,10 @@
 # LogJam TODO
 
+1. Add netstandard versions of LogJam
+2. ASP.NET Core logging (equivalent to LogJam.OWIN)
+3. Evidence perf tests (to guide decisions)
+  * Compare Type.GetCSharpName() impls, using CodeDomProvider vs explicit
+  * Synchronous file IO vs async
 1. Fix: Severe error in startup log for console logging failing to start
 1. Add LogManager.Config.UseConsoleIfAvailable() - no setuplog error if not available
 2. Add Log info for LogJam.Owin
@@ -15,12 +20,12 @@
 3. Add text file logging
   * Create file failure should also report the current Windows user
 4. Add other text formats - eg JSON, XML, delimited text (TSV, CSV)
+5. Make SetupLog not implement ITracerFactory - don't want people thinking they should use the setup log for normal tracing
 5. Add useful log file headers - datetime opened, PID, entry point assembly, assembly version, CWD
 6. Support extending default logs - eg username for HTTP requests, thread ID and name for tracing
 1. Custom log rotator behavior - datetime changes, log size, etc
 3. Add flush support, so buffering log writers can be flushed on command.
   * Support periodic flushing eg every .5s (more efficient than "always flush")
-  * Support `LogManager.Flush()` or similar method, so it can be done before shutdown or on similar events
 4. Make background logging multi log writer support periodic flushing, eg every 600ms by default.  Also support flushing from foreground delegated to background thread.
 5. Instruments: Counters, Timers, HealthItems
 1. Profile and perf test various use-cases
@@ -54,6 +59,12 @@
 
 
 # Done
+
+## Version 1.0.6
+* [Fixed: LogJam.Owin exception on 404 pages when running under IIS](https://github.com/logjam2/logjam/issues/22)
+
+## Version 1.0.5
+* [Added: Support for support for changing the xunit ITestOutputHelper per test](https://github.com/logjam2/logjam/issues/17)
 
 ## Version 1.0.4-beta
 * LogJam.Owin - only register 1 OWIN handler when owin builder methods are called multiple times

@@ -3,8 +3,18 @@
   <PropertyGroup>
     <TargetFramework>netstandard1.3</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <DefineConstants>$(DefineConstants);NETSTANDARD</DefineConstants> 
+    <DefineConstants>$(DefineConstants);NETSTANDARD;CODECONTRACTS</DefineConstants>
+    <AssemblyName>LogJam</AssemblyName>
+    <RootNamespace>LogJam</RootNamespace> 
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>bin\Debug\netstandard1.3\LogJam.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Interop\LogJamTraceListener.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <Compile Include="..\..\build\Version.cs">
@@ -15,10 +25,16 @@
   <ItemGroup>
     <PackageReference Include="CodeContracts.MSBuild" Version="1.9.10714.3" />
     <PackageReference Include="JetBrains.Annotations" Version="11.0.0" />
+    <PackageReference Include="System.Diagnostics.Contracts" Version="4.3.0" />
+    <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="JetBrains.Annotations" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Interop\" />
   </ItemGroup>
 
   <Import Project="..\Shared-Internal\Shared-Internal.projitems" Label="Shared" />

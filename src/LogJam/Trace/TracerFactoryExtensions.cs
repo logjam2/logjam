@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TracerFactoryExtensions.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -21,21 +21,12 @@ namespace LogJam.Trace
     public static class TracerFactoryExtensions
     {
 
-        public static Tracer GetTracer(this ITracerFactory tracerFactory, Type type)
-        {
-            Arg.NotNull(tracerFactory, nameof(tracerFactory));
-            Arg.NotNull(type, nameof(type));
-
-            // ? Convert generic types to their generic type definition - so the same
-            // Tracer is used for ArrayList<T> regardless of the type parameter T.
-            //if (type.IsGenericType)
-            //{
-            //	type = type.GetGenericTypeDefinition();
-            //}
-
-            return tracerFactory.GetTracer(type.GetCSharpName());
-        }
-
+        /// <summary>
+        /// Returns a <see cref="Tracer"/> for object <paramref name="traceSource"/>.
+        /// </summary>
+        /// <param name="tracerFactory"></param>
+        /// <param name="traceSource"></param>
+        /// <returns></returns>
         public static Tracer TracerFor(this ITracerFactory tracerFactory, object traceSource)
         {
             Arg.NotNull(tracerFactory, nameof(tracerFactory));
@@ -45,7 +36,7 @@ namespace LogJam.Trace
             Type traceSourceType = traceSource as Type;
             if (traceSourceType != null)
             {
-                return GetTracer(tracerFactory, traceSourceType);
+                return tracerFactory.GetTracer(traceSourceType);
             }
 
             return tracerFactory.GetTracer(traceSource.GetType());

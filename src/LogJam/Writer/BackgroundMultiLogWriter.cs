@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="BackgroundMultiLogWriter.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -15,6 +15,7 @@ namespace LogJam.Writer
     using System.Diagnostics;
     using System.Diagnostics.Contracts;
     using System.Threading;
+    using System.Threading.Tasks;
 
     using LogJam.Internal;
     using LogJam.Trace;
@@ -47,7 +48,7 @@ namespace LogJam.Writer
         // Queued actions to invoke on the background thread.
         private readonly ConcurrentQueue<Action> _backgroundActionQueue;
 
-        private BackgroundThread _backgroundThread;
+        private BackgroundTask _backgroundTask;
 
         internal BackgroundMultiLogWriter(ITracerFactory setupTracerFactory)
         {
@@ -60,7 +61,7 @@ namespace LogJam.Writer
             _proxyEntryWriters = new List<object>();
             _backgroundActionQueue = new ConcurrentQueue<Action>();
 
-            _backgroundThread = null;
+            _backgroundTask = null;
         }
 
         internal BackgroundMultiLogWriter(ITracerFactory setupTracerFactory, params ILogWriter[] logWriters)
@@ -178,7 +179,7 @@ namespace LogJam.Writer
         ///// Returns <c>true</c> if this object is ready to receive log writes.
         ///// </summary>
         ///// <remarks>IsEnabled is synonymous with <see cref="IsStarted"/> for this class.</remarks>
-        //public bool IsEnabled { get { return (_backgroundThread != null) && _backgroundThread.IsStarted; } }
+        //public bool IsEnabled { get { return (_backgroundTask != null) && _backgroundTask.IsStarted; } }
 
         //public bool IsSynchronized { get { return true; } }
 
@@ -200,22 +201,22 @@ namespace LogJam.Writer
         {
             lock (this)
             {
-                if (_backgroundThread == null)
+                if (_backgroundTask == null)
                 {
-                    _backgroundThread = new BackgroundThread(_setupTracerFactory, _backgroundActionQueue);
+                    _backgroundTask = new BackgroundTask(_setupTracerFactory, _backgroundActionQueue);
                 }
             }
 
             _proxyLogWriters.SafeStart(_setupTracerFactory);
             _proxyEntryWriters.SafeStart(_setupTracerFactory);
-            _backgroundThread.Start();
+            _backgroundTask.Start();
         }
 
         protected override void InternalStop()
         {
             lock (this)
             {
-                var backgroundThread = _backgroundThread;
+                var backgroundThread = _backgroundTask;
                 if (backgroundThread != null)
                 {
                     _proxyLogWriters.SafeStop(_setupTracerFactory);
@@ -244,7 +245,7 @@ namespace LogJam.Writer
             }
 
             State = StartableState.Disposing;
-            var backgroundThread = _backgroundThread;
+            var backgroundThread = _backgroundTask;
             if (backgroundThread != null)
             {
                 _proxyEntryWriters.SafeStop(_setupTracerFactory);
@@ -252,7 +253,7 @@ namespace LogJam.Writer
                 _backgroundActionQueue.Enqueue(() => _proxyEntryWriters.Clear());
 
                 backgroundThread.Stop();
-                _backgroundThread = null;
+                _backgroundTask = null;
             }
 
             State = StartableState.Disposed;
@@ -277,7 +278,7 @@ namespace LogJam.Writer
         /// <summary>
         /// Used only for test verification.
         /// </summary>
-        internal bool IsBackgroundThreadRunning { get { return _backgroundThread != null && _backgroundThread.IsThreadRunning; } }
+        internal bool IsBackgroundThreadRunning { get { return _backgroundTask != null && _backgroundTask.IsTaskRunning; } }
 
 
         /// <summary>
@@ -544,21 +545,22 @@ namespace LogJam.Writer
 
 
         /// <summary>
-        /// Encapsulates the background thread for a <see cref="BackgroundMultiLogWriter" /> instance.
+        /// Encapsulates the logic that runs on a background thread, receiving write actions from a queue that is filled by
+        /// the containing <see cref="BackgroundMultiLogWriter" /> instance.
         /// </summary>
-        private class BackgroundThread : IStartable
+        private class BackgroundTask : IStartable
         {
 
             private readonly Tracer _tracer;
             // Queued actions to invoke on the background thread.
             private readonly ConcurrentQueue<Action> _backgroundActionQueue;
             private volatile StartableState _startableState;
-            private Thread _thread;
+            private Task _task;
 
-            // REVIEW: Important that this object + ThreadProc has NO reference to the parent BackgroundMultiLogWriter.
+            // REVIEW: It's important that this object has NO reference to the parent BackgroundMultiLogWriter.
             // If there were a reference from this, it would never finalize.
 
-            public BackgroundThread(ITracerFactory setupTracerFactory, ConcurrentQueue<Action> backgroundActionQueue)
+            public BackgroundTask(ITracerFactory setupTracerFactory, ConcurrentQueue<Action> backgroundActionQueue)
             {
                 Contract.Requires<ArgumentNullException>(setupTracerFactory != null);
                 Contract.Requires<ArgumentNullException>(backgroundActionQueue != null);
@@ -593,14 +595,11 @@ namespace LogJam.Writer
                         return;
                     }
 
-                    Debug.Assert(! IsThreadRunning);
+                    Debug.Assert(! IsTaskRunning);
 
                     _startableState = StartableState.Starting;
-                    _thread = new Thread(BackgroundThreadProc)
-                              {
-                                  Name = "BackgroundMultiLogWriter.BackgroundThread"
-                              };
-                    _thread.Start();
+                    _task = new Task(BackgroundThreadProc, TaskCreationOptions.LongRunning);
+                    _task.Start();
                 }
             }
 
@@ -608,11 +607,11 @@ namespace LogJam.Writer
             {
                 lock (this)
                 {
-                    var thread = _thread;
-                    if (thread != null)
+                    var task = _task;
+                    if (task != null)
                     {
                         _startableState = StartableState.Stopping;
-                        thread.Join();
+                        _task.Wait();
                     }
 
                     _startableState = StartableState.Stopped;
@@ -621,23 +620,22 @@ namespace LogJam.Writer
 
             #endregion
 
-            internal bool IsThreadRunning
+            internal bool IsTaskRunning
             {
                 get
                 {
-                    var thread = _thread;
-                    if (thread == null)
+                    var task = _task;
+                    if (task == null)
                     {
                         return false;
                     }
-                    else if (! thread.IsAlive)
+                    else if ( task.Status == TaskStatus.Running)
                     {
-                        _thread = null;
-                        return false;
+                        return true;
                     }
                     else
                     {
-                        return true;
+                        return false;
                     }
                 }
             }
@@ -681,7 +679,7 @@ namespace LogJam.Writer
                 }
 
                 _tracer.Info("Exiting background thread.");
-                _thread = null;
+                _task = null;
             }
 
         }

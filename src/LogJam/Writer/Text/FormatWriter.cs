@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="FormatWriter.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -24,21 +24,17 @@ namespace LogJam.Writer.Text
 
     /// <summary>
     /// Abstract base class for writing formatted log output to a text target. A <c>FormatWriter</c> is primarily used by one
-    /// or more
-    /// <see cref="EntryFormatter{TEntry}" />s to write formatted text. <c>FormatWriter</c> is the primary abstraction for
-    /// writing
-    /// to a text target.
+    /// or more <see cref="EntryFormatter{TEntry}" />s to write formatted text. <c>FormatWriter</c> is the primary abstraction for
+    /// writing to a text target.
     /// <para>
     /// Text targets can be colorized and are generally optimized for readability. In contrast, binary targets are generally
-    /// optimized for
-    /// efficient and precise writing and parsing.
+    /// optimized for efficient and precise writing and parsing.
     /// </para>
     /// </summary>
     /// <remarks>
     /// <c>FormatWriter</c> is <u>not</u> threadsafe. It assumes that writes are synchronized at a higher level (typically
-    /// using pluggable
-    /// <see cref="ISynchronizingLogWriter" />s), so that the last entry is completely formatted/written before the next entry
-    /// starts.
+    /// using a synchronizing logwriter like <see cref="SynchronizingProxyLogWriter"/> or <see cref="BackgroundMultiLogWriter"/>),
+    /// so that the last entry is completely formatted/written before the next entry starts.
     /// <see cref="BeginEntry" /> and <see cref="EndEntry" /> provide basic checks for this assertion.
     /// </remarks>
     public abstract class FormatWriter : Startable, IDisposable
@@ -153,7 +149,9 @@ namespace LogJam.Writer.Text
             }
             get
             {
+#if CODECONTRACTS
                 Contract.Ensures(Contract.Result<string>() != null);
+#endif
                 return _fieldDelimiter;
             }
         }
@@ -225,9 +223,9 @@ namespace LogJam.Writer.Text
             }
         }
 
-        #endregion
+#endregion
 
-        #region Public methods to write formatted log text
+#region Public methods to write formatted log text
 
         /// <summary>
         /// Marks the start of a new entry.
@@ -439,13 +437,13 @@ namespace LogJam.Writer.Text
         public virtual void Flush()
         {}
 
-        #endregion
+#endregion
 
-        #region Public methods to format field primitives
+#region Public methods to format field primitives
 
         public virtual void WriteDate(DateTime dateTimeUtc, ColorCategory colorCategory = ColorCategory.Detail)
         {
-            DateTime outputDateTime = TimeZoneInfo.ConvertTimeFromUtc(dateTimeUtc, _outputTimeZone);
+            DateTime outputDateTime = TimeZoneInfo.ConvertTime(dateTimeUtc, _outputTimeZone);
 
             // Format date
             _fieldBuffer.Clear();
@@ -460,7 +458,7 @@ namespace LogJam.Writer.Text
 
         public virtual void WriteTimestamp(DateTime timestampUtc, ColorCategory colorCategory = ColorCategory.Detail)
         {
-            DateTime outputTimestamp = TimeZoneInfo.ConvertTimeFromUtc(timestampUtc, _outputTimeZone);
+            DateTime outputTimestamp = TimeZoneInfo.ConvertTime(timestampUtc, _outputTimeZone);
 
             // Format time
             _fieldBuffer.Clear();
@@ -553,9 +551,9 @@ namespace LogJam.Writer.Text
             atBeginningOfLine = true;
         }
 
-        #endregion
+#endregion
 
-        #region Abstract write methods
+#region Abstract write methods
 
         protected abstract void WriteText(string s, ColorCategory colorCategory);
 
@@ -563,7 +561,7 @@ namespace LogJam.Writer.Text
 
         public abstract void WriteText(StringBuilder sb, int startIndex, int length, ColorCategory colorCategory);
 
-        #endregion
+#endregion
     }
 
 }

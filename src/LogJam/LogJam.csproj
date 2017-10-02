@@ -11,6 +11,14 @@
     <BaseIntermediateOutputPath>obj_netfx\</BaseIntermediateOutputPath>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -70,7 +78,7 @@
     <Compile Include="Util\EqualityUtil.cs" />
     <Compile Include="Util\KeyValuePairComparer.cs" />
     <Compile Include="Util\ListDictionary.cs" />
-    <Compile Include="Util\ReflectionUtil.cs" />
+    <Compile Include="Util\TypeExtensions.cs" />
     <Compile Include="Util\StartableExtensions.cs" />
     <Compile Include="Util\Text\TextWriterExtensions.cs" />
     <Compile Include="Config\DebuggerLogWriterConfig.cs" />

@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ITracerFactory.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -10,11 +10,15 @@
 namespace LogJam.Trace
 {
     using System;
+    using System.Diagnostics.Contracts;
+
+    using LogJam.Trace.Config;
 
 
     /// <summary>
     /// Controls configuration and creation/caching of <see cref="Tracer" />s.
     /// </summary>
+    [ContractClass(typeof(TracerFactoryContract))]
     public interface ITracerFactory : IDisposable
     {
 
@@ -27,6 +31,45 @@ namespace LogJam.Trace
         /// </param>
         /// <returns>A <see cref="Tracer" />.</returns>
         Tracer GetTracer(string name);
+
+        /// <summary>
+        /// Returns a <see cref="Tracer" /> for tracing messages associated with <paramref name="type" />.
+        /// </summary>
+        /// <param name="type">
+        /// Used to determine the <see cref="Tracer.Name"/>, using <see cref="TraceManagerConfig.TypeNameFunc"/>
+        /// </param>
+        /// <returns>A <see cref="Tracer" />.</returns>
+        Tracer GetTracer(Type type);
+
+    }
+
+    [ContractClassFor(typeof(ITracerFactory))]
+    internal abstract class TracerFactoryContract : ITracerFactory
+    {
+
+        #region Implementation of ITracerFactory
+
+        public Tracer GetTracer(string name)
+        {
+            Contract.Ensures(Contract.Result<Tracer>() != null);
+
+            throw new NotImplementedException();
+        }
+
+        public Tracer GetTracer(Type type)
+        {
+            Contract.Ensures(Contract.Result<Tracer>() != null);
+
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
+        #region Implementation of IDisposable
+
+        public abstract void Dispose();
+
+        #endregion
 
     }
 

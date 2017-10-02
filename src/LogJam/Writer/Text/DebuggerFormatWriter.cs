@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="DebuggerFormatWriter.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -48,15 +48,19 @@ namespace LogJam.Writer.Text
     // One assumption is that portable libs are not normally responsible for configuring LogJam
             return true;
 #else
+#if NETSTANDARD
+            return Debugger.IsAttached;
+#else
             return Debugger.IsLogging() || IsDebuggerPresent();
+#endif
 #endif
         }
 
         public void WriteDebuggerText(string s)
         {
-#if (PORTABLE)
-    // REVIEW: This isn't reliable - it is conditionally compiled in debug builds; but it's all that's available in the portable profile.
-			Debug.Write(text);
+#if (PORTABLE || NETSTANDARD)
+            // REVIEW: This isn't reliable - it is conditionally compiled in debug builds; but it's all that's available in the portable profile.
+            Debug.Write(s);
 #else
             if (Debugger.IsLogging())
             {

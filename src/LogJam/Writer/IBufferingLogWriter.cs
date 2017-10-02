@@ -18,7 +18,9 @@ namespace LogJam.Writer
     /// Adds support for "smart" flushing logic to log writers that buffer output, and need to know
     /// when it makes sense to flush their buffers.
     /// </summary>
+#if CODECONTRACTS
     [ContractClass(typeof(BufferingLogWriterContract))]
+#endif
     public interface IBufferingLogWriter : ILogWriter
     {
 
@@ -30,7 +32,7 @@ namespace LogJam.Writer
 
     }
 
-
+#if CODECONTRACTS
     [ContractClassFor(typeof(IBufferingLogWriter))]
     internal abstract class BufferingLogWriterContract : IBufferingLogWriter
     {
@@ -62,5 +64,6 @@ namespace LogJam.Writer
 
         #endregion
     }
+#endif
 
 }

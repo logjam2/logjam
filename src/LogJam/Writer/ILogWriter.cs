@@ -18,8 +18,9 @@ namespace LogJam.Writer
     /// A log writer writes to one or more log targets.
     /// </summary>
     /// <seealso cref="IEntryWriter{TEntry}" />
-    /// .
+#if CODECONTRACTS
     [ContractClass(typeof(LogWriterContract))]
+#endif
     public interface ILogWriter
     {
 
@@ -48,6 +49,7 @@ namespace LogJam.Writer
     }
 
 
+#if CODECONTRACTS
     [ContractClassFor(typeof(ILogWriter))]
     internal abstract class LogWriterContract : ILogWriter
     {
@@ -70,5 +72,6 @@ namespace LogJam.Writer
         }
 
     }
+#endif
 
 }

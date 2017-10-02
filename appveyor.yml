@@ -1,6 +1,5 @@
-
 # Build worker image (VM template)
-image: Visual Studio 2015
+image: Visual Studio 2017
 
 install:
   - choco install gitversion.portable -pre -y
@@ -11,6 +10,7 @@ assembly_info:
 init:
 
 before_build:
+  # Use GitVersion to determine build + version number from git tree
   - ps: gitversion /l console /output buildserver /updateAssemblyInfo .\build\Version.cs
   - ps: Update-AppveyorBuild -Version "$env:GitVersion_NuGetVersion"
   - ps: nuget restore

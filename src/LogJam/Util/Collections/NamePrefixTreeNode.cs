@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="NamePrefixTreeNode.cs">
 // Copyright (c) 2011-2014 logjam.codeplex.com.  
 // </copyright>
@@ -9,6 +9,9 @@
 namespace LogJam.Util.Collections
 {
 	using System;
+#if CODECONTRACTS
+    using System.Diagnostics.Contracts;
+#endif
 
     using LogJam.Shared.Internal;
 
@@ -118,10 +121,12 @@ namespace LogJam.Util.Collections
 		/// </returns>
 		public T FindNearestParentOf(string name)
 		{
-			Contract.Requires<ArgumentNullException>(name != null);
+            Arg.NotNull(name, nameof(name));
+#if CODECONTRACTS
 			Contract.Ensures(Contract.Result<T>() != null);
+#endif
 
-			if (name.StartsWith(NamePrefix))
+            if (name.StartsWith(NamePrefix))
 			{
 				// this is nearest parent if none of Children are parents
 				foreach (T child in Children)

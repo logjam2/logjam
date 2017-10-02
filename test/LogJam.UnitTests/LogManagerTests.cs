@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="LogManagerTests.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -19,6 +19,7 @@ namespace LogJam.UnitTests
     using LogJam.Internal.UnitTests.Examples;
     using LogJam.Test.Shared.Writers;
     using LogJam.Trace;
+    using LogJam.Writer;
 
     using Xunit;
     using Xunit.Abstractions;
@@ -37,6 +38,14 @@ namespace LogJam.UnitTests
             Contract.Requires<ArgumentNullException>(testOutputHelper != null);
 
             _testOutputHelper = testOutputHelper;
+        }
+
+        [Fact]
+        public void LogManagerArgumentsAreValidated()
+        {
+            Assert.Throws<ArgumentNullException>(() => new LogManager((LogManagerConfig) null));
+            Assert.ThrowsAny<ArgumentException>(() => new LogManager((ILogWriterConfig) null));
+            Assert.ThrowsAny<ArgumentException>(() => new LogManager((ILogWriter) null));
         }
 
         [Fact]

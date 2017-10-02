@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="Arg.cs">
 // Copyright (c) 2011-2017 https://github.com/logjam2.  
 // </copyright>
@@ -11,16 +11,10 @@ namespace LogJam.Shared.Internal
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Diagnostics.Contracts;
     using System.Linq;
 
-    //#if CODECONTRACTS
-    //    
-    //#else
-    //    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
-    //    internal class ContractAbbreviatorAttribute: Attribute
-    //    { }
-    //#endif
 
     /// <summary>
     /// Argument validation helpers.
@@ -30,6 +24,20 @@ namespace LogJam.Shared.Internal
 
         [ContractAbbreviator]
         public static void NotNull<T>(T value, string parameterName)
+        {
+#if CODECONTRACTS
+            Contract.Requires<ArgumentNullException>(value != null);
+#else
+            if (value == null)
+            {
+                throw new ArgumentNullException(parameterName);
+            }
+#endif
+        }
+
+        [Conditional("DEBUG")]
+        [ContractAbbreviator]
+        public static void DebugNotNull<T>(T value, string parameterName)
         {
 #if CODECONTRACTS
             Contract.Requires<ArgumentNullException>(value != null);

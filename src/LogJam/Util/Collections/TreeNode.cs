@@ -24,7 +24,9 @@ namespace LogJam.Util.Collections
     /// </summary>
     /// <typeparam name="T">The type of all nodes within this tree.</typeparam>
     /// <remarks>This class is not threadsafe.</remarks>
+#if CODECONTRACTS
 	[ContractClass(typeof(TreeNodeContract<>))]
+#endif
     public abstract class TreeNode<T> : IComparer<T>
 		where T : TreeNode<T>
 	{

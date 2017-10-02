@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="LogManager.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -115,7 +115,9 @@ namespace LogJam
         /// </param>
         public LogManager(params ILogWriterConfig[] logWriterConfigs)
             : this(new LogManagerConfig(logWriterConfigs))
-        {}
+        {
+            Arg.NoneNull(logWriterConfigs, nameof(logWriterConfigs));
+        }
 
         /// <summary>
         /// Creates a new <see cref="LogManager" /> instance using the specified <paramref name="logWriters" />.
@@ -127,6 +129,8 @@ namespace LogJam
         public LogManager(params ILogWriter[] logWriters)
             : this(logWriters.Select(logWriter => (ILogWriterConfig) new UseExistingLogWriterConfig(logWriter)).ToArray())
         {
+            Arg.NoneNull(logWriters, nameof(logWriters));
+
             // Get the first SetupLog from the passed in logwriters
             var setupTracerFactory = GetSetupTracerFactoryForComponents(logWriters.OfType<ILogJamComponent>());
             _setupTracerFactory = setupTracerFactory ?? _setupTracerFactory ?? new SetupLog();

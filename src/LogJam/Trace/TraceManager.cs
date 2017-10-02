@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TraceManager.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -77,6 +77,20 @@ namespace LogJam.Trace
             : this(TraceManagerConfig.Default(new LogManagerConfig()), setupLog)
         {
             // TODO: Check for local or remote config?
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="TraceManager" /> instance using the specified <paramref name="logManager"/> and <paramref name="traceWriterConfig" />.
+        /// </summary>
+        /// <param name="logManager"></param>
+        /// <param name="traceWriterConfigs">A set of 1 or more <see cref="TraceWriterConfig" />s to use for this <c>TraceManager</c>.</param>
+        public TraceManager(LogManager logManager, params TraceWriterConfig[] traceWriterConfigs)
+            : this(logManager)
+        {
+            Arg.NotNull(logManager, nameof(logManager));
+            Arg.NoneNull(traceWriterConfigs, nameof(traceWriterConfigs));
+
+            Config.Writers.UnionWith(traceWriterConfigs);
         }
 
         /// <summary>
@@ -200,20 +214,6 @@ namespace LogJam.Trace
             : this(new TraceManagerConfig(traceWriterConfig), setupLog)
         {
             Arg.NotNull(traceWriterConfig, nameof(traceWriterConfig));
-        }
-
-        /// <summary>
-        /// Creates a new <see cref="TraceManager" /> instance using the specified <paramref name="logManager"/> and <paramref name="traceWriterConfig" />.
-        /// </summary>
-        /// <param name="logManager"></param>
-        /// <param name="traceWriterConfigs">A set of 1 or more <see cref="TraceWriterConfig" />s to use for this <c>TraceManager</c>.</param>
-        public TraceManager(LogManager logManager, params TraceWriterConfig[] traceWriterConfigs)
-            : this(logManager)
-        {
-            Arg.NotNull(logManager, nameof(logManager));
-            Arg.NotNull(traceWriterConfigs, nameof(traceWriterConfigs));
-
-            Config.Writers.UnionWith(traceWriterConfigs);
         }
 
         /// <summary>
@@ -370,6 +370,16 @@ namespace LogJam.Trace
                 _tracers[name] = new WeakReference(tracer);
                 return tracer;
             }
+        }
+
+        public Tracer GetTracer(Type type)
+        {
+            if (type == null)
+            {
+                return GetTracer(string.Empty);
+            }
+
+            return GetTracer(Config.TypeNameFunc(type));
         }
 
         #endregion

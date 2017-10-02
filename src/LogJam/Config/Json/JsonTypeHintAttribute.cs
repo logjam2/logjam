@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="JsonTypeHintAttribute.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -92,7 +92,7 @@ namespace LogJam.Config.Json
         {
             Arg.NotNull(type, nameof(type));
 
-            return type.GetCustomAttributes(typeof(JsonTypeHintAttribute), false).Cast<JsonTypeHintAttribute>();
+            return type.GetTypeInfo().GetCustomAttributes(typeof(JsonTypeHintAttribute), false).Cast<JsonTypeHintAttribute>();
         }
 
     }

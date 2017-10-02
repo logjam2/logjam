@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TraceManagerTests.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -28,6 +28,14 @@ namespace LogJam.UnitTests.Trace
     /// </summary>
     public sealed class TraceManagerTests
     {
+
+        [Fact]
+        public void TraceManagerArgumentsAreValidated()
+        {
+            Assert.Throws<ArgumentNullException>(() => new TraceManager((LogManager) null));
+            Assert.ThrowsAny<ArgumentException>(() => new TraceManager((LogWriterConfig) null));
+            Assert.ThrowsAny<ArgumentException>(() => new TraceManager((ILogWriter) null));
+        }
 
         [Fact]
         public void EachTraceManagerHasALogManager()

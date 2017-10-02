@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TraceManagerConfig.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -32,6 +32,11 @@ namespace LogJam.Trace.Config
         /// Holds the configuration for <see cref="TraceWriter" />s.
         /// </summary>
         private readonly ObservableSet<TraceWriterConfig> _traceWriterConfigs;
+
+        /// <summary>
+        /// The Type -> <see cref="Tracer.Name"/> function.
+        /// </summary>
+        private Func<Type, string> _typeNameFunc = TypeExtensions.GetCSharpName;
 
         #endregion
 
@@ -134,7 +139,27 @@ namespace LogJam.Trace.Config
         /// <summary>
         /// Gets the set of <see cref="TraceWriterConfig" /> objects that the <see cref="TraceManager" /> is configured from.
         /// </summary>
-        public ISet<TraceWriterConfig> Writers { get { return _traceWriterConfigs; } }
+        public ISet<TraceWriterConfig> Writers => _traceWriterConfigs;
+
+        /// <summary>
+        /// The Type -> <see cref="Tracer.Name"/> function used by <see cref="ITracerFactory.GetTracer"/>
+        /// </summary>
+        /// <remarks>
+        /// To reset to the default value, set
+        /// </remarks>
+        public Func<Type, string> TypeNameFunc
+        {
+            get { return _typeNameFunc; }
+            set
+            {
+                if (value == null)
+                {
+                    // Use default 
+                    value = TypeExtensions.GetCSharpName;
+                }
+                _typeNameFunc = value;
+            }
+        }
 
         private void OnAddingTraceWriterConfig(TraceWriterConfig traceWriterConfig)
         {
