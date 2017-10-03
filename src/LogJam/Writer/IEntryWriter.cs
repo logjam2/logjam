@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="IEntryWriter.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -9,7 +9,9 @@
 
 namespace LogJam.Writer
 {
+#if CODECONTRACTS
     using System.Diagnostics.Contracts;
+#endif
 
     /// <summary>
     /// Supports writing strongly-typed log entries to a log target.

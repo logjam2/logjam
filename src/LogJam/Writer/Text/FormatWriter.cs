@@ -10,9 +10,6 @@
 namespace LogJam.Writer.Text
 {
     using System;
-#if CODECONTRACTS
-    using System.Diagnostics.Contracts;
-#endif
     using System.Text;
     using System.Threading;
 
@@ -171,7 +168,9 @@ namespace LogJam.Writer.Text
         {
             get
             {
+#if CODECONTRACTS
                 Contract.Ensures(Contract.Result<StringBuilder>() != null);
+#endif
                 return _fieldBuffer;
             }
         }

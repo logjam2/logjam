@@ -66,8 +66,7 @@ namespace LogJam
 
             lock (_tracers)
             {
-                Tracer tracer;
-                if (_tracers.TryGetValue(name, out tracer))
+                if (_tracers.TryGetValue(name, out var tracer))
                 {
                     return tracer;
                 }

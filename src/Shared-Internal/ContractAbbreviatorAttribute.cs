@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
-namespace System.Diagnostics.Contracts
+namespace LogJam.Shared.Internal
 {
-    using System.Diagnostics;
 
 // ContractAbbreviatorAttribute is provided in .NET 4.5 and newer
 #if !CODECONTRACTS

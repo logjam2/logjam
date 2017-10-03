@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ILogWriter.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -11,7 +11,9 @@ namespace LogJam.Writer
 {
     using System;
     using System.Collections.Generic;
+#if CODECONTRACTS
     using System.Diagnostics.Contracts;
+#endif
 
 
     /// <summary>

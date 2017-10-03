@@ -1,57 +1,41 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <Import Project="..\..\build\CsprojCommon.targets" />
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <ProjectGuid>{2774CA60-3CAD-493B-BFCB-F77EA7F191E3}</ProjectGuid>
-    <RootNamespace>LogJam.XUnit2</RootNamespace>
-    <AssemblyName>LogJam.XUnit2</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
+    <TargetFrameworks>netstandard1.3</TargetFrameworks><!-- ;net45 -->
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+
+    <!--<DocumentationFile>$(OutputPath)\LogJam.XUnit2.xml</DocumentationFile>-->
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="xunit.abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\xunit.abstractions.2.0.0\lib\net35\xunit.abstractions.dll</HintPath>
-    </Reference>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
+    <DefineConstants>$(DefineConstants);NETSTANDARD</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
+    <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.3.0" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="ITestOutputAccessor.cs" />
-    <Compile Include="LogJamXUnitSetupException.cs" />
-    <Compile Include="NullTestOutput.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ProxyTestOutputAccessor.cs" />
-    <Compile Include="TestOutputHelperExtensions.cs" />
-    <Compile Include="TestOutputFormatWriter.cs" />
-    <Compile Include="TestOutputLogWriterConfig.cs" />
-    <Compile Include="LogJamConfigExtensions.cs" />
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
+    <DefineConstants>$(DefineConstants);CODECONTRACTS</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+    <PackageReference Include="CodeContracts.MSBuild" Version="1.9.10714.3" />
+    <PackageReference Include="System.Diagnostics.Contracts" Version="4.3.0" />
   </ItemGroup>
+  
   <ItemGroup>
-    <ProjectReference Include="..\LogJam\LogJam.csproj">
-      <Project>{43f154ad-aa27-48b3-ba07-d02c92be4f45}</Project>
-      <Name>LogJam</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\LogJam\LogJam-netstandard.csproj" />
   </ItemGroup>
+
   <ItemGroup>
-    <None Include="LogJam.XUnit2.nuspec" />
-    <None Include="packages.config" />
+    <PackageReference Include="xunit.abstractions" Version="2.0.1" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\..\packages\CodeContracts.MSBuild.1.9.10714.3\build\CodeContracts.MSBuild.targets" Condition="Exists('..\..\packages\CodeContracts.MSBuild.1.9.10714.3\build\CodeContracts.MSBuild.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\..\packages\CodeContracts.MSBuild.1.9.10714.3\build\CodeContracts.MSBuild.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\CodeContracts.MSBuild.1.9.10714.3\build\CodeContracts.MSBuild.targets'))" />
-  </Target>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  
+  <ItemGroup>
+    <Compile Include="..\..\build\Version.cs">
+      <Link>Properties\Version.cs</Link>
+    </Compile>
+  </ItemGroup>
+  
+  <Import Project="..\Shared-Internal\Shared-Internal.projitems" Label="Shared" />
+
 </Project>

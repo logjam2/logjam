@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TraceManagerConfigTests.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -11,7 +11,6 @@ namespace LogJam.UnitTests.Trace.Config
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.Contracts;
     using System.IO;
     using System.Linq;
     using System.Xml.Serialization;
@@ -24,12 +23,12 @@ namespace LogJam.UnitTests.Trace.Config
     using LogJam.Trace.Format;
     using LogJam.Trace.Switches;
     using LogJam.Writer;
-    using LogJam.Writer.Text;
 
-    using Newtonsoft.Json;
+    using Json = Newtonsoft.Json;
 
     using Xunit;
     using Xunit.Abstractions;
+    using LogJam.Shared.Internal;
 
 
     /// <summary>
@@ -42,7 +41,7 @@ namespace LogJam.UnitTests.Trace.Config
 
         public TraceManagerConfigTests(ITestOutputHelper testOutputHelper)
         {
-            Contract.Requires<ArgumentNullException>(testOutputHelper != null);
+            Arg.NotNull(testOutputHelper, nameof(testOutputHelper));
 
             _testOutputHelper = testOutputHelper;
         }
@@ -320,9 +319,9 @@ namespace LogJam.UnitTests.Trace.Config
         [MemberData("TestTraceManagerConfigs")]
         public void CanRoundTripTraceManagerConfigToJson(TraceManagerConfig traceManagerConfig)
         {
-            JsonSerializerSettings jsonSettings = new JsonSerializerSettings();
+            var jsonSettings = new Json.JsonSerializerSettings();
             jsonSettings.ContractResolver = new JsonConfigContractResolver(jsonSettings.ContractResolver);
-            string json = JsonConvert.SerializeObject(traceManagerConfig, Formatting.Indented, jsonSettings);
+            string json = Json.JsonConvert.SerializeObject(traceManagerConfig, Json.Formatting.Indented, jsonSettings);
 
             _testOutputHelper.WriteLine(json);
 

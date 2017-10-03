@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TextWriterExtensions.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -10,9 +10,10 @@
 namespace LogJam.Util.Text
 {
     using System;
-    using System.Diagnostics.Contracts;
     using System.IO;
     using System.Text;
+
+    using LogJam.Shared.Internal;
 
 
     /// <summary>
@@ -28,8 +29,9 @@ namespace LogJam.Util.Text
 
         public static void BufferedWrite(this TextWriter textWriter, string s, char[] buffer)
         {
-            Contract.Requires<ArgumentNullException>(textWriter != null);
-            Contract.Requires<ArgumentNullException>(s != null);
+            Arg.DebugNotNull(textWriter, nameof(textWriter));
+            Arg.DebugNotNull(s, nameof(s));
+            Arg.DebugNotNull(buffer, nameof(buffer));
 
             int macIndex = s.Length;
             int bufLen = buffer.Length;
@@ -43,9 +45,14 @@ namespace LogJam.Util.Text
 
         public static void BufferedWrite(this TextWriter textWriter, string s, int startIndex, int length, char[] buffer)
         {
-            Contract.Requires<ArgumentNullException>(textWriter != null);
-            Contract.Requires<ArgumentNullException>(s != null);
-            Contract.Requires<ArgumentOutOfRangeException>(s.Length >= startIndex + length);
+            Arg.DebugNotNull(textWriter, nameof(textWriter));
+            Arg.DebugNotNull(s, nameof(s));
+#if DEBUG
+            if (s.Length < startIndex + length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(s), "BufferedWrite args inconsistent - can't read past the end of s.");
+            }
+#endif
 
             int macIndex = startIndex + length;
             int bufLen = buffer.Length;
@@ -60,8 +67,8 @@ namespace LogJam.Util.Text
 
         public static void BufferedWrite(this TextWriter textWriter, StringBuilder sb, int startIndex, int length, char[] buffer)
         {
-            Contract.Requires<ArgumentNullException>(textWriter != null);
-            Contract.Requires<ArgumentNullException>(sb != null);
+            Arg.DebugNotNull(textWriter, nameof(textWriter));
+            Arg.DebugNotNull(sb, nameof(sb));
 
             int macIndex = Math.Min(sb.Length, startIndex + length);
             int bufLen = buffer.Length;
@@ -83,7 +90,6 @@ namespace LogJam.Util.Text
 
         public static void WriteIndentedLines(this TextWriter textWriter, string s, int indentSpaces, string linePrefix = null, bool endWithNewline = true)
         {
-            Contract.Requires<ArgumentOutOfRangeException>(indentSpaces >= 0);
 
             throw new NotImplementedException();
             /*

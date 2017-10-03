@@ -11,10 +11,10 @@ namespace LogJam.Config
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.Contracts;
     using System.Linq;
     using System.Reflection;
 
+    using LogJam.Shared.Internal;
     using LogJam.Trace.Config;
     using LogJam.Trace.Format;
     using LogJam.Trace.Switches;
@@ -55,7 +55,7 @@ namespace LogJam.Config
 
         public static void Register(Type type)
         {
-            Contract.Requires<ArgumentNullException>(type != null);
+            Arg.NotNull(type, nameof(type));
 
             var typeInfo = type.GetTypeInfo();
             if (typeInfo.IsAbstract || typeInfo.IsInterface || typeInfo.IsValueType)
@@ -102,7 +102,7 @@ namespace LogJam.Config
         /// <returns></returns>
         public static IEnumerable<Type> GetConcreteTypesFor(Type baseType)
         {
-            Contract.Requires<ArgumentNullException>(baseType != null);
+            Arg.NotNull(baseType, nameof(baseType));
 
             var baseTypeInfo = baseType.GetTypeInfo();
             if (baseTypeInfo.ContainsGenericParameters)

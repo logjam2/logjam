@@ -118,11 +118,9 @@ namespace LogJam.Trace
             // REVIEW: The need for this is messy, and we miss cases (eg multiple existing logwriters used) - perhaps each component manages its own messages? 
             // If there's an existing LogWriter in the logwriter config, use its SetupLog, if any.
             ITracerFactory setupTracerFactory = null;
-            var useExistingLogWriterConfig = logWriterConfig as UseExistingLogWriterConfig;
-            if (useExistingLogWriterConfig != null)
+            if (logWriterConfig is UseExistingLogWriterConfig useExistingLogWriterConfig)
             {
-                var component = useExistingLogWriterConfig.LogWriter as ILogJamComponent;
-                if (component != null)
+                if (useExistingLogWriterConfig.LogWriter is ILogJamComponent component)
                 {
                     setupTracerFactory = component.SetupTracerFactory;
                 }
@@ -145,9 +143,8 @@ namespace LogJam.Trace
                            };
 
             // Ensure trace formatting is enabled for logWriterConfig, if it's a text writer.
-            var textLogWriterConfig = logWriterConfig as TextLogWriterConfig;
-            if ((textLogWriterConfig != null)
-                && ! textLogWriterConfig.HasFormatterFor<TraceEntry>())
+            if ((logWriterConfig is TextLogWriterConfig textLogWriterConfig)
+                && !textLogWriterConfig.HasFormatterFor<TraceEntry>())
             {
                 textLogWriterConfig.Format<TraceEntry>();
             }
@@ -348,10 +345,9 @@ namespace LogJam.Trace
             name = name.Trim();
 
             // Lookup the Tracer, or add a new one
-            WeakReference weakRefTracer;
             lock (this)
             {
-                if (_tracers.TryGetValue(name, out weakRefTracer))
+                if (_tracers.TryGetValue(name, out WeakReference weakRefTracer))
                 {
                     object objTracer = weakRefTracer.Target;
                     if (objTracer == null)
@@ -424,8 +420,7 @@ namespace LogJam.Trace
             var traceWriters = new List<TraceWriter>();
             foreach (var traceWriterTuple in _activeTraceEntryWriters)
             {
-                ITraceSwitch traceSwitch;
-                if (traceWriterTuple.Item1.Switches.FindBestMatchingSwitch(tracerName, out traceSwitch))
+                if (traceWriterTuple.Item1.Switches.FindBestMatchingSwitch(tracerName, out ITraceSwitch traceSwitch))
                 {
                     traceWriters.Add(new TraceWriter(traceSwitch, traceWriterTuple.Item2, SetupTracerFactory));
                 }

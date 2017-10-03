@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ConsoleLoggingTests.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -9,9 +9,9 @@
 
 namespace LogJam.UnitTests.Writer.Text
 {
+    using LogJam.Shared.Internal;
     using System;
     using System.Diagnostics;
-    using System.Diagnostics.Contracts;
     using System.Threading.Tasks;
 
     using Xunit;
@@ -29,7 +29,7 @@ namespace LogJam.UnitTests.Writer.Text
 
         public ConsoleLoggingTests(ITestOutputHelper testOutputHelper)
         {
-            Contract.Requires<ArgumentNullException>(testOutputHelper != null);
+            Arg.NotNull(testOutputHelper, nameof(testOutputHelper));
 
             _testOutputHelper = testOutputHelper;
         }
@@ -81,9 +81,8 @@ namespace LogJam.UnitTests.Writer.Text
         [InlineData(ConfigForm.Fluent)]
         public void BasicConsoleTracing(ConfigForm configForm)
         {
-            string stdout, stderr;
             string commands = string.Format("setup-trace-{0} setup-color simpletrace", configForm.ToString().ToLower());
-            RunConsoleTester(commands, out stdout, out stderr);
+            RunConsoleTester(commands, out string stdout, out string stderr);
             Assert.Matches(@"Info\s+LJ\.CT\.ConsoleTestCases\s+By default info is enabled\r\n", stdout);
             Assert.Empty(stderr);
         }
@@ -93,9 +92,8 @@ namespace LogJam.UnitTests.Writer.Text
         [InlineData(ConfigForm.Fluent)]
         public void BasicConsoleTracingWithDebug(ConfigForm configForm)
         {
-            string stdout, stderr;
             string commands = string.Format("setup-trace-{0}-all-levels setup-color trace-debug", configForm.ToString().ToLower());
-            RunConsoleTester(commands, out stdout, out stderr);
+            RunConsoleTester(commands, out string stdout, out string stderr);
             Assert.Matches(@"Debug\s+LJ\.CT\.ConsoleTestCases\s+Debug is enabled for this class\r\n", stdout);
             Assert.Empty(stderr);
         }
@@ -105,9 +103,8 @@ namespace LogJam.UnitTests.Writer.Text
         [InlineData(ConfigForm.Fluent)]
         public void TraceWithTimestampsToConsole(ConfigForm configForm)
         {
-            string stdout, stderr;
             string commands = string.Format("setup-trace-{0} trace-timestamps setup-color simpletrace", configForm.ToString().ToLower());
-            RunConsoleTester(commands, out stdout, out stderr);
+            RunConsoleTester(commands, out string stdout, out string stderr);
             Assert.Matches(@"\d{2}:\d{2}:\d{2}\.\d{3}\s+Info\s+LJ\.CT\.ConsoleTestCases\s+By default info is enabled\r\n", stdout);
             Assert.Empty(stderr);
         }
@@ -117,9 +114,8 @@ namespace LogJam.UnitTests.Writer.Text
         [InlineData(ConfigForm.Fluent)]
         public void TraceAllLevelsToConsole(ConfigForm configForm)
         {
-            string stdout, stderr;
             string commands = string.Format("setup-trace-{0}-all-levels trace-timestamps setup-color trace-all-levels", configForm.ToString().ToLower());
-            RunConsoleTester(commands, out stdout, out stderr);
+            RunConsoleTester(commands, out string stdout, out string stderr);
             Assert.Contains("Verbose message\r\n", stdout);
             Assert.Contains("Debug message\r\n", stdout);
             Assert.Empty(stderr);
@@ -128,8 +124,7 @@ namespace LogJam.UnitTests.Writer.Text
         [Fact]
         public void TraceExceptionToConsole()
         {
-            string stdout, stderr;
-            RunConsoleTester("setup-trace-fluent setup-color warn-exception", out stdout, out stderr);
+            RunConsoleTester("setup-trace-fluent setup-color warn-exception", out string stdout, out string stderr);
             Assert.Matches(@"Warn\s+LJ\.CT\.ConsoleTestCases\s+Warning exception\r\n", stdout);
             Assert.Empty(stderr);
         }

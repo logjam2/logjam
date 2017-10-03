@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ConfigTypeJsonConverter.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -11,11 +11,11 @@ namespace LogJam.Config.Json
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.Contracts;
     using System.Linq;
 
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
+    using LogJam.Shared.Internal;
 
 
     /// <summary>
@@ -45,7 +45,7 @@ namespace LogJam.Config.Json
         /// <param name="baseType">The property type that is get or set (aka the assignable type).</param>
         internal ConfigTypeJsonConverter(Type baseType) //, JsonSerializer innerSerializer)
         {
-            Contract.Requires<ArgumentNullException>(baseType != null);
+            Arg.NotNull(baseType, nameof(baseType));
             //Contract.Requires<ArgumentNullException>(innerSerializer != null);
 
             //_innerSerializer = innerSerializer;

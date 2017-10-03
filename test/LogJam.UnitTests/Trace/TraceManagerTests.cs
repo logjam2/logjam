@@ -110,7 +110,7 @@ namespace LogJam.UnitTests.Trace
 
                 Assert.Single(listLogWriter);
                 TraceEntry traceEntry = listLogWriter.First();
-                Assert.Equal(GetType().GetCSharpName(), traceEntry.TracerName);
+                Assert.Equal("LogJam.UnitTests.Trace.TraceManagerTests", traceEntry.TracerName);
                 Assert.Equal(TraceLevel.Info, traceEntry.TraceLevel);
             }
         }

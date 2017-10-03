@@ -10,14 +10,16 @@
 namespace LogJam.Util
 {
     using System;
+#if !NETSTANDARD
     using System.CodeDom.Compiler;
-    using System.Diagnostics.Contracts;
+#endif
     using System.Linq;
     using System.Reflection;
     using System.Text;
 
     using LogJam.Shared.Internal;
     using System.Collections.Generic;
+    using System.Diagnostics;
 
 
     /// <summary>
@@ -29,58 +31,163 @@ namespace LogJam.Util
 #if !NETSTANDARD
         private static readonly CodeDomProvider s_csharpCodeDomProvider = CodeDomProvider.CreateProvider("CSharp");
 
+        /// <summary>
+        /// Returns the CSharp name for a type. Provides more readable types than <see cref="Type.ToString()"/>.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="omitTypeParameters">If <c>true</c>, type parameters are omitted from the returned name.</param>
+        /// <returns></returns>
         public static string GetCSharpName(this Type type)
         {
-
             // Old implementation
             var reference = new System.CodeDom.CodeTypeReference(type);
             return s_csharpCodeDomProvider.GetTypeOutput(reference);
         }
 #else
 
-        private static IEnumerable<KeyValuePair<Type, string>> s_csharpAliases = new KeyValuePair<Type, string>[] {
-                new KeyValuePair<Type, string>(typeof(string), "string"),
-                new KeyValuePair<Type, string>(typeof(bool), "bool" ),
-                new KeyValuePair<Type, string>(typeof(byte), "byte" ),
-                new KeyValuePair<Type, string>(typeof(sbyte), "sbyte" ),
-                new KeyValuePair<Type, string>(typeof(char), "char" ),
-                new KeyValuePair<Type, string>(typeof(decimal), "decimal" ),
-                new KeyValuePair<Type, string>(typeof(double), "double" ),
-                new KeyValuePair<Type, string>(typeof(float), "float" ),
-                new KeyValuePair<Type, string>(typeof(int), "int" ),
-                new KeyValuePair<Type, string>(typeof(uint), "uint" ),
-                new KeyValuePair<Type, string>(typeof(long), "long" ),
-                new KeyValuePair<Type, string>(typeof(ulong), "ulong" ),
-                new KeyValuePair<Type, string>(typeof(object), "object" ),
-                new KeyValuePair<Type, string>(typeof(short), "short" ),
-                new KeyValuePair<Type, string>(typeof(ushort), "ushort" )
-};
+        private static IEnumerable<KeyValuePair<Type, ClassNameInfo>> s_csharpAliases = new KeyValuePair<Type, ClassNameInfo>[] {
+                new KeyValuePair<Type, ClassNameInfo>(typeof(string), new ClassNameInfo("string")),
+                new KeyValuePair<Type, ClassNameInfo>(typeof(bool), new ClassNameInfo("bool")),
+                new KeyValuePair<Type, ClassNameInfo>(typeof(byte), new ClassNameInfo("byte")),
+                new KeyValuePair<Type, ClassNameInfo>(typeof(sbyte), new ClassNameInfo("sbyte")),
+                new KeyValuePair<Type, ClassNameInfo>(typeof(char), new ClassNameInfo("char")),
+                new KeyValuePair<Type, ClassNameInfo>(typeof(decimal), new ClassNameInfo("decimal")),
+                new KeyValuePair<Type, ClassNameInfo>(typeof(double), new ClassNameInfo("double")),
+                new KeyValuePair<Type, ClassNameInfo>(typeof(float), new ClassNameInfo("float")),
+                new KeyValuePair<Type, ClassNameInfo>(typeof(int), new ClassNameInfo("int")),
+                new KeyValuePair<Type, ClassNameInfo>(typeof(uint), new ClassNameInfo("uint")),
+                new KeyValuePair<Type, ClassNameInfo>(typeof(long), new ClassNameInfo("long")),
+                new KeyValuePair<Type, ClassNameInfo>(typeof(ulong), new ClassNameInfo("ulong")),
+                new KeyValuePair<Type, ClassNameInfo>(typeof(object), new ClassNameInfo("object")),
+                new KeyValuePair<Type, ClassNameInfo>(typeof(short), new ClassNameInfo("short")),
+                new KeyValuePair<Type, ClassNameInfo>(typeof(ushort), new ClassNameInfo("ushort"))
+        };
 
-        private static IDictionary<Type, string> s_typeCSharpNames = new System.Collections.Concurrent.ConcurrentDictionary<Type, string>(s_csharpAliases);
+        /// <summary>
+        /// Holds multiple forms of a csharp class name.
+        /// </summary>
+        private struct ClassNameInfo
+        {
+            public bool hasTypeParameters;
+            public string nameWithTypeParameters;
+            public string nameWithoutTypeParameters;
 
+            public ClassNameInfo(string name)
+            {
+                hasTypeParameters = false;
+                nameWithoutTypeParameters = name;
+                nameWithTypeParameters = null;
+            }
+        }
+
+        /// <summary>
+        /// Type -> name cache with no generic type parameters.
+        /// </summary>
+        private static IDictionary<Type, ClassNameInfo> s_typeCSharpNames = new System.Collections.Concurrent.ConcurrentDictionary<Type, ClassNameInfo>(s_csharpAliases);
 
         /// <summary>
         /// Returns the CSharp name for a type. Provides more readable types than <see cref="Type.ToString()"/>.
         /// </summary>
         /// <param name="type"></param>
+        /// <param name="omitTypeParameters">If <c>true</c>, type parameters are omitted from the returned name.</param>
         /// <returns></returns>
-        public static string GetCSharpName(this Type type)
+        public static string GetCSharpName(this Type type, bool omitTypeParameters = false)
         {
-            string typeName;
-            if (s_typeCSharpNames.TryGetValue(type, out typeName))
+            ClassNameInfo classNameInfo;
+            if (s_typeCSharpNames.TryGetValue(type, out classNameInfo))
             {
-                return typeName;
+                if (! classNameInfo.hasTypeParameters)
+                {
+                    Debug.Assert(classNameInfo.nameWithoutTypeParameters != null);
+                    return classNameInfo.nameWithoutTypeParameters;
+                }
+                if (omitTypeParameters)
+                {
+                    if (classNameInfo.nameWithoutTypeParameters != null)
+                    {
+                        return classNameInfo.nameWithoutTypeParameters;
+                    }
+                }
+                else
+                {
+                    if (classNameInfo.nameWithTypeParameters != null)
+                    {
+                        return classNameInfo.nameWithTypeParameters;
+                    }
+                }
             }
 
+            var typeInfo = type.GetTypeInfo();
+
             var sb = new StringBuilder();
-            sb.Append(type.Namespace);
+            if (typeInfo.IsNested)
+            {
+                sb.Append(typeInfo.DeclaringType.GetCSharpName(omitTypeParameters));
+            }
+            else {
+                sb.Append(typeInfo.Namespace);
+            }
             if (sb.Length > 0)
             {
                 sb.Append('.');
             }
-            sb.Append(type.Name);
-            return sb.ToString();
+
+            sb.Append(typeInfo.Name);
+            var genericTypeArguments = typeInfo.GenericTypeArguments;
+            int typeArgumentLength = genericTypeArguments.Length;
+            int typeParameterCount = typeInfo.GenericTypeParameters.Length + typeArgumentLength;
+            if (typeParameterCount > 0)
+            {
+                // Chop off the "`2" suffix
+                int ich = sb.Length - 1;
+                while ((ich > 0) && char.IsDigit(sb[ich])) { --ich; }
+                if (sb[ich] == '`')
+                {
+                    sb.Length = ich;
+                }
+
+                if (! omitTypeParameters)
+                {
+                    // Add generic arguments
+                    sb.Append('<');
+                    for (int i = 0; i < typeParameterCount; ++i)
+                    {
+                        if (i > 0)
+                        {
+                            sb.Append(',');
+                        }
+
+                        Type typeArgument;
+                        if ((i < typeArgumentLength) &&
+                            ((typeArgument = genericTypeArguments[i]) != null))
+                        {
+                            if (i > 0)
+                            {
+                                sb.Append(' ');
+                            }
+                            sb.Append(typeArgument.GetCSharpName(omitTypeParameters));
+                        }
+                    }
+                    sb.Append('>');
+                }
+            }
+
+            // Cache for future use
+            var typeName = sb.ToString();
+            classNameInfo.hasTypeParameters = typeParameterCount > 0;
+            if (omitTypeParameters || (typeParameterCount == 0))
+            {
+                classNameInfo.nameWithoutTypeParameters = typeName;
+            }
+            else
+            {
+                classNameInfo.nameWithTypeParameters = typeName;
+            }
+            s_typeCSharpNames[type] = classNameInfo;
+
+            return typeName;
         }
+
 #endif
 
         /// <summary>
@@ -95,11 +202,11 @@ namespace LogJam.Util
             Arg.DebugNotNull(objectType, nameof(objectType));
             Arg.DebugNotNull(parameterizedType, nameof(parameterizedType));
 #if DEBUG
-            if (! objectType.IsConstructedGenericType)
+            if (!objectType.IsConstructedGenericType)
             {
                 throw new ArgumentException($"{objectType} must be a constructed generic type", nameof(objectType));
             }
-            if (! parameterizedType.GetTypeInfo().ContainsGenericParameters)
+            if (!parameterizedType.GetTypeInfo().ContainsGenericParameters)
             {
                 throw new ArgumentException($"{parameterizedType} must have generic type parameters", nameof(parameterizedType));
             }
@@ -124,15 +231,8 @@ namespace LogJam.Util
         {
             Arg.DebugNotNull(objectType, nameof(objectType));
             Arg.DebugNotNull(parameterizedType, nameof(parameterizedType));
-#if DEBUG
-#if NETSTANDARD
-            Contract.Requires<ArgumentException>(!objectType.ContainsGenericParameters);
-            Contract.Requires<ArgumentException>(parameterizedType.ContainsGenericParameters);
-#else
-            Contract.Requires<ArgumentException>(! objectType.ContainsGenericParameters);
-            Contract.Requires<ArgumentException>(parameterizedType.ContainsGenericParameters);
-#endif
-#endif
+            Arg.DebugRequires(!objectType.ContainsGenericParameters, "objectType must not contain generic parameters");
+            Arg.DebugRequires(parameterizedType.ContainsGenericParameters, "parameterizedType must contain generic parameters");
 
             var genericObjectType = objectType.GetGenericTypeDefinition()?.GetTypeInfo();
             if (parameterizedType == genericObjectType)
@@ -171,27 +271,6 @@ namespace LogJam.Util
                     return null;
                 }
             }
-        }
-
-        internal static object InvokeGenericMethod(this object objThis, Type[] typeArgs, string methodName, params object[] args)
-        {
-            Arg.NotNull(objThis, nameof(objThis));
-            Arg.NotNullOrEmpty(typeArgs, nameof(typeArgs));
-            Arg.NotNullOrWhitespace(methodName, nameof(methodName));
-
-            for (var type = objThis.GetType().GetTypeInfo(); type != null; type = type.BaseType?.GetTypeInfo())
-            {
-                var genericMethodInfo = type.DeclaredMethods
-                                            .SingleOrDefault(mi => ! mi.IsStatic && string.Equals(mi.Name, methodName, StringComparison.Ordinal)
-                                                                   && mi.IsGenericMethodDefinition && mi.GetGenericArguments().Length == typeArgs.Length);
-                if (genericMethodInfo != null)
-                {
-                    var methodInfo = genericMethodInfo.MakeGenericMethod(typeArgs);
-                    return methodInfo.Invoke(objThis, args);
-                }
-
-            }
-            throw new MissingMemberException($"Matching method {methodName} not found on type {objThis.GetType().GetCSharpName()}");
         }
 
     }

@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="StartableExtensions.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -11,8 +11,8 @@ namespace LogJam.Util
 {
     using System;
     using System.Collections;
-    using System.Diagnostics.Contracts;
 
+    using LogJam.Shared.Internal;
     using LogJam.Trace;
 
 
@@ -24,7 +24,7 @@ namespace LogJam.Util
 
         internal static void SafeStart(this IStartable startable, Tracer tracer)
         {
-            Contract.Requires<ArgumentNullException>(tracer != null);
+            Arg.DebugNotNull(tracer, nameof(tracer));
 
             if (startable == null)
             {
@@ -51,7 +51,7 @@ namespace LogJam.Util
 
         internal static void SafeStart(this IStartable startable, ITracerFactory tracerFactory)
         {
-            Contract.Requires<ArgumentNullException>(tracerFactory != null);
+            Arg.NotNull(tracerFactory, nameof(tracerFactory));
 
             if (startable == null)
             {
@@ -64,8 +64,8 @@ namespace LogJam.Util
 
         internal static void SafeStart(this IEnumerable collection, ITracerFactory tracerFactory)
         {
-            Contract.Requires<ArgumentNullException>(collection != null);
-            Contract.Requires<ArgumentNullException>(tracerFactory != null);
+            Arg.NotNull(collection, nameof(collection));
+            Arg.NotNull(tracerFactory, nameof(tracerFactory));
 
             foreach (object o in collection)
             {
@@ -75,7 +75,7 @@ namespace LogJam.Util
 
         internal static void SafeStop(this IStartable startable, Tracer tracer)
         {
-            Contract.Requires<ArgumentNullException>(tracer != null);
+            Arg.NotNull(tracer, nameof(tracer));
 
             if (startable == null)
             {
@@ -99,7 +99,7 @@ namespace LogJam.Util
 
         internal static void SafeStop(this IStartable startable, ITracerFactory tracerFactory)
         {
-            Contract.Requires<ArgumentNullException>(tracerFactory != null);
+            Arg.NotNull(tracerFactory, nameof(tracerFactory));
 
             if (startable == null)
             {
@@ -112,8 +112,8 @@ namespace LogJam.Util
 
         internal static void SafeStop(this IEnumerable collection, ITracerFactory tracerFactory)
         {
-            Contract.Requires<ArgumentNullException>(collection != null);
-            Contract.Requires<ArgumentNullException>(tracerFactory != null);
+            Arg.NotNull(collection, nameof(collection));
+            Arg.NotNull(tracerFactory, nameof(tracerFactory));
 
             foreach (object o in collection)
             {
@@ -123,7 +123,7 @@ namespace LogJam.Util
 
         internal static void SafeDispose(this IDisposable disposable, Tracer tracer)
         {
-            Contract.Requires<ArgumentNullException>(tracer != null);
+            Arg.NotNull(tracer, nameof(tracer));
 
             if (disposable == null)
             {
@@ -144,7 +144,7 @@ namespace LogJam.Util
 
         internal static void SafeDispose(this IDisposable disposable, ITracerFactory tracerFactory)
         {
-            Contract.Requires<ArgumentNullException>(tracerFactory != null);
+            Arg.NotNull(tracerFactory, nameof(tracerFactory));
 
             if (disposable == null)
             {
@@ -157,8 +157,8 @@ namespace LogJam.Util
 
         internal static void SafeDispose(this IEnumerable collection, ITracerFactory tracerFactory)
         {
-            Contract.Requires<ArgumentNullException>(collection != null);
-            Contract.Requires<ArgumentNullException>(tracerFactory != null);
+            Arg.NotNull(collection, nameof(collection));
+            Arg.NotNull(tracerFactory, nameof(tracerFactory));
 
             foreach (object o in collection)
             {

@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TraceWriterConfig.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -9,7 +9,6 @@
 
 namespace LogJam.Trace.Config
 {
-    using System;
     using System.Runtime.Serialization;
 
     using LogJam.Config;

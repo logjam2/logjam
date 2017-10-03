@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TestOutputHelperExtensions.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -11,8 +11,8 @@ namespace LogJam
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.Contracts;
 
+    using LogJam.Shared.Internal;
     using LogJam.Writer;
     using LogJam.Writer.Text;
     using LogJam.XUnit2;
@@ -36,15 +36,14 @@ namespace LogJam
         public static void WriteEntries<TEntry>(this ITestOutputHelper testOutputHelper, IEnumerable<TEntry> entries, EntryFormatter<TEntry> entryFormatter = null)
             where TEntry : ILogEntry
         {
-            Contract.Requires<ArgumentNullException>(entries != null);
-            Contract.Requires<ArgumentNullException>(testOutputHelper != null);
+            Arg.NotNull(testOutputHelper, nameof(testOutputHelper));
+            Arg.NotNull(entries, nameof(entries));
 
             var setupLog = new SetupLog();
             var formatWriter = new TestOutputFormatWriter(testOutputHelper, setupLog);
             var logWriter = new TextLogWriter(setupLog, formatWriter);
             logWriter.AddFormat(entryFormatter);
-            IEntryWriter<TEntry> entryWriter;
-            logWriter.TryGetEntryWriter(out entryWriter);
+            logWriter.TryGetEntryWriter(out IEntryWriter<TEntry> entryWriter);
             using (logWriter)
             {
                 logWriter.Start();

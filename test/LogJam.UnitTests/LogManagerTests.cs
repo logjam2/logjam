@@ -11,7 +11,6 @@ namespace LogJam.UnitTests
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.Contracts;
     using System.IO;
     using System.Linq;
 
@@ -23,6 +22,7 @@ namespace LogJam.UnitTests
 
     using Xunit;
     using Xunit.Abstractions;
+    using LogJam.Shared.Internal;
 
 
     /// <summary>
@@ -35,7 +35,7 @@ namespace LogJam.UnitTests
 
         public LogManagerTests(ITestOutputHelper testOutputHelper)
         {
-            Contract.Requires<ArgumentNullException>(testOutputHelper != null);
+            Arg.NotNull(testOutputHelper, nameof(testOutputHelper));
 
             _testOutputHelper = testOutputHelper;
         }

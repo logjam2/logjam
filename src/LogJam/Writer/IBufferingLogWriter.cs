@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="IBufferingLogWriter.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -10,9 +10,10 @@
 namespace LogJam.Writer
 {
     using System;
+#if CODECONTRACTS
     using System.Collections.Generic;
     using System.Diagnostics.Contracts;
-
+#endif
 
     /// <summary>
     /// Adds support for "smart" flushing logic to log writers that buffer output, and need to know
@@ -53,7 +54,7 @@ namespace LogJam.Writer
             }
         }
 
-        #region Not in contract
+#region Not in contract
 
         public bool TryGetEntryWriter<TEntry>(out IEntryWriter<TEntry> entryWriter) where TEntry : ILogEntry
         {
@@ -62,7 +63,7 @@ namespace LogJam.Writer
 
         public IEnumerable<KeyValuePair<Type, object>> EntryWriters { get { throw new NotImplementedException(); } }
 
-        #endregion
+#endregion
     }
 #endif
 

@@ -10,15 +10,18 @@
 namespace LogJam.Trace
 {
     using System;
+#if CODECONTRACTS
     using System.Diagnostics.Contracts;
-
+#endif
     using LogJam.Trace.Config;
 
 
     /// <summary>
     /// Controls configuration and creation/caching of <see cref="Tracer" />s.
     /// </summary>
+#if CODECONTRACTS
     [ContractClass(typeof(TracerFactoryContract))]
+#endif
     public interface ITracerFactory : IDisposable
     {
 
@@ -43,11 +46,12 @@ namespace LogJam.Trace
 
     }
 
+#if CODECONTRACTS
     [ContractClassFor(typeof(ITracerFactory))]
     internal abstract class TracerFactoryContract : ITracerFactory
     {
 
-        #region Implementation of ITracerFactory
+#region Implementation of ITracerFactory
 
         public Tracer GetTracer(string name)
         {
@@ -63,14 +67,15 @@ namespace LogJam.Trace
             throw new NotImplementedException();
         }
 
-        #endregion
+#endregion
 
-        #region Implementation of IDisposable
+#region Implementation of IDisposable
 
         public abstract void Dispose();
 
-        #endregion
+#endregion
 
     }
+#endif
 
 }

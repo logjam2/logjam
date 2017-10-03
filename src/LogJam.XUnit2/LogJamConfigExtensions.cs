@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="LogJamConfigExtensions.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -9,10 +9,9 @@
 
 namespace LogJam.XUnit2
 {
-    using System;
-    using System.Diagnostics.Contracts;
 
     using LogJam.Config;
+    using LogJam.Shared.Internal;
     using LogJam.Trace;
     using LogJam.Trace.Config;
     using LogJam.Writer.Text;
@@ -29,8 +28,8 @@ namespace LogJam.XUnit2
         public static TestOutputLogWriterConfig UseTestOutput(this LogManagerConfig logManagerConfig,
                                                               ITestOutputHelper testOutput)
         {
-            Contract.Requires<ArgumentNullException>(logManagerConfig != null);
-            Contract.Requires<ArgumentNullException>(testOutput != null);
+            Arg.NotNull(logManagerConfig, nameof(logManagerConfig));
+            Arg.NotNull(testOutput, nameof(testOutput));
 
             var testOutputLogWriterConfig = new TestOutputLogWriterConfig(testOutput);
             logManagerConfig.Writers.Add(testOutputLogWriterConfig);
@@ -42,9 +41,9 @@ namespace LogJam.XUnit2
                                                           SwitchSet switchSet,
                                                           EntryFormatter<TraceEntry> traceFormatter = null)
         {
-            Contract.Requires<ArgumentNullException>(traceManagerConfig != null);
-            Contract.Requires<ArgumentNullException>(testOutput != null);
-            Contract.Requires<ArgumentNullException>(switchSet != null);
+            Arg.NotNull(traceManagerConfig, nameof(traceManagerConfig));
+            Arg.NotNull(testOutput, nameof(testOutput));
+            Arg.NotNull(switchSet, nameof(switchSet));
 
             return TraceManagerConfigFluentExtensions.TraceTo(traceManagerConfig, new TestOutputLogWriterConfig(testOutput), switchSet, traceFormatter);
         }
@@ -55,9 +54,9 @@ namespace LogJam.XUnit2
                                                           ITraceSwitch traceSwitch = null,
                                                           EntryFormatter<TraceEntry> traceFormatter = null)
         {
-            Contract.Requires<ArgumentNullException>(traceManagerConfig != null);
-            Contract.Requires<ArgumentNullException>(testOutput != null);
-            Contract.Requires<ArgumentNullException>(tracerName != null);
+            Arg.NotNull(traceManagerConfig, nameof(traceManagerConfig));
+            Arg.NotNull(testOutput, nameof(testOutput));
+            Arg.NotNull(tracerName, nameof(tracerName));
 
             return TraceManagerConfigFluentExtensions.TraceTo(traceManagerConfig, new TestOutputLogWriterConfig(testOutput), tracerName, traceSwitch, traceFormatter);
         }

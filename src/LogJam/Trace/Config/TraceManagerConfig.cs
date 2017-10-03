@@ -26,6 +26,11 @@ namespace LogJam.Trace.Config
     /// </summary>
     public sealed class TraceManagerConfig : IEquatable<TraceManagerConfig>
     {
+        /// <summary>
+        /// The default <see cref="TypeNameFunc"/>, which uses CSharp names including generic type parameters.
+        /// </summary>
+        public static readonly Func<Type, string> DefaultTypeNameFunc = t => TypeExtensions.GetCSharpName(t, false);
+
         #region Fields
 
         /// <summary>
@@ -36,7 +41,7 @@ namespace LogJam.Trace.Config
         /// <summary>
         /// The Type -> <see cref="Tracer.Name"/> function.
         /// </summary>
-        private Func<Type, string> _typeNameFunc = TypeExtensions.GetCSharpName;
+        private Func<Type, string> _typeNameFunc = DefaultTypeNameFunc;
 
         #endregion
 
@@ -145,18 +150,15 @@ namespace LogJam.Trace.Config
         /// The Type -> <see cref="Tracer.Name"/> function used by <see cref="ITracerFactory.GetTracer"/>
         /// </summary>
         /// <remarks>
-        /// To reset to the default value, set
+        /// To reset to the default value, set to <see cref="TraceManagerConfig.DefaultTypeNameFunc"/>.
         /// </remarks>
         public Func<Type, string> TypeNameFunc
         {
             get { return _typeNameFunc; }
             set
             {
-                if (value == null)
-                {
-                    // Use default 
-                    value = TypeExtensions.GetCSharpName;
-                }
+                Arg.NotNull(value, nameof(value));
+
                 _typeNameFunc = value;
             }
         }

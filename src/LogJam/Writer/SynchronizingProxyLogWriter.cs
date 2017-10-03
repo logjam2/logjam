@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="SynchronizingProxyLogWriter.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -11,9 +11,9 @@ namespace LogJam.Writer
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.Contracts;
     using System.Threading;
 
+    using LogJam.Shared.Internal;
     using LogJam.Trace;
     using LogJam.Util;
 
@@ -113,8 +113,7 @@ namespace LogJam.Writer
 
         public override bool TryGetEntryWriter<TEntry>(out IEntryWriter<TEntry> entryWriter)
         {
-            object objEntryWriter;
-            if (! _entryWriters.TryGetValue(typeof(TEntry), out objEntryWriter))
+            if (! _entryWriters.TryGetValue(typeof(TEntry), out var objEntryWriter))
             {
                 entryWriter = null;
                 return false;
@@ -141,7 +140,7 @@ namespace LogJam.Writer
             internal SynchronizingProxyEntryWriter(SynchronizingProxyLogWriter parent, IEntryWriter<TEntry> innerEntryWriter)
                 : base(innerEntryWriter)
             {
-                Contract.Requires<ArgumentNullException>(parent != null);
+                Arg.NotNull(parent, nameof(parent));
 
                 _parent = parent;
             }

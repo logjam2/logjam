@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TestOutputLogWriterConfig.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2.  
 // </copyright>
@@ -9,10 +9,8 @@
 
 namespace LogJam.XUnit2
 {
-    using System;
-    using System.Diagnostics.Contracts;
-
     using LogJam.Config;
+    using LogJam.Shared.Internal;
     using LogJam.Trace;
     using LogJam.Writer.Text;
 
@@ -47,7 +45,7 @@ namespace LogJam.XUnit2
         public TestOutputLogWriterConfig(ITestOutputHelper testOutput)
             : this()
         {
-            Contract.Requires<ArgumentNullException>(testOutput != null);
+            Arg.NotNull(testOutput, nameof(testOutput));
 
             TestOutput = testOutput;
         }

@@ -12,9 +12,10 @@ namespace LogJam.Shared.Internal
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+#if CODECONTRACTS
     using System.Diagnostics.Contracts;
     using System.Linq;
-
+#endif
 
     /// <summary>
     /// Argument validation helpers.
@@ -145,6 +146,12 @@ namespace LogJam.Shared.Internal
 #endif
         }
 
+        /// <summary>
+        /// Throws an <see cref="ArgumentException"/> if <paramref name="value"/> is empty or all whitespace.
+        /// Throws an <see cref="ArgumentNullException"/> if <paramref name="value"/> is <c>null</c>.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="parameterName"></param>
         [ContractAbbreviator]
         public static void NotNullOrWhitespace(string value, string parameterName)
         {
@@ -156,12 +163,17 @@ namespace LogJam.Shared.Internal
             {
                 throw new ArgumentNullException(parameterName);
             }
-            for (int i = 0; i < value.Length; i++)
+            int i = 0;
+            for (; i < value.Length; i++)
             {
-                if (! char.IsWhiteSpace(value[i]))
+                if (!char.IsWhiteSpace(value[i]))
                 {
-                    throw new ArgumentException($"The argument for parameter {parameterName} must not be all whitespace.", paramName: parameterName);
+                    break;
                 }
+            }
+            if (i == value.Length)
+            {
+                throw new ArgumentException($"The argument for parameter {parameterName} must not be empty or all whitespace.", paramName: parameterName);
             }
 #endif
         }
@@ -180,6 +192,87 @@ namespace LogJam.Shared.Internal
             if (value > maximum)
             {
                 throw new ArgumentOutOfRangeException(paramName: parameterName, actualValue: value, message: $"{parameterName} value {value} cannot be greater than {maximum}.");
+            }
+#endif
+        }
+
+        [ContractAbbreviator]
+        public static void Requires(bool assertion, string assertionDescription)
+        {
+#if CODECONTRACTS
+            Contract.Requires<ArgumentException>(assertion, assertionDescription);
+#else
+            if (!assertion)
+            {
+                throw new ArgumentException(assertionDescription);
+            }
+#endif
+        }
+
+        [ContractAbbreviator]
+        [Conditional("DEBUG")]
+        public static void DebugRequires(bool assertion, string assertionDescription)
+        {
+#if CODECONTRACTS
+            Contract.Requires<ArgumentException>(assertion, assertionDescription);
+#else
+            if (!assertion)
+            {
+                throw new ArgumentException(assertionDescription);
+            }
+#endif
+        }
+
+        /// <summary>
+        /// Verifies that <paramref name="value"/> is of type <typeparamref name="T"/>.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value">The value of the parameter.</param>
+        /// <param name="parameterName">The name of the parameter.</param>
+        /// <param name="message"></param>
+        [ContractAbbreviator]
+        public static void Is<T>(object value, string parameterName, string message = null)
+        {
+#if CODECONTRACTS
+            Contract.Requires<ArgumentException>((value is T), message);
+#else
+            if (!(value is T))
+            {
+                if (message != null)
+                {
+                    throw new ArgumentException($"Must be type {typeof(T).FullName}", paramName: parameterName);
+                }
+                else
+                {
+                    throw new ArgumentException(message, paramName: parameterName);
+                }
+            }
+#endif
+        }
+
+        /// <summary>
+        /// Verifies that <paramref name="value"/> is NOT of type <typeparamref name="T"/>.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value">The value of the parameter.</param>
+        /// <param name="parameterName">The name of the parameter.</param>
+        /// <param name="message"></param>
+        [ContractAbbreviator]
+        public static void IsNot<T>(object value, string parameterName, string message = null)
+        {
+#if CODECONTRACTS
+            Contract.Requires<ArgumentException>((value is T), message);
+#else
+            if ((value is T))
+            {
+                if (message != null)
+                {
+                    throw new ArgumentException($"Must not be type {typeof(T).FullName}", paramName: parameterName);
+                }
+                else
+                {
+                    throw new ArgumentException(message, paramName: parameterName);
+                }
             }
 #endif
         }

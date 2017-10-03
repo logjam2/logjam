@@ -44,20 +44,6 @@
     <Compile Include="TestOutputLoggingTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\LogJam.XUnit2\LogJam.XUnit2.csproj">
-      <Project>{2774ca60-3cad-493b-bfcb-f77ea7f191e3}</Project>
-      <Name>LogJam.XUnit2</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\LogJam\LogJam.csproj">
-      <Project>{43f154ad-aa27-48b3-ba07-d02c92be4f45}</Project>
-      <Name>LogJam</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\LogJam.Test.Shared\LogJam.Test.Shared.csproj">
-      <Project>{fb3bef5b-a7f7-436d-bff2-ea2a9c620ccd}</Project>
-      <Name>LogJam.Test.Shared</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

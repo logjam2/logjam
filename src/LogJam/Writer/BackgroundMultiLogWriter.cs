@@ -12,12 +12,11 @@ namespace LogJam.Writer
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Diagnostics.Contracts;
     using System.Threading;
     using System.Threading.Tasks;
 
     using LogJam.Internal;
+    using LogJam.Shared.Internal;
     using LogJam.Trace;
     using LogJam.Util;
 
@@ -52,7 +51,7 @@ namespace LogJam.Writer
 
         internal BackgroundMultiLogWriter(ITracerFactory setupTracerFactory)
         {
-            Contract.Requires<ArgumentNullException>(setupTracerFactory != null);
+            Arg.DebugNotNull(setupTracerFactory, nameof(setupTracerFactory));
 
             _setupTracerFactory = setupTracerFactory;
             _tracer = setupTracerFactory.TracerFor(this);
@@ -67,8 +66,8 @@ namespace LogJam.Writer
         internal BackgroundMultiLogWriter(ITracerFactory setupTracerFactory, params ILogWriter[] logWriters)
             : this(setupTracerFactory)
         {
-            Contract.Requires<ArgumentNullException>(setupTracerFactory != null);
-            Contract.Requires<ArgumentNullException>(logWriters != null);
+            Arg.DebugNotNull(setupTracerFactory, nameof(setupTracerFactory));
+            Arg.DebugNotNull(logWriters, nameof(logWriters));
 
             foreach (ILogWriter logWriter in logWriters)
             {
@@ -103,8 +102,8 @@ namespace LogJam.Writer
         private IQueueEntryWriter<TEntry> CreateProxyFor<TEntry>(IEntryWriter<TEntry> innerEntryWriter, int maxQueueLength = DefaultMaxQueueLength)
             where TEntry : ILogEntry
         {
-            Contract.Requires<ArgumentNullException>(innerEntryWriter != null);
-            Contract.Requires<ArgumentException>(maxQueueLength > 0);
+            Arg.DebugNotNull(innerEntryWriter, nameof(innerEntryWriter));
+            Arg.InRange(maxQueueLength, 0, int.MaxValue, nameof(maxQueueLength));
 
             lock (this)
             {
@@ -126,8 +125,8 @@ namespace LogJam.Writer
 
         public ILogWriter CreateProxyFor(ILogWriter innerLogWriter, int maxQueueLength = DefaultMaxQueueLength)
         {
-            Contract.Requires<ArgumentNullException>(innerLogWriter != null);
-            Contract.Requires<ArgumentException>(maxQueueLength > 0);
+            Arg.NotNull(innerLogWriter, nameof(innerLogWriter));
+            Arg.InRange(maxQueueLength, 0, int.MaxValue, nameof(maxQueueLength));
 
             lock (this)
             {
@@ -314,9 +313,9 @@ namespace LogJam.Writer
             internal LogWriterProxy(ILogWriter innerLogWriter, ConcurrentQueue<Action> backgroundActionQueue, ITracerFactory setupTracerFactory)
                 : base(setupTracerFactory)
             {
-                Contract.Requires<ArgumentNullException>(innerLogWriter != null);
-                Contract.Requires<ArgumentNullException>(backgroundActionQueue != null);
-                Contract.Requires<ArgumentNullException>(setupTracerFactory != null);
+                Arg.DebugNotNull(innerLogWriter, nameof(innerLogWriter));
+                Arg.DebugNotNull(backgroundActionQueue, nameof(backgroundActionQueue));
+                Arg.DebugNotNull(setupTracerFactory, nameof(setupTracerFactory));
 
                 _innerLogWriter = innerLogWriter;
                 _backgroundActionQueue = backgroundActionQueue;
@@ -333,8 +332,7 @@ namespace LogJam.Writer
 
             protected override void InternalStart()
             {
-                IStartable startableLogWriter = _innerLogWriter as IStartable;
-                if (startableLogWriter != null)
+                if (_innerLogWriter is IStartable startableLogWriter)
                 {
                     QueueBackgroundAction(() => startableLogWriter.SafeStart(SetupTracerFactory));
                 }
@@ -346,8 +344,7 @@ namespace LogJam.Writer
             {
                 base.InternalStop();
 
-                IStartable startableLogWriter = _innerLogWriter as IStartable;
-                if (startableLogWriter != null)
+                if (_innerLogWriter is IStartable startableLogWriter)
                 {
                     QueueBackgroundAction(() => startableLogWriter.SafeStop(SetupTracerFactory));
                 }
@@ -357,8 +354,7 @@ namespace LogJam.Writer
             {
                 base.Dispose(disposing);
 
-                IDisposable disposableLogWriter = _innerLogWriter as IDisposable;
-                if (disposableLogWriter != null)
+                if (_innerLogWriter is IDisposable disposableLogWriter)
                 {
                     QueueBackgroundAction(() => disposableLogWriter.SafeDispose(SetupTracerFactory));
                 }
@@ -387,9 +383,9 @@ namespace LogJam.Writer
 
             internal BlockingQueueEntryWriter(IEntryWriter<TEntry> innerEntryWriter, BackgroundMultiLogWriter parent, int maxQueueLength)
             {
-                Contract.Requires<ArgumentNullException>(innerEntryWriter != null);
-                Contract.Requires<ArgumentNullException>(parent != null);
-                Contract.Requires<ArgumentException>(maxQueueLength > 0);
+                Arg.DebugNotNull(innerEntryWriter, nameof(innerEntryWriter));
+                Arg.DebugNotNull(parent, nameof(parent));
+                Arg.InRange(maxQueueLength, 0, Int32.MaxValue, nameof(maxQueueLength));
 
                 _innerEntryWriter = innerEntryWriter;
                 _queue = new ConcurrentQueue<TEntry>();
@@ -510,8 +506,8 @@ namespace LogJam.Writer
 
             public void StartInnerWriter()
             {
-                var startableInnerLogWriter = _innerEntryWriter as IStartable;
-                if ((startableInnerLogWriter != null) && (! startableInnerLogWriter.IsStarted))
+                if ((_innerEntryWriter is IStartable startableInnerLogWriter)
+                    && (! startableInnerLogWriter.IsStarted))
                 {
                     // Start is delegated on the foreground thread
                     startableInnerLogWriter.SafeStart(_setupTracerFactory);
@@ -520,8 +516,7 @@ namespace LogJam.Writer
 
             public void DequeAndWriteEntry()
             {
-                TEntry logEntry;
-                bool success = TryDequeue(out logEntry);
+                bool success = TryDequeue(out var logEntry);
                 if (success)
                 {
                     _innerEntryWriter.Write(ref logEntry);
@@ -562,8 +557,8 @@ namespace LogJam.Writer
 
             public BackgroundTask(ITracerFactory setupTracerFactory, ConcurrentQueue<Action> backgroundActionQueue)
             {
-                Contract.Requires<ArgumentNullException>(setupTracerFactory != null);
-                Contract.Requires<ArgumentNullException>(backgroundActionQueue != null);
+                Arg.DebugNotNull(setupTracerFactory, nameof(setupTracerFactory));
+                Arg.DebugNotNull(backgroundActionQueue, nameof(backgroundActionQueue));
 
                 _tracer = setupTracerFactory.TracerFor(this);
                 _backgroundActionQueue = backgroundActionQueue;
@@ -595,7 +590,7 @@ namespace LogJam.Writer
                         return;
                     }
 
-                    Debug.Assert(! IsTaskRunning);
+                    System.Diagnostics.Debug.Assert(! IsTaskRunning);
 
                     _startableState = StartableState.Starting;
                     _task = new Task(BackgroundThreadProc, TaskCreationOptions.LongRunning);
@@ -653,8 +648,7 @@ namespace LogJam.Writer
                 SpinWait spinWait = new SpinWait();
                 while (true)
                 {
-                    Action action;
-                    if (_backgroundActionQueue.TryDequeue(out action))
+                    if (_backgroundActionQueue.TryDequeue(out var action))
                     {
                         try
                         {
