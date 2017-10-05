@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard1.3;net45</TargetFrameworks>
+    <Title>LogJam</Title>
+    <Description>LogJam main library</Description>
+    <PackageTags>Log Trace Tracing Logging LogJam</PackageTags>
+    <GenerateDocumentation>true</GenerateDocumentation>
+  </PropertyGroup>
+  
+  <Import Project="..\Shared-Internal\Shared-Internal.projitems" Label="Shared" />
+
+  <ItemGroup>
+    <Compile Remove="Interop\LogJamTraceListener.cs" />
+  </ItemGroup>
+
+</Project>

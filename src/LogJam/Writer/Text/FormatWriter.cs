@@ -10,12 +10,14 @@
 namespace LogJam.Writer.Text
 {
     using System;
+#if CODECONTRACTS
+    using System.Diagnostics.Contracts;
+#endif
     using System.Text;
     using System.Threading;
 
     using LogJam.Shared.Internal;
     using LogJam.Trace;
-    using LogJam.Util;
     using LogJam.Util.Text;
 
 

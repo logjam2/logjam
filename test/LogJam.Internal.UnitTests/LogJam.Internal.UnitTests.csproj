@@ -1,8 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <TargetFrameworks>netcoreapp2.0;net47</TargetFrameworks>
+    <Title>LogJam.Internal.UnitTests</Title>
+    <Description>LogJam unit tests that require internal access.</Description>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -14,14 +15,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\LogJam.XUnit2\LogJam.XUnit2.csproj" />
-    <ProjectReference Include="..\..\src\LogJam\LogJam-netstandard.csproj" />
+    <ProjectReference Include="..\..\src\LogJam\LogJam.csproj" />
     <ProjectReference Include="..\LogJam.Test.Shared\LogJam.Test.Shared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Include="..\..\build\Version.cs">
-      <Link>Properties\Version.cs</Link>
-    </Compile>
-  </ItemGroup>
-  
 </Project>

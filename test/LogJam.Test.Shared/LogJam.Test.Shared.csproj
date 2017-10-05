@@ -2,7 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Title>LogJam.Test.Shared</Title>
+    <Description>Shared code for multiple LogJam test projects.</Description>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -11,13 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\LogJam\LogJam-netstandard.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Include="..\..\build\Version.cs">
-      <Link>Properties\Version.cs</Link>
-    </Compile>
+    <ProjectReference Include="..\..\src\LogJam\LogJam.csproj" />
   </ItemGroup>
   
 </Project>

@@ -44,9 +44,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LogJam\LogJam.csproj">
+    <ProjectReference Include="..\LogJam\LogJam.vs2015.csproj">
       <Project>{43f154ad-aa27-48b3-ba07-d02c92be4f45}</Project>
-      <Name>LogJam</Name>
+      <Name>LogJam.vs2015</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

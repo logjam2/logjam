@@ -28,7 +28,7 @@ namespace LogJam.Util
     internal static class TypeExtensions
     {
 
-#if !NETSTANDARD
+#if FALSE
         private static readonly CodeDomProvider s_csharpCodeDomProvider = CodeDomProvider.CreateProvider("CSharp");
 
         /// <summary>

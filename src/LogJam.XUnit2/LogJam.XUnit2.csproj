@@ -1,39 +1,19 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.3</TargetFrameworks><!-- ;net45 -->
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-
-    <!--<DocumentationFile>$(OutputPath)\LogJam.XUnit2.xml</DocumentationFile>-->
+    <TargetFrameworks>netstandard1.3;net45</TargetFrameworks>
+    <Title>LogJam.XUnit2</Title>
+    <Description>LogJam integration library for running LogJam in XUnit2 unit tests</Description>
+    <PackageTags>LogJam xunit XUnit2</PackageTags>
+    <GenerateDocumentation>true</GenerateDocumentation>
   </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
-    <DefineConstants>$(DefineConstants);NETSTANDARD</DefineConstants>
-  </PropertyGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
-    <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.3.0" />
-  </ItemGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
-    <DefineConstants>$(DefineConstants);CODECONTRACTS</DefineConstants>
-  </PropertyGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
-    <PackageReference Include="CodeContracts.MSBuild" Version="1.9.10714.3" />
-    <PackageReference Include="System.Diagnostics.Contracts" Version="4.3.0" />
-  </ItemGroup>
   
-  <ItemGroup>
-    <ProjectReference Include="..\LogJam\LogJam-netstandard.csproj" />
-  </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="xunit.abstractions" Version="2.0.1" />
   </ItemGroup>
   
   <ItemGroup>
-    <Compile Include="..\..\build\Version.cs">
-      <Link>Properties\Version.cs</Link>
-    </Compile>
+    <ProjectReference Include="..\LogJam\LogJam.csproj" />
   </ItemGroup>
   
   <Import Project="..\Shared-Internal\Shared-Internal.projitems" Label="Shared" />

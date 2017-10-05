@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="AssemblyInfo.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -11,8 +11,6 @@ using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-[assembly: AssemblyTitle("LogJam")]
-[assembly: AssemblyDescription("LogJam main library")]
 [assembly: InternalsVisibleTo("LogJam.Internal.UnitTests")]
 
 // Shoot to be CLS compliant for logjam library.

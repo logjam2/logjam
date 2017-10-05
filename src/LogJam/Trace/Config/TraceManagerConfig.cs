@@ -147,7 +147,7 @@ namespace LogJam.Trace.Config
         public ISet<TraceWriterConfig> Writers => _traceWriterConfigs;
 
         /// <summary>
-        /// The Type -> <see cref="Tracer.Name"/> function used by <see cref="ITracerFactory.GetTracer"/>
+        /// The Type -> <see cref="Tracer.Name"/> function used by <see cref="ITracerFactory.GetTracer(Type)"/>
         /// </summary>
         /// <remarks>
         /// To reset to the default value, set to <see cref="TraceManagerConfig.DefaultTypeNameFunc"/>.
