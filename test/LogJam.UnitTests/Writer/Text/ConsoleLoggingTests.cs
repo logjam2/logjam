@@ -40,6 +40,21 @@ namespace LogJam.UnitTests.Writer.Text
         /// <param name="arguments"></param>
         private void RunConsoleTester(string arguments, out string stdout, out string stderr)
         {
+#if NETCOREAPP2_0
+            string exePath = GetType().Assembly.Location.Replace(@"\test\LogJam.UnitTests\", @"\test\LogJam.ConsoleTester\").Replace(".UnitTests.dll", ".ConsoleTester.dll");
+            var process = new Process
+                          {
+                              StartInfo =
+                              {
+                                  FileName = "dotnet",
+                                  Arguments = exePath + ' ' + arguments,
+                                  CreateNoWindow = true,
+                                  UseShellExecute = false,
+                                  RedirectStandardOutput = true,
+                                  RedirectStandardError = true
+                              }
+                          };
+#else
             string exePath = GetType().Assembly.Location.Replace(@"\test\LogJam.UnitTests\", @"\test\LogJam.ConsoleTester\").Replace(".UnitTests.dll", ".ConsoleTester.exe");
             var process = new Process
                           {
@@ -53,6 +68,7 @@ namespace LogJam.UnitTests.Writer.Text
                                   RedirectStandardError = true
                               }
                           };
+#endif
             _testOutputHelper.WriteLine("Running LogJam.ConsoleTester {0}...", arguments);
             process.Start();
 

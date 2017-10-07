@@ -35,6 +35,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogJam.Test.Shared", "test\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogJam.XUnit2", "src\LogJam.XUnit2\LogJam.XUnit2.csproj", "{F62CC699-4F11-4BF1-A494-15564D94BCB3}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogJam.ConsoleTester", "test\LogJam.ConsoleTester\LogJam.ConsoleTester.csproj", "{A2E1A4B8-1A47-4E9B-874E-F1BA1E0659E8}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		src\Shared-Internal\Shared-Internal.projitems*{6d0d7963-136b-4336-a4b0-3b8cd0461d79}*SharedItemsImports = 13
@@ -64,6 +66,10 @@ Global
 		{F62CC699-4F11-4BF1-A494-15564D94BCB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F62CC699-4F11-4BF1-A494-15564D94BCB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F62CC699-4F11-4BF1-A494-15564D94BCB3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A2E1A4B8-1A47-4E9B-874E-F1BA1E0659E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2E1A4B8-1A47-4E9B-874E-F1BA1E0659E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2E1A4B8-1A47-4E9B-874E-F1BA1E0659E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2E1A4B8-1A47-4E9B-874E-F1BA1E0659E8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -75,6 +81,7 @@ Global
 		{D7143E75-7BA5-46BF-963C-B55518C4B8C5} = {45DD2233-A75B-42B8-BE5A-D8C631A9291C}
 		{0762F4D9-CC50-4820-ABFE-6CADFD2504F4} = {45DD2233-A75B-42B8-BE5A-D8C631A9291C}
 		{F62CC699-4F11-4BF1-A494-15564D94BCB3} = {E3D54447-25CA-42F6-B58A-8A544118802E}
+		{A2E1A4B8-1A47-4E9B-874E-F1BA1E0659E8} = {45DD2233-A75B-42B8-BE5A-D8C631A9291C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {562113F5-7581-41F9-8F10-698F533C0C7A}

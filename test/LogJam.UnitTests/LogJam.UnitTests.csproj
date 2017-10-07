@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\LogJam\LogJam.csproj" />
+    <ProjectReference Include="..\LogJam.ConsoleTester\LogJam.ConsoleTester.csproj" />
     <ProjectReference Include="..\LogJam.Internal.UnitTests\LogJam.Internal.UnitTests.csproj" />
     <ProjectReference Include="..\LogJam.Test.Shared\LogJam.Test.Shared.csproj" />
   </ItemGroup>
