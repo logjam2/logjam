@@ -1,22 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.0;net47</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.0;net452;net47</TargetFrameworks>
     <Title>LogJam.Internal.UnitTests</Title>
     <Description>LogJam unit tests that require internal access.</Description>
-    <IsPackable>false</IsPackable>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0-preview-20170628-02" />
-    <PackageReference Include="xunit" Version="2.2.0" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\LogJam.XUnit2\LogJam.XUnit2.csproj" />
     <ProjectReference Include="..\..\src\LogJam\LogJam.csproj" />
     <ProjectReference Include="..\LogJam.Test.Shared\LogJam.Test.Shared.csproj" />
   </ItemGroup>
+
+  <Import Project="..\..\build\xUnit.Common.props" Label="xUnit.Common.props" />
 
 </Project>

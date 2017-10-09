@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ExampleTestTracing.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -22,7 +22,7 @@ namespace LogJam.XUnit2.UnitTests
     /// <summary>
     /// Exercises use of TestOutputFormatWriter.
     /// </summary>
-    public sealed class ExampleTestTracing
+    public sealed class ExampleTestTracing : IDisposable
     {
 
         private readonly ThresholdTraceSwitch _traceSwitch;

@@ -9,8 +9,6 @@
 
 namespace LogJam.Trace.Config
 {
-    using System.Runtime.Serialization;
-
     using LogJam.Config;
     using LogJam.Shared.Internal;
     using LogJam.Writer;
@@ -56,7 +54,6 @@ namespace LogJam.Trace.Config
             Arg.NotNull(logWriter, nameof(logWriter));
         }
 
-        [DataMember(Name = "LogWriter")]
         public ILogWriterConfig LogWriterConfig
         {
             get

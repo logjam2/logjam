@@ -1,14 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;net452;net47</TargetFrameworks>
     <Title>LogJam.Test.Shared</Title>
     <Description>Shared code for multiple LogJam test projects.</Description>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="xunit" Version="2.2.0" />
+    <PackageReference Include="xunit" Version="2.3.0" />
   </ItemGroup>
 
   <ItemGroup>

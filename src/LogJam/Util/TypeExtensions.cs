@@ -93,8 +93,7 @@ namespace LogJam.Util
         /// <returns></returns>
         public static string GetCSharpName(this Type type, bool omitTypeParameters = false)
         {
-            ClassNameInfo classNameInfo;
-            if (s_typeCSharpNames.TryGetValue(type, out classNameInfo))
+            if (s_typeCSharpNames.TryGetValue(type, out var classNameInfo))
             {
                 if (! classNameInfo.hasTypeParameters)
                 {

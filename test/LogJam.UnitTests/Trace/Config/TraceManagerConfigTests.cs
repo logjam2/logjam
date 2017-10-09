@@ -316,7 +316,7 @@ namespace LogJam.UnitTests.Trace.Config
         }
 
         [Theory(Skip = "Not yet implemented")]
-        [MemberData("TestTraceManagerConfigs")]
+        [MemberData(nameof(TestTraceManagerConfigs))]
         public void CanRoundTripTraceManagerConfigToJson(TraceManagerConfig traceManagerConfig)
         {
             var jsonSettings = new Json.JsonSerializerSettings();
@@ -329,7 +329,7 @@ namespace LogJam.UnitTests.Trace.Config
         }
 
         [Theory(Skip = "Not yet implemented")]
-        [MemberData("TestTraceManagerConfigs")]
+        [MemberData(nameof(TestTraceManagerConfigs))]
         public void CanRoundTripTraceManagerConfigToXml(TraceManagerConfig traceManagerConfig)
         {
             // Serialize to xml

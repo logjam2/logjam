@@ -1,6 +1,6 @@
 <!--
 ***********************************************************************************************
-directory.build.props
+Directory.Build.props
 
 MSBuild file that is automatically imported into projects in subdirectories.
 
@@ -11,7 +11,7 @@ MSBuild file that is automatically imported into projects in subdirectories.
 
   <!-- Shared project metadata (eg Nuget properties) -->
   <PropertyGroup>
-    <Version>1.1.0-dev</Version>
+    <Version Condition="'$(Version)' == ''">1.1.0-dev</Version>
     <Authors>LogJam Contributors</Authors>
     <Copyright>Copyright 2011-2017</Copyright>
     <PackageLicenseUrl>https://raw.githubusercontent.com/logjam2/logjam/master/LICENSE.txt</PackageLicenseUrl>
@@ -28,18 +28,15 @@ MSBuild file that is automatically imported into projects in subdirectories.
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
     <DefineConstants>$(DefineConstants);NETSTANDARD</DefineConstants>
   </PropertyGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
-    <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.3.0" />
-  </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net45' OR '$(TargetFramework)' == 'net452' OR '$(TargetFramework)' == 'net47'">
+    <UseCodeContracts>true</UseCodeContracts>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(UseCodeContracts)' == 'true'">
     <PackageReference Include="CodeContracts.MSBuild" Version="1.9.10714.3" />
     <PackageReference Include="System.Diagnostics.Contracts" Version="4.3.0" />
   </ItemGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
-    <UseCodeContracts>true</UseCodeContracts>
-  </PropertyGroup>
 
   <PropertyGroup Condition="'$(UseCodeContracts)' == 'true'">
     <DefineConstants>$(DefineConstants);CODECONTRACTS</DefineConstants>
@@ -90,7 +87,6 @@ https://github.com/Microsoft/CodeContracts/issues/226 are fixed -->
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>$(DefineConstants);DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(UseCodeContracts)' == 'true' And '$(Configuration)' == 'Release' ">
     <CodeContractsRuntimeCheckingLevel>ReleaseRequires</CodeContractsRuntimeCheckingLevel>
@@ -98,7 +94,6 @@ https://github.com/Microsoft/CodeContracts/issues/226 are fixed -->
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
   </PropertyGroup>
 
 </Project>

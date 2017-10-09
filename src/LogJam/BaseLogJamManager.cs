@@ -173,8 +173,7 @@ namespace LogJam
 
             foreach (var disposableRef in _disposeOnStop)
             {
-                IDisposable disposable = disposableRef.Target as IDisposable;
-                if (disposable != null)
+                if (disposableRef.Target is IDisposable disposable)
                 {
                     try
                     {
@@ -208,8 +207,7 @@ namespace LogJam
 
                 if (clearSetupLog)
                 {
-                    var setupTracerFactory = SetupTracerFactory as SetupLog;
-                    if (setupTracerFactory != null)
+                    if (SetupTracerFactory is SetupLog setupTracerFactory)
                     {
                         setupTracerFactory.Clear();
                     }

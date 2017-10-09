@@ -2,14 +2,14 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp2.0;net47</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.0;net452;net47</TargetFrameworks>
     <Title>LogJam.ConsoleTester</Title>
     <Description>Command-line app for exercising console logging.</Description>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="xunit.assert" Version="2.2.0" />
+    <PackageReference Include="xunit.assert" Version="2.3.0" />
   </ItemGroup>
   
   <ItemGroup>

@@ -359,7 +359,7 @@ namespace LogJam.Internal.UnitTests.Writer
             Assert.Equal(expectedEntryCount, slowLogWriter.Count);
 
             // When the finalizer is called, an error is logged to the SetupLog.
-            Assert.True(SetupLog.Any(traceEntry => (traceEntry.TraceLevel == TraceLevel.Error) && (traceEntry.Message.StartsWith("In finalizer "))));
+            Assert.Contains(SetupLog, traceEntry => (traceEntry.TraceLevel == TraceLevel.Error) && (traceEntry.Message.StartsWith("In finalizer ")));
         }
 
         /// <summary>

@@ -2,22 +2,22 @@
 
   <PropertyGroup>
     <TargetFrameworks>netcoreapp2.0;net452;net47</TargetFrameworks>
-    <Title>LogJam.UnitTests</Title>
-    <Description>LogJam unit tests</Description>
+    <Title>LogJam.XUnit2.UnitTests</Title>
+    <Description>Unit tests to exercise the LogJam.XUnit2 integration library.</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
+    <PackageReference Include="NETStandard.Library" Version="2.0.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\LogJam.XUnit2\LogJam.XUnit2.csproj" />
     <ProjectReference Include="..\..\src\LogJam\LogJam.csproj" />
-    <ProjectReference Include="..\LogJam.ConsoleTester\LogJam.ConsoleTester.csproj" />
-    <ProjectReference Include="..\LogJam.Internal.UnitTests\LogJam.Internal.UnitTests.csproj" />
     <ProjectReference Include="..\LogJam.Test.Shared\LogJam.Test.Shared.csproj" />
   </ItemGroup>
 
   <Import Project="..\..\src\Shared-Internal\Shared-Internal.projitems" Label="Shared" />
   <Import Project="..\..\build\xUnit.Common.props" Label="xUnit.Common.props" />
-
+  
 </Project>

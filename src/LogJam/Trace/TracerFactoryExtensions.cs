@@ -33,8 +33,7 @@ namespace LogJam.Trace
             Arg.NotNull(traceSource, nameof(traceSource));
 
             // Handle the case where Type is passed in, when an object was expected
-            Type traceSourceType = traceSource as Type;
-            if (traceSourceType != null)
+            if (traceSource is Type traceSourceType)
             {
                 return tracerFactory.GetTracer(traceSourceType);
             }

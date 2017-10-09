@@ -140,8 +140,16 @@ namespace LogJam
         {
             if (! IsDisposed)
             {
-                var tracer = SetupTracerFactory.TracerFor(this);
-                tracer.Error("In finalizer (~LogManager) - forgot to Dispose()?");
+                var tracer = SetupTracerFactory?.TracerFor(this);
+                if (tracer == null)
+                {
+                    // This is a pretty big oversight - worth writing to StdError
+                    Console.Error.WriteLine("In finalizer (~LogManager) - forgot to Dispose()?");
+                }
+                else
+                {
+                    tracer?.Error("In finalizer (~LogManager) - forgot to Dispose()?");
+                }
                 Dispose(false);
             }
         }
@@ -357,8 +365,7 @@ namespace LogJam
         {
             Arg.NotNull(logWriterConfig, nameof(logWriterConfig));
 
-            ILogWriter logWriter = null;
-            if (! TryGetLogWriter(logWriterConfig, out logWriter))
+            if (! TryGetLogWriter(logWriterConfig, out var logWriter))
             {
                 throw new KeyNotFoundException("LogManager does not contain logWriterConfig: " + logWriterConfig);
             }
@@ -398,8 +405,7 @@ namespace LogJam
                 return new NoOpEntryWriter<TEntry>();
             }
 
-            IEntryWriter<TEntry> entryWriter;
-            if (! logWriter.TryGetEntryWriter(out entryWriter))
+            if (! logWriter.TryGetEntryWriter(out IEntryWriter<TEntry> entryWriter))
             {
                 var tracer = SetupTracerFactory.TracerFor(this);
                 tracer.Warn("Returning a NoOpEntryWriter<{0}> for log writer {1} - log writer did not contain an entry writer for log entry type {0}.",
