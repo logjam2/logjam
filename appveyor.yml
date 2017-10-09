@@ -1,7 +1,7 @@
 # Build worker image (VM template)
 image: Visual Studio 2017
 
-#configuration: Release
+configuration: Release
 
 install:
   - choco install gitversion.portable -pre -y
@@ -15,7 +15,7 @@ before_build:
   # Use GitVersion to determine build + version number from git tree
   - ps: gitversion /output buildserver
   - ps: Update-AppveyorBuild -Version "$env:GitVersion_NuGetVersion"
-  - ps: nuget restore
+  - ps: dotnet restore
 
 build:
   # project: LogJam.sln
