@@ -19,8 +19,7 @@ build:
   # project: LogJam.sln
   publish_nuget: true
   publish_nuget_symbols: true
-  include_nuget_references: true
-  verbosity: minimal
+  # verbosity: minimal
 
 test:
   assemblies:

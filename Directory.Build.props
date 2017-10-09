@@ -12,9 +12,13 @@ MSBuild file that is automatically imported into projects in subdirectories.
   <!-- Shared project metadata (eg Nuget properties) -->
   <PropertyGroup>
     <Version Condition="'$(GitVersion_SemVer)' != ''">$(GitVersion_SemVer)</Version>
-    <AssemblyVersion Condition="'$(GitVersion_AssemblySemVer)' != ''">$(GitVersion_AssemblySemVer)</AssemblyVersion>
+    <AssemblyFileVersion Condition="'$(GitVersion_AssemblySemVer)' != ''">$(GitVersion_AssemblySemVer)</AssemblyFileVersion>
+    <PackageVersion Condition="'$(GitVersion_NuGetVersion)' != ''">$(GitVersion_NuGetVersion)</PackageVersion>
+
     <Version Condition="'$(Version)' == ''">1.1.0-dev</Version>
-    <AssemblyVersion Condition="'$(AssemblyVersion)' == ''">1.1.0.0</AssemblyVersion>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <AssemblyFileVersion Condition="'$(AssemblyFileVersion)' == ''">1.1.0.0</AssemblyFileVersion>
+    
     <Authors>LogJam Contributors</Authors>
     <Copyright>Copyright 2011-2017</Copyright>
     <PackageLicenseUrl>https://raw.githubusercontent.com/logjam2/logjam/master/LICENSE.txt</PackageLicenseUrl>
