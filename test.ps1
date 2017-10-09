@@ -1,9 +1,6 @@
 # Dump info for https://github.com/xunit/xunit/issues/1345#issuecomment-335274948
- dir -r -fi *.deps.json | select FullName
 "Configuration: $env:Configuration" 
 " "
-
-$ErrorActionPreference='Stop'
 
 # Helper function, throws when an external executable returns a non-zero exit code.
 function Exec([scriptblock]$cmd, [string]$errorMessage = "Error executing command: " + $cmd) { 
