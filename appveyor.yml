@@ -1,6 +1,8 @@
 # Build worker image (VM template)
 image: Visual Studio 2017
 
+configuration: Release
+
 install:
   - choco install gitversion.portable -pre -y
 
@@ -19,7 +21,7 @@ build:
   # project: LogJam.sln
   publish_nuget: true
   publish_nuget_symbols: true
-  # verbosity: minimal
+  verbosity: minimal
 
 test:
   assemblies:

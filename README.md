@@ -8,7 +8,9 @@ LogJam is currently in beta and is initially focused on the needs of C# and web 
 
 LogJam packages are available via NuGet: [http://www.nuget.org/packages?q=logjam](http://www.nuget.org/packages?q=logjam)
 
-The main LogJam library targets .NET 4.0 and later, though LogJam integrations may use later versions based on the requirements of the project that is integrated with.
+LogJam prerelease packages are available via this private NuGet feed: [https://ci.appveyor.com/nuget/logjam/](https://ci.appveyor.com/nuget/logjam/)
+
+The main LogJam library targets .NET 4.5 and later, and netstandard 1.3; though LogJam integration projects may use later versions based on the requirements of the project that is integrated with.
 
 <a href="https://ci.appveyor.com/api/projects/status/github/logjam2/logjam">
 <img src="https://ci.appveyor.com/api/projects/status/github/logjam2/logjam?svg=true" alt="Appveyor build status" width="150" style="margin:1em"></a>
