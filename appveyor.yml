@@ -1,7 +1,7 @@
 # Build worker image (VM template)
 image: Visual Studio 2017
 
-configuration: Release
+#configuration: Release
 
 install:
   - choco install gitversion.portable -pre -y
