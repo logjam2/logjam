@@ -23,16 +23,11 @@ build:
   publish_nuget_symbols: true
   verbosity: minimal
 
-test:
-  assemblies:
-    # only assemblies to test
-    - 'test\**\*Tests.dll'
-
 test_script:
-  - ps: . .\test.ps1
+  - ps: .\test.ps1
 
-artifacts:
-  - path: 'NuGetOut\*.nupkg'
+#artifacts:
+#  - path: 'NuGetOut\*.nupkg'
 
 cache:
   - C:\ProgramData\chocolatey\lib -> appveyor.yml
