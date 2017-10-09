@@ -6,6 +6,13 @@
 $testProjects =  ( "LogJam.UnitTests", "LogJam.Internal.UnitTests", "LogJam.XUnit2.UnitTests" )
 foreach ( $testProject in $testProjects) {
   pushd ".\test\$testProject"
-  dotnet xunit -nobuild -internaldiagnostics $testProject.csproj
+  if ($env:Configuration)
+  {
+    dotnet xunit -nobuild -internaldiagnostics -configuration $env:Configuration $testProject.csproj
+  }
+  else
+  {
+    dotnet xunit -nobuild -internaldiagnostics $testProject.csproj
+  }
   popd
 }

@@ -20,6 +20,7 @@ before_build:
 build:
   # project: LogJam.sln
   publish_nuget: true
+  skip_symbols: false
   publish_nuget_symbols: true
   verbosity: minimal
 
