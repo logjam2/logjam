@@ -1,4 +1,3 @@
-# Dump info for https://github.com/xunit/xunit/issues/1345#issuecomment-335274948
 "Configuration: $env:Configuration" 
 " "
 
@@ -15,11 +14,11 @@ foreach ( $testProject in $testProjects) {
   pushd ".\test\$testProject"
   if ($env:Configuration)
   {
-    exec { dotnet xunit -nobuild -internaldiagnostics -configuration $env:Configuration $testProject.csproj }
+    exec { dotnet xunit -nobuild -configuration $env:Configuration $testProject.csproj }
   }
   else
   {
-    exec { dotnet xunit -nobuild -internaldiagnostics $testProject.csproj }
+    exec { dotnet xunit -nobuild $testProject.csproj }
   }
   popd
 }
