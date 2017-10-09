@@ -11,7 +11,7 @@ init:
 
 before_build:
   # Use GitVersion to determine build + version number from git tree
-  - ps: gitversion /l console /output buildserver /updateAssemblyInfo .\build\Version.cs
+  - ps: gitversion /output buildserver
   - ps: Update-AppveyorBuild -Version "$env:GitVersion_NuGetVersion"
   - ps: nuget restore
 
@@ -28,8 +28,7 @@ test:
     - 'test\**\*Tests.dll'
 
 artifacts:
-  - path: 'src\**\*.nupkg' # find all NuGet packages recursively
+  - path: 'NuGetOut\*.nupkg'
 
 cache:
   - C:\ProgramData\chocolatey\lib -> appveyor.yml
-  - packages -> **\packages.config
