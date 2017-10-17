@@ -5,7 +5,7 @@
     <Title>LogJam.XUnit2</Title>
     <Description>LogJam integration library for running LogJam in XUnit2 unit tests</Description>
     <PackageTags>LogJam xunit XUnit2</PackageTags>
-    <GenerateDocumentation>true</GenerateDocumentation>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
   
   <ItemGroup>

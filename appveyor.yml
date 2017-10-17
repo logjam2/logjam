@@ -30,4 +30,6 @@ test_script:
 #  - path: 'NuGetOut\*.nupkg'
 
 cache:
+  - '%USERPROFILE%\.nuget\packages -> **\*.csproj'  # NuGet package cache
+  - C:\ProgramData\chocolatey\bin -> appveyor.yml
   - C:\ProgramData\chocolatey\lib -> appveyor.yml

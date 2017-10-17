@@ -5,7 +5,7 @@
     <Title>LogJam</Title>
     <Description>LogJam main library</Description>
     <PackageTags>Log Trace Tracing Logging LogJam</PackageTags>
-    <GenerateDocumentation>true</GenerateDocumentation>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
   
   <Import Project="..\Shared-Internal\Shared-Internal.projitems" Label="Shared" />

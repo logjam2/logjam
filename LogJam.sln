@@ -20,6 +20,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{BE3BFA82
 		appveyor.yml = appveyor.yml
 		Directory.Build.props = Directory.Build.props
 		NuGet.config = NuGet.config
+		test.ps1 = test.ps1
 		build\xUnit.Common.props = build\xUnit.Common.props
 	EndProjectSection
 EndProject
