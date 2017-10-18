@@ -139,15 +139,7 @@ namespace LogJam
             if (! IsDisposed)
             {
                 var tracer = SetupTracerFactory?.TracerFor(this);
-                if (tracer == null)
-                {
-                    // This is a pretty big oversight - worth writing to StdError
-                    Console.Error.WriteLine("In finalizer (~LogManager) - forgot to Dispose()?");
-                }
-                else
-                {
-                    tracer?.Error("In finalizer (~LogManager) - forgot to Dispose()?");
-                }
+                tracer?.Error("In finalizer (~LogManager) - forgot to Dispose()?");
                 Dispose(false);
             }
         }
