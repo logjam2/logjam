@@ -6,10 +6,11 @@
   * Compare Type.GetCSharpName() impls, using CodeDomProvider vs explicit
   * Synchronous file IO vs async
 1. Fix: Severe error in startup log for console logging failing to start
-1. Add LogManager.Config.UseConsoleIfAvailable() - no setuplog error if not available
+  * Add LogManager.Config.UseConsoleIfAvailable() - no setuplog error if not available
 2. Add Log info for LogJam.Owin
   * SetupLog text URL
   * Log config + status (which writers, formatters, started, etc)
+2. Fix "Missing XML comment" errors
 3. Add trace threshold json file - trace.config
 3. Determine if Owin middleware should use Task.ConfigureAwait(false)
 4. Add `LogManager.Restarting` and `LogManager.Restarted` events - so eg HttpLoggingOwinMiddleware can change to write to the newest log writers
