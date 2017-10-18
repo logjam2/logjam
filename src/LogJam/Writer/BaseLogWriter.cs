@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="BaseLogWriter.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -11,10 +11,10 @@ namespace LogJam.Writer
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.Contracts;
     using System.Linq;
 
     using LogJam.Internal;
+    using LogJam.Shared.Internal;
     using LogJam.Trace;
     using LogJam.Util;
 
@@ -34,7 +34,7 @@ namespace LogJam.Writer
         /// </summary>
         protected BaseLogWriter(ITracerFactory setupTracerFactory)
         {
-            Contract.Requires<ArgumentNullException>(setupTracerFactory != null);
+            Arg.NotNull(setupTracerFactory, nameof(setupTracerFactory));
 
             _setupTracerFactory = setupTracerFactory;
 
@@ -51,7 +51,7 @@ namespace LogJam.Writer
         protected internal void AddEntryWriter<TEntry>(IEntryWriter<TEntry> entryWriter)
             where TEntry : ILogEntry
         {
-            Contract.Requires<ArgumentNullException>(entryWriter != null);
+            Arg.NotNull(entryWriter, nameof(entryWriter));
 
             if (IsStarted)
             {
@@ -105,8 +105,7 @@ namespace LogJam.Writer
         {
             lock (this)
             {
-                object untypedEntryWriter;
-                if (_entryWriters.TryGetValue(typeof(TEntry), out untypedEntryWriter))
+                if (_entryWriters.TryGetValue(typeof(TEntry), out var untypedEntryWriter))
                 {
                     entryWriter = (IEntryWriter<TEntry>) untypedEntryWriter;
                     return true;

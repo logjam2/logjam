@@ -10,8 +10,8 @@
 namespace LogJam
 {
     using System;
-    using System.Diagnostics.Contracts;
 
+    using LogJam.Shared.Internal;
     using LogJam.Writer;
 
 
@@ -26,7 +26,7 @@ namespace LogJam
         public LogWriterException(string message, Exception innerException, ILogWriter logWriter)
             : base(message, innerException, logWriter)
         {
-            Contract.Requires<ArgumentNullException>(logWriter != null);
+            Arg.NotNull(logWriter, nameof(logWriter));
 
             _logWriter = logWriter;
         }
@@ -34,7 +34,7 @@ namespace LogJam
         public LogWriterException(string message, ILogWriter logWriter)
             : base(message, logWriter)
         {
-            Contract.Requires<ArgumentNullException>(logWriter != null);
+            Arg.NotNull(logWriter, nameof(logWriter));
 
             _logWriter = logWriter;
         }

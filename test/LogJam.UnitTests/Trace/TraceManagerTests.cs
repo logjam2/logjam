@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TraceManagerTests.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -21,6 +21,7 @@ namespace LogJam.UnitTests.Trace
     using LogJam.Writer;
 
     using Xunit;
+    using Xunit.Abstractions;
 
 
     /// <summary>
@@ -28,6 +29,21 @@ namespace LogJam.UnitTests.Trace
     /// </summary>
     public sealed class TraceManagerTests
     {
+
+        private readonly ITestOutputHelper _testOutput;
+
+        public TraceManagerTests(ITestOutputHelper testOutput)
+        {
+            _testOutput = testOutput;
+        }
+
+        [Fact]
+        public void TraceManagerArgumentsAreValidated()
+        {
+            Assert.Throws<ArgumentNullException>(() => new TraceManager((LogManager) null));
+            Assert.ThrowsAny<ArgumentException>(() => new TraceManager((LogWriterConfig) null));
+            Assert.ThrowsAny<ArgumentException>(() => new TraceManager((ILogWriter) null));
+        }
 
         [Fact]
         public void EachTraceManagerHasALogManager()
@@ -102,7 +118,7 @@ namespace LogJam.UnitTests.Trace
 
                 Assert.Single(listLogWriter);
                 TraceEntry traceEntry = listLogWriter.First();
-                Assert.Equal(GetType().GetCSharpName(), traceEntry.TracerName);
+                Assert.Equal("LogJam.UnitTests.Trace.TraceManagerTests", traceEntry.TracerName);
                 Assert.Equal(TraceLevel.Info, traceEntry.TraceLevel);
             }
         }
@@ -121,7 +137,9 @@ namespace LogJam.UnitTests.Trace
         [InlineData(ConfigForm.ObjectGraph, 2)]
         [InlineData(ConfigForm.Fluent, 3)]
         [InlineData(ConfigForm.ObjectGraph, 4)]
+#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
         public void UnitTestTracingWithGlobalTraceManager(ConfigForm configForm, int iteration)
+#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
         {
             // It can occur that the Tracer was obtained before the test starts
             Tracer tracer = TraceManager.Instance.TracerFor(this);
@@ -163,6 +181,10 @@ namespace LogJam.UnitTests.Trace
             TraceManager.Instance.Start();
 
             // Ensure start didn't result in any errors
+            if (! TraceManager.Instance.IsHealthy)
+            {
+                _testOutput.WriteEntries(TraceManager.Instance.SetupLog);
+            }
             Assert.True(TraceManager.Instance.IsHealthy);
 
             tracer.Info("Info message");

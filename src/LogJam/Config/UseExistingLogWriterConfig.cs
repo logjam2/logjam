@@ -10,8 +10,8 @@
 namespace LogJam.Config
 {
     using System;
-    using System.Diagnostics.Contracts;
 
+    using LogJam.Shared.Internal;
     using LogJam.Trace;
     using LogJam.Writer;
 
@@ -36,7 +36,7 @@ namespace LogJam.Config
         /// </param>
         public UseExistingLogWriterConfig(ILogWriter logWriter, bool disposeOnStop = false)
         {
-            Contract.Requires<ArgumentNullException>(logWriter != null);
+            Arg.NotNull(logWriter, nameof(logWriter));
 
             _logWriter = logWriter;
             DisposeOnStop = disposeOnStop;

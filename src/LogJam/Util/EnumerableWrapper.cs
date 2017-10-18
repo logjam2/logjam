@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="EnumerableWrapper.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -9,10 +9,10 @@
 
 namespace LogJam.Util
 {
-    using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.Diagnostics.Contracts;
+
+    using LogJam.Shared.Internal;
 
 
     /// <summary>
@@ -26,7 +26,7 @@ namespace LogJam.Util
 
         internal EnumerableWrapper(IEnumerable<T> enumerable)
         {
-            Contract.Requires<ArgumentNullException>(enumerable != null);
+            Arg.NotNull(enumerable, nameof(enumerable));
 
             _enumerable = enumerable;
         }

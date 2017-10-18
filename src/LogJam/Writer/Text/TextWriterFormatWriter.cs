@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TextWriterFormatWriter.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -9,11 +9,10 @@
 
 namespace LogJam.Writer.Text
 {
-    using System;
-    using System.Diagnostics.Contracts;
     using System.IO;
     using System.Text;
 
+    using LogJam.Shared.Internal;
     using LogJam.Trace;
     using LogJam.Util.Text;
 
@@ -63,7 +62,7 @@ namespace LogJam.Writer.Text
                                       int spacesPerIndentLevel = DefaultSpacesPerIndent)
             : this(setupTracerFactory, fieldDelimiter, spacesPerIndentLevel)
         {
-            Contract.Requires<ArgumentNullException>(textWriter != null);
+            Arg.NotNull(textWriter, nameof(textWriter));
 
             SetTextWriter(textWriter, disposeWriter);
         }
@@ -78,7 +77,7 @@ namespace LogJam.Writer.Text
         /// </param>
         public void SetTextWriter(TextWriter textWriter, bool disposeWriter)
         {
-            Contract.Requires<ArgumentNullException>(textWriter != null);
+            Arg.NotNull(textWriter, nameof(textWriter));
 
             _textWriter = textWriter;
             State = StartableState.Started;

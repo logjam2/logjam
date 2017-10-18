@@ -11,8 +11,9 @@ namespace LogJam.Util
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.Contracts;
     using System.Linq;
+
+    using LogJam.Shared.Internal;
 
 
     /// <summary>
@@ -37,7 +38,7 @@ namespace LogJam.Util
         /// <returns></returns>
         public int IndexOf(TKey key)
         {
-            Contract.Requires<ArgumentNullException>(key != null);
+            Arg.NotNull(key, nameof(key));
 
             return FindIndex(kvp => Equals(kvp.Key, key));
         }

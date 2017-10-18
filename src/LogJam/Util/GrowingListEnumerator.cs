@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="GrowingListEnumerator.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -12,7 +12,8 @@ namespace LogJam.Util
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.Diagnostics.Contracts;
+
+    using LogJam.Shared.Internal;
 
 
     /// <summary>
@@ -30,7 +31,8 @@ namespace LogJam.Util
 
         public GrowingListEnumerator(IList<T> list)
         {
-            Contract.Requires<ArgumentNullException>(list != null);
+            Arg.NotNull(list, nameof(list));
+
             _list = list;
             _currentIndex = -1;
             UpdateLastKnownCount();

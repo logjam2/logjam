@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="SynchronizedLogWriterTests.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -41,6 +41,7 @@ namespace LogJam.UnitTests.Writer
             ValidateSyncedLogWriter validatingLogWriter;
             using (var logManager = new LogManager())
             {
+                // This LogWriter throws Assert exceptions if writes aren't properly synchronized
                 validatingLogWriter = new ValidateSyncedLogWriter(logManager.SetupTracerFactory, s_defaultWriteDelay);
                 var logWriterConfig = logManager.Config.UseLogWriter(validatingLogWriter);
                 logWriterConfig.Synchronized = false;
@@ -48,16 +49,16 @@ namespace LogJam.UnitTests.Writer
                 AggregateException aggregateException = null;
                 try
                 {
-                    ValidateWithParallelLoad(logManager, c_defaultParallelThreads, c_defaultEntriesPerThread);
+                    RunParallelWrites(logManager, c_defaultParallelThreads, c_defaultEntriesPerThread);
                 }
                 catch (AggregateException aggExcp)
                 {
                     aggregateException = aggExcp;
                 }
 
-                // Expected: Asserts must fail
+                // Expected: some Asserts will fail
                 Assert.NotNull(aggregateException);
-                Assert.Equal(c_defaultParallelThreads, aggregateException.InnerExceptions.Count);
+                Assert.InRange(aggregateException.InnerExceptions.Count, c_defaultParallelThreads / 4, c_defaultParallelThreads);
                 Assert.True(aggregateException.InnerExceptions.All(excp => excp is AssertActualExpectedException));
             }
 
@@ -77,7 +78,7 @@ namespace LogJam.UnitTests.Writer
                 var logWriterConfig = logManager.Config.UseLogWriter(validatingLogWriter);
                 Assert.True(logWriterConfig.Synchronized);
 
-                ValidateWithParallelLoad(logManager, c_defaultParallelThreads, c_defaultEntriesPerThread);
+                RunParallelWrites(logManager, c_defaultParallelThreads, c_defaultEntriesPerThread);
             }
 
             Assert.Equal(c_defaultParallelThreads * c_defaultEntriesPerThread, validatingLogWriter.WritesCompleted);
@@ -96,13 +97,19 @@ namespace LogJam.UnitTests.Writer
                 var logWriterConfig = logManager.Config.UseLogWriter(validatingLogWriter);
                 logWriterConfig.BackgroundLogging = true;
 
-                ValidateWithParallelLoad(logManager, c_defaultParallelThreads, c_defaultEntriesPerThread);
+                RunParallelWrites(logManager, c_defaultParallelThreads, c_defaultEntriesPerThread);
             }
 
             Assert.Equal(c_defaultParallelThreads * c_defaultEntriesPerThread, validatingLogWriter.WritesCompleted);
         }
 
-        internal void ValidateWithParallelLoad(LogManager logManager, int parallelThreads, int entriesPerThread)
+        /// <summary>
+        /// Creates parallel load for verifying synchronization.
+        /// </summary>
+        /// <param name="logManager"></param>
+        /// <param name="parallelThreads"></param>
+        /// <param name="entriesPerThread"></param>
+        internal void RunParallelWrites(LogManager logManager, int parallelThreads, int entriesPerThread)
         {
             var entryWriter = logManager.GetEntryWriter<CounterLogEntry>();
             Action loggingFunc = () =>

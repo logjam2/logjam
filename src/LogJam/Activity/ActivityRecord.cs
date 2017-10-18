@@ -6,15 +6,15 @@
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace LogJam.Trace
+namespace LogJam.Activity
 {
-	using System;
-	using System.Diagnostics.Contracts;
+    using System;
 
-	using LogJam.Util;
+    using LogJam.Shared.Internal;
+    using LogJam.Util;
 
 
-	/// <summary>
+    /// <summary>
 	/// Base class for all activity records.
 	/// </summary>
 	/// <remarks>
@@ -44,7 +44,8 @@ namespace LogJam.Trace
 		/// </param>
 		protected ActivityRecord(string sourceName)
 		{
-			Contract.Requires<ArgumentException>(! string.IsNullOrWhiteSpace(sourceName));
+            Arg.NotNullOrWhitespace(sourceName, nameof(sourceName));
+
 			SourceName = sourceName;
 		}
 
@@ -126,8 +127,6 @@ namespace LogJam.Trace
 		/// </returns>
 		public virtual string CreateNewId()
 		{
-			Contract.Ensures(! string.IsNullOrWhiteSpace(Contract.Result<string>()));
-
 			return Guid.NewGuid().ToString();
 		}
 

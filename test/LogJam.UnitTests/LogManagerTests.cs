@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="LogManagerTests.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -11,7 +11,6 @@ namespace LogJam.UnitTests
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.Contracts;
     using System.IO;
     using System.Linq;
 
@@ -19,9 +18,11 @@ namespace LogJam.UnitTests
     using LogJam.Internal.UnitTests.Examples;
     using LogJam.Test.Shared.Writers;
     using LogJam.Trace;
+    using LogJam.Writer;
 
     using Xunit;
     using Xunit.Abstractions;
+    using LogJam.Shared.Internal;
 
 
     /// <summary>
@@ -34,9 +35,17 @@ namespace LogJam.UnitTests
 
         public LogManagerTests(ITestOutputHelper testOutputHelper)
         {
-            Contract.Requires<ArgumentNullException>(testOutputHelper != null);
+            Arg.NotNull(testOutputHelper, nameof(testOutputHelper));
 
             _testOutputHelper = testOutputHelper;
+        }
+
+        [Fact]
+        public void LogManagerArgumentsAreValidated()
+        {
+            Assert.Throws<ArgumentNullException>(() => new LogManager((LogManagerConfig) null));
+            Assert.ThrowsAny<ArgumentException>(() => new LogManager((ILogWriterConfig) null));
+            Assert.ThrowsAny<ArgumentException>(() => new LogManager((ILogWriter) null));
         }
 
         [Fact]
@@ -110,7 +119,7 @@ namespace LogJam.UnitTests
             Assert.Equal(expectedEntryCount, slowLogWriter.Count);
 
             // When the finalizer is called, an error is logged to the SetupLog.
-            Assert.True(setupLog.Any(traceEntry => (traceEntry.TraceLevel == TraceLevel.Error) && (traceEntry.Message.StartsWith("In finalizer "))));
+            Assert.Contains(setupLog, traceEntry => (traceEntry.TraceLevel == TraceLevel.Error) && (traceEntry.Message.StartsWith("In finalizer ")));
         }
 
         [Fact]

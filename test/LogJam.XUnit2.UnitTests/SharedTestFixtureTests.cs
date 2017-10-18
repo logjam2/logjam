@@ -1,4 +1,4 @@
-﻿// // --------------------------------------------------------------------------------------------------------------------
+// // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="SharedTestFixtureTests.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2.  
 // </copyright>
@@ -12,6 +12,7 @@ namespace LogJam.XUnit2.UnitTests
     using System;
     using System.Diagnostics.Contracts;
 
+    using LogJam.Shared.Internal;
     using LogJam.Trace;
     using LogJam.Trace.Config;
 
@@ -30,7 +31,7 @@ namespace LogJam.XUnit2.UnitTests
 
         public SharedTestFixtureTests(TestFixture fixture)
         {
-            Contract.Requires<ArgumentNullException>(fixture != null);
+            Arg.NotNull(fixture, nameof(fixture));
 
             _fixture = fixture;
         }

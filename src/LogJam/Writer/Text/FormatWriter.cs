@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="FormatWriter.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -10,32 +10,30 @@
 namespace LogJam.Writer.Text
 {
     using System;
+#if CODECONTRACTS
     using System.Diagnostics.Contracts;
+#endif
     using System.Text;
     using System.Threading;
 
+    using LogJam.Shared.Internal;
     using LogJam.Trace;
-    using LogJam.Util;
     using LogJam.Util.Text;
 
 
     /// <summary>
     /// Abstract base class for writing formatted log output to a text target. A <c>FormatWriter</c> is primarily used by one
-    /// or more
-    /// <see cref="EntryFormatter{TEntry}" />s to write formatted text. <c>FormatWriter</c> is the primary abstraction for
-    /// writing
-    /// to a text target.
+    /// or more <see cref="EntryFormatter{TEntry}" />s to write formatted text. <c>FormatWriter</c> is the primary abstraction for
+    /// writing to a text target.
     /// <para>
     /// Text targets can be colorized and are generally optimized for readability. In contrast, binary targets are generally
-    /// optimized for
-    /// efficient and precise writing and parsing.
+    /// optimized for efficient and precise writing and parsing.
     /// </para>
     /// </summary>
     /// <remarks>
     /// <c>FormatWriter</c> is <u>not</u> threadsafe. It assumes that writes are synchronized at a higher level (typically
-    /// using pluggable
-    /// <see cref="ISynchronizingLogWriter" />s), so that the last entry is completely formatted/written before the next entry
-    /// starts.
+    /// using a synchronizing logwriter like <see cref="SynchronizingProxyLogWriter"/> or <see cref="BackgroundMultiLogWriter"/>),
+    /// so that the last entry is completely formatted/written before the next entry starts.
     /// <see cref="BeginEntry" /> and <see cref="EndEntry" /> provide basic checks for this assertion.
     /// </remarks>
     public abstract class FormatWriter : Startable, IDisposable
@@ -113,8 +111,8 @@ namespace LogJam.Writer.Text
         /// <param name="spacesPerIndentLevel">The number of spaces per indent level. Can be 0 for no indenting.</param>
         protected FormatWriter(ITracerFactory setupTracerFactory, string fieldDelimiter = DefaultFieldDelimiter, int spacesPerIndentLevel = DefaultSpacesPerIndent)
         {
-            Contract.Requires<ArgumentNullException>(setupTracerFactory != null);
-            Contract.Requires<ArgumentNullException>(fieldDelimiter != null);
+            Arg.NotNull(setupTracerFactory, nameof(setupTracerFactory));
+            Arg.NotNull(fieldDelimiter, nameof(fieldDelimiter));
 
             setupTracer = setupTracerFactory.TracerFor(this);
             _fieldDelimiter = fieldDelimiter;
@@ -145,12 +143,14 @@ namespace LogJam.Writer.Text
         {
             internal set
             {
-                Contract.Requires<ArgumentNullException>(value != null);
+                Arg.NotNull(value, nameof(value));
                 _fieldDelimiter = value;
             }
             get
             {
+#if CODECONTRACTS
                 Contract.Ensures(Contract.Result<string>() != null);
+#endif
                 return _fieldDelimiter;
             }
         }
@@ -170,7 +170,9 @@ namespace LogJam.Writer.Text
         {
             get
             {
+#if CODECONTRACTS
                 Contract.Ensures(Contract.Result<StringBuilder>() != null);
+#endif
                 return _fieldBuffer;
             }
         }
@@ -216,15 +218,15 @@ namespace LogJam.Writer.Text
             get { return _outputTimeZone; }
             set
             {
-                Contract.Requires<ArgumentNullException>(value != null);
+                Arg.NotNull(value, nameof(value));
 
                 _outputTimeZone = value;
             }
         }
 
-        #endregion
+#endregion
 
-        #region Public methods to write formatted log text
+#region Public methods to write formatted log text
 
         /// <summary>
         /// Marks the start of a new entry.
@@ -283,7 +285,7 @@ namespace LogJam.Writer.Text
 
         public virtual void WriteField(StringBuilder buffer, ColorCategory colorCategory = ColorCategory.None, int padWidth = 0)
         {
-            Contract.Requires<ArgumentNullException>(buffer != null);
+            Arg.NotNull(buffer, nameof(buffer));
 
             if (atBeginningOfLine)
             {
@@ -305,7 +307,7 @@ namespace LogJam.Writer.Text
 
         public virtual void WriteField(StringBuilder buffer, int startIndex, int length, ColorCategory colorCategory = ColorCategory.None, int padWidth = 0)
         {
-            Contract.Requires<ArgumentNullException>(buffer != null);
+            Arg.NotNull(buffer, nameof(buffer));
 
             if (atBeginningOfLine)
             {
@@ -327,7 +329,7 @@ namespace LogJam.Writer.Text
 
         public virtual void WriteField(Action<StringBuilder> formatFieldAction, ColorCategory colorCategory = ColorCategory.None, int padWidth = 0)
         {
-            Contract.Requires<ArgumentNullException>(formatFieldAction != null);
+            Arg.NotNull(formatFieldAction, nameof(formatFieldAction));
 
             if (atBeginningOfLine)
             {
@@ -436,13 +438,13 @@ namespace LogJam.Writer.Text
         public virtual void Flush()
         {}
 
-        #endregion
+#endregion
 
-        #region Public methods to format field primitives
+#region Public methods to format field primitives
 
         public virtual void WriteDate(DateTime dateTimeUtc, ColorCategory colorCategory = ColorCategory.Detail)
         {
-            DateTime outputDateTime = TimeZoneInfo.ConvertTimeFromUtc(dateTimeUtc, _outputTimeZone);
+            DateTime outputDateTime = TimeZoneInfo.ConvertTime(dateTimeUtc, _outputTimeZone);
 
             // Format date
             _fieldBuffer.Clear();
@@ -457,7 +459,7 @@ namespace LogJam.Writer.Text
 
         public virtual void WriteTimestamp(DateTime timestampUtc, ColorCategory colorCategory = ColorCategory.Detail)
         {
-            DateTime outputTimestamp = TimeZoneInfo.ConvertTimeFromUtc(timestampUtc, _outputTimeZone);
+            DateTime outputTimestamp = TimeZoneInfo.ConvertTime(timestampUtc, _outputTimeZone);
 
             // Format time
             _fieldBuffer.Clear();
@@ -550,9 +552,9 @@ namespace LogJam.Writer.Text
             atBeginningOfLine = true;
         }
 
-        #endregion
+#endregion
 
-        #region Abstract write methods
+#region Abstract write methods
 
         protected abstract void WriteText(string s, ColorCategory colorCategory);
 
@@ -560,7 +562,7 @@ namespace LogJam.Writer.Text
 
         public abstract void WriteText(StringBuilder sb, int startIndex, int length, ColorCategory colorCategory);
 
-        #endregion
+#endregion
     }
 
 }

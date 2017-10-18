@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TraceWriterConfig.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -9,11 +9,8 @@
 
 namespace LogJam.Trace.Config
 {
-    using System;
-    using System.Diagnostics.Contracts;
-    using System.Runtime.Serialization;
-
     using LogJam.Config;
+    using LogJam.Shared.Internal;
     using LogJam.Writer;
 
 
@@ -45,7 +42,7 @@ namespace LogJam.Trace.Config
 
         public TraceWriterConfig(ILogWriterConfig logWriterConfig, SwitchSet switches = null)
         {
-            Contract.Requires<ArgumentNullException>(logWriterConfig != null);
+            Arg.NotNull(logWriterConfig, nameof(logWriterConfig));
 
             _tracelogWriterConfig = logWriterConfig;
             _switches = switches ?? new SwitchSet();
@@ -54,15 +51,16 @@ namespace LogJam.Trace.Config
         public TraceWriterConfig(ILogWriter logWriter, SwitchSet switches = null)
             : this(new UseExistingLogWriterConfig(logWriter), switches)
         {
-            Contract.Requires<ArgumentNullException>(logWriter != null);
+            Arg.NotNull(logWriter, nameof(logWriter));
         }
 
-        [DataMember(Name = "LogWriter")]
         public ILogWriterConfig LogWriterConfig
         {
             get
             {
-                Contract.Ensures(Contract.Result<ILogWriterConfig>() != null);
+#if CODECONTRACTS
+                System.Diagnostics.Contracts.Contract.Ensures(System.Diagnostics.Contracts.Contract.Result<ILogWriterConfig>() != null);
+#endif
                 if (_tracelogWriterConfig == null)
                 {
                     _tracelogWriterConfig = new NoOpLogWriterConfig();
@@ -72,13 +70,13 @@ namespace LogJam.Trace.Config
             }
             set
             {
-                Contract.Requires<ArgumentNullException>(value != null);
+                Arg.NotNull(value, nameof(value));
 
                 _tracelogWriterConfig = value;
             }
         }
 
-        public SwitchSet Switches { get { return _switches; } }
+        public SwitchSet Switches => _switches;
 
     }
 

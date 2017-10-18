@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="LogManager.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -11,12 +11,12 @@ namespace LogJam
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.Contracts;
     using System.Linq;
     using System.Threading;
 
     using LogJam.Config;
     using LogJam.Internal;
+    using LogJam.Shared.Internal;
     using LogJam.Trace;
     using LogJam.Util;
     using LogJam.Writer;
@@ -97,7 +97,7 @@ namespace LogJam
         /// <param name="setupTracerFactory">The <see cref="ITracerFactory" /> to use for tracking internal operations.</param>
         public LogManager(LogManagerConfig logManagerConfig, ITracerFactory setupTracerFactory = null)
         {
-            Contract.Requires<ArgumentNullException>(logManagerConfig != null);
+            Arg.NotNull(logManagerConfig, nameof(logManagerConfig));
 
             _setupTracerFactory = setupTracerFactory ?? new SetupLog();
             _config = logManagerConfig;
@@ -127,6 +127,8 @@ namespace LogJam
         public LogManager(params ILogWriter[] logWriters)
             : this(logWriters.Select(logWriter => (ILogWriterConfig) new UseExistingLogWriterConfig(logWriter)).ToArray())
         {
+            Arg.NoneNull(logWriters, nameof(logWriters));
+
             // Get the first SetupLog from the passed in logwriters
             var setupTracerFactory = GetSetupTracerFactoryForComponents(logWriters.OfType<ILogJamComponent>());
             _setupTracerFactory = setupTracerFactory ?? _setupTracerFactory ?? new SetupLog();
@@ -136,8 +138,8 @@ namespace LogJam
         {
             if (! IsDisposed)
             {
-                var tracer = SetupTracerFactory.TracerFor(this);
-                tracer.Error("In finalizer (~LogManager) - forgot to Dispose()?");
+                var tracer = SetupTracerFactory?.TracerFor(this);
+                tracer?.Error("In finalizer (~LogManager) - forgot to Dispose()?");
                 Dispose(false);
             }
         }
@@ -329,7 +331,7 @@ namespace LogJam
         /// <returns><c>true</c> if a <paramref name="logWriter" /> was found; <c>false</c> if no match was found.</returns>
         public bool TryGetLogWriter(ILogWriterConfig logWriterConfig, out ILogWriter logWriter)
         {
-            Contract.Requires<ArgumentNullException>(logWriterConfig != null);
+            Arg.NotNull(logWriterConfig, nameof(logWriterConfig));
 
             // Even if Start() wasn't 100% successful, we still return any logwriters that were successfully started.
             EnsureAutoStarted();
@@ -351,10 +353,9 @@ namespace LogJam
         /// </exception>
         public ILogWriter GetLogWriter(ILogWriterConfig logWriterConfig)
         {
-            Contract.Requires<ArgumentNullException>(logWriterConfig != null);
+            Arg.NotNull(logWriterConfig, nameof(logWriterConfig));
 
-            ILogWriter logWriter = null;
-            if (! TryGetLogWriter(logWriterConfig, out logWriter))
+            if (! TryGetLogWriter(logWriterConfig, out var logWriter))
             {
                 throw new KeyNotFoundException("LogManager does not contain logWriterConfig: " + logWriterConfig);
             }
@@ -383,7 +384,7 @@ namespace LogJam
         /// </remarks>
         public IEntryWriter<TEntry> GetEntryWriter<TEntry>(ILogWriterConfig logWriterConfig) where TEntry : ILogEntry
         {
-            Contract.Requires<ArgumentNullException>(logWriterConfig != null);
+            Arg.NotNull(logWriterConfig, nameof(logWriterConfig));
 
             ILogWriter logWriter = null;
             logWriter = GetLogWriter(logWriterConfig);
@@ -394,8 +395,7 @@ namespace LogJam
                 return new NoOpEntryWriter<TEntry>();
             }
 
-            IEntryWriter<TEntry> entryWriter;
-            if (! logWriter.TryGetEntryWriter(out entryWriter))
+            if (! logWriter.TryGetEntryWriter(out IEntryWriter<TEntry> entryWriter))
             {
                 var tracer = SetupTracerFactory.TracerFor(this);
                 tracer.Warn("Returning a NoOpEntryWriter<{0}> for log writer {1} - log writer did not contain an entry writer for log entry type {0}.",

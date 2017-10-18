@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="NamePrefixTreeNode.cs">
 // Copyright (c) 2011-2014 logjam.codeplex.com.  
 // </copyright>
@@ -9,15 +9,19 @@
 namespace LogJam.Util.Collections
 {
 	using System;
-	using System.Diagnostics.Contracts;
+#if CODECONTRACTS
+    using System.Diagnostics.Contracts;
+#endif
+
+    using LogJam.Shared.Internal;
 
 
-	/// <summary>
+    /// <summary>
 	/// A node in a tree where each node contains the NamePrefix of all its descendents.  In other words,
 	/// a namespace tree.
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
-	public abstract class NamePrefixTreeNode<T> : TreeNode<T>
+	internal abstract class NamePrefixTreeNode<T> : TreeNode<T>
 		where T : NamePrefixTreeNode<T>
 	{
 
@@ -25,7 +29,7 @@ namespace LogJam.Util.Collections
 
 		protected NamePrefixTreeNode(string namePrefix)
 		{
-			Contract.Requires<ArgumentNullException>(namePrefix != null);
+            Arg.NotNull(namePrefix, nameof(namePrefix));
 
 			_namePrefix = namePrefix;
 		}
@@ -63,18 +67,6 @@ namespace LogJam.Util.Collections
 			return (node.NamePrefix.Length > NamePrefix.Length) && node.NamePrefix.StartsWith(NamePrefix) && (node.NamePrefix[NamePrefix.Length] == '.');
 		}
 
-		/// <summary>
-		/// TODO The compare.
-		/// </summary>
-		/// <param name="x">
-		/// TODO The x.
-		/// </param>
-		/// <param name="y">
-		/// TODO The y.
-		/// </param>
-		/// <returns>
-		/// The <see cref="int"/>.
-		/// </returns>
 		public override int Compare(T x, T y)
 		{
 			return string.Compare(x.NamePrefix, y.NamePrefix, StringComparison.Ordinal);
@@ -84,7 +76,7 @@ namespace LogJam.Util.Collections
 
 		public T Find(string namePrefix)
 		{
-			Contract.Requires<ArgumentNullException>(namePrefix != null);
+            Arg.NotNull(namePrefix, nameof(namePrefix));
 
 			if (namePrefix.StartsWith(NamePrefix))
 			{
@@ -129,10 +121,12 @@ namespace LogJam.Util.Collections
 		/// </returns>
 		public T FindNearestParentOf(string name)
 		{
-			Contract.Requires<ArgumentNullException>(name != null);
+            Arg.NotNull(name, nameof(name));
+#if CODECONTRACTS
 			Contract.Ensures(Contract.Result<T>() != null);
+#endif
 
-			if (name.StartsWith(NamePrefix))
+            if (name.StartsWith(NamePrefix))
 			{
 				// this is nearest parent if none of Children are parents
 				foreach (T child in Children)

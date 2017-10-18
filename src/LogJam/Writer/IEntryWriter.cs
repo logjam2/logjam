@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="IEntryWriter.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -9,14 +9,17 @@
 
 namespace LogJam.Writer
 {
+#if CODECONTRACTS
     using System.Diagnostics.Contracts;
-
+#endif
 
     /// <summary>
     /// Supports writing strongly-typed log entries to a log target.
     /// </summary>
     /// <typeparam name="TEntry">The base entry type supported by the entry writer.</typeparam>
+#if CODECONTRACTS
     [ContractClass(typeof(EntryWriterContract<>))]
+#endif
     public interface IEntryWriter<TEntry>
         where TEntry : ILogEntry
     {
@@ -39,6 +42,7 @@ namespace LogJam.Writer
     }
 
 
+#if CODECONTRACTS
     [ContractClassFor(typeof(IEntryWriter<>))]
     internal abstract class EntryWriterContract<TEntry> : IEntryWriter<TEntry>
         where TEntry : ILogEntry
@@ -62,4 +66,6 @@ namespace LogJam.Writer
         }
 
     }
+#endif
+
 }

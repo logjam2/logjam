@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ProxyLogWriter.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -11,9 +11,9 @@ namespace LogJam.Writer
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.Contracts;
 
     using LogJam.Internal;
+    using LogJam.Shared.Internal;
     using LogJam.Trace;
     using LogJam.Util;
 
@@ -36,8 +36,8 @@ namespace LogJam.Writer
         /// <param name="innerLogWriter">The inner <see cref="ILogWriter" /> to delegate to. Must not be <c>null</c>.</param>
         protected ProxyLogWriter(ITracerFactory setupTracerFactory, ILogWriter innerLogWriter)
         {
-            Contract.Requires<ArgumentNullException>(setupTracerFactory != null);
-            Contract.Requires<ArgumentNullException>(innerLogWriter != null);
+            Arg.NotNull(setupTracerFactory, nameof(setupTracerFactory));
+            Arg.NotNull(innerLogWriter, nameof(innerLogWriter));
 
             _setupTracerFactory = setupTracerFactory;
             _innerLogWriter = innerLogWriter;
@@ -79,8 +79,7 @@ namespace LogJam.Writer
         {
             if (! _disposed)
             {
-                IDisposable innerDisposable = _innerLogWriter as IDisposable;
-                if (innerDisposable != null)
+                if (_innerLogWriter is IDisposable innerDisposable)
                 {
                     innerDisposable.Dispose();
                 }

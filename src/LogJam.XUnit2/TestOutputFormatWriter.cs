@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TestOutputFormatWriter.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -10,9 +10,9 @@
 namespace LogJam.XUnit2
 {
     using System;
-    using System.Diagnostics.Contracts;
     using System.Text;
 
+    using LogJam.Shared.Internal;
     using LogJam.Trace;
     using LogJam.Util.Text;
     using LogJam.Writer.Text;
@@ -46,7 +46,7 @@ namespace LogJam.XUnit2
                                       int spacesPerIndentLevel = DefaultSpacesPerIndent)
             : base(setupTracerFactory, fieldDelimiter, spacesPerIndentLevel)
         {
-            Contract.Requires<ArgumentNullException>(setupTracerFactory != null);
+            Arg.NotNull(setupTracerFactory, nameof(setupTracerFactory));
 
             _testOutput = testOutput ?? new NullTestOutput();
             atBeginningOfLine = true; // Must be true, since test output only writes whole lines.

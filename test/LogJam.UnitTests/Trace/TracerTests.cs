@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TracerTests.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -11,7 +11,6 @@ namespace LogJam.UnitTests.Trace
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.Contracts;
     using System.Linq;
 
     using LogJam.Config;
@@ -24,6 +23,7 @@ namespace LogJam.UnitTests.Trace
 
     using Xunit;
     using Xunit.Abstractions;
+    using LogJam.Shared.Internal;
 
 
     /// <summary>
@@ -36,7 +36,7 @@ namespace LogJam.UnitTests.Trace
 
         public TracerTests(ITestOutputHelper testOutputHelper)
         {
-            Contract.Requires<ArgumentNullException>(testOutputHelper != null);
+            Arg.NotNull(testOutputHelper, nameof(testOutputHelper));
 
             _testOutputHelper = testOutputHelper;
         }

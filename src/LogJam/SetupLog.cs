@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="SetupLog.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -9,6 +9,7 @@
 
 namespace LogJam
 {
+    using System;
     using System.Collections;
     using System.Collections.Generic;
 
@@ -65,8 +66,7 @@ namespace LogJam
 
             lock (_tracers)
             {
-                Tracer tracer;
-                if (_tracers.TryGetValue(name, out tracer))
+                if (_tracers.TryGetValue(name, out var tracer))
                 {
                     return tracer;
                 }
@@ -75,6 +75,17 @@ namespace LogJam
                 tracer = new Tracer(name, _traceWriters);
                 return tracer;
             }
+        }
+
+        /// <inheritdoc />
+        public Tracer GetTracer(Type type)
+        {
+            if (type == null)
+            {
+                return GetTracer(string.Empty);
+            }
+
+            return GetTracer(TypeExtensions.GetCSharpName(type));
         }
 
         public IEnumerator<TraceEntry> GetEnumerator()

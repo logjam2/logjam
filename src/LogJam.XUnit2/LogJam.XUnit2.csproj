@@ -1,48 +1,21 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <Import Project="..\..\build\CsprojCommon.targets" />
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <ProjectGuid>{2774CA60-3CAD-493B-BFCB-F77EA7F191E3}</ProjectGuid>
-    <RootNamespace>LogJam.XUnit2</RootNamespace>
-    <AssemblyName>LogJam.XUnit2</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworks>netstandard1.3;net45</TargetFrameworks>
+    <Title>LogJam.XUnit2</Title>
+    <Description>LogJam integration library for running LogJam in XUnit2 unit tests</Description>
+    <PackageTags>LogJam xunit XUnit2</PackageTags>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
+  
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="xunit.abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\xunit.abstractions.2.0.0\lib\net35\xunit.abstractions.dll</HintPath>
-    </Reference>
+    <PackageReference Include="xunit.abstractions" Version="2.0.1" />
   </ItemGroup>
+  
   <ItemGroup>
-    <Compile Include="ITestOutputAccessor.cs" />
-    <Compile Include="LogJamXUnitSetupException.cs" />
-    <Compile Include="NullTestOutput.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ProxyTestOutputAccessor.cs" />
-    <Compile Include="TestOutputHelperExtensions.cs" />
-    <Compile Include="TestOutputFormatWriter.cs" />
-    <Compile Include="TestOutputLogWriterConfig.cs" />
-    <Compile Include="LogJamConfigExtensions.cs" />
+    <ProjectReference Include="..\LogJam\LogJam.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\LogJam\LogJam.csproj">
-      <Project>{43f154ad-aa27-48b3-ba07-d02c92be4f45}</Project>
-      <Name>LogJam</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="LogJam.XUnit2.nuspec" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  
+  <Import Project="..\Shared-Internal\Shared-Internal.projitems" Label="Shared" />
+
 </Project>

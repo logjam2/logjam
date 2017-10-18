@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="LogJamConfigTypes.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -11,9 +11,10 @@ namespace LogJam.Config
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.Contracts;
     using System.Linq;
+    using System.Reflection;
 
+    using LogJam.Shared.Internal;
     using LogJam.Trace.Config;
     using LogJam.Trace.Format;
     using LogJam.Trace.Switches;
@@ -54,9 +55,10 @@ namespace LogJam.Config
 
         public static void Register(Type type)
         {
-            Contract.Requires<ArgumentNullException>(type != null);
+            Arg.NotNull(type, nameof(type));
 
-            if (type.IsAbstract || type.IsInterface || type.IsValueType)
+            var typeInfo = type.GetTypeInfo();
+            if (typeInfo.IsAbstract || typeInfo.IsInterface || typeInfo.IsValueType)
             {
                 throw new ArgumentException("Only instantiable reference types, or generic type definitions, can be registered.", "type");
             }
@@ -77,8 +79,9 @@ namespace LogJam.Config
             }
 
             s_assignableTypes.Add(type);
-            s_assignableTypes.UnionWith(type.GetInterfaces());
-            RegisterAssignableTypesFor(type.BaseType);
+            var typeInfo = type.GetTypeInfo();
+            s_assignableTypes.UnionWith(typeInfo.ImplementedInterfaces);
+            RegisterAssignableTypesFor(typeInfo.BaseType);
         }
 
         /// <summary>
@@ -99,32 +102,42 @@ namespace LogJam.Config
         /// <returns></returns>
         public static IEnumerable<Type> GetConcreteTypesFor(Type baseType)
         {
-            Contract.Requires<ArgumentNullException>(baseType != null);
-            if (baseType.ContainsGenericParameters)
+            Arg.NotNull(baseType, nameof(baseType));
+
+            var baseTypeInfo = baseType.GetTypeInfo();
+            if (baseTypeInfo.ContainsGenericParameters)
             {
                 throw new ArgumentException("Cannot determine concrete types for an open generic type.", "baseType");
             }
 
             List<Type> concreteTypes = new List<Type>();
             // Add all derived concrete types
-            concreteTypes.AddRange(s_configTypes.Where(configType => ! configType.ContainsGenericParameters && baseType.IsAssignableFrom(configType)));
+            concreteTypes.AddRange(s_configTypes.Where(configType =>
+                                                       {
+                                                           var configTypeInfo = configType.GetTypeInfo();
+                                                           return ! configTypeInfo.ContainsGenericParameters && baseTypeInfo.IsAssignableFrom(configTypeInfo);
+                                                       }));
 
-            if (baseType.IsGenericType)
+            if (baseTypeInfo.IsGenericType)
             {
 
                 var gtd = baseType.GetGenericTypeDefinition();
-                var gtdMatches = s_configTypes.Where(configType => configType.IsGenericType && gtd.IsAssignableFrom(configType));
+                var gtdMatches = s_configTypes.Where(configType =>
+                                                     {
+                                                         var configTypeInfo = configType.GetTypeInfo();
+                                                         return configTypeInfo.IsGenericType && gtd.GetTypeInfo().IsAssignableFrom(configTypeInfo);
+                                                     });
 
                 if (gtdMatches.Any())
                 { // Try direct ordered application of type parameters from the base type to the config type
-                    Type[] typeParameters = baseType.GetGenericArguments();
+                    Type[] typeParameters = baseTypeInfo.GenericTypeArguments;
 
                     foreach (Type gtdMatch in gtdMatches)
                     {
                         try
                         {
                             var filledType = gtdMatch.MakeGenericType(typeParameters);
-                            if (! filledType.ContainsGenericParameters)
+                            if (! filledType.GetTypeInfo().ContainsGenericParameters)
                             {
                                 concreteTypes.Add(filledType);
                             }

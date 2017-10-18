@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TextLoggingTests.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -10,7 +10,6 @@
 namespace LogJam.UnitTests.Writer.Text
 {
     using System;
-    using System.Diagnostics.Contracts;
     using System.IO;
     using System.Threading;
 
@@ -19,6 +18,7 @@ namespace LogJam.UnitTests.Writer.Text
 
     using Xunit;
     using Xunit.Abstractions;
+    using LogJam.Shared.Internal;
 
 
     /// <summary>
@@ -31,7 +31,7 @@ namespace LogJam.UnitTests.Writer.Text
 
         public TextLoggingTests(ITestOutputHelper testOutputHelper)
         {
-            Contract.Requires<ArgumentNullException>(testOutputHelper != null);
+            Arg.NotNull(testOutputHelper, nameof(testOutputHelper));
 
             _testOutputHelper = testOutputHelper;
         }

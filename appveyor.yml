@@ -1,6 +1,7 @@
-
 # Build worker image (VM template)
-image: Visual Studio 2015
+image: Visual Studio 2017
+
+configuration: Release
 
 install:
   - choco install gitversion.portable -pre -y
@@ -11,25 +12,24 @@ assembly_info:
 init:
 
 before_build:
-  - ps: gitversion /l console /output buildserver /updateAssemblyInfo .\build\Version.cs
+  # Use GitVersion to determine build + version number from git tree
+  - ps: gitversion /output buildserver
   - ps: Update-AppveyorBuild -Version "$env:GitVersion_NuGetVersion"
-  - ps: nuget restore
+  - ps: dotnet restore
 
 build:
   # project: LogJam.sln
   publish_nuget: true
   publish_nuget_symbols: true
-  include_nuget_references: true
   verbosity: minimal
 
-test:
-  assemblies:
-    # only assemblies to test
-    - 'test\**\*Tests.dll'
+test_script:
+  - ps: .\test.ps1
 
-artifacts:
-  - path: 'src\**\*.nupkg' # find all NuGet packages recursively
+#artifacts:
+#  - path: 'NuGetOut\*.nupkg'
 
 cache:
+  - '%USERPROFILE%\.nuget\packages -> **\*.csproj'  # NuGet package cache
+  - C:\ProgramData\chocolatey\bin -> appveyor.yml
   - C:\ProgramData\chocolatey\lib -> appveyor.yml
-  - packages -> **\packages.config

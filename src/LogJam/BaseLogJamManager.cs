@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="BaseLogJamManager.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -48,7 +48,7 @@ namespace LogJam
         public bool IsStarted { get { return _startableState == StartableState.Started; } }
 
         /// <summary>
-        /// Returns <c>true</c> if <see cref="Stop"/> or <see cref="Dispose"/> has been called.
+        /// Returns <c>true</c> if <see cref="Stop"/> or <c>Dispose</c> has been called.
         /// </summary>
         public bool IsStopped { get { return (_startableState == StartableState.Stopped) || (_startableState == StartableState.Disposed); } }
 
@@ -173,8 +173,7 @@ namespace LogJam
 
             foreach (var disposableRef in _disposeOnStop)
             {
-                IDisposable disposable = disposableRef.Target as IDisposable;
-                if (disposable != null)
+                if (disposableRef.Target is IDisposable disposable)
                 {
                     try
                     {
@@ -208,8 +207,7 @@ namespace LogJam
 
                 if (clearSetupLog)
                 {
-                    var setupTracerFactory = SetupTracerFactory as SetupLog;
-                    if (setupTracerFactory != null)
+                    if (SetupTracerFactory is SetupLog setupTracerFactory)
                     {
                         setupTracerFactory.Clear();
                     }

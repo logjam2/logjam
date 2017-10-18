@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ConsoleTestSetup.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -91,7 +91,7 @@ namespace LogJam.ConsoleTester
 
         public void TraceTimestamps(bool includeTimestamp)
         {
-            ConsoleLogWriterConfig.Format(new DefaultTraceFormatter()
+            ConsoleLogWriterConfig?.Format(new DefaultTraceFormatter()
                                           {
                                               IncludeTimestamp = includeTimestamp
                                           });

@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="JsonConfigContractResolver.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -10,9 +10,9 @@
 namespace LogJam.Config.Json
 {
     using System;
-    using System.Diagnostics.Contracts;
 
     using Newtonsoft.Json.Serialization;
+    using LogJam.Shared.Internal;
 
 
     /// <summary>
@@ -30,11 +30,11 @@ namespace LogJam.Config.Json
         //private readonly JsonSerializer _innerSerializer;
         public JsonConfigContractResolver(IContractResolver defaultContractResolver)
         {
-            Contract.Requires<ArgumentException>(! (defaultContractResolver is JsonConfigContractResolver), "JsonConfigContractResolver should not be double-nested.");
+            Arg.IsNot<JsonConfigContractResolver>(defaultContractResolver, nameof(defaultContractResolver), "JsonConfigContractResolver should not be double-nested.");
 
             if (defaultContractResolver == null)
             {
-                defaultContractResolver = new DefaultContractResolver(false);
+                defaultContractResolver = new DefaultContractResolver();
             }
             _innerContractResolver = defaultContractResolver;
 

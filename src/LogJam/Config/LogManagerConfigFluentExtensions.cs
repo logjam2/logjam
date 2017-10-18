@@ -11,10 +11,10 @@ namespace LogJam.Config
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.Contracts;
     using System.IO;
     using System.Linq;
 
+    using LogJam.Shared.Internal;
     using LogJam.Trace;
     using LogJam.Writer;
     using LogJam.Writer.Text;
@@ -28,8 +28,8 @@ namespace LogJam.Config
 
         public static TextWriterLogWriterConfig UseTextWriter(this LogManagerConfig logManagerConfig, TextWriter textWriter)
         {
-            Contract.Requires<ArgumentNullException>(logManagerConfig != null);
-            Contract.Requires<ArgumentNullException>(textWriter != null);
+            Arg.NotNull(logManagerConfig, nameof(logManagerConfig));
+            Arg.NotNull(textWriter, nameof(textWriter));
 
             var writerConfig = new TextWriterLogWriterConfig(textWriter);
             logManagerConfig.Writers.Add(writerConfig);
@@ -38,8 +38,8 @@ namespace LogJam.Config
 
         public static TextWriterLogWriterConfig UseTextWriter(this LogManagerConfig logManagerConfig, Func<TextWriter> createTextWriterFunc)
         {
-            Contract.Requires<ArgumentNullException>(logManagerConfig != null);
-            Contract.Requires<ArgumentNullException>(createTextWriterFunc != null);
+            Arg.NotNull(logManagerConfig, nameof(logManagerConfig));
+            Arg.NotNull(createTextWriterFunc, nameof(createTextWriterFunc));
 
             var writerConfig = new TextWriterLogWriterConfig(createTextWriterFunc);
             logManagerConfig.Writers.Add(writerConfig);
@@ -53,7 +53,7 @@ namespace LogJam.Config
         /// <returns></returns>
         public static DebuggerLogWriterConfig UseDebugger(this LogManagerConfig logManagerConfig)
         {
-            Contract.Requires<ArgumentNullException>(logManagerConfig != null);
+            Arg.NotNull(logManagerConfig, nameof(logManagerConfig));
 
             var debuggerConfig = logManagerConfig.Writers.OfType<DebuggerLogWriterConfig>().FirstOrDefault();
             if (debuggerConfig == null)
@@ -72,7 +72,7 @@ namespace LogJam.Config
         /// <returns>The <see cref="ConsoleLogWriterConfig" />, which can be altered as needed.</returns>
         public static ConsoleLogWriterConfig UseConsole(this LogManagerConfig logManagerConfig, bool colorize = true)
         {
-            Contract.Requires<ArgumentNullException>(logManagerConfig != null);
+            Arg.NotNull(logManagerConfig, nameof(logManagerConfig));
 
             var consoleWriterConfig = logManagerConfig.Writers.OfType<ConsoleLogWriterConfig>().FirstOrDefault();
             if (consoleWriterConfig == null)
@@ -94,8 +94,8 @@ namespace LogJam.Config
         /// <returns>A <see cref="UseExistingLogWriterConfig"/> that will return <paramref name="logWriter"/> when the <see cref="LogManager"/> is started.</returns>
         public static UseExistingLogWriterConfig UseLogWriter(this LogManagerConfig logManagerConfig, ILogWriter logWriter)
         {
-            Contract.Requires<ArgumentNullException>(logManagerConfig != null);
-            Contract.Requires<ArgumentNullException>(logWriter != null);
+            Arg.NotNull(logManagerConfig, nameof(logManagerConfig));
+            Arg.NotNull(logWriter, nameof(logWriter));
 
             var useExistingConfig = new UseExistingLogWriterConfig(logWriter);
             logManagerConfig.Writers.Add(useExistingConfig);
@@ -112,8 +112,8 @@ namespace LogJam.Config
         public static ListLogWriterConfig<TEntry> UseList<TEntry>(this LogManagerConfig logManagerConfig, IList<TEntry> list)
             where TEntry : ILogEntry
         {
-            Contract.Requires<ArgumentNullException>(logManagerConfig != null);
-            Contract.Requires<ArgumentNullException>(list != null);
+            Arg.NotNull(logManagerConfig, nameof(logManagerConfig));
+            Arg.NotNull(list, nameof(list));
 
             var listLogWriterConfig = new ListLogWriterConfig<TEntry>()
             {
@@ -148,7 +148,7 @@ namespace LogJam.Config
                                                                       bool overwriteExistingFormatters = false)
             where TEntry : ILogEntry
         {
-            Contract.Requires<ArgumentNullException>(logWriterConfigs != null);
+            Arg.NotNull(logWriterConfigs, nameof(logWriterConfigs));
 
             if (entryFormatter == null)
             { // Try creating the default entry formatter

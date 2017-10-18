@@ -10,9 +10,9 @@
 namespace LogJam.Config
 {
     using System;
-    using System.Diagnostics.Contracts;
     using System.IO;
 
+    using LogJam.Shared.Internal;
     using LogJam.Trace;
     using LogJam.Writer.Text;
 
@@ -33,7 +33,7 @@ namespace LogJam.Config
         /// </param>
         public TextWriterLogWriterConfig(Func<TextWriter> createTextWriterFunc)
         {
-            Contract.Requires<ArgumentNullException>(createTextWriterFunc != null);
+            Arg.NotNull(createTextWriterFunc, nameof(createTextWriterFunc));
 
             CreateTextWriter = createTextWriterFunc;
             DisposeTextWriter = true;
@@ -52,7 +52,7 @@ namespace LogJam.Config
         public TextWriterLogWriterConfig(TextWriter textWriter)
             : this(() => textWriter)
         {
-            Contract.Requires<ArgumentNullException>(textWriter != null);
+            Arg.NotNull(textWriter, nameof(textWriter));
 
             // Default to not Disposing the TextWriter
             DisposeTextWriter = false;
