@@ -1,4 +1,4 @@
-﻿<!--
+<!--
 ***********************************************************************************************
 Directory.Build.targets
 
@@ -8,13 +8,14 @@ MSBuild targets file that is automatically imported into projects in subdirector
 -->
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" >
 
-  <!-- For "msbuild /t:pack" (new SDK-style projects only), include PDB and XML docs files in nuget packages -->
+  <!-- For "msbuild /t:pack" (new SDK-style projects only), include PDB and Code Contracts files in nuget packages -->
   <PropertyGroup>
     <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);IncludePDBsInPackage</TargetsForTfmSpecificContentInPackage>
   </PropertyGroup>
   <Target Name="IncludePDBsInPackage" Condition="'$(IncludeBuildOutput)' != 'false'">
     <ItemGroup>
       <TfmSpecificPackageFile Include="$(OutputPath)\$(AssemblyName).pdb" PackagePath="lib\$(TargetFramework)" />
+      <TfmSpecificPackageFile Include="$(OutputPath)\CodeContracts\$(AssemblyName).Contracts.*" PackagePath="lib\$(TargetFramework)\CodeContracts" />
     </ItemGroup>
   </Target>
 

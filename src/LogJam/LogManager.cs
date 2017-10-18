@@ -115,9 +115,7 @@ namespace LogJam
         /// </param>
         public LogManager(params ILogWriterConfig[] logWriterConfigs)
             : this(new LogManagerConfig(logWriterConfigs))
-        {
-            Arg.NoneNull(logWriterConfigs, nameof(logWriterConfigs));
-        }
+        {}
 
         /// <summary>
         /// Creates a new <see cref="LogManager" /> instance using the specified <paramref name="logWriters" />.

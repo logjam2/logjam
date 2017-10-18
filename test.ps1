@@ -1,3 +1,7 @@
+#------------------------------------------------------------------
+# Powershell build script to run all tests in test projects - used by appveyor.
+#------------------------------------------------------------------
+
 "Configuration: $env:Configuration" 
 " "
 

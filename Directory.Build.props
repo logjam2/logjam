@@ -18,18 +18,19 @@ MSBuild file that is automatically imported into projects in subdirectories.
     <Version Condition="'$(Version)' == ''">1.1.0-dev</Version>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <AssemblyFileVersion Condition="'$(AssemblyFileVersion)' == ''">1.1.0.0</AssemblyFileVersion>
-    
+    <PackageVersion Condition="'$(PackageVersion)' == ''">$(Version)</PackageVersion>
+        
     <Authors>LogJam Contributors</Authors>
     <Copyright>Copyright 2011-2017</Copyright>
     <PackageLicenseUrl>https://raw.githubusercontent.com/logjam2/logjam/master/LICENSE.txt</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/logjam2/logjam</PackageProjectUrl>
     <!--<PackageIconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</PackageIconUrl>-->
-    <PackageOutputPath>$(MSBuildThisFileDirectory)/NuGetOut/</PackageOutputPath>
+    <PackageOutputPath Condition="'$(PackageOutputPath)' == ''">$(MSBuildThisFileDirectory)/NuGetOut/</PackageOutputPath>
   </PropertyGroup>
 
   <!-- Standard shared settings for all projects, unless overridden. -->
   <PropertyGroup>
-    <RunCodeAnalysis>false</RunCodeAnalysis>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">

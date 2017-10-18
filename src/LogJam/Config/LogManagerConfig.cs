@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="LogManagerConfig.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -44,7 +44,7 @@ namespace LogJam.Config
         /// </summary>
         public LogManagerConfig(params ILogWriterConfig[] logWriterConfigs)
         {
-            Arg.NotNull(logWriterConfigs, nameof(logWriterConfigs));
+            Arg.NoneNull(logWriterConfigs, nameof(logWriterConfigs));
 
             _logWriterConfigs = new ObservableSet<ILogWriterConfig>(new HashSet<ILogWriterConfig>(logWriterConfigs));
         }

@@ -1,12 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.16
+VisualStudioVersion = 15.0.27004.2002
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{F89C3372-408F-4F99-A7BF-D2818C959F50}"
 	ProjectSection(SolutionItems) = preProject
 		API.md = API.md
 		README.md = README.md
+		docs\Release Notes.md = docs\Release Notes.md
 		docs\TODO.md = docs\TODO.md
 	EndProjectSection
 EndProject
@@ -19,6 +20,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{BE3BFA82
 		.editorconfig = .editorconfig
 		appveyor.yml = appveyor.yml
 		Directory.Build.props = Directory.Build.props
+		Directory.Build.targets = Directory.Build.targets
 		NuGet.config = NuGet.config
 		test.ps1 = test.ps1
 		build\xUnit.Common.props = build\xUnit.Common.props
