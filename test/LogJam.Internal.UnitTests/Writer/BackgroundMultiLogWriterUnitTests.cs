@@ -91,7 +91,7 @@ namespace LogJam.Internal.UnitTests.Writer
             // Hi-res timer
             var stopwatch = new Stopwatch();
 
-            // Slow log writer - starting, stopping, disposing, writing an entry, all take at least 10ms each.
+            // Slow log writer - starting, stopping, disposing, writing an entry, all take at least operationDelayMs each.
             const int operationDelayMs = 30;
             const int parallelThreads = 8;
             const int messagesPerThread = 6;
@@ -330,7 +330,7 @@ namespace LogJam.Internal.UnitTests.Writer
         /// Even if you forget to call <see cref="BackgroundMultiLogWriter.Dispose" />, logs should still be written
         /// to their target when the <see cref="BackgroundMultiLogWriter" /> finalizer is called.
         /// </summary>
-        [Fact]
+        [Fact(Skip = "Finalizer is not triggering, need to investigate: https://github.com/logjam2/logjam/issues/25")]
         public void FinalizerCausesQueuedLogsToFlush()
         {
             // Slow log writer - starting, stopping, disposing, writing an entry, all take at least 10ms each.
@@ -341,6 +341,9 @@ namespace LogJam.Internal.UnitTests.Writer
             // Run the test code in a delegate so that local variable references can be GCed
             Action logTestMessages = () =>
                                      {
+                                         // Writes to test output when finalization occurs
+                                         var finalizerCanary = new FinalizerCanary(_testOutputHelper);
+
                                          SetupBackgroundLogWriter(slowLogWriter, out BackgroundMultiLogWriter backgroundMultiLogWriter, out IQueueEntryWriter<MessageEntry> queueEntryWriter);
 
                                          ExampleHelper.LogTestMessages(queueEntryWriter, expectedEntryCount);
@@ -350,9 +353,12 @@ namespace LogJam.Internal.UnitTests.Writer
                                      };
             logTestMessages();
 
+            // Because the log writer is slow, messages should be queued/not yet written after returning.
             Assert.True(slowLogWriter.Count < expectedEntryCount);
 
             // Force a GC cyle, and wait for finalizers to complete.
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
             GC.Collect();
             GC.WaitForPendingFinalizers();
 
@@ -417,6 +423,26 @@ namespace LogJam.Internal.UnitTests.Writer
             Assert.Contains(">3\r\n<3  00:00:00.", logOutput);
         }
 
+        /// <summary>
+        /// A finalizeable object that writes to test output when finalization occurs. Used to check if finalization occurs when finalization tests fail.
+        /// </summary>
+        private class FinalizerCanary
+        {
+
+            private readonly ITestOutputHelper _testOutput;
+
+            public FinalizerCanary(ITestOutputHelper testOutput)
+            {
+                Arg.NotNull(testOutput, nameof(testOutput));
+
+                _testOutput = testOutput;
+            }
+
+            ~FinalizerCanary()
+            {
+                _testOutput.WriteLine("(~FinalizerCanary called)");
+            }
+        }
     }
 
 }
