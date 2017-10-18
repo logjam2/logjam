@@ -30,13 +30,14 @@ MSBuild file that is automatically imported into projects in subdirectories.
 
   <!-- Standard shared settings for all projects, unless overridden. -->
   <PropertyGroup>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
     <DefineConstants>$(DefineConstants);NETSTANDARD</DefineConstants>
   </PropertyGroup>
 
+  <!-- Use Code Contracts for .NET Framework builds -->
   <PropertyGroup Condition="'$(TargetFramework)' == 'net45' OR '$(TargetFramework)' == 'net452' OR '$(TargetFramework)' == 'net47'">
     <UseCodeContracts>true</UseCodeContracts>
   </PropertyGroup>
