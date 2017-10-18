@@ -30,7 +30,7 @@ MSBuild file that is automatically imported into projects in subdirectories.
 
   <!-- Standard shared settings for all projects, unless overridden. -->
   <PropertyGroup>
-    <RunCodeAnalysis>false</RunCodeAnalysis>
+    <RunCodeAnalysis Condition="'$(RunCodeAnalysis)' == ''">false</RunCodeAnalysis>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
