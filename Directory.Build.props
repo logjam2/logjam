@@ -26,6 +26,8 @@ MSBuild file that is automatically imported into projects in subdirectories.
     <PackageProjectUrl>https://github.com/logjam2/logjam</PackageProjectUrl>
     <!--<PackageIconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</PackageIconUrl>-->
     <PackageOutputPath Condition="'$(PackageOutputPath)' == ''">$(MSBuildThisFileDirectory)/NuGetOut/</PackageOutputPath>
+    <!-- Include PDBs in Nuget package. -->
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>.pdb; $(AllowedOutputExtensionsInPackageBuildOutputFolder)</AllowedOutputExtensionsInPackageBuildOutputFolder>
   </PropertyGroup>
 
   <!-- Standard shared settings for all projects, unless overridden. -->

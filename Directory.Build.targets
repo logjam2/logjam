@@ -8,15 +8,22 @@ MSBuild targets file that is automatically imported into projects in subdirector
 -->
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" >
 
-  <!-- For "msbuild /t:pack" (new SDK-style projects only), include PDB and Code Contracts files in nuget packages -->
   <PropertyGroup>
-    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);IncludePDBsInPackage</TargetsForTfmSpecificContentInPackage>
+    <BeforePack>$(BeforePack); SetNuspecProperties</BeforePack>
   </PropertyGroup>
-  <Target Name="IncludePDBsInPackage" Condition="'$(IncludeBuildOutput)' != 'false'">
-    <ItemGroup>
-      <TfmSpecificPackageFile Include="$(OutputPath)\$(AssemblyName).pdb" PackagePath="lib\$(TargetFramework)" />
-      <TfmSpecificPackageFile Include="$(OutputPath)\CodeContracts\$(AssemblyName).Contracts.*" PackagePath="lib\$(TargetFramework)\CodeContracts" />
-    </ItemGroup>
+
+  <!-- Add standard nuspec properties to pass to .nuspec file -->
+  <Target Name="SetNuspecProperties" Condition="'$(NuspecFile)' != ''">
+    <PropertyGroup>
+      <!-- Add standard nuspec properties -->
+      <NuspecProperties>
+        id=$(AssemblyName);title=$(Title);description=$(Description);
+        author=$(Authors);version=$(PackageVersion);copyright=$(Copyright);
+        licenseUrl=$(PackageLicenseUrl);projectUrl=$(PackageProjectUrl);
+        configuration=$(Configuration);
+        $(NuspecProperties)
+      </NuspecProperties>
+    </PropertyGroup>
   </Target>
 
 </Project>

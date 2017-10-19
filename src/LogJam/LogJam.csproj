@@ -6,6 +6,9 @@
     <Description>LogJam main library</Description>
     <PackageTags>Log Trace Tracing Logging LogJam</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <!-- Need to pack using a nuspec file, to include <references> -->
+    <NuspecFile>LogJam.nuspec</NuspecFile>
   </PropertyGroup>
   
   <Import Project="..\Shared-Internal\Shared-Internal.projitems" Label="Shared" />

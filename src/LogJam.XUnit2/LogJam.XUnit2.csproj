@@ -6,6 +6,9 @@
     <Description>LogJam integration library for running LogJam in XUnit2 unit tests</Description>
     <PackageTags>LogJam xunit XUnit2</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <!-- Need to pack using a nuspec file, to include <references> -->
+    <NuspecFile>LogJam.XUnit2.nuspec</NuspecFile>
   </PropertyGroup>
   
   <ItemGroup>

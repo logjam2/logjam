@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <licenseUrl>$licenseUrl$</licenseUrl>
+    <projectUrl>$projectUrl$</projectUrl>
+    <!--<iconUrl>http://ICON_URL_HERE</iconUrl>-->
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>$description$</description>
+    <!--<releaseNotes>Summary of changes made in this release of the package.</releaseNotes>-->
+    <copyright>$copyright$</copyright>
+    <tags>Log Trace Tracing Logging LogJam XUnit XUnit2</tags>
+
+    <references>
+      <!-- Explicitly specify which assemblies are referenced when this project is referenced (to not link to the CodeContracts DLLs for net45). -->
+      <reference file="$id$.dll" />
+    </references>
+  </metadata>
+
+  <!-- Include the dll, pdb, code contracts, xml (xml docs). -->
+  <files>
+    <file src="bin\$configuration$\net45\$id$.*" target="lib\net45" />
+    <file src="bin\$configuration$\netstandard1.3\$id$.*" target="lib\netstandard1.3" />
+
+    <!-- Code-contracts reference assembly + PDBs -->
+    <file src="bin\$configuration$\net45\CodeContracts\$id$.Contracts.*" target="lib\net45\CodeContracts" />
+  </files>
+
+</package>
