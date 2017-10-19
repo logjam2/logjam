@@ -6,6 +6,7 @@
   * All tests are run on the following platforms: netcoreapp2.0;net452;net47
 * Added `TraceManagerConfig.TypeNameFunc` - can be used to customize how the `Tracer.Name` is determined for a type.
 * Builds are now public and run on appveyor: https://ci.appveyor.com/project/johncrim/logjam
+* New netstandard libraries [use SourceLink](https://github.com/ctaggart/SourceLink) to support downloading source code from github while debugging
 
 ## Version 1.0.6
 * [Fixed: LogJam.Owin exception on 404 pages when running under IIS](https://github.com/logjam2/logjam/issues/22)
