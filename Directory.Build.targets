@@ -9,15 +9,16 @@ MSBuild targets file that is automatically imported into projects in subdirector
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" >
 
   <PropertyGroup>
-    <BeforePack>$(BeforePack); SetNuspecProperties</BeforePack>
+    <GenerateNuspecDependsOn>SetNuspecProperties; $(GenerateNuspecDependsOn)</GenerateNuspecDependsOn>
   </PropertyGroup>
 
   <!-- Add standard nuspec properties to pass to .nuspec file -->
   <Target Name="SetNuspecProperties" Condition="'$(NuspecFile)' != ''">
+    <Message Text="Setting nuspec properties for .nuspec file" Importance="high"/>
     <PropertyGroup>
       <!-- Add standard nuspec properties -->
       <NuspecProperties>
-        id=$(AssemblyName);title=$(Title);description=$(Description);
+        id=$(PackageId);title=$(Title);description=$(Description);
         author=$(Authors);version=$(PackageVersion);copyright=$(Copyright);
         licenseUrl=$(PackageLicenseUrl);projectUrl=$(PackageProjectUrl);
         configuration=$(Configuration);
