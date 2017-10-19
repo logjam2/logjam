@@ -13,20 +13,34 @@
     <description>$description$</description>
     <!--<releaseNotes>Summary of changes made in this release of the package.</releaseNotes>-->
     <copyright>$copyright$</copyright>
-    <tags>Log Trace Tracing Logging LogJam XUnit XUnit2</tags>
+    <tags>LogJam xunit XUnit2</tags>
 
     <references>
       <!-- Explicitly specify which assemblies are referenced when this project is referenced (to not link to the CodeContracts DLLs for net45). -->
       <reference file="$id$.dll" />
     </references>
+
+    <dependencies>
+      <group targetFramework=".NETFramework4.5">
+        <dependency id="LogJam" version="$version$" exclude="Build,Analyzers" />
+        <dependency id="xunit.abstractions" version="2.0.1" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework=".NETStandard1.3">
+        <dependency id="LogJam" version="$version$" exclude="Build,Analyzers" />
+        <dependency id="NETStandard.Library" version="1.6.1" exclude="Build,Analyzers" />
+        <dependency id="xunit.abstractions" version="2.0.1" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
   </metadata>
 
   <!-- Include the dll, pdb, code contracts, xml (xml docs). -->
   <files>
     <file src="bin\$configuration$\net45\$id$.*" target="lib\net45" />
-    <file src="bin\$configuration$\netstandard1.3\$id$.*" target="lib\netstandard1.3" />
+    <file src="bin\$configuration$\netstandard1.3\$id$.dll" target="lib\netstandard1.3" />
+    <file src="bin\$configuration$\netstandard1.3\$id$.pdb" target="lib\netstandard1.3" />
+    <file src="bin\$configuration$\netstandard1.3\$id$.xml" target="lib\netstandard1.3" />
 
-    <!-- Code-contracts reference assembly + PDBs -->
+    <!-- Code-contracts reference assembly + PDBs in net45 -->
     <file src="bin\$configuration$\net45\CodeContracts\$id$.Contracts.*" target="lib\net45\CodeContracts" />
   </files>
 

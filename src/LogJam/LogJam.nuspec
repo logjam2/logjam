@@ -24,7 +24,9 @@
   <!-- Include the dll, pdb, code contracts, xml (xml docs). -->
   <files>
     <file src="bin\$configuration$\net45\$id$.*" target="lib\net45" />
-    <file src="bin\$configuration$\netstandard1.3\$id$.*" target="lib\netstandard1.3" />
+    <file src="bin\$configuration$\netstandard1.3\$id$.dll" target="lib\netstandard1.3" />
+    <file src="bin\$configuration$\netstandard1.3\$id$.pdb" target="lib\netstandard1.3" />
+    <file src="bin\$configuration$\netstandard1.3\$id$.xml" target="lib\netstandard1.3" />
 
     <!-- Code-contracts reference assembly + PDBs -->
     <file src="bin\$configuration$\net45\CodeContracts\$id$.Contracts.*" target="lib\net45\CodeContracts" />
