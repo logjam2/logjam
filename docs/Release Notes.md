@@ -2,11 +2,11 @@
 
 ## Version 1.1.0
 * [Added: netstandard 1.3 versions of LogJam and LogJam.XUnit2](https://github.com/logjam2/logjam/issues/21)
-  * Code Contracts files are not included in netstandard platform directory; Code Contracts files are included in `net45` directory. `net45` DLLs use Windows PDBs; netstandard DLLs use Portable PDBs, and Code Contracts' ccrewrite fails for portable PDBs.
+  * Code Contracts files are not included in netstandard platform directory; Code Contracts files are included in `net45` directory. `net45` DLLs use Windows PDBs; netstandard DLLs use embedded PDBs, because Code Contracts' ccrewrite fails for portable PDBs.
   * All tests are run on the following platforms: netcoreapp2.0;net452;net47
 * Added `TraceManagerConfig.TypeNameFunc` - can be used to customize how the `Tracer.Name` is determined for a type.
 * Builds are now public and run on appveyor: https://ci.appveyor.com/project/johncrim/logjam
-* New netstandard libraries [use SourceLink](https://github.com/ctaggart/SourceLink) to support downloading source code from github while debugging
+* "Step into LogJam" - New netstandard libraries [use SourceLink](https://github.com/ctaggart/SourceLink) to support downloading source code from github while debugging
 
 ## Version 1.0.6
 * [Fixed: LogJam.Owin exception on 404 pages when running under IIS](https://github.com/logjam2/logjam/issues/22)
