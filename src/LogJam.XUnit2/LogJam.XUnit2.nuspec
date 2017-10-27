@@ -37,7 +37,7 @@
   <files>
     <file src="bin\$configuration$\net45\$id$.*" target="lib\net45" />
     <file src="bin\$configuration$\netstandard1.3\$id$.dll" target="lib\netstandard1.3" />
-    <file src="bin\$configuration$\netstandard1.3\$id$.pdb" target="lib\netstandard1.3" />
+    <!--<file src="bin\$configuration$\netstandard1.3\$id$.pdb" target="lib\netstandard1.3" />-->
     <file src="bin\$configuration$\netstandard1.3\$id$.xml" target="lib\netstandard1.3" />
 
     <!-- Code-contracts reference assembly + PDBs in net45 -->
