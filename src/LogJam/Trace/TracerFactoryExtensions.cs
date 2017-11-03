@@ -22,6 +22,21 @@ namespace LogJam.Trace
     {
 
         /// <summary>
+        /// Returns a <see cref="Tracer"/> for <paramref name="type"/>.
+        /// </summary>
+        /// <param name="tracerFactory"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        [Obsolete("Use ITracerFactory.GetTracer(Type) instead.")]
+        public static Tracer GetTracer(this ITracerFactory tracerFactory, Type type)
+        {
+            Arg.NotNull(tracerFactory, nameof(tracerFactory));
+            Arg.NotNull(type, nameof(type));
+
+            return tracerFactory.GetTracer(type);
+        }
+
+        /// <summary>
         /// Returns a <see cref="Tracer"/> for object <paramref name="traceSource"/>.
         /// </summary>
         /// <param name="tracerFactory"></param>
@@ -41,6 +56,12 @@ namespace LogJam.Trace
             return tracerFactory.GetTracer(traceSource.GetType());
         }
 
+        /// <summary>
+        /// Returns a <see cref="Tracer"/> for type <typeparamref name="T"/>.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="tracerFactory"></param>
+        /// <returns></returns>
         public static Tracer TracerFor<T>(this ITracerFactory tracerFactory)
         {
             Arg.NotNull(tracerFactory, nameof(tracerFactory));
