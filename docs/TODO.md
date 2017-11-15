@@ -2,6 +2,7 @@
 
 1. Add netstandard versions of LogJam
 2. ASP.NET Core logging (equivalent to LogJam.OWIN)
+3. Make proxy/fanout EntryWriters self-updating when downstream entrywriters are started or stopped
 3. Evidence perf tests (to guide decisions)
   * Compare Type.GetCSharpName() impls, using CodeDomProvider vs explicit
   * Synchronous file IO vs async
