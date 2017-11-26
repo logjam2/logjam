@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.0;net452;net47</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.0;net452;net471</TargetFrameworks>
     <Title>LogJam.UnitTests</Title>
     <Description>LogJam unit tests</Description>
   </PropertyGroup>

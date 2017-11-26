@@ -43,7 +43,7 @@ MSBuild file that is automatically imported into projects in subdirectories.
   </PropertyGroup>
 
   <!-- Use Code Contracts for .NET Framework builds -->
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net45' OR '$(TargetFramework)' == 'net452' OR '$(TargetFramework)' == 'net47'">
+  <PropertyGroup Condition="'$(UsingMicrosoftNETSdk)' != 'true' AND ('$(TargetFramework)' == 'net45' OR '$(TargetFramework)' == 'net452' OR '$(TargetFramework)' == 'net471')">
     <UseCodeContracts>true</UseCodeContracts>
   </PropertyGroup>
 
