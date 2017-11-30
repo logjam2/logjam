@@ -10,6 +10,7 @@
 namespace LogJam
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
@@ -75,6 +76,9 @@ namespace LogJam
 
         private readonly Dictionary<ILogWriterConfig, ILogWriter> _logWriters;
 
+        // Cached set of TEntry => IEntryWriter<TEntry> | null ; Cleared when log manager is started or stopped.
+        private readonly ConcurrentDictionary<Type, object> _cachedEntryWriters;
+
         #endregion
 
         #region Constructors and Destructors
@@ -103,6 +107,7 @@ namespace LogJam
             _config = logManagerConfig;
             _backgroundMultiLogWriters = new List<BackgroundMultiLogWriter>();
             _logWriters = new Dictionary<ILogWriterConfig, ILogWriter>();
+            _cachedEntryWriters = new ConcurrentDictionary<Type, object>();
         }
 
         /// <summary>
@@ -203,6 +208,8 @@ namespace LogJam
                         }
                     }
                 }
+
+                _cachedEntryWriters.Clear();
             }
         }
 
@@ -252,6 +259,7 @@ namespace LogJam
             {
                 _logWriters.Values.SafeStop(SetupTracerFactory);
                 _logWriters.Clear();
+                _cachedEntryWriters.Clear();
                 _backgroundMultiLogWriters.SafeStop(SetupTracerFactory);
                 _backgroundMultiLogWriters.SafeDispose(SetupTracerFactory);
                 _backgroundMultiLogWriters.Clear();
@@ -302,21 +310,48 @@ namespace LogJam
         /// A single <see cref="IEntryWriter{TEntry}" /> that writes to all successfully started
         /// <see cref="IEntryWriter{TEntry}" />s that are type-compatible with <typeparamref name="TEntry" />.
         /// </returns>
-        public IEntryWriter<TEntry> GetEntryWriter<TEntry>() where TEntry : ILogEntry
+        public bool TryGetEntryWriter<TEntry>(out IEntryWriter<TEntry> entryWriter) where TEntry : ILogEntry
         {
-            IEntryWriter<TEntry>[] entryWriters = GetEntryWriters<TEntry>().ToArray();
-            if (entryWriters.Length == 1)
+            if (_cachedEntryWriters.TryGetValue(typeof(TEntry), out object entryWriterObject))
             {
-                return entryWriters[0];
-            }
-            else if (entryWriters.Length == 0)
-            {
-                return new NoOpEntryWriter<TEntry>();
+                // Cache hit
+                entryWriter = (IEntryWriter<TEntry>) entryWriterObject;
             }
             else
             {
-                return new FanOutEntryWriter<TEntry>(entryWriters);
+                // Cache miss
+                IEntryWriter<TEntry>[] entryWriters = GetEntryWriters<TEntry>().ToArray();
+                if (entryWriters.Length == 1)
+                {
+                    entryWriter = entryWriters[0];
+                }
+                else if (entryWriters.Length == 0)
+                {
+                    entryWriter = null;
+                }
+                else
+                {
+                    entryWriter = new FanOutEntryWriter<TEntry>(entryWriters);
+                }
+                _cachedEntryWriters.TryAdd(typeof(TEntry), entryWriter);
             }
+
+            return entryWriter != null;
+        }
+
+        /// <summary>
+        /// Returns a single <see cref="IEntryWriter{TEntry}" /> that writes to all successfully started
+        /// <see cref="IEntryWriter{TEntry}" />s associated with this <c>LogManager</c>.
+        /// </summary>
+        /// <typeparam name="TEntry">The logentry type written by the returned <see cref="IEntryWriter{TEntry}" />s.</typeparam>
+        /// <returns>
+        /// A single <see cref="IEntryWriter{TEntry}" /> that writes to all successfully started
+        /// <see cref="IEntryWriter{TEntry}" />s that are type-compatible with <typeparamref name="TEntry" />.
+        /// </returns>
+        public IEntryWriter<TEntry> GetEntryWriter<TEntry>() where TEntry : ILogEntry
+        {
+            TryGetEntryWriter(out IEntryWriter<TEntry> entryWriter);
+            return entryWriter ?? new NoOpEntryWriter<TEntry>();
         }
 
         /// <summary>

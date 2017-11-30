@@ -163,7 +163,7 @@ namespace LogJam.UnitTests
         [Fact]
         public void MissingLogWriterConfigThrows()
         {
-            var logManager = new LogManager();
+            var logManager = new LogManager(new LogManagerConfig());
 
             // LogManager.GetLogWriter throws on no match
             var missingConfig = new ListLogWriterConfig<TraceEntry>();
@@ -174,6 +174,64 @@ namespace LogJam.UnitTests
             Assert.Throws<KeyNotFoundException>(() => logManager.GetEntryWriter<TraceEntry>(missingConfig));
         }
 
+        [Fact]
+        public void TryGetEntryWriter_IsFalse_WhenEntryWriterIsNotConfigured()
+        {
+            var logManager = new LogManager(new LogManagerConfig());
+
+            // Empty, no logwriters configured
+            Assert.False(logManager.TryGetEntryWriter<TraceEntry>(out IEntryWriter<TraceEntry> entryWriter));
+            Assert.Null(entryWriter);
+
+            var traceEntries = new List<TraceEntry>();
+            logManager.Config.UseList(traceEntries);
+            logManager.Stop();
+
+            // List logwriter enabled
+            Assert.True(logManager.TryGetEntryWriter<TraceEntry>(out entryWriter));
+            Assert.NotNull(entryWriter);
+
+            logManager.Stop();
+            logManager.Config.Clear();
+
+            // Stopped, no active entrywriters
+            Assert.False(logManager.TryGetEntryWriter<TraceEntry>(out entryWriter));
+            Assert.Null(entryWriter);
+
+            Assert.Equal(StartableState.Stopped, logManager.State);
+        }
+
+        [Fact]
+        public void StateChangingEvents_Raised_WhenExpected()
+        {
+            var logManager = new LogManager();
+
+            var events = new List<ValueTuple<object, StartableStateChangingEventArgs>>();
+
+            void OnLogManagerStateChanging(object sender, StartableStateChangingEventArgs args) => events.Add((sender, args));
+            logManager.StateChanging += OnLogManagerStateChanging;
+
+            logManager.Start();
+            Assert.Collection(events,
+                              e => Assert.Equal(StartableState.Starting, e.Item2.NewState),
+                              e => Assert.Equal(StartableState.Started, e.Item2.NewState));
+
+            logManager.Stop();
+            logManager.StateChanging -= OnLogManagerStateChanging;
+            logManager.Start();
+            logManager.Stop();
+
+            Assert.Collection(events,
+                              e =>
+                              {
+                                  Assert.Same(logManager, e.Item1);
+                                  Assert.Equal(StartableState.Starting, e.Item2.NewState);
+                              },
+                              e => Assert.Equal(StartableState.Started, e.Item2.NewState),
+                              e => Assert.Equal(StartableState.Stopping, e.Item2.NewState),
+                              e => Assert.Equal(StartableState.Stopped, e.Item2.NewState)
+                             );
+        }
     }
 
 }

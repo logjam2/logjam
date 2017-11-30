@@ -63,7 +63,23 @@ namespace LogJam
         /// <summary>
         /// Returns the <see cref="StartableState"/> for this object.
         /// </summary>
-        public StartableState State { get { return _startableState; } }
+        public StartableState State
+        {
+            get => _startableState;
+            private set
+            {
+                if (value != _startableState)
+                {
+                    StateChanging?.Invoke(this, new StartableStateChangingEventArgs(_startableState, value));
+                    _startableState = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// An event that is rasied when <see cref="State"/> changes.
+        /// </summary>
+        public event EventHandler<StartableStateChangingEventArgs> StateChanging;
 
         /// <summary>
         /// Returns <c>true</c> if this object is in a state that can be <see cref="Start"/>ed.
@@ -130,16 +146,16 @@ namespace LogJam
             {
                 try
                 {
-                    _startableState = StartableState.Starting;
+                    State = StartableState.Starting;
                     InternalStart();
-                    _startableState = StartableState.Started;
+                    State = StartableState.Started;
                     tracer.Info(className + " started.");
                 }
                 catch (Exception startException)
                 {
                     _startException = startException;
                     tracer.Error(startException, "Start failed: Exception occurred.");
-                    _startableState = StartableState.FailedToStart;
+                    State = StartableState.FailedToStart;
                 }
             }
         }
@@ -160,15 +176,15 @@ namespace LogJam
 
             try
             {
-                _startableState = StartableState.Stopping;
+                State = StartableState.Stopping;
                 InternalStop();
-                _startableState = StartableState.Stopped;
+                State = StartableState.Stopped;
             }
             catch (Exception stopException)
             {
                 _startException = stopException;
                 tracer.Error(stopException, "Stop failed: Exception occurred.");
-                _startableState = StartableState.FailedToStop;
+                State = StartableState.FailedToStop;
             }
 
             foreach (var disposableRef in _disposeOnStop)
@@ -276,7 +292,7 @@ namespace LogJam
                 Stop();
 
                 // Protect against recursion (eg linked disposables could create a cycle)
-                _startableState = StartableState.Disposed;
+                State = StartableState.Disposed;
 
                 if (disposing)
                 {
@@ -303,7 +319,7 @@ namespace LogJam
             }
         }
 
-        protected bool IsDisposed { get { return _startableState == StartableState.Disposed; } }
+        protected bool IsDisposed => _startableState == StartableState.Disposed;
 
         /// <summary>
         /// Returns the <see cref="ILogJamComponent.SetupTracerFactory" />, and ensures the same instance is shared by

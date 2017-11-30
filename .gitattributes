@@ -1,0 +1,5 @@
+# Normalize line endings
+* text=auto
+
+# Resharper DotSettings files are in Unix Format
+*.DotSettings text eol=lf
