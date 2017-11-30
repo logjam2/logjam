@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2002
+VisualStudioVersion = 15.0.27110.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{F89C3372-408F-4F99-A7BF-D2818C959F50}"
 	ProjectSection(SolutionItems) = preProject
@@ -42,6 +42,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogJam.ConsoleTester", "tes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogJam.XUnit2.UnitTests", "test\LogJam.XUnit2.UnitTests\LogJam.XUnit2.UnitTests.csproj", "{0324386F-8763-4F68-B465-A9AA6BA7F399}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "perf", "perf", "{7B6D8AA4-CE45-42C9-AAD9-3D33438941BC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Evidence", "perf\Evidence\Evidence.csproj", "{A9CC05D6-7CE9-478F-A44E-557AA5CB0D18}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		src\Shared-Internal\Shared-Internal.projitems*{6d0d7963-136b-4336-a4b0-3b8cd0461d79}*SharedItemsImports = 13
@@ -79,6 +83,10 @@ Global
 		{0324386F-8763-4F68-B465-A9AA6BA7F399}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0324386F-8763-4F68-B465-A9AA6BA7F399}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0324386F-8763-4F68-B465-A9AA6BA7F399}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A9CC05D6-7CE9-478F-A44E-557AA5CB0D18}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A9CC05D6-7CE9-478F-A44E-557AA5CB0D18}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A9CC05D6-7CE9-478F-A44E-557AA5CB0D18}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A9CC05D6-7CE9-478F-A44E-557AA5CB0D18}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -92,6 +100,7 @@ Global
 		{F62CC699-4F11-4BF1-A494-15564D94BCB3} = {E3D54447-25CA-42F6-B58A-8A544118802E}
 		{A2E1A4B8-1A47-4E9B-874E-F1BA1E0659E8} = {45DD2233-A75B-42B8-BE5A-D8C631A9291C}
 		{0324386F-8763-4F68-B465-A9AA6BA7F399} = {45DD2233-A75B-42B8-BE5A-D8C631A9291C}
+		{A9CC05D6-7CE9-478F-A44E-557AA5CB0D18} = {7B6D8AA4-CE45-42C9-AAD9-3D33438941BC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {562113F5-7581-41F9-8F10-698F533C0C7A}
