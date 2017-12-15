@@ -48,7 +48,7 @@ MSBuild file that is automatically imported into projects in subdirectories.
   </PropertyGroup>
 
   <ItemGroup Condition="'$(UseCodeContracts)' == 'true'">
-    <PackageReference Include="CodeContracts.MSBuild" Version="1.9.10714.3" PrivateAssets="All" />
+    <PackageReference Include="CodeContracts.MSBuild" Version="1.10.1" PrivateAssets="All" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(UseCodeContracts)' == 'true'">
