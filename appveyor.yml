@@ -3,25 +3,12 @@ image: Visual Studio 2017
 
 configuration: Release
 
-install:
-  - choco install gitversion.portable -pre -y
-
-assembly_info:
-  patch: false
-
-init:
-
-before_build:
-  # Use GitVersion to determine build + version number from git tree
-  - ps: gitversion /output buildserver
-  - ps: Update-AppveyorBuild -Version "$env:GitVersion_NuGetVersion"
-
 build_script:
 - cmd: PowerShell -Version 2.0 .\build.ps1
 test: off
 
-#artifacts:
-#  - path: 'NuGetOut\*.nupkg'
+artifacts:
+  - path: 'NuGetOut\*.nupkg'
 
 cache:
   - '%USERPROFILE%\.nuget\packages -> **\*.csproj'  # NuGet package cache
