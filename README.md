@@ -1,4 +1,4 @@
-
+﻿
 *This project was previously hosted at [https://logjam.codeplex.com/](https://logjam.codeplex.com/)*
 
 # What is LogJam?
@@ -67,3 +67,23 @@ LogJam intends to be a multi-project framework that provides best-of-breed loggi
 * Support central management of logging configuration - across many servers and applications
 * Web UI for managing configuration and browsing/querying logs across server farms and applications
 * Optional integration with ETW (Event Tracing for Windows)
+
+# Building LogJam
+
+```
+git clone git@github.com:logjam2/logjam.git
+cd logjam
+.\build.ps1
+```
+
+## List all build targets
+
+```
+.\build.ps1 -ShowDescription
+```
+
+## Running Unit Tests
+
+```
+.\build.ps1 -Target Run-Unit-Tests
+```

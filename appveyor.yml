@@ -1,4 +1,4 @@
-﻿# Build worker image (VM template)
+# Build worker image (VM template)
 image: Visual Studio 2017
 
 configuration: Release

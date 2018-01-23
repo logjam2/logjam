@@ -12,11 +12,12 @@ MSBuild file that is automatically imported into projects in subdirectories.
   <!-- Shared project metadata (eg Nuget properties) -->
   <PropertyGroup>
     <Version Condition="'$(GitVersion_SemVer)' != ''">$(GitVersion_SemVer)</Version>
-    <AssemblyFileVersion Condition="'$(GitVersion_AssemblySemVer)' != ''">$(GitVersion_AssemblySemVer)</AssemblyFileVersion>
+    <AssemblyVersion Condition="'$(GitVersion_AssemblySemVer)' != ''">$(GitVersion_AssemblySemVer)</AssemblyVersion>
+    <AssemblyFileVersion Condition="'$(GitVersion_AssemblySemFileVer)' != ''">$(GitVersion_AssemblySemFileVer)</AssemblyFileVersion>
     <PackageVersion Condition="'$(GitVersion_NuGetVersion)' != ''">$(GitVersion_NuGetVersion)</PackageVersion>
 
     <Version Condition="'$(Version)' == ''">1.1.0-dev</Version>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <AssemblyVersion Condition="'$(AssemblyVersion)' == ''">1.0.0.0</AssemblyVersion>
     <AssemblyFileVersion Condition="'$(AssemblyFileVersion)' == ''">1.1.0.0</AssemblyFileVersion>
     <PackageVersion Condition="'$(PackageVersion)' == ''">$(Version)</PackageVersion>
         
@@ -31,6 +32,10 @@ MSBuild file that is automatically imported into projects in subdirectories.
     <DebugType>embedded</DebugType>
     <!-- Include PDBs in Nuget package (when using CodeContracts). -->
     <AllowedOutputExtensionsInPackageBuildOutputFolder>.pdb; $(AllowedOutputExtensionsInPackageBuildOutputFolder)</AllowedOutputExtensionsInPackageBuildOutputFolder>
+
+    <!-- Disable CS1591: Missing XML comment for publicly visible type or member ...-->
+    <NoWarn>1701;1702;1705;1591</NoWarn>
+
   </PropertyGroup>
 
   <!-- Standard shared settings for all projects, unless overridden. -->
@@ -43,7 +48,7 @@ MSBuild file that is automatically imported into projects in subdirectories.
   </PropertyGroup>
 
   <!-- Use Code Contracts for .NET Framework builds -->
-  <PropertyGroup Condition="'$(UsingMicrosoftNETSdk)' != 'true' AND ('$(TargetFramework)' == 'net45' OR '$(TargetFramework)' == 'net452' OR '$(TargetFramework)' == 'net471')">
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net45' OR '$(TargetFramework)' == 'net452' OR '$(TargetFramework)' == 'net471'">
     <UseCodeContracts>true</UseCodeContracts>
   </PropertyGroup>
 

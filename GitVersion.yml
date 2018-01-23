@@ -1,10 +1,11 @@
-assembly-versioning-scheme: MajorMinorPatch
+assembly-versioning-scheme: Major
+assembly-file-versioning-scheme: MajorMinorPatchTag
 assembly-informational-format: '{SemVer}'
 mode: ContinuousDeployment
-branches:
-  master:
-    tag: beta
-  develop:
-    tag: alpha
+
 ignore:
   sha: []
+
+branches:
+  develop:
+    tag: alpha
