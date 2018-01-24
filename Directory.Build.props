@@ -21,7 +21,7 @@ MSBuild file that is automatically imported into projects in subdirectories.
     <PackageVersion Condition="'$(PackageVersion)' == ''">$(Version)</PackageVersion>
         
     <Authors>LogJam Contributors</Authors>
-    <Copyright>Copyright 2011-2017</Copyright>
+    <Copyright>Copyright 2011-2018</Copyright>
     <PackageLicenseUrl>https://raw.githubusercontent.com/logjam2/logjam/master/LICENSE.txt</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/logjam2/logjam</PackageProjectUrl>
     <!--<PackageIconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</PackageIconUrl>-->
