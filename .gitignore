@@ -12,4 +12,4 @@ bin
 /packages
 .vs
 /NuGetOut/
-tools/
+/tools/
