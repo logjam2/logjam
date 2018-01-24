@@ -10,9 +10,9 @@
 namespace LogJam.Trace
 {
     using System;
-    using System.Diagnostics.Contracts;
     using System.Threading;
 
+    using LogJam.Shared.Internal;
     using LogJam.Writer;
 
 
@@ -43,7 +43,7 @@ namespace LogJam.Trace
         public TraceWriter(ITraceSwitch traceSwitch, IEntryWriter<TraceEntry> traceEntryWriter, ITracerFactory setupTracerFactory)
             : base(traceEntryWriter)
         {
-            Contract.Requires<ArgumentNullException>(traceSwitch != null);
+            Arg.NotNull(traceSwitch, nameof(traceSwitch));
 
             _traceSwitch = traceSwitch;
             _setupTracerFactory = setupTracerFactory;

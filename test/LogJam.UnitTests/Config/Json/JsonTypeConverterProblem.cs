@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="JsonTypeConverterProblem.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -8,7 +8,6 @@
 
 
 using System;
-using System.Diagnostics.Contracts;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -16,7 +15,7 @@ using Newtonsoft.Json.Serialization;
 
 using Xunit;
 using Xunit.Abstractions;
-
+using LogJam.Shared.Internal;
 
 public class A
 {
@@ -49,7 +48,7 @@ public sealed class JsonTypeConverterProblem
 
     public JsonTypeConverterProblem(ITestOutputHelper testOutputHelper)
     {
-        Contract.Requires<ArgumentNullException>(testOutputHelper != null);
+        Arg.NotNull(testOutputHelper, nameof(testOutputHelper));
 
         _testOutputHelper = testOutputHelper;
     }
@@ -66,8 +65,10 @@ public sealed class JsonTypeConverterProblem
                           }
               };
 
-        JsonSerializerSettings jsonSettings = new JsonSerializerSettings();
-        jsonSettings.ContractResolver = new TypeHintContractResolver();
+        JsonSerializerSettings jsonSettings = new JsonSerializerSettings
+        {
+            ContractResolver = new TypeHintContractResolver()
+        };
         string json = JsonConvert.SerializeObject(a, Formatting.Indented, jsonSettings);
         _testOutputHelper.WriteLine(json);
 
@@ -88,8 +89,10 @@ public sealed class JsonTypeConverterProblem
 	}
 }";
 
-        JsonSerializerSettings jsonSettings = new JsonSerializerSettings();
-        jsonSettings.ContractResolver = new TypeHintContractResolver();
+        JsonSerializerSettings jsonSettings = new JsonSerializerSettings
+        {
+            ContractResolver = new TypeHintContractResolver()
+        };
         A a = JsonConvert.DeserializeObject<A>(json, jsonSettings);
 
         Assert.IsType<B>(a);

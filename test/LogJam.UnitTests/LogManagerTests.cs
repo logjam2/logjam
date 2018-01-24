@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="LogManagerTests.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -11,7 +11,6 @@ namespace LogJam.UnitTests
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.Contracts;
     using System.IO;
     using System.Linq;
 
@@ -19,9 +18,11 @@ namespace LogJam.UnitTests
     using LogJam.Internal.UnitTests.Examples;
     using LogJam.Test.Shared.Writers;
     using LogJam.Trace;
+    using LogJam.Writer;
 
     using Xunit;
     using Xunit.Abstractions;
+    using LogJam.Shared.Internal;
 
 
     /// <summary>
@@ -34,9 +35,17 @@ namespace LogJam.UnitTests
 
         public LogManagerTests(ITestOutputHelper testOutputHelper)
         {
-            Contract.Requires<ArgumentNullException>(testOutputHelper != null);
+            Arg.NotNull(testOutputHelper, nameof(testOutputHelper));
 
             _testOutputHelper = testOutputHelper;
+        }
+
+        [Fact]
+        public void LogManagerArgumentsAreValidated()
+        {
+            Assert.Throws<ArgumentNullException>(() => new LogManager((LogManagerConfig) null));
+            Assert.ThrowsAny<ArgumentException>(() => new LogManager((ILogWriterConfig) null));
+            Assert.ThrowsAny<ArgumentException>(() => new LogManager((ILogWriter) null));
         }
 
         [Fact]
@@ -110,7 +119,7 @@ namespace LogJam.UnitTests
             Assert.Equal(expectedEntryCount, slowLogWriter.Count);
 
             // When the finalizer is called, an error is logged to the SetupLog.
-            Assert.True(setupLog.Any(traceEntry => (traceEntry.TraceLevel == TraceLevel.Error) && (traceEntry.Message.StartsWith("In finalizer "))));
+            Assert.Contains(setupLog, traceEntry => (traceEntry.TraceLevel == TraceLevel.Error) && (traceEntry.Message.StartsWith("In finalizer ")));
         }
 
         [Fact]
@@ -154,7 +163,7 @@ namespace LogJam.UnitTests
         [Fact]
         public void MissingLogWriterConfigThrows()
         {
-            var logManager = new LogManager();
+            var logManager = new LogManager(new LogManagerConfig());
 
             // LogManager.GetLogWriter throws on no match
             var missingConfig = new ListLogWriterConfig<TraceEntry>();
@@ -165,6 +174,64 @@ namespace LogJam.UnitTests
             Assert.Throws<KeyNotFoundException>(() => logManager.GetEntryWriter<TraceEntry>(missingConfig));
         }
 
+        [Fact]
+        public void TryGetEntryWriter_IsFalse_WhenEntryWriterIsNotConfigured()
+        {
+            var logManager = new LogManager(new LogManagerConfig());
+
+            // Empty, no logwriters configured
+            Assert.False(logManager.TryGetEntryWriter<TraceEntry>(out IEntryWriter<TraceEntry> entryWriter));
+            Assert.Null(entryWriter);
+
+            var traceEntries = new List<TraceEntry>();
+            logManager.Config.UseList(traceEntries);
+            logManager.Stop();
+
+            // List logwriter enabled
+            Assert.True(logManager.TryGetEntryWriter<TraceEntry>(out entryWriter));
+            Assert.NotNull(entryWriter);
+
+            logManager.Stop();
+            logManager.Config.Clear();
+
+            // Stopped, no active entrywriters
+            Assert.False(logManager.TryGetEntryWriter<TraceEntry>(out entryWriter));
+            Assert.Null(entryWriter);
+
+            Assert.Equal(StartableState.Stopped, logManager.State);
+        }
+
+        [Fact]
+        public void StateChangingEvents_Raised_WhenExpected()
+        {
+            var logManager = new LogManager();
+
+            var events = new List<ValueTuple<object, StartableStateChangingEventArgs>>();
+
+            void OnLogManagerStateChanging(object sender, StartableStateChangingEventArgs args) => events.Add((sender, args));
+            logManager.StateChanging += OnLogManagerStateChanging;
+
+            logManager.Start();
+            Assert.Collection(events,
+                              e => Assert.Equal(StartableState.Starting, e.Item2.NewState),
+                              e => Assert.Equal(StartableState.Started, e.Item2.NewState));
+
+            logManager.Stop();
+            logManager.StateChanging -= OnLogManagerStateChanging;
+            logManager.Start();
+            logManager.Stop();
+
+            Assert.Collection(events,
+                              e =>
+                              {
+                                  Assert.Same(logManager, e.Item1);
+                                  Assert.Equal(StartableState.Starting, e.Item2.NewState);
+                              },
+                              e => Assert.Equal(StartableState.Started, e.Item2.NewState),
+                              e => Assert.Equal(StartableState.Stopping, e.Item2.NewState),
+                              e => Assert.Equal(StartableState.Stopped, e.Item2.NewState)
+                             );
+        }
     }
 
 }

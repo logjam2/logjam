@@ -2,11 +2,15 @@
 	<s:String x:Key="/Default/Environment/InjectedLayers/FileInjectedLayer/=30B8D6003F368849AC6A817F847A1EC4/AbsolutePath/@EntryValue">D:\code\LogJam\LogJam.DotSettings</s:String>
 	<s:String x:Key="/Default/Environment/InjectedLayers/FileInjectedLayer/=30B8D6003F368849AC6A817F847A1EC4/RelativePath/@EntryValue">..\LogJam.DotSettings</s:String>
 	<s:Boolean x:Key="/Default/Environment/InjectedLayers/FileInjectedLayer/=30B8D6003F368849AC6A817F847A1EC4/@KeyIndexDefined">True</s:Boolean>
+	<s:Boolean x:Key="/Default/Environment/InjectedLayers/FileInjectedLayer/=EEACC6F043A073478AA3098AA286996A/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/Environment/InjectedLayers/FileInjectedLayer/=EEACC6F043A073478AA3098AA286996A/RelativePath/@EntryValue">..\test\LogJam.test.DotSettings</s:String>
 	
 	
 	
 	<s:Boolean x:Key="/Default/Environment/InjectedLayers/InjectedLayerCustomization/=File30B8D6003F368849AC6A817F847A1EC4/@KeyIndexDefined">True</s:Boolean>
 	<s:Double x:Key="/Default/Environment/InjectedLayers/InjectedLayerCustomization/=File30B8D6003F368849AC6A817F847A1EC4/RelativePriority/@EntryValue">2</s:Double>
+	<s:Boolean x:Key="/Default/Environment/InjectedLayers/InjectedLayerCustomization/=FileEEACC6F043A073478AA3098AA286996A/@KeyIndexDefined">True</s:Boolean>
+	<s:Double x:Key="/Default/Environment/InjectedLayers/InjectedLayerCustomization/=FileEEACC6F043A073478AA3098AA286996A/RelativePriority/@EntryValue">1.5</s:Double>
 	
 	
 	<s:Boolean x:Key="/Default/Environment/InjectedLayers/InjectedLayerCustomization/=File_003A_003AD_003A_005Ccode_005CLogJam_005CLogJam_002EDotSettings/@KeyIndexDefined">True</s:Boolean>

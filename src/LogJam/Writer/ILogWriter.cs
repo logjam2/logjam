@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ILogWriter.cs">
 // Copyright (c) 2011-2017 https://github.com/logjam2.  
 // </copyright>
@@ -11,7 +11,9 @@ namespace LogJam.Writer
 {
     using System;
     using System.Collections.Generic;
+#if CODECONTRACTS
     using System.Diagnostics.Contracts;
+#endif
 
 
     /// <summary>
@@ -19,8 +21,9 @@ namespace LogJam.Writer
     /// entry writers.
     /// </summary>
     /// <seealso cref="IEntryWriter{TEntry}" />
-    /// .
+#if CODECONTRACTS
     [ContractClass(typeof(LogWriterContract))]
+#endif
     public interface ILogWriter
     {
 
@@ -57,6 +60,7 @@ namespace LogJam.Writer
     }
 
 
+#if CODECONTRACTS
     [ContractClassFor(typeof(ILogWriter))]
     internal abstract class LogWriterContract : ILogWriter
     {
@@ -82,5 +86,6 @@ namespace LogJam.Writer
         }
 
     }
+#endif
 
 }

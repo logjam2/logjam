@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ConsoleFormatWriter.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -53,7 +53,7 @@ namespace LogJam.Writer.Text
             // Clear the count of write failures if any
             _countWriteFailures = 0;
 
-            Stream consoleOutStream = Console.OpenStandardOutput(BufferLength);
+            Stream consoleOutStream = Console.OpenStandardOutput();
             if (consoleOutStream == Stream.Null)
             {
                 throw new LogJamStartException("Unable to open Console output stream", this);

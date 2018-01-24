@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="FanOutEntryWriter.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -11,8 +11,9 @@ namespace LogJam.Writer
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.Contracts;
     using System.Linq;
+
+    using LogJam.Shared.Internal;
 
 
     /// <summary>
@@ -35,8 +36,7 @@ namespace LogJam.Writer
         /// <param name="innerEntryWriters">The inner <see cref="IEntryWriter{TEntry}" />s to delegate to. May not be <c>null</c>.</param>
         public FanOutEntryWriter(params IEntryWriter<TEntry>[] innerEntryWriters)
         {
-            Contract.Requires<ArgumentNullException>(innerEntryWriters != null);
-            Contract.Requires<ArgumentException>(innerEntryWriters.All(writer => writer != null));
+            Arg.NoneNull(innerEntryWriters, nameof(innerEntryWriters));
 
             _innerEntryWriters = innerEntryWriters;
         }
@@ -47,8 +47,7 @@ namespace LogJam.Writer
         /// <param name="innerLogWriters">The inner <see cref="IEntryWriter{TEntry}" />s to delegate to. May not be <c>null</c>.</param>
         public FanOutEntryWriter(IEnumerable<IEntryWriter<TEntry>> innerLogWriters)
         {
-            Contract.Requires<ArgumentNullException>(innerLogWriters != null);
-            Contract.Requires<ArgumentException>(innerLogWriters.All(writer => writer != null));
+            Arg.NoneNull(innerLogWriters, nameof(innerLogWriters));
 
             _innerEntryWriters = innerLogWriters.ToArray();
         }
@@ -59,8 +58,7 @@ namespace LogJam.Writer
             {
                 foreach (var writer in _innerEntryWriters)
                 {
-                    var disposable = writer as IDisposable;
-                    if (disposable != null)
+                    if (writer is IDisposable disposable)
                     {
                         disposable.Dispose();
                     }

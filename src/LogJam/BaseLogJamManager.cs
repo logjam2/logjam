@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="BaseLogJamManager.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -51,6 +51,11 @@ namespace LogJam
         public bool IsStarted { get { return _startableState == StartableState.Started; } }
 
         /// <summary>
+        /// Returns <c>true</c> if <see cref="Stop"/> or <c>Dispose</c> has been called.
+        /// </summary>
+        public bool IsStopped { get { return (_startableState == StartableState.Stopped) || (_startableState == StartableState.Disposed); } }
+
+        /// <summary>
         /// Returns <c>true</c> if there have been no setup traces that are more severe than informational.
         /// </summary>
         /// <remarks>
@@ -61,7 +66,23 @@ namespace LogJam
         /// <summary>
         /// Returns the <see cref="StartableState"/> for this object.
         /// </summary>
-        public StartableState State { get { return _startableState; } }
+        public StartableState State
+        {
+            get => _startableState;
+            private set
+            {
+                if (value != _startableState)
+                {
+                    StateChanging?.Invoke(this, new StartableStateChangingEventArgs(_startableState, value));
+                    _startableState = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// An event that is rasied when <see cref="State"/> changes.
+        /// </summary>
+        public event EventHandler<StartableStateChangingEventArgs> StateChanging;
 
         /// <summary>
         /// Returns <c>true</c> if this object is in a state that can be <see cref="Start"/>ed.
@@ -180,18 +201,17 @@ namespace LogJam
             try
             {
                 InternalStop();
-                _startableState = StartableState.Stopped;
+                State = StartableState.Stopped;
             }
             catch (Exception stopException)
             {
                 tracer.Error(stopException, "Stop failed: Exception occurred.");
-                _startableState = StartableState.FailedToStop;
+                State = StartableState.FailedToStop;
             }
 
             foreach (var disposableRef in _disposeOnStop)
             {
-                IDisposable disposable = disposableRef.Target as IDisposable;
-                if (disposable != null)
+                if (disposableRef.Target is IDisposable disposable)
                 {
                     try
                     {
@@ -225,8 +245,7 @@ namespace LogJam
 
                 if (clearSetupLog)
                 {
-                    var setupTracerFactory = SetupTracerFactory as SetupLog;
-                    if (setupTracerFactory != null)
+                    if (SetupTracerFactory is SetupLog setupTracerFactory)
                     {
                         setupTracerFactory.Clear();
                     }

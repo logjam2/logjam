@@ -12,6 +12,7 @@ namespace LogJam.Owin.UnitTests
     using System;
     using System.IO;
     using System.Linq;
+    using System.Net;
     using System.Threading.Tasks;
 
     using global::Owin;
@@ -48,6 +49,23 @@ namespace LogJam.Owin.UnitTests
             using (TestServer testServer = CreateTestServer(stringWriter, setupLog))
             {
                 IssueTraceRequest(testServer, 2);
+            }
+
+            testOutputHelper.WriteLine(stringWriter.ToString());
+
+            Assert.NotEmpty(setupLog);
+            Assert.False(setupLog.HasAnyExceeding(TraceLevel.Info));
+        }
+
+        [Fact]
+        public async Task PathNotFoundWithTracing()
+        {
+            var setupLog = new SetupLog();
+            var stringWriter = new StringWriter();
+            using (TestServer testServer = CreateTestServer(stringWriter, setupLog))
+            {
+                var response = await testServer.CreateRequest("/this_path_does_not_exist.htm").GetAsync();
+                Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
             }
 
             testOutputHelper.WriteLine(stringWriter.ToString());

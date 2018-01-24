@@ -11,10 +11,10 @@ namespace LogJam
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.Contracts;
     using System.IO;
     using System.Linq;
 
+    using LogJam.Shared.Internal;
     using LogJam.Trace;
     using LogJam.Writer;
     using LogJam.Writer.Text;
@@ -36,8 +36,8 @@ namespace LogJam
         public static void WriteEntriesTo<TEntry>(this IEnumerable<TEntry> entries, TextWriter textWriter, EntryFormatter<TEntry> entryFormatter = null)
             where TEntry : ILogEntry
         {
-            Contract.Requires<ArgumentNullException>(entries != null);
-            Contract.Requires<ArgumentNullException>(textWriter != null);
+            Arg.NotNull(entries, nameof(entries));
+            Arg.NotNull(textWriter, nameof(textWriter));
 
             if (entryFormatter == null)
             { // Try creating the default log formatter
@@ -93,7 +93,7 @@ namespace LogJam
         public static void GetEntryWriters<TEntry>(this IEnumerable<ILogWriter> logWriterCollection, List<IEntryWriter<TEntry>> entryWriters)
             where TEntry : ILogEntry
         {
-            Contract.Requires<ArgumentNullException>(logWriterCollection != null);
+            Arg.NotNull(logWriterCollection, nameof(logWriterCollection));
 
             foreach (ILogWriter logWriter in logWriterCollection)
             {
@@ -120,7 +120,7 @@ namespace LogJam
         public static bool GetSingleEntryWriter<TEntry>(this IEnumerable<ILogWriter> logWriterCollection, out IEntryWriter<TEntry> entryWriter)
             where TEntry : ILogEntry
         {
-            Contract.Requires<ArgumentNullException>(logWriterCollection != null);
+            Arg.NotNull(logWriterCollection, nameof(logWriterCollection));
 
             var listLogWriters = new List<IEntryWriter<TEntry>>();
             GetEntryWriters(logWriterCollection, listLogWriters);
@@ -153,7 +153,7 @@ namespace LogJam
         public static IEntryWriter<TEntry> GetSingleEntryWriter<TEntry>(this IEnumerable<IEntryWriter<TEntry>> entryWriterCollection)
             where TEntry : ILogEntry
         {
-            Contract.Requires<ArgumentNullException>(entryWriterCollection != null);
+            Arg.NotNull(entryWriterCollection, nameof(entryWriterCollection));
 
             int count = entryWriterCollection.Count();
             if (count == 0)

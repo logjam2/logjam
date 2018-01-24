@@ -1,0 +1,30 @@
+<!--
+***********************************************************************************************
+Directory.Build.targets
+
+MSBuild targets file that is automatically imported into projects in subdirectories.
+
+***********************************************************************************************
+-->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" >
+
+  <PropertyGroup>
+    <GenerateNuspecDependsOn>SetNuspecProperties; $(GenerateNuspecDependsOn)</GenerateNuspecDependsOn>
+  </PropertyGroup>
+
+  <!-- Add standard nuspec properties to pass to .nuspec file -->
+  <Target Name="SetNuspecProperties" Condition="'$(NuspecFile)' != ''">
+    <Message Text="Setting nuspec properties for .nuspec file" Importance="high"/>
+    <PropertyGroup>
+      <!-- Add standard nuspec properties -->
+      <NuspecProperties>
+        id=$(PackageId);title=$(Title);description=$(Description);
+        author=$(Authors);version=$(PackageVersion);copyright=$(Copyright);
+        licenseUrl=$(PackageLicenseUrl);projectUrl=$(PackageProjectUrl);
+        configuration=$(Configuration);
+        $(NuspecProperties)
+      </NuspecProperties>
+    </PropertyGroup>
+  </Target>
+
+</Project>

@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TraceManagerConfigTests.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -43,7 +43,9 @@ namespace LogJam.Internal.UnitTests.Trace
             }
         }
 
+#pragma warning disable xUnit1013 // Public method should be marked as test
         public static void AssertEquivalentToDefaultTraceManagerConfig(TraceManager traceManager)
+#pragma warning restore xUnit1013 // Public method should be marked as test
         {
             var tracer = traceManager.GetTracer("");
             Assert.Equal(s_inDebugger, tracer.IsInfoEnabled());

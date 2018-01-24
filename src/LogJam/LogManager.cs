@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="LogManager.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -10,14 +10,15 @@
 namespace LogJam
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Diagnostics.Contracts;
     using System.Linq;
     using System.Threading;
 
     using LogJam.Config;
     using LogJam.Config.Initializer;
     using LogJam.Internal;
+    using LogJam.Shared.Internal;
     using LogJam.Trace;
     using LogJam.Util;
     using LogJam.Writer;
@@ -76,6 +77,9 @@ namespace LogJam
 
         private readonly Dictionary<ILogWriterConfig, ILogWriter> _logWriters;
 
+        // Cached set of TEntry => IEntryWriter<TEntry> | null ; Cleared when log manager is started or stopped.
+        private readonly ConcurrentDictionary<Type, object> _cachedEntryWriters;
+
         #endregion
 
         #region Constructors and Destructors
@@ -98,12 +102,13 @@ namespace LogJam
         /// <param name="setupTracerFactory">The <see cref="ITracerFactory" /> to use for tracking internal operations.</param>
         public LogManager(LogManagerConfig logManagerConfig, ITracerFactory setupTracerFactory = null)
         {
-            Contract.Requires<ArgumentNullException>(logManagerConfig != null);
+            Arg.NotNull(logManagerConfig, nameof(logManagerConfig));
 
             _setupTracerFactory = setupTracerFactory ?? new SetupLog();
             _config = logManagerConfig;
             _backgroundMultiLogWriters = new List<BackgroundMultiLogWriter>();
             _logWriters = new Dictionary<ILogWriterConfig, ILogWriter>();
+            _cachedEntryWriters = new ConcurrentDictionary<Type, object>();
         }
 
         /// <summary>
@@ -128,6 +133,8 @@ namespace LogJam
         public LogManager(params ILogWriter[] logWriters)
             : this(logWriters.Select(logWriter => (ILogWriterConfig) new UseExistingLogWriterConfig(logWriter)).ToArray())
         {
+            Arg.NoneNull(logWriters, nameof(logWriters));
+
             // Get the first SetupLog from the passed in logwriters
             var setupTracerFactory = GetSetupTracerFactoryForComponents(logWriters.OfType<ILogJamComponent>());
             _setupTracerFactory = setupTracerFactory ?? _setupTracerFactory ?? new SetupLog();
@@ -137,8 +144,8 @@ namespace LogJam
         {
             if (! IsDisposed)
             {
-                var tracer = SetupTracerFactory.TracerFor(this);
-                tracer.Error("In finalizer (~LogManager) - forgot to Dispose()?");
+                var tracer = SetupTracerFactory?.TracerFor(this);
+                tracer?.Error("In finalizer (~LogManager) - forgot to Dispose()?");
                 Dispose(false);
             }
         }
@@ -222,6 +229,8 @@ namespace LogJam
                         DisposeOnStop(logWriter);
                     }
                 }
+
+                _cachedEntryWriters.Clear();
             }
 
             // Start any BackgroundMultiLogWriters, if created during initialization
@@ -273,8 +282,10 @@ namespace LogJam
             lock (this)
             {
                 _logWriters.Values.SafeStop(SetupTracerFactory);
-                _backgroundMultiLogWriters.SafeStop(SetupTracerFactory);
                 _logWriters.Clear();
+                _cachedEntryWriters.Clear();
+                _backgroundMultiLogWriters.SafeStop(SetupTracerFactory);
+                _backgroundMultiLogWriters.SafeDispose(SetupTracerFactory);
                 _backgroundMultiLogWriters.Clear();
             }
         }
@@ -322,21 +333,48 @@ namespace LogJam
         /// A single <see cref="IEntryWriter{TEntry}" /> that writes to all successfully started
         /// <see cref="IEntryWriter{TEntry}" />s that are type-compatible with <typeparamref name="TEntry" />.
         /// </returns>
-        public IEntryWriter<TEntry> GetEntryWriter<TEntry>() where TEntry : ILogEntry
+        public bool TryGetEntryWriter<TEntry>(out IEntryWriter<TEntry> entryWriter) where TEntry : ILogEntry
         {
-            IEntryWriter<TEntry>[] entryWriters = GetEntryWriters<TEntry>().ToArray();
-            if (entryWriters.Length == 1)
+            if (_cachedEntryWriters.TryGetValue(typeof(TEntry), out object entryWriterObject))
             {
-                return entryWriters[0];
-            }
-            else if (entryWriters.Length == 0)
-            {
-                return new NoOpEntryWriter<TEntry>();
+                // Cache hit
+                entryWriter = (IEntryWriter<TEntry>) entryWriterObject;
             }
             else
             {
-                return new FanOutEntryWriter<TEntry>(entryWriters);
+                // Cache miss
+                IEntryWriter<TEntry>[] entryWriters = GetEntryWriters<TEntry>().ToArray();
+                if (entryWriters.Length == 1)
+                {
+                    entryWriter = entryWriters[0];
+                }
+                else if (entryWriters.Length == 0)
+                {
+                    entryWriter = null;
+                }
+                else
+                {
+                    entryWriter = new FanOutEntryWriter<TEntry>(entryWriters);
+                }
+                _cachedEntryWriters.TryAdd(typeof(TEntry), entryWriter);
             }
+
+            return entryWriter != null;
+        }
+
+        /// <summary>
+        /// Returns a single <see cref="IEntryWriter{TEntry}" /> that writes to all successfully started
+        /// <see cref="IEntryWriter{TEntry}" />s associated with this <c>LogManager</c>.
+        /// </summary>
+        /// <typeparam name="TEntry">The logentry type written by the returned <see cref="IEntryWriter{TEntry}" />s.</typeparam>
+        /// <returns>
+        /// A single <see cref="IEntryWriter{TEntry}" /> that writes to all successfully started
+        /// <see cref="IEntryWriter{TEntry}" />s that are type-compatible with <typeparamref name="TEntry" />.
+        /// </returns>
+        public IEntryWriter<TEntry> GetEntryWriter<TEntry>() where TEntry : ILogEntry
+        {
+            TryGetEntryWriter(out IEntryWriter<TEntry> entryWriter);
+            return entryWriter ?? new NoOpEntryWriter<TEntry>();
         }
 
         /// <summary>
@@ -351,7 +389,7 @@ namespace LogJam
         /// <returns><c>true</c> if a <paramref name="logWriter" /> was found; <c>false</c> if no match was found.</returns>
         public bool TryGetLogWriter(ILogWriterConfig logWriterConfig, out ILogWriter logWriter)
         {
-            Contract.Requires<ArgumentNullException>(logWriterConfig != null);
+            Arg.NotNull(logWriterConfig, nameof(logWriterConfig));
 
             // Even if Start() wasn't 100% successful, we still return any logwriters that were successfully started.
             EnsureAutoStarted();
@@ -373,10 +411,9 @@ namespace LogJam
         /// </exception>
         public ILogWriter GetLogWriter(ILogWriterConfig logWriterConfig)
         {
-            Contract.Requires<ArgumentNullException>(logWriterConfig != null);
+            Arg.NotNull(logWriterConfig, nameof(logWriterConfig));
 
-            ILogWriter logWriter = null;
-            if (! TryGetLogWriter(logWriterConfig, out logWriter))
+            if (! TryGetLogWriter(logWriterConfig, out var logWriter))
             {
                 throw new KeyNotFoundException("LogManager does not contain logWriterConfig: " + logWriterConfig);
             }
@@ -405,7 +442,7 @@ namespace LogJam
         /// </remarks>
         public IEntryWriter<TEntry> GetEntryWriter<TEntry>(ILogWriterConfig logWriterConfig) where TEntry : ILogEntry
         {
-            Contract.Requires<ArgumentNullException>(logWriterConfig != null);
+            Arg.NotNull(logWriterConfig, nameof(logWriterConfig));
 
             ILogWriter logWriter = null;
             logWriter = GetLogWriter(logWriterConfig);
@@ -416,8 +453,7 @@ namespace LogJam
                 return new NoOpEntryWriter<TEntry>();
             }
 
-            IEntryWriter<TEntry> entryWriter;
-            if (! logWriter.TryGetEntryWriter(out entryWriter))
+            if (! logWriter.TryGetEntryWriter(out IEntryWriter<TEntry> entryWriter))
             {
                 var tracer = SetupTracerFactory.TracerFor(this);
                 tracer.Warn("Returning a NoOpEntryWriter<{0}> for log writer {1} - log writer did not contain an entry writer for log entry type {0}.",

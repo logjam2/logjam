@@ -9,10 +9,10 @@
 			and/or
 		var remoteConfig = logConfig.UseRemoting(url).Encode<TraceEntry>().Encode<HttpRequestEntry>().Encode<HttpResponseEntry>();
 		logConfig.ProxyWritingToBackgroundThread();
+		logConfig.DisableSynchronizingProxy()
 
 		var logManager = new LogManager(logConfig);
 
 		var traceConfig = new TraceManagerConfig();
 		traceConfig.With(textConfig).UseSwitches({ "prefix", new ThresholdTraceSwitch() }, { "prefix", new ThresholdTraceSwitch() });
     var traceManager = new TraceManager(traceConfig, logManager);
-	

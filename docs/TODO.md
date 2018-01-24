@@ -1,5 +1,13 @@
 # LogJam TODO
 
+1. Add netstandard versions of LogJam
+2. ASP.NET Core logging (equivalent to LogJam.OWIN)
+3. Make proxy/fanout EntryWriters self-updating when downstream entrywriters are started or stopped
+3. Evidence perf tests (to guide decisions)
+  * Compare Type.GetCSharpName() impls, using CodeDomProvider vs explicit
+  * Synchronous file IO vs async
+1. Fix: Severe error in startup log for console logging failing to start
+  * Add LogManager.Config.UseConsoleIfAvailable() - no setuplog error if not available
 1. Test that multiple debugger outputs configured results in a single instance
 1. TextFileWriter
 1. Headers and footers for text files
@@ -14,17 +22,20 @@
 2. Add Log info for LogJam.Owin
   * SetupLog text URL
   * Log config + status (which writers, formatters, started, etc)
+2. Fix "Missing XML comment" errors
 3. Double-check access modifiers on exceptions - eg LogJamStartException has internal constructors. Is that useful for external LogWriter authors.
 4. Text log file perf tests - eg buffer size tuning
 3. Add trace threshold json file - trace.config
 3. Determine if Owin middleware should use Task.ConfigureAwait(false)
 4. Add `LogManager.Restarting` and `LogManager.Restarted` events - so eg HttpLoggingOwinMiddleware can change to write to the newest log writers
+5. Add support for partial restart - eg remove logwriters that no longer exist, and add new log writers, leaving unchanged logwriters alone.  Still raise the Restarted event if changes occurred.
 2. Config object refactor
     * Tracewriter config objects directly reference the LogWriterConfig objects, or ?? for "all logs"
     * Make logwriter config objects immutable when LogManager is started, and have logwriters reference their config objects instead of duplicating the properties.
 3. Add text file logging
   * Create file failure should also report the current Windows user
 4. Add other text formats - eg JSON, XML, delimited text (TSV, CSV)
+5. Make SetupLog not implement ITracerFactory - don't want people thinking they should use the setup log for normal tracing
 5. Add useful log file headers - datetime opened, PID, entry point assembly, assembly version, CWD
 6. Support extending default logs - eg username for HTTP requests, thread ID and name for tracing
 1. Custom log rotator behavior - datetime changes, log size, etc
@@ -64,5 +75,4 @@
 2. Complete current API unit tests
 3. Add support for pruning the SetupLog to minimize memory use for long-running processes
 4. Another code review pass of everything
-
 

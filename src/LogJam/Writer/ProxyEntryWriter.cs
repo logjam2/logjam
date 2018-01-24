@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ProxyEntryWriter.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -10,7 +10,8 @@
 namespace LogJam.Writer
 {
     using System;
-    using System.Diagnostics.Contracts;
+
+    using LogJam.Shared.Internal;
 
 
     /// <summary>
@@ -33,7 +34,7 @@ namespace LogJam.Writer
         /// <param name="innerEntryWriter">The inner <see cref="IEntryWriter{TEntry}" /> to delegate to. Must not be <c>null</c>.</param>
         protected ProxyEntryWriter(IEntryWriter<TEntry> innerEntryWriter)
         {
-            Contract.Requires<ArgumentNullException>(innerEntryWriter != null);
+            Arg.NotNull(innerEntryWriter, nameof(innerEntryWriter));
 
             _innerEntryWriter = innerEntryWriter;
         }
@@ -42,8 +43,7 @@ namespace LogJam.Writer
         {
             if (! _disposed)
             {
-                IDisposable innerDisposable = _innerEntryWriter as IDisposable;
-                if (innerDisposable != null)
+                if (_innerEntryWriter is IDisposable innerDisposable)
                 {
                     innerDisposable.Dispose();
                 }

@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="IEntryWriter.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2.  
 // </copyright>
@@ -9,50 +9,63 @@
 
 namespace LogJam.Writer
 {
-	using System;
-	using System.Diagnostics.Contracts;
+#if CODECONTRACTS
+    using System.Diagnostics.Contracts;
+#endif
+
+    /// <summary>
+    /// Supports writing strongly-typed log entries to a log target.
+    /// </summary>
+    /// <typeparam name="TEntry">The base entry type supported by the entry writer.</typeparam>
+#if CODECONTRACTS
+    [ContractClass(typeof(EntryWriterContract<>))]
+#endif
+    public interface IEntryWriter<TEntry>
+        where TEntry : ILogEntry
+    {
+
+        /// <summary>
+        /// Returns <c>true</c> if this <see cref="ILogWriter" /> can write entries to its target.
+        /// </summary>
+        /// <value>
+        /// If <c>true</c>, this <c>IEntryWriter</c> can write entries. If <c>false</c>, <see cref="IEntryWriter{TEntry}.Write" />
+        /// should not be called.
+        /// </value>
+        bool IsEnabled { get; }
+
+        /// <summary>
+        /// Writes <paramref name="entry" /> to the log target.
+        /// </summary>
+        /// <param name="entry">The log entry to write.</param>
+        void Write(ref TEntry entry);
+
+    }
 
 
-	/// <summary>
-	/// Non-generic interface for entry writers.  Entry writers normally implement <see cref="IEntryWriter{TEntry}"/> directly, and implement
-	/// <c>IEntryWriter</c> because <see cref="IEntryWriter{TEntry}"/> requires it.  An <see cref="ILogWriter"/> contains one or more
-	/// <see cref="IEntryWriter{TEntry}"/> instances, each are uniquely identified by their <c>TEntry</c> type.
-	/// </summary>
-	/// <seealso cref="IEntryWriter{TEntry}"/>.
-	[ContractClass(typeof(EntryWriterContract))]
-	public interface IEntryWriter
-	{
+#if CODECONTRACTS
+    [ContractClassFor(typeof(IEntryWriter<>))]
+    internal abstract class EntryWriterContract<TEntry> : IEntryWriter<TEntry>
+        where TEntry : ILogEntry
+    {
 
-		/// <summary>
-		/// Returns <c>true</c> if this <see cref="IEntryWriter"/> can write entries to its target.
-		/// </summary>
-		/// <value>
-		/// If <c>true</c>, this <c>IEntryWriter</c> can write entries.  If <c>false</c>, <see cref="IEntryWriter{TEntry}.Write"/> should not be called.
-		/// </value>
-		bool IsEnabled { get; }
+        public ILogWriter LogWriter
+        {
+            get
+            {
+                Contract.Ensures(Contract.Result<ILogWriter>() != null);
 
-		/// <summary>
-		/// Returns the log entry type supported by this entry writer.  The log entry type must implement <seealso cref="ILogEntry"/>.
-		/// </summary>
-		Type LogEntryType { get; }
-	}
-
-	[ContractClassFor(typeof(IEntryWriter))]
-	internal abstract class EntryWriterContract : IEntryWriter
-	{
+                throw new System.NotImplementedException();
+            }
+        }
 
 		public bool IsEnabled { get { throw new System.NotImplementedException(); } }
 
-		public Type LogEntryType
-		{
-			get
-			{
-				Contract.Ensures(Contract.Result<Type>() != null);
+        public void Write(ref TEntry entry)
+        {
+            throw new System.NotImplementedException();
+        }
 
-				throw new System.NotImplementedException();
-			}
-		}
-
-	}
+    }
+#endif
 
 }

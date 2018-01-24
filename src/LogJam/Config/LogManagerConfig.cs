@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="LogManagerConfig.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -11,9 +11,8 @@ namespace LogJam.Config
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.Contracts;
 
-    using LogJam.Config.Initializer;
+    using LogJam.Shared.Internal;
     using LogJam.Util;
     using LogJam.Writer;
 
@@ -60,7 +59,7 @@ namespace LogJam.Config
         /// </summary>
         public LogManagerConfig(params ILogWriterConfig[] logWriterConfigs)
         {
-            Contract.Requires<ArgumentNullException>(logWriterConfigs != null);
+            Arg.NoneNull(logWriterConfigs, nameof(logWriterConfigs));
 
             _logWriterConfigs = new ObservableSet<ILogWriterConfig>(new HashSet<ILogWriterConfig>(logWriterConfigs));
             _initializers = new List<ILogWriterInitializer>(DefaultInitializers);

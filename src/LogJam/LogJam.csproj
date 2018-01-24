@@ -1,154 +1,24 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <Import Project="..\..\build\CsprojCommon.targets" />
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <ProjectGuid>{43F154AD-AA27-48B3-BA07-D02C92BE4F45}</ProjectGuid>
-    <RootNamespace>LogJam</RootNamespace>
-    <AssemblyName>LogJam</AssemblyName>
-    <DocumentationFile>bin\$(Configuration)\LogJam.xml</DocumentationFile>
+    <TargetFrameworks>netstandard1.3;net45</TargetFrameworks>
+    <Title>LogJam</Title>
+    <Description>Efficient .NET logging library</Description>
+    <PackageTags>Log Trace Tracing Logging LogJam</PackageTags>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <!-- Need to pack using a nuspec file, to include <references> -->
+    <NuspecFile>LogJam.nuspec</NuspecFile>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <DocumentationFile />
-  </PropertyGroup>
+
+  <Import Project="..\Shared-Internal\Shared-Internal.projitems" Label="Shared" />
+
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Runtime.Serialization" />
+    <Compile Remove="Interop\LogJamTraceListener.cs" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="BaseLogJamManager.cs" />
-    <Compile Include="Config\Initializer\DefaultLogWriterPipelineBuilder.cs" />
-    <Compile Include="Config\Initializer\DependencyDictionary.cs" />
-    <Compile Include="Config\Initializer\IImportInitializer.cs" />
-    <Compile Include="Config\Initializer\ILogWriterInitializer.cs" />
-    <Compile Include="Config\Initializer\IExtendLogWriterPipeline.cs" />
-    <Compile Include="Config\Initializer\ILogWriterPipelineBuilder.cs" />
-    <Compile Include="Config\Initializer\ImportActionInitializer.cs" />
-    <Compile Include="Config\LogWriterInitializerExtensions.cs" />
-    <Compile Include="Config\UseExistingLogFileRotatorConfig.cs" />
-    <Compile Include="StartableExtensions.cs" />
-    <Compile Include="StartableState.cs" />
-    <Compile Include="Writer\IEntryWriter.cs" />
-    <Compile Include="Writer\LogWriterActionPriority.cs" />
-    <Compile Include="Writer\Rotator\AfterRotateLogFileEventArgs.cs" />
-    <Compile Include="Config\ConsoleLogWriterConfig.cs" />
-    <Compile Include="Config\ILogFileWriterConfig.cs" />
-    <Compile Include="Config\ILogWriterConfig.cs" />
-    <Compile Include="Config\Json\JsonTypeHintAttribute.cs" />
-    <Compile Include="Config\LogFileConfig.cs" />
-    <Compile Include="Config\LogFileRotatorConfig.cs" />
-    <Compile Include="Config\LogJamConfigTypes.cs" />
-    <Compile Include="Config\LogManagerConfig.cs" />
-    <Compile Include="Config\LogManagerConfigFluentExtensions.cs" />
-    <Compile Include="Config\RotatingLogFileWriterConfig.cs" />
-    <Compile Include="Config\TextLogFileWriterConfig.cs" />
-    <Compile Include="Config\TextLogWriterConfig.cs" />
-    <Compile Include="Config\TextWriterLogWriterConfig.cs" />
-    <Compile Include="Config\UseExistingLogWriterConfig.cs" />
-    <Compile Include="Internal\ILogJamComponent.cs" />
-    <Compile Include="Util\ObservableSet.cs" />
-    <Compile Include="Writer\Text\DefaultConsoleColorResolver.cs" />
-    <Compile Include="Writer\Text\EntryActionFormatter.cs" />
-    <Compile Include="Encode\ILogDecoder.cs" />
-    <Compile Include="Encode\ILogEncoder.cs" />
-    <Compile Include="Writer\Text\ColorCategory.cs" />
-    <Compile Include="Writer\Text\DefaultFormatterAttribute.cs" />
-    <Compile Include="Writer\Text\FormatWriter.cs" />
-    <Compile Include="ILogEntry.cs" />
-    <Compile Include="LogJamException.cs" />
-    <Compile Include="LogJamCollectionExtensions.cs" />
-    <Compile Include="LogJamSetupException.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Trace\Config\TraceManagerConfigFluentExtensions.cs" />
-    <Compile Include="Trace\Format\DebuggerTraceFormatter.cs" />
-    <Compile Include="Startable.cs" />
-    <Compile Include="Util\GrowingListEnumerator.cs" />
-    <Compile Include="Util\Text\CharHelper.cs" />
-    <Compile Include="Writer\BufferingLogWriter.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Writer\IBufferingLogWriter.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Writer\Rotator\ILogFileRotator.cs" />
-    <Compile Include="Writer\ILogWriter.cs" />
-    <Compile Include="IStartable.cs" />
-    <Compile Include="LogJamStartException.cs" />
-    <Compile Include="SetupLog.cs" />
-    <Compile Include="LogManager.cs" />
-    <Compile Include="LogWriterException.cs" />
-    <Compile Include="Trace\Config\SwitchSet.cs" />
-    <Compile Include="Writer\Text\ConsoleFormatWriter.cs" />
-    <Compile Include="Trace\ITraceWriter.cs" />
-    <Compile Include="Trace\FanOutTraceWriter.cs" />
-    <Compile Include="Trace\NoOpTraceWriter.cs" />
-    <Compile Include="Util\CollectionExtensions.cs" />
-    <Compile Include="Util\EnumerableWrapper.cs" />
-    <Compile Include="Util\EqualityUtil.cs" />
-    <Compile Include="Util\KeyValuePairComparer.cs" />
-    <Compile Include="Util\ListDictionary.cs" />
-    <Compile Include="Util\ReflectionUtil.cs" />
-    <Compile Include="Util\StartableExtensions.cs" />
-    <Compile Include="Util\Text\TextWriterExtensions.cs" />
-    <Compile Include="Config\DebuggerLogWriterConfig.cs" />
-    <Compile Include="Writer\BackgroundMultiLogWriter.cs" />
-    <Compile Include="Writer\FanOutEntryWriter.cs" />
-    <Compile Include="Config\NoOpLogWriterConfig.cs" />
-    <Compile Include="Config\ListLogWriterConfig.cs" />
-    <Compile Include="Config\LogWriterConfig.cs" />
-    <Compile Include="Trace\Config\TraceWriterConfig.cs" />
-    <Compile Include="Trace\Switches\OnOffTraceSwitch.cs" />
-    <Compile Include="Trace\TraceWriter.cs" />
-    <Compile Include="Writer\ISynchronizingLogWriter.cs" />
-    <Compile Include="Writer\LogWriterExtensions.cs" />
-    <Compile Include="Writer\ProxyLogWriter.cs" />
-    <Compile Include="Writer\IQueueEntryWriter.cs" />
-    <Compile Include="Writer\ListLogWriter.cs" />
-    <Compile Include="Writer\BaseLogWriter.cs" />
-    <Compile Include="Writer\NoOpEntryWriter.cs" />
-    <Compile Include="Writer\NoOpLogWriter.cs" />
-    <Compile Include="Writer\ProxyEntryWriter.cs" />
-    <Compile Include="Writer\Rotator\RotateLogFileEventArgs.cs" />
-    <Compile Include="Writer\Rotator\RotatingLogFileWriter.cs" />
-    <Compile Include="Writer\SingleEntryTypeLogWriter.cs" />
-    <Compile Include="Writer\SynchronizingProxyLogWriter.cs" />
-    <Compile Include="Writer\Text\DelimitedFormatWriter.cs" />
-    <Compile Include="Writer\Text\FormatWriterExtensions.cs" />
-    <Compile Include="Writer\Text\IConsoleColorResolver.cs" />
-    <Compile Include="Writer\Text\TextLogWriter.cs" />
-    <Compile Include="Writer\Text\TextWriterFormatWriter.cs" />
+    <PackageReference Include="SourceLink.Create.CommandLine" Version="2.6.0" PrivateAssets="All" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Trace\Config\TraceManagerConfig.cs" />
-    <Compile Include="Trace\ITracerFactory.cs" />
-    <Compile Include="Trace\TraceEntry.cs" />
-    <Compile Include="Trace\TracerFactoryExtensions.cs" />
-    <Compile Include="Writer\Text\DebuggerFormatWriter.cs" />
-    <Compile Include="Trace\Format\DefaultTraceFormatter.cs" />
-    <Compile Include="Writer\Text\EntryFormatter.cs" />
-    <Compile Include="Writer\IEntryWriterOfTEntry.cs" />
-    <Compile Include="Trace\ITraceSwitch.cs" />
-    <Compile Include="Trace\TraceManager.cs" />
-    <Compile Include="Trace\Tracer.cs" />
-    <Compile Include="Trace\Switches\ThresholdTraceSwitch.cs" />
-    <Compile Include="Trace\TraceLevel.cs" />
-    <Compile Include="Trace\TracerExtensions.cs" />
-    <Compile Include="Util\Text\StringBuilderExtensions.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Instrument\" />
-    <Folder Include="Interop\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="LogJam.nuspec" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+
 </Project>

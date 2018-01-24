@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="StringBuilderExtensions.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -10,8 +10,9 @@
 namespace LogJam.Util.Text
 {
     using System;
-    using System.Diagnostics.Contracts;
     using System.Text;
+
+    using LogJam.Shared.Internal;
 
 
     /// <summary>
@@ -35,7 +36,7 @@ namespace LogJam.Util.Text
         /// <param name="width">The minimum number of characters to fill.</param>
         public static void AppendPadZeroes(this StringBuilder sb, int number, int width)
         {
-            Contract.Requires<ArgumentException>(width <= 10 && width >= 0);
+            Arg.InRange(width, 0, 10, nameof(width));
 
             if (number < 0)
             {
@@ -70,7 +71,7 @@ namespace LogJam.Util.Text
         /// <param name="linePrefix">The prefix for each line (before indentation).</param>
         public static void AppendIndentLines(this StringBuilder sb, string s, int indentSpaces, string linePrefix = null)
         {
-            Contract.Requires<ArgumentOutOfRangeException>(indentSpaces >= 0);
+            Arg.InRange(indentSpaces, 0, int.MaxValue, nameof(indentSpaces));
 
             if (((indentSpaces == 0) && (linePrefix == null)) || string.IsNullOrEmpty(s))
             {
@@ -329,9 +330,12 @@ namespace LogJam.Util.Text
 
         public static void BufferedAppend(this StringBuilder sb, StringBuilder source, int startIndex, int length, char[] buffer)
         {
-            Contract.Requires<ArgumentNullException>(sb != null);
-            Contract.Requires<ArgumentNullException>(source != null);
-            Contract.Requires<ArgumentOutOfRangeException>(source.Length >= startIndex + length);
+            Arg.NotNull(sb, nameof(sb));
+            Arg.NotNull(source, nameof(source));
+            if (source.Length < startIndex + length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(length), $"Cannot read past end of source - startIndex: {startIndex} + length: {length} > source.Length: {source.Length}");
+            }
 
             int macIndex = startIndex + length;
             int bufLen = buffer.Length;

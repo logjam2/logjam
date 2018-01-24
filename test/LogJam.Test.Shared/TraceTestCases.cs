@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TraceTestCases.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -43,7 +43,9 @@ namespace LogJam.Test.Shared
             tracer.Verbose("This message won't be logged");
         }
 
+#pragma warning disable xUnit1013 // Public method should be marked as test
         public void TraceDebug(bool assertDebugEnabled)
+#pragma warning restore xUnit1013 // Public method should be marked as test
         {
             var tracer = TraceManager.TracerFor(this);
             if (assertDebugEnabled)

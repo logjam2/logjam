@@ -1,4 +1,4 @@
-﻿// // --------------------------------------------------------------------------------------------------------------------
+// // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="IProxyLogWriter.cs">
 // Copyright (c) 2011-2015 https://github.com/logjam2.  
 // </copyright>
@@ -9,11 +9,13 @@
 
 namespace LogJam.Writer
 {
-	using System;
-	using System.Diagnostics.Contracts;
+    using System;
+    using System.Collections.Generic;
 
-	using LogJam.Trace;
-	using LogJam.Util;
+    using LogJam.Internal;
+    using LogJam.Shared.Internal;
+    using LogJam.Trace;
+    using LogJam.Util;
 
 
 	/// <summary>
@@ -23,15 +25,15 @@ namespace LogJam.Writer
 	{
 		private ILogWriter _innerLogWriter;
 
-		/// <summary>
-		/// Creates a new <see cref="ProxyLogWriter"/>.
-		/// </summary>
-		/// <param name="setupTracerFactory">The <see cref="ITracerFactory"/> tracing setup operations.</param>
-		/// <param name="innerLogWriter">The inner <see cref="ILogWriter"/> to delegate to.  Must not be <c>null</c>.</param>
-		protected ProxyLogWriter(ITracerFactory setupTracerFactory, ILogWriter innerLogWriter)
-			: base(setupTracerFactory)
-		{
-			Contract.Requires<ArgumentNullException>(innerLogWriter != null);
+        /// <summary>
+        /// Creates a new <see cref="ProxyLogWriter" />.
+        /// </summary>
+        /// <param name="setupTracerFactory">The <see cref="ITracerFactory" /> tracing setup operations.</param>
+        /// <param name="innerLogWriter">The inner <see cref="ILogWriter" /> to delegate to. Must not be <c>null</c>.</param>
+        protected ProxyLogWriter(ITracerFactory setupTracerFactory, ILogWriter innerLogWriter)
+        {
+            Arg.NotNull(setupTracerFactory, nameof(setupTracerFactory));
+            Arg.NotNull(innerLogWriter, nameof(innerLogWriter));
 
 			_innerLogWriter = innerLogWriter;
 		}
@@ -78,13 +80,23 @@ namespace LogJam.Writer
 		#endregion
 		#region IDisposable
 
-		protected override void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				(_innerLogWriter as IDisposable).SafeDispose(SetupTracerFactory);
-			}
-		}
+        public virtual void Dispose()
+        {
+            if (! _disposed)
+            {
+                if (_innerLogWriter is IDisposable innerDisposable)
+                {
+                    innerDisposable.Dispose();
+                }
+                _disposed = true;
+            }
+        }
+
+        #endregion
+
+        #region ILogJamComponent
+
+        public ITracerFactory SetupTracerFactory { get { return _setupTracerFactory; } }
 
 		#endregion
 	}

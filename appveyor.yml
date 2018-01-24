@@ -1,0 +1,17 @@
+# Build worker image (VM template)
+image: Visual Studio 2017
+
+configuration: Release
+
+build_script:
+- cmd: PowerShell -Version 2.0 .\build.ps1
+test: off
+
+artifacts:
+  - path: 'NuGetOut\*.nupkg'
+
+cache:
+  - '%USERPROFILE%\.nuget\packages -> **\*.csproj'  # NuGet package cache
+  - packages -> tools\packages.config
+  - C:\ProgramData\chocolatey\bin -> appveyor.yml
+  - C:\ProgramData\chocolatey\lib -> appveyor.yml

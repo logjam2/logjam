@@ -22,6 +22,9 @@ namespace LogJam
 
         private StartableState _startableState;
 
+        /// <summary>
+        /// Initializes this <see cref="Startable"/> to <see cref="StartableState.Unstarted"/>.
+        /// </summary>
         protected Startable()
         {
             _startableState = StartableState.Unstarted;

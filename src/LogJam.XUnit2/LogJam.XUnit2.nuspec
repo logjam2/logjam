@@ -6,31 +6,42 @@
     <title>$title$</title>
     <authors>$author$</authors>
     <owners>$author$</owners>
-    <licenseUrl>https://raw.githubusercontent.com/logjam2/logjam/master/LICENSE.txt</licenseUrl>
-    <projectUrl>https://github.com/logjam2/logjam</projectUrl>
-    <!--<iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl>-->
-    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>$licenseUrl$</licenseUrl>
+    <projectUrl>$projectUrl$</projectUrl>
+    <!--<iconUrl>http://ICON_URL_HERE</iconUrl>-->
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>$description$</description>
     <!--<releaseNotes>Summary of changes made in this release of the package.</releaseNotes>-->
-    <copyright>Copyright 2011-2015</copyright>
-    <tags>Log Trace Tracing Logging LogJam XUnit XUnit2</tags>
-    <dependencies>
-      <dependency id="LogJam" version="1.0.4" />
-    </dependencies>
+    <copyright>$copyright$</copyright>
+    <tags>LogJam xunit XUnit2</tags>
 
-    <!-- Explicitly specify which assemblys are referenced when this project is referenced (to not link to the CodeContracts DLL). -->
     <references>
+      <!-- Explicitly specify which assemblies are referenced when this project is referenced (to not link to the CodeContracts DLLs for net45). -->
       <reference file="$id$.dll" />
     </references>
+
+    <dependencies>
+      <group targetFramework=".NETFramework4.5">
+        <dependency id="LogJam" version="$version$" exclude="Build,Analyzers" />
+        <dependency id="xunit.abstractions" version="2.0.1" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework=".NETStandard1.3">
+        <dependency id="LogJam" version="$version$" exclude="Build,Analyzers" />
+        <dependency id="NETStandard.Library" version="1.6.1" exclude="Build,Analyzers" />
+        <dependency id="xunit.abstractions" version="2.0.1" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
   </metadata>
 
   <!-- Include the dll, pdb, code contracts, xml (xml docs). -->
   <files>
-    <!-- DLLs and XML comments are implicitly added -->
-    <!-- Include the PDB file in nuget package -->
-    <file src="$TargetDir$$id$.pdb" target="lib\net45" />
-    <!-- Code-contracts reference assembly -->
-    <file src="$TargetDir$\CodeContracts\$id$.Contracts.*" target="lib\net45\CodeContracts" />
+    <file src="bin\$configuration$\net45\$id$.*" target="lib\net45" />
+    <file src="bin\$configuration$\netstandard1.3\$id$.dll" target="lib\netstandard1.3" />
+    <!--<file src="bin\$configuration$\netstandard1.3\$id$.pdb" target="lib\netstandard1.3" />-->
+    <file src="bin\$configuration$\netstandard1.3\$id$.xml" target="lib\netstandard1.3" />
+
+    <!-- Code-contracts reference assembly + PDBs in net45 -->
+    <file src="bin\$configuration$\net45\CodeContracts\$id$.Contracts.*" target="lib\net45\CodeContracts" />
   </files>
 
 </package>

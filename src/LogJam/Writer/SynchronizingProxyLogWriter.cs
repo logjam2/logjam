@@ -1,4 +1,4 @@
-﻿// // --------------------------------------------------------------------------------------------------------------------
+// // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="SynchronizingProxyLogWriter.cs">
 // Copyright (c) 2011-2015 https://github.com/logjam2.  
 // </copyright>
@@ -9,13 +9,9 @@
 
 namespace LogJam.Writer
 {
-	using System;
-	using System.Collections.Concurrent;
-	using System.Collections.Generic;
-	using System.Diagnostics.Contracts;
-	using System.Linq;
-	using System.Threading;
-	using System.Threading.Tasks;
+    using System;
+    using System.Collections.Generic;
+    using System.Threading;
 
 	using LogJam.Config;
 	using LogJam.Config.Initializer;
@@ -85,11 +81,29 @@ namespace LogJam.Writer
 			}
 		}
 
-		#region ILogWriter
+        #region ILogWriter
 
 		public override bool IsSynchronized => true;
 
-	    #endregion
+        public override bool TryGetEntryWriter<TEntry>(out IEntryWriter<TEntry> entryWriter)
+        {
+            if (! _entryWriters.TryGetValue(typeof(TEntry), out var objEntryWriter))
+            {
+                entryWriter = null;
+                return false;
+            }
+
+            entryWriter = objEntryWriter as IEntryWriter<TEntry>;
+            if (entryWriter == null)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public override IEnumerable<KeyValuePair<Type, object>> EntryWriters { get { return _entryWriters; } }
+
+        #endregion
 
 		public void QueueSynchronized(Action action, LogWriterActionPriority priority)
 		{
@@ -190,10 +204,10 @@ namespace LogJam.Writer
 		{
 			private readonly SynchronizingProxyLogWriter _parent;
 
-			internal SynchronizingProxyEntryWriter(SynchronizingProxyLogWriter parent, IEntryWriter<TEntry> innerEntryWriter)
-				: base(innerEntryWriter)
-			{
-				Contract.Requires<ArgumentNullException>(parent != null);
+            internal SynchronizingProxyEntryWriter(SynchronizingProxyLogWriter parent, IEntryWriter<TEntry> innerEntryWriter)
+                : base(innerEntryWriter)
+            {
+                Arg.NotNull(parent, nameof(parent));
 
 				_parent = parent;
 			}
