@@ -29,7 +29,7 @@ namespace LogJam.Activity.Collectors
 		/// Gets a value indicating whether this <see cref="IEntryWriter{TEntry}"/> should receive <see cref="Tracer"/> messages.
 		/// </summary>
 		/// <value>
-		/// If <c>true</c>, this <c>ITraceCollector</c> should receive messages.  If <c>false</c>, none of the other 
+		/// If <c>true</c>, this <c>ITraceCollector</c> should receive messages. If <c>false</c>, none of the other 
 		/// <c>ITraceCollector</c> methods should be called.
 		/// </value>
 		bool IsActive { get; }

@@ -1,4 +1,4 @@
-# LogJam TODO
+﻿# LogJam TODO
 
 1. Add netstandard versions of LogJam
 2. ASP.NET Core logging (equivalent to LogJam.OWIN)
@@ -28,7 +28,7 @@
 3. Add trace threshold json file - trace.config
 3. Determine if Owin middleware should use Task.ConfigureAwait(false)
 4. Add `LogManager.Restarting` and `LogManager.Restarted` events - so eg HttpLoggingOwinMiddleware can change to write to the newest log writers
-5. Add support for partial restart - eg remove logwriters that no longer exist, and add new log writers, leaving unchanged logwriters alone.  Still raise the Restarted event if changes occurred.
+5. Add support for partial restart - eg remove logwriters that no longer exist, and add new log writers, leaving unchanged logwriters alone. Still raise the Restarted event if changes occurred.
 2. Config object refactor
     * Tracewriter config objects directly reference the LogWriterConfig objects, or ?? for "all logs"
     * Make logwriter config objects immutable when LogManager is started, and have logwriters reference their config objects instead of duplicating the properties.
@@ -41,14 +41,14 @@
 1. Custom log rotator behavior - datetime changes, log size, etc
 3. Add flush support, so buffering log writers can be flushed on command.
   * Support periodic flushing eg every .5s (more efficient than "always flush")
-4. Make background logging multi log writer support periodic flushing, eg every 600ms by default.  Also support flushing from foreground delegated to background thread.
+4. Make background logging multi log writer support periodic flushing, eg every 600ms by default. Also support flushing from foreground delegated to background thread.
 5. Instruments: Counters, Timers, HealthItems
 1. Profile and perf test various use-cases
 1. Custom log rotator behavior - datetime changes, log size, etc
 4. Add property dependency injection for intra-LogWriter pipeline dependencies (eg SynchronizingLogWriter ref)
 3. Add flush support, so buffering log writers can be flushed on command.
   * Support periodic flushing eg every .5s (more efficient than "always flush")
-4. Make background logging multi log writer support periodic flushing, eg every 20ms by default.  Also support flushing from foreground delegated to background thread.
+4. Make background logging multi log writer support periodic flushing, eg every 20ms by default. Also support flushing from foreground delegated to background thread.
 1. Consider renaming TraceWriterConfig, TraceWriter to TraceCollector or TraceConfig/TracerConfig or similar; make internal?
 1. Create documentation site
 1. Create ASP.NET v5 version, with Kestrel example
@@ -60,7 +60,7 @@
 	approach that doesn't require that.
 2. background logging multi log writer tests
   * Test that entries are logged immediately
-5. SetupLog pruning - ensure it doesn't hold unneeded information.  Add a trace count?
+5. SetupLog pruning - ensure it doesn't hold unneeded information. Add a trace count?
 
 2. Add status support, expose it from logmanager/tracemanager
 3. Remote logging via protobuf

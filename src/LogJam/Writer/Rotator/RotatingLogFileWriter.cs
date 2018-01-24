@@ -1,4 +1,4 @@
-﻿// // --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="RotatingLogFileWriter.cs">
 // Copyright (c) 2011-2015 https://github.com/logjam2.  
 // </copyright>
@@ -178,11 +178,11 @@ namespace LogJam.Writer.Rotator
 		}
 
 		/// <summary>
-		/// Switches to a new log file writer that writes to <paramref name="nextLogFile"/>.  Includes switching all
+		/// Switches to a new log file writer that writes to <paramref name="nextLogFile"/>. Includes switching all
 		/// entry writers to write to the next log file.
 		/// </summary>
 		/// <param name="nextLogFile"></param>
-		/// <returns>A cleanup <see cref="Action"/>, which flushes and closes the previous log file.  This action should be
+		/// <returns>A cleanup <see cref="Action"/>, which flushes and closes the previous log file. This action should be
 		/// queued for execution soon after rotation completes, but does not need to be run synchronously with rotation as 
 		/// it may be time consuming.</returns>
 		public Action SwitchLogFileWriterTo(FileInfo nextLogFile)
@@ -242,7 +242,7 @@ namespace LogJam.Writer.Rotator
 			/// <summary>
 			/// Creates a new <see cref="ProxyEntryWriter{TEntry}"/>.
 			/// </summary>
-			/// <param name="innerEntryWriter">The inner <see cref="IEntryWriter{TEntry}"/> to delegate to.  Must not be <c>null</c>.</param>
+			/// <param name="innerEntryWriter">The inner <see cref="IEntryWriter{TEntry}"/> to delegate to. Must not be <c>null</c>.</param>
 			public RotatingEntryWriter(IEntryWriter<TEntry> innerEntryWriter)
 				: base(innerEntryWriter)
 			{}

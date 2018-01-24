@@ -14,7 +14,7 @@ namespace LogJam.Writer
 
 
 	/// <summary>
-	/// Supports writing strongly-typed log entries to a log target.  An <see cref="ILogWriter"/> contains one or more
+	/// Supports writing strongly-typed log entries to a log target. An <see cref="ILogWriter"/> contains one or more
 	/// <c>IEntryWriter&lt;TEntry&gt;</c> instances, each are uniquely identified by their <c>TEntry</c> type.
 	/// </summary>
 	/// <typeparam name="TEntry">The base entry type supported by the entry writer.</typeparam>

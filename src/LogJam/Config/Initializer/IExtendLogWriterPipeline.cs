@@ -1,4 +1,4 @@
-﻿// // --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="IExtendLogWriterPipeline.cs">
 // Copyright (c) 2011-2015 https://github.com/logjam2.  
 // </copyright>
@@ -27,7 +27,7 @@ namespace LogJam.Config.Initializer
         /// <param name="dependencyDictionary"></param>
         /// <returns>The new log writer; or <paramref name="logWriter"/> if no modification was made to the front of the log writer pipeline.</returns>
         /// <remarks>This method should not assume that dependencies populated by other initializers are in <paramref name="dependencyDictionary"/>, because the order
-        /// of initializers may vary.  If an initializer requires dependencies populated by other initializers, it should use <see cref="IImportInitializer"/> instead.</remarks>
+        /// of initializers may vary. If an initializer requires dependencies populated by other initializers, it should use <see cref="IImportInitializer"/> instead.</remarks>
         ILogWriter InitializeLogWriter(ITracerFactory setupTracerFactory, ILogWriter logWriter, DependencyDictionary dependencyDictionary);
 
     }

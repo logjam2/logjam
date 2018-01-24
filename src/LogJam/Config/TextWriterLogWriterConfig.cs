@@ -29,7 +29,7 @@ namespace LogJam.Config
         /// that write to a <see cref="TextWriter" /> returned from <paramref name="createTextWriterFunc" />.
         /// </summary>
         /// <param name="createTextWriterFunc">
-        /// A function that returns a <see cref="TextWriter" />.  This function is
+        /// A function that returns a <see cref="TextWriter" />. This function is
         /// called each time the parent <see cref="LogManager" /> is <c>Start()</c>ed.
         /// </param>
         public TextWriterLogWriterConfig(Func<TextWriter> createTextWriterFunc)
@@ -47,7 +47,7 @@ namespace LogJam.Config
         /// <param name="textWriter"></param>
         /// <remarks>
         /// Note that <paramref name="textWriter" /> will not be automatically <c>Dispose()</c>ed each time
-        /// the <see cref="LogManager" /> is stopped.  To cause automatic <c>Dispose()</c>, set
+        /// the <see cref="LogManager" /> is stopped. To cause automatic <c>Dispose()</c>, set
         /// <see cref="DisposeTextWriter" /> to <c>true</c>.
         /// </remarks>
         public TextWriterLogWriterConfig(TextWriter textWriter)

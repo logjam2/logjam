@@ -284,7 +284,7 @@ namespace LogJam.Writer
 
 
         /// <summary>
-        /// The set of operations that are executed on the background thread.  All these methods must be valid <see cref="Action"/>s.
+        /// The set of operations that are executed on the background thread. All these methods must be valid <see cref="Action"/>s.
         /// </summary>
         private interface IBackgroundThreadLogWriterActions
         {

@@ -74,7 +74,7 @@ namespace LogJam.Config
         /// Returns a collection of initializers that are applied to all <see cref="ILogWriter"/>s created from this <see cref="LogManagerConfig"/>.
         /// </summary>
         /// <remarks>
-        /// These are <c>LogManager</c>-global initializers.  Each <see cref="ILogWriterConfig"/> also has a collection of initializers that are
+        /// These are <c>LogManager</c>-global initializers. Each <see cref="ILogWriterConfig"/> also has a collection of initializers that are
         /// applied only to logwriters created by the log writer config.
         /// <para>
         /// Initializers are applied in-order.  <see cref="ILogWriterConfig.Initializers"/> are applied before these global initializers.

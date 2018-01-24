@@ -19,7 +19,7 @@ namespace LogJam.Util.Collections
     /// <summary>
     /// A base class for an ordered tree structure containing homogeneous nodes of type <typeparamref name="T"/>.
     /// The order of the tree structure is determined both by <see cref="WouldBeDescendent"/>, <see cref="Equals"/>, and <see cref="Compare"/>.
-    /// Children are maintained in sorted order using <see cref="Compare"/>.  In addition, each tree node is
+    /// Children are maintained in sorted order using <see cref="Compare"/>. In addition, each tree node is
     /// placed in a depth of the tree such that its parent returns <c>true</c> from <see cref="WouldBeDescendent"/> when passed the node, the node's
     /// <see cref="WouldBeDescendent"/> returns <c>true</c> when passed all it's children.
     /// </summary>
@@ -85,7 +85,7 @@ namespace LogJam.Util.Collections
         /// </summary>
         /// <param name="node">A <see cref="TreeNode"/> to compare to <c>this</c>.</param>
         /// <returns><c>true</c> if <paramref name="node"/> would be a descendent of <c>this</c> when
-        /// added to the tree.  Returns <c>false</c> if <paramref name="node"/> would be an ancestor or sibling when added to the tree.
+        /// added to the tree. Returns <c>false</c> if <paramref name="node"/> would be an ancestor or sibling when added to the tree.
         /// If <c>node</c> equals <c>this</c>, <c>false</c> should be returned.
         /// </returns>
         public abstract bool WouldBeDescendent(T node);

@@ -1,4 +1,4 @@
-# ChangeLog for LogJam projects 
+﻿# ChangeLog for LogJam projects 
 
 ## Version 1.0.5
 * #17 Add support for switching the ITestOutputHelper per test, without restarting the LogManager
@@ -26,7 +26,7 @@
 ## Version 0.9.0-beta
 * Rename ILogWriter<tentry>
 	-> IEntryWriter<tentry>
-		, and IMultiLogWriter -> ILogWriter.  All log writers have 0 or more entrywriters within them.  Some LogWriters can only support one type.
+		, and IMultiLogWriter -> ILogWriter. All log writers have 0 or more entrywriters within them. Some LogWriters can only support one type.
 * Added fluent configuration, refactored configuration approach
 * Significantly improved unit test coverage, including multithreaded tests
 * Added LogJam.XUnit2 library, for logging within xunit2 tests

@@ -1,4 +1,4 @@
-﻿// // --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ISynchronizingLogWriter.cs">
 // Copyright (c) 2011-2015 https://github.com/logjam2.  
 // </copyright>
@@ -23,7 +23,7 @@ namespace LogJam.Writer
 
 		/// <summary>
 		/// Queues an action to execute as soon as possible, but after currently running or queued operations complete, and synchronized with other 
-		/// operations on the same <see cref="ILogWriter"/>.  An <see cref="Action"/> queued with this method must be synchronized so that it
+		/// operations on the same <see cref="ILogWriter"/>. An <see cref="Action"/> queued with this method must be synchronized so that it
 		/// does not run concurrently with other queued actions or other log writer operations.
 		/// </summary>
 		/// <param name="action">The <see cref="Action"/> to run in a synchronized context.</param>

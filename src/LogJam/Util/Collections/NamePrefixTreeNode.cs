@@ -17,7 +17,7 @@ namespace LogJam.Util.Collections
 
 
     /// <summary>
-	/// A node in a tree where each node contains the NamePrefix of all its descendents.  In other words,
+	/// A node in a tree where each node contains the NamePrefix of all its descendents. In other words,
 	/// a namespace tree.
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
@@ -35,8 +35,8 @@ namespace LogJam.Util.Collections
 		}
 
 		/// <summary>
-		/// Gets the name prefix for this <see cref="NamePrefixTreeNode"/> object.  This node's <see cref="TreeNode{T}.Children"/> begin with this node's
-		/// <c>NamePrefix</c>.  This node's <c>NamePrefix</c> starts with its <see cref="TreeNode{T}.Parent"/> Tra
+		/// Gets the name prefix for this <see cref="NamePrefixTreeNode"/> object. This node's <see cref="TreeNode{T}.Children"/> begin with this node's
+		/// <c>NamePrefix</c>. This node's <c>NamePrefix</c> starts with its <see cref="TreeNode{T}.Parent"/> Tra
 		/// </summary>
 		/// <value>
 		/// The name prefix.

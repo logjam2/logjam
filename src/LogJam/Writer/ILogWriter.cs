@@ -17,7 +17,7 @@ namespace LogJam.Writer
 
 
     /// <summary>
-    /// A log writer writes to one or more log targets.  A log writer supports one or more log entry types via contained
+    /// A log writer writes to one or more log targets. A log writer supports one or more log entry types via contained
     /// entry writers.
     /// </summary>
     /// <seealso cref="IEntryWriter{TEntry}" />
@@ -36,8 +36,8 @@ namespace LogJam.Writer
         /// </value>
         /// <remarks>
         /// In normal operation, the <see cref="ILogWriter" />s returned to callers from <see cref="LogManager" /> should have
-        /// <c>IsSynchronized = true</c>.  However there is often a chain of log writers, and the downstream logwriters may have
-        /// <c>IsSynchronized = false</c>.  This is expected, as synchronization is typically provided by upstream proxy providers
+        /// <c>IsSynchronized = true</c>. However there is often a chain of log writers, and the downstream logwriters may have
+        /// <c>IsSynchronized = false</c>. This is expected, as synchronization is typically provided by upstream proxy providers
         /// such as <see cref="BackgroundMultiLogWriter" /> or <see cref="SynchronizingProxyLogWriter" />.
         /// </remarks>
         bool IsSynchronized { get; }

@@ -1,4 +1,4 @@
-﻿// // --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="DependencyDictionary.cs">
 // Copyright (c) 2011-2015 https://github.com/logjam2.  
 // </copyright>
@@ -15,7 +15,7 @@ namespace LogJam.Config.Initializer
 
 
     /// <summary>
-    /// Holds strongly typed dependencies by type.  Provides a lightweight form of a service locator for components,
+    /// Holds strongly typed dependencies by type. Provides a lightweight form of a service locator for components,
     /// usually scoped to a single LogWriter pipeline.
     /// </summary>
     public sealed class DependencyDictionary
