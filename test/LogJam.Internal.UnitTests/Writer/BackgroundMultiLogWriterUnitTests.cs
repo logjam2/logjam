@@ -139,12 +139,16 @@ namespace LogJam.Internal.UnitTests.Writer
             backgroundMultiLogWriter.Start();
             queueEntryWriter.Start();
 
+            Assert.True(queueEntryWriter.IsEnabled);
+
             // Log some, then Stop
             ExampleHelper.LogTestMessagesInParallel(queueEntryWriter, 8, 8, _testOutputHelper);
             backgroundMultiLogWriter.Stop(); // Blocks until the background thread exits
 
             Assert.False(innerLogWriter.IsStarted());
             Assert.False(backgroundMultiLogWriter.IsStarted());
+            Assert.False(queueEntryWriter.IsEnabled);
+
             Assert.Equal(8 * 8, innerLogWriter.Count);
 
             // After a Stop(), logging does nothing
@@ -154,12 +158,16 @@ namespace LogJam.Internal.UnitTests.Writer
             // After a Stop(), BackgroundMultiLogWriter and it's contained logwriters can be restarted
             backgroundMultiLogWriter.Start();
 
+            Assert.True(queueEntryWriter.IsEnabled);
+
             // Log some, then Dispose
             ExampleHelper.LogTestMessagesInParallel(queueEntryWriter, 8, 8, _testOutputHelper);
             backgroundMultiLogWriter.Dispose(); // Blocks until the background thread exits
 
             Assert.False(innerLogWriter.IsStarted());
             Assert.False(backgroundMultiLogWriter.IsStarted());
+            Assert.False(queueEntryWriter.IsEnabled);
+
             Assert.Equal(2 * 8 * 8, innerLogWriter.Count);
 
             // After a Dispose(), BackgroundMultiLogWriter can't be re-used
@@ -258,6 +266,7 @@ namespace LogJam.Internal.UnitTests.Writer
                 }
                 Assert.False(queueEntryWriter.IsEnabled);
                 Assert.False(queueEntryWriter.IsStarted());
+                Assert.Equal(StartableState.Disposed, queueEntryWriter.State);
                 Assert.True(backgroundMultiLogWriter.IsStarted());
 
                 // Can't restart after Dispose()

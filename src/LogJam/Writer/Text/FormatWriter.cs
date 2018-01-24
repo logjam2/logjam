@@ -227,6 +227,30 @@ namespace LogJam.Writer.Text
         #region Public methods to write formatted log text
 
         /// <summary>
+        /// Write a header or footer key + value pair.
+        /// </summary>
+        /// <param name="headerName"></param>
+        /// <param name="headerValue"></param>
+        public virtual void WriteHeaderField(string headerName, string headerValue)
+        {
+            if (_startedEntries != 0)
+            {
+                setupTracer.Error("FormatWriter invariant violated: Header or footer must not be written while an entry is being written.");
+            }
+            if (! atBeginningOfLine)
+            {
+                WriteEndLine();
+            }
+
+            // Default header formatting is 1 key-value pair per line. Can be overridden.
+            WriteText("# ", ColorCategory.Markup);
+            WriteText(headerName, ColorCategory.Header);
+            WriteText(": ", ColorCategory.Markup);
+            WriteText(headerValue, ColorCategory.Header);
+            WriteEndLine();
+        }
+
+        /// <summary>
         /// Marks the start of a new entry.
         /// </summary>
         public virtual void BeginEntry()

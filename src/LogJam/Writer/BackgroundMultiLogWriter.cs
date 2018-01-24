@@ -263,7 +263,7 @@ namespace LogJam.Writer
         /// <remarks>
         /// This initializer is included in <see cref="LogManagerConfig.Initializers"/> by default.
         /// </remarks>
-        public sealed class Initializer : ILogWriterPipelineInitializer
+        public sealed class Initializer : IExtendLogWriterPipeline
         {
 
             public ILogWriter InitializeLogWriter(ITracerFactory setupTracerFactory, ILogWriter logWriter, DependencyDictionary dependencyDictionary)
@@ -454,7 +454,7 @@ namespace LogJam.Writer
         {
 
             // Set to true when this is started.
-            private bool _isStarted;
+            private bool _isEnabled;
 
             private readonly IEntryWriter<TEntry> _innerEntryWriter;
             private readonly ConcurrentQueue<TEntry> _queue;
@@ -480,8 +480,8 @@ namespace LogJam.Writer
                 _backgroundActionQueue = backgroundActionQueue;
                 _setupTracerFactory = setupTracerFactory;
 
-                _isStarted = _innerEntryWriter.IsEnabled;
-                State = _isStarted ? StartableState.Started : StartableState.Unstarted;
+                _isEnabled = _innerEntryWriter.IsEnabled;
+                State = _isEnabled ? StartableState.Started : StartableState.Unstarted;
             }
 
             private void QueueBackgroundAction(Action backgroundAction)
@@ -506,17 +506,11 @@ namespace LogJam.Writer
                 QueueBackgroundAction(DequeAndWriteEntry);
             }
 
-            public bool IsEnabled => _isStarted;
+            public bool IsEnabled => _isEnabled;
 
-            public Type LogEntryType
-            {
-                get { return typeof(TEntry); }
-            }
+            public Type LogEntryType => typeof(TEntry);
 
-            public bool IsEmpty
-            {
-                get { return _queue.IsEmpty; }
-            }
+            public bool IsEmpty => _queue.IsEmpty;
 
             public bool TryDequeue(out TEntry logEntry)
             {
@@ -534,18 +528,18 @@ namespace LogJam.Writer
                 {
                     QueueBackgroundAction(StartInnerWriter);
                 }
-                _isStarted = true;
 
-                // The QueueEntryWriter is considered started as soon as the start signal is sent;
-                // state should be "started" when Start() returns.
-                // In the case of the QueueEntryWriter, "Started" means "ready to accept entries".
-                // We could wait for a queued action to execute before changing the state to started,
-                // but that seems like an unnecessary wait.
+                // The QueueEntryWriter is enabled as the start signal is sent;
+                // In the case of the QueueEntryWriter, "IsEnabled" means "ready to accept entries", even the the background
+                // logwriter has not started yet.
+                // If we don't mark it as enabled right away, callers will see EntryWriter.IsEnabled = false,
+                // which will turn away new entries.
+                _isEnabled = true;
             }
 
             protected override void InternalStop()
             {
-                _isStarted = false;
+                _isEnabled = false;
                 if (_innerEntryWriter is IStartable)
                 {
                     // Blocks if maxQueueLength is exceeded
@@ -574,7 +568,7 @@ namespace LogJam.Writer
                     State = StartableState.Disposing;
                 }
 
-                _isStarted = false;
+                _isEnabled = false;
                 if (_innerEntryWriter is IStartable)
                 {
                     // Blocks if maxQueueLength is exceeded
@@ -602,16 +596,7 @@ namespace LogJam.Writer
 
             public void StartInnerWriter()
             {
-                var startableInnerLogWriter = _innerEntryWriter as IStartable;
-                if ((startableInnerLogWriter != null) && (startableInnerLogWriter.State != StartableState.Started))
-                {
-                    // Start is delegated on the foreground thread
-                    startableInnerLogWriter.SafeStart(_setupTracerFactory);
-                }
-                else
-                {
-                    State = StartableState.Started;
-                }
+                (_innerEntryWriter as IStartable).SafeStart(_setupTracerFactory);
             }
 
             public void DequeAndWriteEntry()
@@ -628,14 +613,12 @@ namespace LogJam.Writer
             {
                 (_innerEntryWriter as IStartable).SafeStop(_setupTracerFactory);
                 _slotsLeftInQueue.Release();
-                State = StartableState.Stopped;
             }
 
             public void DisposeInnerWriter()
             {
                 (_innerEntryWriter as IDisposable).SafeDispose(_setupTracerFactory);
                 _slotsLeftInQueue.Release();
-                State = StartableState.Stopped;
             }
 
             #endregion

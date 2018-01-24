@@ -18,10 +18,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseLogJamManager.cs" />
+    <Compile Include="Config\Initializer\DefaultLogWriterPipelineBuilder.cs" />
     <Compile Include="Config\Initializer\DependencyDictionary.cs" />
     <Compile Include="Config\Initializer\IImportInitializer.cs" />
     <Compile Include="Config\Initializer\ILogWriterInitializer.cs" />
-    <Compile Include="Config\Initializer\ILogWriterPipelineInitializer.cs" />
+    <Compile Include="Config\Initializer\IExtendLogWriterPipeline.cs" />
+    <Compile Include="Config\Initializer\ILogWriterPipelineBuilder.cs" />
     <Compile Include="Config\Initializer\ImportActionInitializer.cs" />
     <Compile Include="Config\LogWriterInitializerExtensions.cs" />
     <Compile Include="Config\UseExistingLogFileRotatorConfig.cs" />

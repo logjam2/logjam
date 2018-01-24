@@ -1,17 +1,20 @@
 # LogJam TODO
 
 1. Test that multiple debugger outputs configured results in a single instance
-1. TextFileWriter 
+1. TextFileWriter
 1. Headers and footers for text files
 2. Events for creating and disposing log writers - unless this is costly, in which case just add this for log file writers
 2. Merge rotating log file writers
+2. HttpClient log writer (similar to HTTP server, but distinguishable)
+2. LogJam.Powershell - formatter for Powershell host
 3. Benchmark file writing perf
 1. Add LogManager.Config.UseConsoleIfAvailable() - no setuplog error if not available
 3. JSON text logwriter
-3. Delimited text LogWriter 
+3. Delimited text LogWriter
 2. Add Log info for LogJam.Owin
   * SetupLog text URL
   * Log config + status (which writers, formatters, started, etc)
+3. Double-check access modifiers on exceptions - eg LogJamStartException has internal constructors. Is that useful for external LogWriter authors.
 4. Text log file perf tests - eg buffer size tuning
 3. Add trace threshold json file - trace.config
 3. Determine if Owin middleware should use Task.ConfigureAwait(false)
