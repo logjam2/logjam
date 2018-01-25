@@ -26,6 +26,15 @@ namespace LogJam
             return startable?.State == StartableState.Started;
         }
 
+
+        /// <summary>
+        /// Returns <c>true</c> if <paramref name="startable"/> is being disposed or has been disposed.
+        /// </summary>
+        public static bool IsDisposed(this IStartable startable)
+        {
+            return startable?.State >= StartableState.Disposing;
+        }
+
     }
 
 }

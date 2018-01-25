@@ -18,14 +18,14 @@ namespace LogJam.Config
 
 
     /// <summary>
-    /// Configures use of a <see cref="TextWriterLogWriter" />, which writes text log output to
+    /// Configures use of a <see cref="TextLogWriter" />, which writes text log output to
     /// any <see cref="TextWriter"/>.
     /// </summary>
     public class TextWriterLogWriterConfig : TextLogWriterConfig
     {
 
         /// <summary>
-        /// Initializes a new config object that will create <see cref="TextWriterLogWriter" /> instances
+        /// Initializes a new config object that will create <see cref="TextLogWriter" /> instances
         /// that write to a <see cref="TextWriter" /> returned from <paramref name="createTextWriterFunc" />.
         /// </summary>
         /// <param name="createTextWriterFunc">
@@ -41,7 +41,7 @@ namespace LogJam.Config
         }
 
         /// <summary>
-        /// Initializes a new config object that will create <see cref="TextWriterLogWriter" /> instances
+        /// Initializes a new config object that will create <see cref="TextLogWriter" /> instances
         /// that write to <paramref name="textWriter" />.
         /// </summary>
         /// <param name="textWriter"></param>

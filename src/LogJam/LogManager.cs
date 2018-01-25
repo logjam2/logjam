@@ -1,180 +1,64 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="LogManager.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2. 
+// Copyright (c) 2011-2018 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
 
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+
+using LogJam.Config;
+using LogJam.Config.Initializer;
+using LogJam.Internal;
+using LogJam.Shared.Internal;
+using LogJam.Trace;
+using LogJam.Util;
+using LogJam.Writer;
+
 namespace LogJam
 {
-    using System;
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading;
-
-    using LogJam.Config;
-    using LogJam.Config.Initializer;
-    using LogJam.Internal;
-    using LogJam.Shared.Internal;
-    using LogJam.Trace;
-    using LogJam.Util;
-    using LogJam.Writer;
-
 
     /// <summary>
     /// Manager object that manages all <see cref="ILogWriter" />s and their configuration.
     /// </summary>
     public sealed class LogManager : BaseLogJamManager
     {
+
         #region Static fields
 
-        private static LogManager s_instance;
+        private static readonly Lazy<LogManager> s_instance = new Lazy<LogManager>(() => new LogManager());
 
         #endregion
 
         #region Static properties
 
         /// <summary>
-        /// Sets or gets an AppDomain-global <see cref="LogManager" />.
+        /// Returns an AppDomain-global <see cref="LogManager" />.
         /// </summary>
-        public static LogManager Instance
-        {
-            get
-            {
-                if (s_instance != null)
-                {
-                    return s_instance;
-                }
-
-                Interlocked.CompareExchange(ref s_instance, new LogManager(), null);
-                return s_instance;
-            }
-            internal set
-            {
-                var previousInstance = Interlocked.Exchange(ref s_instance, value);
-                if (previousInstance != null)
-                {
-                    previousInstance.Stop();
-                }
-            }
-        }
-
-        #endregion
-
-        #region Instance fields
-
-        /// <summary>
-        /// An internal <see cref="ITracerFactory" />, which is used only for tracing LogJam operations.
-        /// </summary>
-        private readonly ITracerFactory _setupTracerFactory;
-
-        private readonly LogManagerConfig _config;
-
-        private readonly List<BackgroundMultiLogWriter> _backgroundMultiLogWriters;
-
-        private readonly Dictionary<ILogWriterConfig, ILogWriter> _logWriters;
-
-        // Cached set of TEntry => IEntryWriter<TEntry> | null ; Cleared when log manager is started or stopped.
-        private readonly ConcurrentDictionary<Type, object> _cachedEntryWriters;
-
-        #endregion
-
-        #region Constructors and Destructors
-
-        /// <summary>
-        /// Creates a new <see cref="LogManager" /> instance using an empty initial configuration.
-        /// </summary>
-        public LogManager()
-            : this(new LogManagerConfig())
-        {}
-
-        /// <summary>
-        /// Creates a new <see cref="LogManager" /> instance using the specified <paramref name="logManagerConfig" /> for
-        /// configuration, and an optional <paramref name="setupTracerFactory" /> for logging LogJam setup and internal operations.
-        /// </summary>
-        /// <param name="logManagerConfig">
-        /// The <see cref="LogManagerConfig" /> that describes how this <see cref="LogManager" />
-        /// should be setup.
-        /// </param>
-        /// <param name="setupTracerFactory">The <see cref="ITracerFactory" /> to use for tracking internal operations.</param>
-        public LogManager(LogManagerConfig logManagerConfig, ITracerFactory setupTracerFactory = null)
-        {
-            Arg.NotNull(logManagerConfig, nameof(logManagerConfig));
-
-            _setupTracerFactory = setupTracerFactory ?? new SetupLog();
-            _config = logManagerConfig;
-            _backgroundMultiLogWriters = new List<BackgroundMultiLogWriter>();
-            _logWriters = new Dictionary<ILogWriterConfig, ILogWriter>();
-            _cachedEntryWriters = new ConcurrentDictionary<Type, object>();
-        }
-
-        /// <summary>
-        /// Creates a new <see cref="LogManager" /> instance using the specified <paramref name="logWriterConfigs" /> to configure
-        /// logging.
-        /// </summary>
-        /// <param name="logWriterConfigs">
-        /// A set of 1 or more <see cref="ILogWriterConfig" /> instances to use to configure log
-        /// writers.
-        /// </param>
-        public LogManager(params ILogWriterConfig[] logWriterConfigs)
-            : this(new LogManagerConfig(logWriterConfigs))
-        {}
-
-        /// <summary>
-        /// Creates a new <see cref="LogManager" /> instance using the specified <paramref name="logWriters" />.
-        /// </summary>
-        /// <param name="logWriters">
-        /// A set of 1 or more <see cref="ILogWriter" /> instances to include in the
-        /// <see cref="LogManager" />.
-        /// </param>
-        public LogManager(params ILogWriter[] logWriters)
-            : this(logWriters.Select(logWriter => (ILogWriterConfig) new UseExistingLogWriterConfig(logWriter)).ToArray())
-        {
-            Arg.NoneNull(logWriters, nameof(logWriters));
-
-            // Get the first SetupLog from the passed in logwriters
-            var setupTracerFactory = GetSetupTracerFactoryForComponents(logWriters.OfType<ILogJamComponent>());
-            _setupTracerFactory = setupTracerFactory ?? _setupTracerFactory ?? new SetupLog();
-        }
-
-        ~LogManager()
-        {
-            if (! IsDisposed)
-            {
-                var tracer = SetupTracerFactory?.TracerFor(this);
-                tracer?.Error("In finalizer (~LogManager) - forgot to Dispose()?");
-                Dispose(false);
-            }
-        }
+        public static LogManager Instance => s_instance.Value;
 
         #endregion
 
         /// <summary>
         /// The <see cref="LogManagerConfig" /> used to configure this <c>LogManager</c>.
         /// </summary>
-        public LogManagerConfig Config
-        {
-            get { return _config; }
-        }
+        public LogManagerConfig Config { get { return _config; } }
 
-        public override ITracerFactory SetupTracerFactory
-        {
-            get { return _setupTracerFactory; }
-        }
+        public override ITracerFactory SetupTracerFactory { get { return _setupTracerFactory; } }
 
         /// <summary>
         /// Returns the collection of <see cref="TraceEntry" />s logged through <see cref="SetupTracerFactory" />.
         /// </summary>
-        public override IEnumerable<TraceEntry> SetupLog
-        {
-            get { return _setupTracerFactory as IEnumerable<TraceEntry> ?? Enumerable.Empty<TraceEntry>(); }
-        }
+        public override IEnumerable<TraceEntry> SetupLog { get { return _setupTracerFactory as IEnumerable<TraceEntry> ?? Enumerable.Empty<TraceEntry>(); } }
 
         /// <summary>
-        /// Checks whether this <see cref="LogManager"/> should be restarted to pick up any config changes.
+        /// Checks whether this <see cref="LogManager" /> should be restarted to pick up any config changes.
         /// </summary>
         /// <returns></returns>
         internal bool IsRestartNeeded()
@@ -183,13 +67,13 @@ namespace LogJam
         }
 
         /// <summary>
-        /// Adds a <see cref="BackgroundMultiLogWriter"/> so a reference is maintained (to keep it alive), and so
+        /// Adds a <see cref="BackgroundMultiLogWriter" /> so a reference is maintained (to keep it alive), and so
         /// it can be stopped when the <c>LogManager</c> is stopped.
         /// </summary>
         /// <param name="backgroundMultiLogWriter"></param>
         internal void AddBackgroundMultiLogWriter(BackgroundMultiLogWriter backgroundMultiLogWriter)
         {
-            Contract.Requires<ArgumentNullException>(backgroundMultiLogWriter != null);
+            Arg.NotNull(backgroundMultiLogWriter, nameof(backgroundMultiLogWriter));
             _backgroundMultiLogWriters.Add(backgroundMultiLogWriter);
         }
 
@@ -305,16 +189,15 @@ namespace LogJam
         /// <typeparamref name="TEntry" />. May return an empty enumerable.
         /// </returns>
         /// <remarks>Even if Start() wasn't 100% successful, we still return any logwriters that were successfully started.</remarks>
-        public IEnumerable<IEntryWriter<TEntry>> GetEntryWriters<TEntry>() where TEntry : ILogEntry
+        public IEnumerable<IEntryWriter<TEntry>> GetEntryWriters<TEntry>()
+            where TEntry : ILogEntry
         {
             // Even if Start() wasn't 100% successful, we still return any logwriters that are available.
             EnsureAutoStarted();
 
             // If the config has changed since starting, restart
             if (IsRestartNeeded())
-            {
                 Start();
-            }
 
             lock (this)
             {
@@ -333,7 +216,8 @@ namespace LogJam
         /// A single <see cref="IEntryWriter{TEntry}" /> that writes to all successfully started
         /// <see cref="IEntryWriter{TEntry}" />s that are type-compatible with <typeparamref name="TEntry" />.
         /// </returns>
-        public bool TryGetEntryWriter<TEntry>(out IEntryWriter<TEntry> entryWriter) where TEntry : ILogEntry
+        public bool TryGetEntryWriter<TEntry>(out IEntryWriter<TEntry> entryWriter)
+            where TEntry : ILogEntry
         {
             if (_cachedEntryWriters.TryGetValue(typeof(TEntry), out object entryWriterObject))
             {
@@ -345,17 +229,11 @@ namespace LogJam
                 // Cache miss
                 IEntryWriter<TEntry>[] entryWriters = GetEntryWriters<TEntry>().ToArray();
                 if (entryWriters.Length == 1)
-                {
                     entryWriter = entryWriters[0];
-                }
                 else if (entryWriters.Length == 0)
-                {
                     entryWriter = null;
-                }
                 else
-                {
                     entryWriter = new FanOutEntryWriter<TEntry>(entryWriters);
-                }
                 _cachedEntryWriters.TryAdd(typeof(TEntry), entryWriter);
             }
 
@@ -371,7 +249,8 @@ namespace LogJam
         /// A single <see cref="IEntryWriter{TEntry}" /> that writes to all successfully started
         /// <see cref="IEntryWriter{TEntry}" />s that are type-compatible with <typeparamref name="TEntry" />.
         /// </returns>
-        public IEntryWriter<TEntry> GetEntryWriter<TEntry>() where TEntry : ILogEntry
+        public IEntryWriter<TEntry> GetEntryWriter<TEntry>()
+            where TEntry : ILogEntry
         {
             TryGetEntryWriter(out IEntryWriter<TEntry> entryWriter);
             return entryWriter ?? new NoOpEntryWriter<TEntry>();
@@ -414,9 +293,7 @@ namespace LogJam
             Arg.NotNull(logWriterConfig, nameof(logWriterConfig));
 
             if (! TryGetLogWriter(logWriterConfig, out var logWriter))
-            {
                 throw new KeyNotFoundException("LogManager does not contain logWriterConfig: " + logWriterConfig);
-            }
             return logWriter;
         }
 
@@ -440,7 +317,8 @@ namespace LogJam
         /// This method throws exceptions if the call is invalid, but
         /// does not throw an exception if the returned logwriter failed to start.
         /// </remarks>
-        public IEntryWriter<TEntry> GetEntryWriter<TEntry>(ILogWriterConfig logWriterConfig) where TEntry : ILogEntry
+        public IEntryWriter<TEntry> GetEntryWriter<TEntry>(ILogWriterConfig logWriterConfig)
+            where TEntry : ILogEntry
         {
             Arg.NotNull(logWriterConfig, nameof(logWriterConfig));
 
@@ -461,8 +339,97 @@ namespace LogJam
                             logWriterConfig);
                 return new NoOpEntryWriter<TEntry>();
             }
+
             return entryWriter;
         }
+
+        #region Instance fields
+
+        /// <summary>
+        /// An internal <see cref="ITracerFactory" />, which is used only for tracing LogJam operations.
+        /// </summary>
+        private readonly ITracerFactory _setupTracerFactory;
+
+        private readonly LogManagerConfig _config;
+
+        private readonly List<BackgroundMultiLogWriter> _backgroundMultiLogWriters;
+
+        private readonly Dictionary<ILogWriterConfig, ILogWriter> _logWriters;
+
+        // Cached set of TEntry => IEntryWriter<TEntry> | null ; Cleared when log manager is started or stopped.
+        private readonly ConcurrentDictionary<Type, object> _cachedEntryWriters;
+
+        #endregion
+
+        #region Constructors and Destructors
+
+        /// <summary>
+        /// Creates a new <see cref="LogManager" /> instance using an empty initial configuration.
+        /// </summary>
+        public LogManager()
+            : this(new LogManagerConfig())
+        { }
+
+        /// <summary>
+        /// Creates a new <see cref="LogManager" /> instance using the specified <paramref name="logManagerConfig" /> for
+        /// configuration, and an optional <paramref name="setupTracerFactory" /> for logging LogJam setup and internal operations.
+        /// </summary>
+        /// <param name="logManagerConfig">
+        /// The <see cref="LogManagerConfig" /> that describes how this <see cref="LogManager" />
+        /// should be setup.
+        /// </param>
+        /// <param name="setupTracerFactory">The <see cref="ITracerFactory" /> to use for tracking internal operations.</param>
+        public LogManager(LogManagerConfig logManagerConfig, ITracerFactory setupTracerFactory = null)
+        {
+            Arg.NotNull(logManagerConfig, nameof(logManagerConfig));
+
+            _setupTracerFactory = setupTracerFactory ?? new SetupLog();
+            _config = logManagerConfig;
+            _backgroundMultiLogWriters = new List<BackgroundMultiLogWriter>();
+            _logWriters = new Dictionary<ILogWriterConfig, ILogWriter>();
+            _cachedEntryWriters = new ConcurrentDictionary<Type, object>();
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="LogManager" /> instance using the specified <paramref name="logWriterConfigs" /> to configure
+        /// logging.
+        /// </summary>
+        /// <param name="logWriterConfigs">
+        /// A set of 1 or more <see cref="ILogWriterConfig" /> instances to use to configure log
+        /// writers.
+        /// </param>
+        public LogManager(params ILogWriterConfig[] logWriterConfigs)
+            : this(new LogManagerConfig(logWriterConfigs))
+        { }
+
+        /// <summary>
+        /// Creates a new <see cref="LogManager" /> instance using the specified <paramref name="logWriters" />.
+        /// </summary>
+        /// <param name="logWriters">
+        /// A set of 1 or more <see cref="ILogWriter" /> instances to include in the
+        /// <see cref="LogManager" />.
+        /// </param>
+        public LogManager(params ILogWriter[] logWriters)
+            : this(logWriters.Select(logWriter => (ILogWriterConfig) new UseExistingLogWriterConfig(logWriter)).ToArray())
+        {
+            Arg.NoneNull(logWriters, nameof(logWriters));
+
+            // Get the first SetupLog from the passed in logwriters
+            var setupTracerFactory = GetSetupTracerFactoryForComponents(logWriters.OfType<ILogJamComponent>());
+            _setupTracerFactory = setupTracerFactory ?? _setupTracerFactory ?? new SetupLog();
+        }
+
+        ~LogManager()
+        {
+            if (! IsDisposed)
+            {
+                var tracer = SetupTracerFactory?.TracerFor(this);
+                tracer?.Error("In finalizer (~LogManager) - forgot to Dispose()?");
+                Dispose(false);
+            }
+        }
+
+        #endregion
 
     }
 

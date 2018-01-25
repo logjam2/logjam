@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TracerTests.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -6,6 +6,8 @@
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
+
+using System.Diagnostics;
 
 namespace LogJam.UnitTests.Trace
 {
@@ -29,6 +31,7 @@ namespace LogJam.UnitTests.Trace
     /// <summary>
     /// Verifies that <see cref="Tracer" /> behaves as expected.
     /// </summary>
+    [Collection(nameof(GlobalAccessTestCollection))]
     public sealed class TracerTests
     {
 
@@ -83,8 +86,6 @@ namespace LogJam.UnitTests.Trace
         [Theory]
         [InlineData(ConfigForm.Fluent)]
         [InlineData(ConfigForm.ObjectGraph)]
-        [InlineData(ConfigForm.Fluent)]
-        [InlineData(ConfigForm.ObjectGraph)]
         public void UnitTestTracingWithGlobalTraceManager(ConfigForm configForm)
         {
             // In a real app you probably don't have to reset the LogManager + TraceManager before configuring
@@ -100,7 +101,9 @@ namespace LogJam.UnitTests.Trace
             }
             else
             {   // If no debugger is attached, default config is no logging.
+                _testOutputHelper.WriteLine("LogManager Writers should be empty, size: " + LogManager.Instance.Config.Writers.Count);
                 Assert.Empty(LogManager.Instance.Config.Writers);
+                _testOutputHelper.WriteLine("TraceManager Writers should be empty, size: " + TraceManager.Instance.Config.Writers.Count);
                 Assert.Empty(TraceManager.Instance.Config.Writers);
             }
 

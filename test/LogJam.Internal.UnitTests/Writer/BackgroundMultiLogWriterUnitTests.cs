@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="BackgroundMultiLogWriterUnitTests.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -321,6 +321,7 @@ namespace LogJam.Internal.UnitTests.Writer
             var innerLogWriter = new ExceptionThrowingLogWriter<MessageEntry>(SetupLog);
             var backgroundMultiLogWriter = new BackgroundMultiLogWriter(SetupLog);
             ILogWriter logWriter = backgroundMultiLogWriter.CreateProxyFor(innerLogWriter);
+            backgroundMultiLogWriter.Start();
             Assert.True(logWriter.TryGetEntryWriter(out IEntryWriter<MessageEntry> entryWriter));
 
             using (backgroundMultiLogWriter)

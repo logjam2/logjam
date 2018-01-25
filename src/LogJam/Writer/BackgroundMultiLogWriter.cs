@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="BackgroundMultiLogWriter.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -6,6 +6,8 @@
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
+
+using System.Linq;
 
 namespace LogJam.Writer
 {
@@ -95,32 +97,32 @@ namespace LogJam.Writer
             Dispose(false);
         }
 
-        /// <summary>
-        /// Creates and returns a proxy <see cref="IEntryWriter{TEntry}" /> that is synchronized,
-        /// and that implements blocking queue functionality for background logging.
-        /// </summary>
-        /// <typeparam name="TEntry">The log entry type.</typeparam>
-        /// <param name="innerEntryWriter">A <see cref="IEntryWriter{TEntry}" /> that is written to in a background thread.</param>
-        /// <param name="maxQueueLength">
-        /// The max length for the queue. If more than this number of log entries is queued, the
-        /// writer will block.
-        /// </param>
-        /// <returns></returns>
-        private IQueueEntryWriter<TEntry> CreateProxyFor<TEntry>(IEntryWriter<TEntry> innerEntryWriter, int maxQueueLength = DefaultMaxQueueLength)
-            where TEntry : ILogEntry
-        {
-            Arg.DebugNotNull(innerEntryWriter, nameof(innerEntryWriter));
-            Arg.InRange(maxQueueLength, 0, int.MaxValue, nameof(maxQueueLength));
+        ///// <summary>
+        ///// Creates and returns a proxy <see cref="IEntryWriter{TEntry}" /> that is synchronized,
+        ///// and that implements blocking queue functionality for background logging.
+        ///// </summary>
+        ///// <typeparam name="TEntry">The log entry type.</typeparam>
+        ///// <param name="innerEntryWriter">A <see cref="IEntryWriter{TEntry}" /> that is written to in a background thread.</param>
+        ///// <param name="maxQueueLength">
+        ///// The max length for the queue. If more than this number of log entries is queued, the
+        ///// writer will block.
+        ///// </param>
+        ///// <returns></returns>
+        //private IQueueEntryWriter<TEntry> CreateProxyFor<TEntry>(IEntryWriter<TEntry> innerEntryWriter, int maxQueueLength = DefaultMaxQueueLength)
+        //    where TEntry : ILogEntry
+        //{
+        //    Arg.DebugNotNull(innerEntryWriter, nameof(innerEntryWriter));
+        //    Arg.InRange(maxQueueLength, 0, int.MaxValue, nameof(maxQueueLength));
 
-            lock (this)
-            {
-                EnsureNotDisposed();
-                OperationNotSupportedWhenStarted("CreateProxyFor(IEntryWriter<TEntry>)");
+        //    lock (this)
+        //    {
+        //        EnsureNotDisposed();
+        //        OperationNotSupportedAfterStarting("CreateProxyFor(IEntryWriter<TEntry>)");
 
-                var proxyLogWriter = CreateBlockingQueueLogWriter(innerEntryWriter, maxQueueLength);
-                return proxyLogWriter;
-            }
-        }
+        //        var proxyLogWriter = CreateBlockingQueueLogWriter(innerEntryWriter, maxQueueLength);
+        //        return proxyLogWriter;
+        //    }
+        //}
 
         public ILogWriter CreateProxyFor(ILogWriter innerLogWriter, int maxQueueLength = DefaultMaxQueueLength)
         {
@@ -188,19 +190,18 @@ namespace LogJam.Writer
 
         #region IStartable
 
+        public override void Start()
+        {
+            EnsureNotDisposed();
+            base.Start();
+        }
+
         protected override void InternalStart()
         {
-            lock (this)
-            {
-                if (_backgroundTask == null)
-                {
-                    _backgroundTask = new BackgroundTask(_setupTracerFactory, _backgroundActionQueue);
-                }
-            }
+            Interlocked.CompareExchange(ref _backgroundTask, new BackgroundTask(_setupTracerFactory, _priorityActionQueue, _backgroundActionQueue), null);
 
-            _backgroundThread.SafeStart(_setupTracerFactory);
+            _backgroundTask.SafeStart(_setupTracerFactory);
             _proxyLogWriters.SafeStart(_setupTracerFactory);
-            _proxyEntryWriters.SafeStart(_setupTracerFactory);
             _backgroundTask.Start();
         }
 
@@ -208,12 +209,11 @@ namespace LogJam.Writer
         {
             lock (this)
             {
-                var backgroundThread = _backgroundTask;
-                if (backgroundThread != null)
+                var backgroundTask = _backgroundTask;
+                if (backgroundTask != null)
                 {
                     _proxyLogWriters.SafeStop(_setupTracerFactory);
-                    _proxyEntryWriters.SafeStop(_setupTracerFactory);
-                    backgroundThread.Stop();
+                    backgroundTask.Stop();
                 }
             }
         }
@@ -230,7 +230,7 @@ namespace LogJam.Writer
         {
             lock (this)
             {
-                if (IsDisposed)
+                if (this.IsDisposed())
                 {
                     return;
                 }
@@ -243,9 +243,12 @@ namespace LogJam.Writer
                 var backgroundTask = _backgroundTask;
                 if (backgroundTask != null)
                 {
-                    _proxyEntryWriters.SafeStop(_setupTracerFactory);
-                    _proxyEntryWriters.SafeDispose(_setupTracerFactory);
-                    _backgroundActionQueue.Enqueue(() => _proxyEntryWriters.Clear());
+                    _proxyLogWriters.SafeStop(_setupTracerFactory);
+                    _backgroundActionQueue.Enqueue(() =>
+                                                   {
+                                                       _proxyLogWriters.SafeDispose(_setupTracerFactory);
+                                                       _proxyLogWriters.Clear();
+                                                   });
     
                     backgroundTask.Stop();
                     _backgroundTask = null;
@@ -257,14 +260,6 @@ namespace LogJam.Writer
             {
                 State = StartableState.FailedToStop;
                 throw;
-            }
-        }
-
-        private void EnsureNotDisposed()
-        {
-            if (IsDisposed)
-            {
-                throw new ObjectDisposedException(this.ToString());
             }
         }
 
@@ -282,6 +277,41 @@ namespace LogJam.Writer
         /// </summary>
         internal bool IsBackgroundThreadRunning { get { return _backgroundTask != null && _backgroundTask.IsTaskRunning; } }
 
+        /// <summary>
+        /// Standard initializer to create a <see cref="BackgroundMultiLogWriter"/> if <see cref="ILogWriterConfig.BackgroundLogging"/> is <c>true</c>.
+        /// </summary>
+        /// <remarks>
+        /// This initializer is included in <see cref="LogManagerConfig.Initializers"/> by default.
+        /// </remarks>
+        public sealed class Initializer : IExtendLogWriterPipeline
+        {
+
+            public ILogWriter InitializeLogWriter(ITracerFactory setupTracerFactory, ILogWriter logWriter, DependencyDictionary dependencyDictionary)
+            {
+                var logWriterConfig = dependencyDictionary.Get<ILogWriterConfig>();
+                if (logWriterConfig.BackgroundLogging)
+                {
+                    // Add a background logging proxy
+                    var logManager = dependencyDictionary.Get<LogManager>();
+
+                    var backgroundMultiLogWriter = new BackgroundMultiLogWriter(setupTracerFactory);
+                    logManager.AddBackgroundMultiLogWriter(backgroundMultiLogWriter);
+                    var backgroundLogWriter = backgroundMultiLogWriter.CreateProxyFor(logWriter);
+                    setupTracerFactory.TracerFor(this).Verbose("Adding background logging proxy in front of {0}", logWriter);
+
+                    // Add an ISynchronizingLogWriter to the DependencyDictionary
+                    // Since a single queue/background thread is used, it's fine that a single ISynchronizingLogWriter is shared for the whole BackgroundMultiLogWriter.
+                    dependencyDictionary.AddIfNotDefined(typeof(ISynchronizingLogWriter), backgroundLogWriter);
+
+                    return backgroundLogWriter;
+                }
+                else
+                {
+                    return logWriter;
+                }
+            }
+
+        }
 
         /// <summary>
         /// The set of operations that are executed on the background thread. All these methods must be valid <see cref="Action"/>s.
@@ -325,8 +355,10 @@ namespace LogJam.Writer
                 : base(setupTracerFactory)
             {
                 Arg.DebugNotNull(innerLogWriter, nameof(innerLogWriter));
+                Arg.DebugNotNull(priorityActionQueue, nameof(priorityActionQueue));
                 Arg.DebugNotNull(backgroundActionQueue, nameof(backgroundActionQueue));
                 Arg.DebugNotNull(setupTracerFactory, nameof(setupTracerFactory));
+                Arg.InRange(maxQueueLength, 1, int.MaxValue, nameof(maxQueueLength));
 
                 _innerLogWriter = innerLogWriter;
                 _priorityActionQueue = priorityActionQueue;
@@ -351,10 +383,7 @@ namespace LogJam.Writer
                 {
                     case LogWriterActionPriority.Delay:
                         // Queueing the action on the ThreadPool causes a delay
-                        ThreadPool.QueueUserWorkItem(state =>
-                                                     {
-                                                         _backgroundActionQueue.Enqueue(action);
-                                                     });
+                        Task.Run(() => { _backgroundActionQueue.Enqueue(action); });
                         break;
 
                     case LogWriterActionPriority.Normal:
@@ -386,11 +415,15 @@ namespace LogJam.Writer
 
             protected override void InternalStart()
             {
-                if (_innerLogWriter is IStartable startableLogWriter)
+                // Start the _innerLogWriter in the current thread; that way its EntryWriters are available to create proxies immediately.
+                (_innerLogWriter as IStartable).SafeStart(SetupTracerFactory);
+
+                // Add EntryWriters to proxy the inner EntryWriters
+                foreach (var kvp in _innerLogWriter.EntryWriters)
                 {
                     Type entryWriterEntryType = kvp.Key;
                     object innerEntryWriter = kvp.Value;
-                    if (! EntryWriters.Any(existingKvp => existingKvp.Key == entryWriterEntryType))
+                    if (EntryWriters.All(existingKvp => existingKvp.Key != entryWriterEntryType))
                     {
                         // Create + add a new EntryWriter for the entry type
                         var entryTypeArgs = new Type[] { entryWriterEntryType };
@@ -450,8 +483,9 @@ namespace LogJam.Writer
                                               ITracerFactory setupTracerFactory)
             {
                 Arg.DebugNotNull(innerEntryWriter, nameof(innerEntryWriter));
-                Arg.DebugNotNull(parent, nameof(parent));
-                Arg.InRange(maxQueueLength, 0, Int32.MaxValue, nameof(maxQueueLength));
+                Arg.DebugNotNull(backgroundActionQueue, nameof(backgroundActionQueue));
+                Arg.DebugNotNull(slotsLeftInQueue, nameof(slotsLeftInQueue));
+                Arg.DebugNotNull(setupTracerFactory, nameof(setupTracerFactory));
 
                 _innerEntryWriter = innerEntryWriter;
                 _queue = new ConcurrentQueue<TEntry>();
@@ -541,7 +575,7 @@ namespace LogJam.Writer
             {
                 lock (this)
                 {
-                    if (IsDisposed)
+                    if (this.IsDisposed())
                     {
                         return;
                     }
@@ -577,7 +611,7 @@ namespace LogJam.Writer
             public void StartInnerWriter()
             {
                 if ((_innerEntryWriter is IStartable startableInnerLogWriter)
-                    && (! startableInnerLogWriter.IsStarted))
+                    && startableInnerLogWriter.IsReadyToStart)
                 {
                     // Start is delegated on the foreground thread
                     startableInnerLogWriter.SafeStart(_setupTracerFactory);
@@ -586,7 +620,7 @@ namespace LogJam.Writer
 
             public void DequeAndWriteEntry()
             {
-                bool success = TryDequeue(out var logEntry);
+                bool success = TryDequeue(out TEntry logEntry);
                 if (success)
                 {
                     _innerEntryWriter.Write(ref logEntry);
@@ -627,9 +661,10 @@ namespace LogJam.Writer
             // REVIEW: It's important that this object has NO reference to the parent BackgroundMultiLogWriter.
             // If there were a reference from this, it would never finalize.
 
-            public BackgroundTask(ITracerFactory setupTracerFactory, ConcurrentQueue<Action> backgroundActionQueue)
+            public BackgroundTask(ITracerFactory setupTracerFactory, ConcurrentQueue<Action> priorityActionQueue, ConcurrentQueue<Action> backgroundActionQueue)
             {
                 Arg.DebugNotNull(setupTracerFactory, nameof(setupTracerFactory));
+                Arg.DebugNotNull(priorityActionQueue, nameof(priorityActionQueue));
                 Arg.DebugNotNull(backgroundActionQueue, nameof(backgroundActionQueue));
 
                 _tracer = setupTracerFactory.TracerFor(this);
@@ -679,6 +714,9 @@ namespace LogJam.Writer
                 }
             }
 
+            /// <summary>
+            /// Stops this <see cref="BackgroundTask"/>, and waits for it to exit.
+            /// </summary>
             public void Stop()
             {
                 lock (this)
@@ -696,25 +734,7 @@ namespace LogJam.Writer
 
             #endregion
 
-            internal bool IsTaskRunning
-            {
-                get
-                {
-                    var task = _task;
-                    if (task == null)
-                    {
-                        return false;
-                    }
-                    else if ( task.Status == TaskStatus.Running)
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-            }
+            internal bool IsTaskRunning => _task?.Status == TaskStatus.Running;
 
             /// <summary>
             /// ThreadProc for the background thread. At any one time, there should be 0 or 1 background threads for each
@@ -729,7 +749,21 @@ namespace LogJam.Writer
                 SpinWait spinWait = new SpinWait();
                 while (true)
                 {
-                    if (_backgroundActionQueue.TryDequeue(out var action))
+                    Action action;
+                    if (_priorityActionQueue.TryDequeue(out action))
+                    {
+                        try
+                        {
+                            action();
+                        }
+                        catch (Exception excp)
+                        {
+                            _tracer.Error(excp, "Exception caught in background thread while executing priority Action.");
+                        }
+
+                        spinWait.Reset();
+                    }
+                    else if (_backgroundActionQueue.TryDequeue(out action))
                     {
                         try
                         {
@@ -754,6 +788,7 @@ namespace LogJam.Writer
                 }
 
                 _tracer.Info("Exiting background thread.");
+                _startableState = StartableState.Stopped;
                 _task = null;
             }
 

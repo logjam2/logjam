@@ -19,6 +19,9 @@ namespace LogJam.Config
     /// <summary>
     /// Configures a log writer that writes log output to the console, aka stdout.
     /// </summary>
+    /// <remarks>
+    /// All instances of <see cref="ConsoleLogWriterConfig"/> are equal, to prevent duplicate instances in <see cref="LogManagerConfig.Writers"/>.
+    /// </remarks>
     [JsonTypeHint("Target", "Console")]
     public sealed class ConsoleLogWriterConfig : TextLogWriterConfig
     {
@@ -64,6 +67,17 @@ namespace LogJam.Config
         {
             IConsoleColorResolver colorResolver = ColorResolverFactory?.Invoke();
             return new ConsoleFormatWriter(setupTracerFactory, colorResolver, FieldDelimiter, SpacesPerIndent);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is ConsoleLogWriterConfig;
+        }
+
+        public override int GetHashCode()
+        {
+            // All instances of this type have the same HashCode
+            return GetType().GetHashCode();
         }
 
     }

@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TreeNode.cs">
 // Copyright (c) 2011-2014 logjam.codeplex.com.  
 // </copyright>
@@ -18,7 +18,7 @@ namespace LogJam.Util.Collections
 
     /// <summary>
     /// A base class for an ordered tree structure containing homogeneous nodes of type <typeparamref name="T"/>.
-    /// The order of the tree structure is determined both by <see cref="WouldBeDescendent"/>, <see cref="Equals"/>, and <see cref="Compare"/>.
+    /// The order of the tree structure is determined both by <see cref="WouldBeDescendent"/>, <c>Equals</c>, and <see cref="Compare"/>.
     /// Children are maintained in sorted order using <see cref="Compare"/>. In addition, each tree node is
     /// placed in a depth of the tree such that its parent returns <c>true</c> from <see cref="WouldBeDescendent"/> when passed the node, the node's
     /// <see cref="WouldBeDescendent"/> returns <c>true</c> when passed all it's children.
@@ -83,7 +83,7 @@ namespace LogJam.Util.Collections
         /// <summary>
         /// Specifies whether <paramref name="node"/> should be a descendent or ancestor of this when added to the tree.
         /// </summary>
-        /// <param name="node">A <see cref="TreeNode"/> to compare to <c>this</c>.</param>
+        /// <param name="node">A <see cref="TreeNode{T}"/> to compare to <c>this</c>.</param>
         /// <returns><c>true</c> if <paramref name="node"/> would be a descendent of <c>this</c> when
         /// added to the tree. Returns <c>false</c> if <paramref name="node"/> would be an ancestor or sibling when added to the tree.
         /// If <c>node</c> equals <c>this</c>, <c>false</c> should be returned.
@@ -94,7 +94,7 @@ namespace LogJam.Util.Collections
         /// Determines the correct position of <paramref name="node"/> within the tree, and inserts it there.
         /// </summary>
         /// <param name="node">The <see cref="TreeNode{T}"/> to insert.</param>
-        /// <returns>The root of the tree after inserting <param name="node"/>.</returns>
+        /// <returns>The root of the tree after inserting <paramref name="node"/>.</returns>
         public T InsertNode(T node)
         {
             Arg.NotNull(node, nameof(node));

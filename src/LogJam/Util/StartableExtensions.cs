@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="StartableExtensions.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -23,7 +23,7 @@ namespace LogJam.Util
     {
 
         /// <summary>
-        /// Starts <paramref name="startable"/>, reporting any errors to <paramref cref="tracer"/>.
+        /// Starts <paramref name="startable"/>, reporting any errors to <paramref name="tracer"/>.
         /// </summary>
         /// <param name="startable"></param>
         /// <param name="tracer"></param>
@@ -76,7 +76,7 @@ namespace LogJam.Util
         }
 
         /// <summary>
-        /// Starts <paramref name="startable"/>, reporting any errors to <paramref cref="tracerFactory"/>.
+        /// Starts <paramref name="startable"/>, reporting any errors to <paramref name="tracerFactory"/>.
         /// </summary>
         /// <param name="startable"></param>
         /// <param name="tracerFactory"></param>
@@ -95,11 +95,11 @@ namespace LogJam.Util
         }
 
         /// <summary>
-        /// Starts all objects in <paramref name="collection"/>, reporting any errors to <paramref cref="tracerFactory"/>.
+        /// Starts all objects in <paramref name="collection"/>, reporting any errors to <paramref name="tracerFactory"/>.
         /// </summary>
         /// <param name="collection"></param>
         /// <param name="tracerFactory"></param>
-        /// <returns><c>true</c> if no elements in <see cref="collection"/> failed starting.</returns>
+        /// <returns><c>true</c> if no elements in <paramref name="collection"/> failed starting.</returns>
         internal static bool SafeStart(this IEnumerable collection, ITracerFactory tracerFactory)
         {
             Arg.NotNull(collection, nameof(collection));

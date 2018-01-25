@@ -1,18 +1,18 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ProxyEntryWriter.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2. 
+// Copyright (c) 2011-2018 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
 
+using System;
+
+using LogJam.Shared.Internal;
+
 namespace LogJam.Writer
 {
-    using System;
-
-    using LogJam.Shared.Internal;
-
 
     /// <summary>
     /// Base class for LogWriters that write each entry to a downstream <see cref="IEntryWriter{TEntry}" /> instance.
@@ -25,8 +25,9 @@ namespace LogJam.Writer
         where TEntry : ILogEntry
     {
 
-		private IEntryWriter<TEntry> _innerEntryWriter;
         private bool _disposed = false;
+
+        private IEntryWriter<TEntry> _innerEntryWriter;
 
         /// <summary>
         /// Creates a new <see cref="ProxyEntryWriter{TEntry}" />.
@@ -39,35 +40,34 @@ namespace LogJam.Writer
             _innerEntryWriter = innerEntryWriter;
         }
 
+        /// <summary>
+        /// Returns the inner <see cref="IEntryWriter{TEntry}" /> that this <c>ProxyEntryWriter</c>
+        /// forwards to.
+        /// </summary>
+        public IEntryWriter<TEntry> InnerEntryWriter
+        {
+            get { return _innerEntryWriter; }
+            set
+            {
+                Arg.NotNull(value, nameof(InnerEntryWriter));
+
+                _innerEntryWriter = value;
+            }
+        }
+
         public virtual void Dispose()
         {
             if (! _disposed)
             {
                 if (_innerEntryWriter is IDisposable innerDisposable)
-                {
                     innerDisposable.Dispose();
-                }
                 _disposed = true;
             }
         }
 
-        /// <summary>
-        /// Returns the inner <see cref="IEntryWriter{TEntry}" /> that this <c>ProxyEntryWriter</c>
-        /// forwards to.
-        /// </summary>
-		public IEntryWriter<TEntry> InnerEntryWriter
-		{
-			get { return _innerEntryWriter; }
-			set
-			{
-				Contract.Requires<ArgumentNullException>(value != null);
-				_innerEntryWriter = value;
-			}
-		}
+        public virtual bool IsEnabled { get { return ! _disposed && InnerEntryWriter.IsEnabled; } }
 
-		public virtual bool IsEnabled { get { return ! _disposed && InnerEntryWriter.IsEnabled; } }
-
-		public Type LogEntryType { get { return typeof(TEntry); } }
+        public Type LogEntryType { get { return typeof(TEntry); } }
 
         public virtual void Write(ref TEntry entry)
         {

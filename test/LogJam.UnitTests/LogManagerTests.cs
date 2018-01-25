@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="LogManagerTests.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -192,7 +192,7 @@ namespace LogJam.UnitTests
             Assert.NotNull(entryWriter);
 
             logManager.Stop();
-            logManager.Config.Clear();
+            logManager.Config.Reset();
 
             // Stopped, no active entrywriters
             Assert.False(logManager.TryGetEntryWriter<TraceEntry>(out entryWriter));

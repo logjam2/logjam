@@ -7,10 +7,11 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
+using LogJam.Shared.Internal;
+
 namespace LogJam.Config
 {
     using System;
-    using System.Diagnostics.Contracts;
     using System.IO;
 
 
@@ -38,7 +39,7 @@ namespace LogJam.Config
         /// <summary>
         /// The default directory function, used if both <see cref="Directory"/> and <see cref="DirectoryFunc"/> are not set.
         /// </summary>
-        public static readonly Func<string> DefaultDirectoryFunc = () => Environment.CurrentDirectory;
+        public static readonly Func<string> DefaultDirectoryFunc = System.IO.Directory.GetCurrentDirectory;
 
         /// <summary>
         /// Gets or sets the directory containing the log file.
@@ -51,7 +52,8 @@ namespace LogJam.Config
             }
             set
             {
-                Contract.Requires<ArgumentException>(! string.IsNullOrWhiteSpace(value));
+                Arg.NotNullOrWhitespace(value, nameof(Directory));
+
                 DirectoryFunc = () => value;
             }
         }
@@ -73,7 +75,8 @@ namespace LogJam.Config
             }
             set
             {
-                Contract.Requires<ArgumentException>(! string.IsNullOrWhiteSpace(value));
+                Arg.NotNullOrWhitespace(value, nameof(Filename));
+
                 FilenameFunc = () => value;
             }
         }

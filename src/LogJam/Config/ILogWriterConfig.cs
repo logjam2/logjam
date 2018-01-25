@@ -6,17 +6,18 @@
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+#if CODECONTRACTS
+    using System.Diagnostics.Contracts;
+#endif
+using LogJam.Config.Initializer;
+using LogJam.Trace;
+using LogJam.Writer;
+
 
 namespace LogJam.Config
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics.Contracts;
-
-    using LogJam.Config.Initializer;
-    using LogJam.Trace;
-    using LogJam.Writer;
-
 
     /// <summary>
     /// Base interface for types that configure <see cref="ILogWriter" />s. An <see cref="ILogWriterConfig" />
@@ -29,7 +30,9 @@ namespace LogJam.Config
     /// values stored
     /// in a set or dictionary.
     /// </remarks>
+#if CODECONTRACTS
     [ContractClass(typeof(LogWriterConfigContract))]
+#endif
     public interface ILogWriterConfig
     {
 
@@ -70,7 +73,7 @@ namespace LogJam.Config
 
     }
 
-
+#if CODECONTRACTS
     [ContractClassFor(typeof(ILogWriterConfig))]
     internal abstract class LogWriterConfigContract : ILogWriterConfig
     {
@@ -97,4 +100,6 @@ namespace LogJam.Config
         }
 
     }
+#endif
+
 }

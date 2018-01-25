@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="IProxyLogWriter.cs">
 // Copyright (c) 2011-2015 https://github.com/logjam2.  
 // </copyright>
@@ -31,6 +31,7 @@ namespace LogJam.Writer
         /// <param name="setupTracerFactory">The <see cref="ITracerFactory" /> tracing setup operations.</param>
         /// <param name="innerLogWriter">The inner <see cref="ILogWriter" /> to delegate to. Must not be <c>null</c>.</param>
         protected ProxyLogWriter(ITracerFactory setupTracerFactory, ILogWriter innerLogWriter)
+        : base(setupTracerFactory)
         {
             Arg.NotNull(setupTracerFactory, nameof(setupTracerFactory));
             Arg.NotNull(innerLogWriter, nameof(innerLogWriter));
@@ -51,8 +52,9 @@ namespace LogJam.Writer
 			get { return _innerLogWriter; }
 			protected set
 			{
-				Contract.Requires<ArgumentNullException>(value != null);
-				_innerLogWriter = value;
+                Arg.NotNull(value, nameof(InnerLogWriter));
+
+			    _innerLogWriter = value;
 			}
 		}
 
@@ -77,28 +79,19 @@ namespace LogJam.Writer
 			(InnerLogWriter as IStartable).SafeStop(SetupTracerFactory);
 		}
 
-		#endregion
-		#region IDisposable
+        #endregion
+        #region IDisposable
 
-        public virtual void Dispose()
-        {
-            if (! _disposed)
-            {
-                if (_innerLogWriter is IDisposable innerDisposable)
-                {
-                    innerDisposable.Dispose();
-                }
-                _disposed = true;
-            }
+	    protected override void Dispose(bool disposing)
+	    {
+	        if (_innerLogWriter is IDisposable innerDisposable)
+	        {
+	            innerDisposable.Dispose();
+	        }
         }
 
-        #endregion
+	    #endregion
 
-        #region ILogJamComponent
-
-        public ITracerFactory SetupTracerFactory { get { return _setupTracerFactory; } }
-
-		#endregion
 	}
 
 }

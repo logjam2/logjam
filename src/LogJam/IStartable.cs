@@ -48,12 +48,6 @@ namespace LogJam
         /// </summary>
         bool IsReadyToStart { get; }
 
-        /// <summary>
-        /// Returns <c>true</c> when the object has been successfully <see cref="Start"/>ed, and has not yet been <see cref="Stop"/>ped.
-        /// </summary>
-        [Obsolete("Deprecated, too vague - use IStartable.State instead.")]
-        bool IsStarted { get; }
-
     }
 
 }

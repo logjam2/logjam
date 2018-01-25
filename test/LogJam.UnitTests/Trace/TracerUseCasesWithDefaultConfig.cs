@@ -19,6 +19,7 @@ namespace LogJam.UnitTests.Trace
     /// <summary>
     /// Exercise common <see cref="Tracer" /> use-cases using default configuration.
     /// </summary>
+    [Collection(nameof(GlobalAccessTestCollection))]
     public class TracerUseCasesWithDefaultConfig
     {
         #region Fields

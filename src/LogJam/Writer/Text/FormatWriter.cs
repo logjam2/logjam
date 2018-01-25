@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="FormatWriter.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -34,7 +34,7 @@ namespace LogJam.Writer.Text
     /// <c>FormatWriter</c> is <u>not</u> threadsafe. It assumes that writes are synchronized at a higher level (typically
     /// using a synchronizing logwriter like <see cref="SynchronizingProxyLogWriter"/> or <see cref="BackgroundMultiLogWriter"/>),
     /// so that the last entry is completely formatted/written before the next entry starts.
-    /// <see cref="BeginEntry" /> and <see cref="EndEntry" /> provide basic checks for this assertion.
+    /// <see cref="BeginEntry()" /> and <see cref="EndEntry" /> provide basic checks for this assertion.
     /// </remarks>
     public abstract class FormatWriter : Startable, IDisposable
     {

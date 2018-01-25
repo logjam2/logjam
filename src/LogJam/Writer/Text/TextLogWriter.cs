@@ -59,7 +59,7 @@ namespace LogJam.Writer.Text
         public bool AutoFlush { get; set; }
 
         /// <summary>
-        /// Adds the specified <typeparamref name="TEntry" /> to this <see cref="TextWriterLogWriter" />, using
+        /// Adds the specified <typeparamref name="TEntry" /> to this <see cref="TextLogWriter" />, using
         /// <paramref name="entryFormatter" /> to
         /// format entries of type <c>TEntry</c>.
         /// </summary>
@@ -85,7 +85,7 @@ namespace LogJam.Writer.Text
         }
 
         /// <summary>
-        /// Adds the specified <typeparamref name="TEntry" /> to this <see cref="TextWriterLogWriter" />, using
+        /// Adds the specified <typeparamref name="TEntry" /> to this <see cref="TextLogWriter" />, using
         /// <paramref name="formatAction" /> to
         /// format entries of type <c>TEntry</c>.
         /// </summary>

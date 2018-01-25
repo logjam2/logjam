@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="NamePrefixTreeNode.cs">
 // Copyright (c) 2011-2014 logjam.codeplex.com.  
 // </copyright>
@@ -35,7 +35,7 @@ namespace LogJam.Util.Collections
 		}
 
 		/// <summary>
-		/// Gets the name prefix for this <see cref="NamePrefixTreeNode"/> object. This node's <see cref="TreeNode{T}.Children"/> begin with this node's
+		/// Gets the name prefix for this <see cref="NamePrefixTreeNode{T}"/> object. This node's <see cref="TreeNode{T}.Children"/> begin with this node's
 		/// <c>NamePrefix</c>. This node's <c>NamePrefix</c> starts with its <see cref="TreeNode{T}.Parent"/> Tra
 		/// </summary>
 		/// <value>
@@ -117,7 +117,7 @@ namespace LogJam.Util.Collections
 		/// TODO The name.
 		/// </param>
 		/// <returns>
-		/// The <see cref="T"/>.
+		/// The <typeparamref name="T"/>.
 		/// </returns>
 		public T FindNearestParentOf(string name)
 		{

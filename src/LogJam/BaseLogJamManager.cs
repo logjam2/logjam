@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="BaseLogJamManager.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -43,12 +43,6 @@ namespace LogJam
         /// Returns the collection of <see cref="TraceEntry" />s logged through <see cref="SetupTracerFactory" />.
         /// </summary>
         public abstract IEnumerable<TraceEntry> SetupLog { get; }
-
-        /// <summary>
-        /// Returns <c>true</c> if <see cref="Start()"/> was called and succeeded.
-        /// </summary>
-        [Obsolete("Obsoleted in IStartable")]
-        public bool IsStarted { get { return _startableState == StartableState.Started; } }
 
         /// <summary>
         /// Returns <c>true</c> if <see cref="Stop"/> or <c>Dispose</c> has been called.
@@ -134,7 +128,7 @@ namespace LogJam
             // won't enter it until the first thread completes Start()ing.
             lock (this)
             {
-                var state = _startableState;
+                var state = State;
                 if (state >= StartableState.Disposing)
                 {
                     throw new ObjectDisposedException(this + " cannot be started; it has been Dispose()ed.");
@@ -144,21 +138,21 @@ namespace LogJam
                     throw new LogJamStartException(this + " cannot be started; state is: " + _startableState, this);
                 }
 
-                tracer.Debug("Starting " + this + "...");
-
                 try
                 {
-                    if (_startableState == StartableState.Started)
+                    if (StartableState.Started == State)
                     {
-                        _startableState = StartableState.Restarting;
+                        tracer.Debug("Restarting " + this + "...");
+                        State = StartableState.Restarting;
                     }
                     else
                     {
-                        _startableState = StartableState.Starting;
+                        tracer.Debug("Starting " + this + "...");
+                        State = StartableState.Starting;
                     }
 
                     InternalStart();
-                    _startableState = StartableState.Started;
+                    State = StartableState.Started;
                     _startException = null;
                     tracer.Info(this + " started.");
                 }
@@ -166,7 +160,7 @@ namespace LogJam
                 {
                     _startException = startException;
                     tracer.Severe(startException, "Start failed: Exception occurred.");
-                    _startableState = StartableState.FailedToStart;
+                    State = StartableState.FailedToStart;
                     if (startException is LogJamStartException)
                     {
                         throw;
@@ -186,13 +180,13 @@ namespace LogJam
         {
             lock (this)
             {
-                var state = _startableState;
+                var state = State;
                 if ((state >= StartableState.Stopping) || (state == StartableState.Unstarted))
                 {
                     return;
                 }
 
-                _startableState = StartableState.Stopping;
+                State = StartableState.Stopping;
             }
 
             var tracer = SetupTracerFactory.TracerFor(this);
@@ -287,7 +281,7 @@ namespace LogJam
         }
 
         /// <summary>
-        /// Registers <paramref name="objectToDispose" /> to also be disposed when <see cref="Dispose" /> is called.
+        /// Registers <paramref name="objectToDispose" /> to also be disposed when <see cref="Dispose()" /> is called.
         /// </summary>
         /// <param name="objectToDispose"></param>
         public void LinkDispose(object objectToDispose)
@@ -311,7 +305,7 @@ namespace LogJam
                 Stop();
 
                 // Protect against recursion (eg linked disposables could create a cycle)
-                _startableState = StartableState.Disposing;
+                State = StartableState.Disposing;
 
                 if (disposing)
                 {
@@ -335,7 +329,7 @@ namespace LogJam
                     }
                     _linkedDisposables.Clear();
                 }
-                _startableState = StartableState.Disposed;
+                State = StartableState.Disposed;
             }
         }
 

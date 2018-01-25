@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TraceManagerTests.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -27,6 +27,7 @@ namespace LogJam.UnitTests.Trace
     /// <summary>
     /// Unit tests for <see cref="TraceManager" />
     /// </summary>
+    [Collection(nameof(GlobalAccessTestCollection))]
     public sealed class TraceManagerTests
     {
 

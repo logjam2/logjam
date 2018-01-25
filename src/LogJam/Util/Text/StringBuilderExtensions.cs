@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="StringBuilderExtensions.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -29,7 +29,7 @@ namespace LogJam.Util.Text
         #region Public Methods and Operators
 
         /// <summary>
-        /// Appends <see cref="i" /> to buffer, left-padding with zeroes to fill <paramref name="width" /> characters.
+        /// Appends <paramref name="number"/> to <paramref name="sb"/>, left-padding with zeroes to fill <paramref name="width" /> characters.
         /// </summary>
         /// <param name="sb">A <see cref="StringBuilder" />.</param>
         /// <param name="number">A number to write.</param>

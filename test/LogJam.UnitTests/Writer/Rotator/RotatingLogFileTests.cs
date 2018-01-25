@@ -1,31 +1,31 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="RotatingLogFileTests.cs">
-// Copyright (c) 2011-2015 https://github.com/logjam2.  
+// Copyright (c) 2011-2018 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
 
+using System;
+using System.IO;
+using System.Linq;
+
+using LogJam.Config;
+using LogJam.Internal.UnitTests.Examples;
+using LogJam.Trace.Format;
+using LogJam.Writer.Rotator;
+
+using NSubstitute;
+
+using Xunit;
+using Xunit.Abstractions;
+
 namespace LogJam.UnitTests.Writer.Rotator
 {
-    using System;
-    using System.IO;
-    using System.Linq;
-
-    using LogJam.Config;
-    using LogJam.Internal.UnitTests.Examples;
-    using LogJam.Trace.Format;
-    using LogJam.Writer.Rotator;
-
-    using NSubstitute;
-
-    using Xunit;
-    using Xunit.Abstractions;
-
 
     /// <summary>
-    /// Exercises <see cref="RotatingLogFileWriter"/>.
+    /// Exercises <see cref="RotatingLogFileWriter" />.
     /// </summary>
     public sealed class RotatingLogFileTests
     {
@@ -61,11 +61,7 @@ namespace LogJam.UnitTests.Writer.Rotator
                                                    {
                                                        countEntriesLogged++;
                                                        if (countEntriesLogged > 1)
-                                                       {
-                                                           // This test rotates to logfile "2.log" after 1 entry is written; 
-                                                           // So when the 2nd entry is written, "1.log" should be stopped.
                                                            Assert.Equal(StartableState.Stopped, fakeLogFileWriterConfig.CreatedLogWriters.First().State);
-                                                       }
                                                    };
 
             var logManager = new LogManager();
@@ -85,6 +81,7 @@ namespace LogJam.UnitTests.Writer.Rotator
 
                 LoadHelper.LogTestEntries(ref counter, logWriter, 1);
             }
+
             Assert.True(logManager.IsHealthy);
         }
 
@@ -120,11 +117,11 @@ namespace LogJam.UnitTests.Writer.Rotator
                 LoadHelper.LogTestEntriesInParallel(logManager.GetEntryWriter<TestEntry>(), entriesPerThread, parallelLogThreads);
             }
 
-            _testOutput.WriteEntries(logManager.SetupLog,
-                                     new DefaultTraceFormatter()
-                                     {
-                                         IncludeTimestamp = true
-                                     });
+            //_testOutput.WriteEntries(logManager.SetupLog,
+            //                         new DefaultTraceFormatter()
+            //                         {
+            //                             IncludeTimestamp = true
+            //                         });
 
             Assert.True(logManager.IsHealthy);
             Assert.Equal(parallelLogThreads * entriesPerThread, logFileRotator.Count);
@@ -133,9 +130,7 @@ namespace LogJam.UnitTests.Writer.Rotator
             Assert.InRange(fakeLogFileWriterConfig.CreatedLogWriters.Count(), expectedLogFiles, expectedLogFiles + 1);
 
             foreach (var fakeLogFileWriter in fakeLogFileWriterConfig.CreatedLogWriters)
-            {
                 _testOutput.WriteLine("{0}: {1} entries", fakeLogFileWriter.LogFile.Name, fakeLogFileWriter.Count);
-            }
 
             // Most important assert - each file contains exactly c_entriesPerLogFile, or is the lastLogFile
             int lastLogFileCount = parallelLogThreads * entriesPerThread % entriesPerLogFile;

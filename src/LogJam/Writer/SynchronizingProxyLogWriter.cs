@@ -1,239 +1,227 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="SynchronizingProxyLogWriter.cs">
-// Copyright (c) 2011-2015 https://github.com/logjam2.  
+// Copyright (c) 2011-2018 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
 
+using System;
+using System.Collections.Concurrent;
+using System.Linq;
+using System.Threading.Tasks;
+
+using LogJam.Config;
+using LogJam.Config.Initializer;
+using LogJam.Shared.Internal;
+using LogJam.Trace;
+using LogJam.Util;
+
 namespace LogJam.Writer
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading;
 
-	using LogJam.Config;
-	using LogJam.Config.Initializer;
-	using LogJam.Trace;
-	using LogJam.Util;
+    /// <summary>
+    /// A <see cref="ProxyLogWriter" /> that synchronizes all writes to an inner <see cref="ILogWriter" />.
+    /// </summary>
+    public sealed class SynchronizingProxyLogWriter : ProxyLogWriter, ISynchronizingLogWriter
+    {
 
+        // Internal lock object
+        private readonly object _lock;
 
-	/// <summary>
-	/// A <see cref="ProxyLogWriter"/> that synchronizes all writes to an inner <see cref="ILogWriter"/>.
-	/// </summary>
-	public sealed class SynchronizingProxyLogWriter : ProxyLogWriter, ISynchronizingLogWriter
-	{
-		// Internal lock object
-		private readonly object _lock;
-		// Queue of actions to be run synchonously after the next entry is logged
-		private readonly ConcurrentQueue<Action> _syncActionQueue;
+        // Queue of actions to be run synchonously after the next entry is logged
+        private readonly ConcurrentQueue<Action> _syncActionQueue;
 
-
-		public SynchronizingProxyLogWriter(ITracerFactory setupTracerFactory, ILogWriter innerLogWriter)
-			: base(setupTracerFactory, innerLogWriter)
-		{
-			_lock = new object();
-			_syncActionQueue = new ConcurrentQueue<Action>();
-		}
-
-		protected override void InternalStart()
-		{
-			lock (_lock)
-			{
-				(InnerLogWriter as IStartable).SafeStart(SetupTracerFactory);
-
-				// Fill EntryWriters with SychronizingProxyEntryWriters
-				ClearEntryWriters();
-				foreach (var kvp in InnerLogWriter.EntryWriters)
-				{
-					Type entryWriterEntryType = kvp.Key;
-					object innerEntryWriter = kvp.Value;
-					var entryTypeArgs = new Type[] { entryWriterEntryType };
-					object synchronizingEntryWriter = this.InvokeGenericMethod(entryTypeArgs, "CreateSynchronizingProxyEntryWriter", innerEntryWriter);
-					this.InvokeGenericMethod(entryTypeArgs, "AddEntryWriter", synchronizingEntryWriter);
-				}
-
-				EntryWriters.Select(kvp => kvp.Value).SafeStart(SetupTracerFactory);
-			}
-		}
-
-		protected override void InternalStop()
-		{
-			lock (_lock)
-			{
-				// Run queued actions before stopping
-				RunQueuedActions();
-
-				base.InternalStop();
-				ClearEntryWriters();
-			}
-		}
-
-		protected override void Dispose(bool disposing)
-		{
-			lock (_lock)
-			{
-				EntryWriters.SafeDispose(SetupTracerFactory);
-				ClearEntryWriters();
-
-				(InnerLogWriter as IDisposable).SafeDispose(SetupTracerFactory);
-			}
-		}
-
-        #region ILogWriter
-
-		public override bool IsSynchronized => true;
-
-        public override bool TryGetEntryWriter<TEntry>(out IEntryWriter<TEntry> entryWriter)
+        public SynchronizingProxyLogWriter(ITracerFactory setupTracerFactory, ILogWriter innerLogWriter)
+            : base(setupTracerFactory, innerLogWriter)
         {
-            if (! _entryWriters.TryGetValue(typeof(TEntry), out var objEntryWriter))
-            {
-                entryWriter = null;
-                return false;
-            }
-
-            entryWriter = objEntryWriter as IEntryWriter<TEntry>;
-            if (entryWriter == null)
-            {
-                return false;
-            }
-            return true;
+            _lock = new object();
+            _syncActionQueue = new ConcurrentQueue<Action>();
         }
 
-        public override IEnumerable<KeyValuePair<Type, object>> EntryWriters { get { return _entryWriters; } }
+        public void QueueSynchronized(Action action, LogWriterActionPriority priority)
+        {
+            switch (priority)
+            {
+                case LogWriterActionPriority.Delay:
+                    // Queueing the action on the ThreadPool works, but provides no assurance that action will be run before other synchronized log writes.
+                    Task.Run(() =>
+                             {
+                                 lock (_lock)
+                                 {
+                                     action();
+                                 }
+                             });
+                    break;
 
-        #endregion
+                case LogWriterActionPriority.Normal:
+                    // Run action at the beginning of the next EntryWriter<TEntry>.Write()
+                    _syncActionQueue.Enqueue(action);
+                    break;
 
-		public void QueueSynchronized(Action action, LogWriterActionPriority priority)
-		{
-			switch (priority)
-			{
-				case LogWriterActionPriority.Delay:
-					// Queueing the action on the ThreadPool works, but provides no assurance that action will be run before other synchronized log writes.
-					ThreadPool.QueueUserWorkItem(state =>
-												 {
-													 lock (_lock)
-													 {
-														 action();
-													 }
-												 });
-					break;
+                case LogWriterActionPriority.High:
+                    // Run action at the beginning of the next EntryWriter<TEntry>.Write(), or on a ThreadPool task, whichever comes first
+                    _syncActionQueue.Enqueue(action);
+                    Task.Run(() =>
+                             {
+                                 lock (_lock)
+                                 {
+                                     RunQueuedActions();
+                                 }
+                             });
+                    break;
 
-				case LogWriterActionPriority.Normal:
-					// Run action at the beginning of the next EntryWriter<TEntry>.Write()
-					_syncActionQueue.Enqueue(action);
-					break;
+                default:
+                    throw new ArgumentException("Priority " + priority + " is not an acceptable value.");
+            }
+        }
 
-				case LogWriterActionPriority.High:
-					// Run action at the beginning of the next EntryWriter<TEntry>.Write(), or on a ThreadPool task, whichever comes first
-					_syncActionQueue.Enqueue(action);
-					ThreadPool.QueueUserWorkItem(state =>
-												 {
-													 lock (_lock)
-													 {
-														 RunQueuedActions();
-													 }
-												 });
-					break;
+        protected override void InternalStart()
+        {
+            lock (_lock)
+            {
+                (InnerLogWriter as IStartable).SafeStart(SetupTracerFactory);
 
-				default:
-					throw new ArgumentException("Priority " + priority + " is not an acceptable value.");
-			}
-		}
+                // Fill EntryWriters with SychronizingProxyEntryWriters
+                ClearEntryWriters();
+                foreach (var kvp in InnerLogWriter.EntryWriters)
+                {
+                    Type entryWriterEntryType = kvp.Key;
+                    object innerEntryWriter = kvp.Value;
+                    var entryTypeArgs = new Type[] { entryWriterEntryType };
+                    object synchronizingEntryWriter = this.InvokeGenericMethod(entryTypeArgs, "CreateSynchronizingProxyEntryWriter", innerEntryWriter);
+                    this.InvokeGenericMethod(entryTypeArgs, "AddEntryWriter", synchronizingEntryWriter);
+                }
 
-		private void RunQueuedActions()
-		{
-			// Run all queued actions
-			Action syncAction;
-			while (_syncActionQueue.TryDequeue(out syncAction))
-			{
-				syncAction();
-			}
-		}
+                EntryWriters.Select(kvp => kvp.Value).SafeStart(SetupTracerFactory);
+            }
+        }
 
-		/// <summary>
-		/// Standard initializer to create a <see cref="SynchronizingProxyLogWriter"/> if <see cref="ILogWriterConfig.Synchronize"/> is <c>true</c> and <see cref="ILogWriterConfig.BackgroundLogging"/> is <c>false</c>.
-		/// </summary>
-		/// <remarks>
-		/// This initializer is included in <see cref="LogManagerConfig.Initializers"/> by default.
-		/// </remarks>
-		public sealed class Initializer : IExtendLogWriterPipeline
-		{
+        protected override void InternalStop()
+        {
+            lock (_lock)
+            {
+                // Run queued actions before stopping
+                RunQueuedActions();
 
-			public ILogWriter InitializeLogWriter(ITracerFactory setupTracerFactory, ILogWriter logWriter, DependencyDictionary dependencyDictionary)
-			{
-				var logWriterConfig = dependencyDictionary.Get<ILogWriterConfig>();
-				if (! logWriter.IsSynchronized && logWriterConfig.Synchronize && ! logWriterConfig.BackgroundLogging)
-				{
-					// Wrap non-synchronized LogWriters to make them threadsafe
-					var synchronizingLogWriter = new SynchronizingProxyLogWriter(setupTracerFactory, logWriter);
-					setupTracerFactory.TracerFor(this).Verbose("Adding synchronizing proxy in front of {0}", logWriter);
-					dependencyDictionary.AddIfNotDefined(typeof(ISynchronizingLogWriter), synchronizingLogWriter);
-					return synchronizingLogWriter;
-				}
-				else
-				{
-					return logWriter;
-				}
-			}
+                base.InternalStop();
+                ClearEntryWriters();
+            }
+        }
 
-		}
+        protected override void Dispose(bool disposing)
+        {
+            lock (_lock)
+            {
+                EntryWriters.SafeDispose(SetupTracerFactory);
+                ClearEntryWriters();
+
+                (InnerLogWriter as IDisposable).SafeDispose(SetupTracerFactory);
+            }
+        }
+
+        private void RunQueuedActions()
+        {
+            // Run all queued actions
+            while (_syncActionQueue.TryDequeue(out var syncAction))
+            {
+                syncAction();
+            }
+        }
+
+        // ReSharper disable once UnusedMember.Local
+        /// <summary>
+        /// Called via reflection to create a <see cref="SynchronizingProxyEntryWriter{TEntry}" />
+        /// </summary>
+        /// <typeparam name="TEntry"></typeparam>
+        /// <param name="innerEntryWriter"></param>
+        /// <returns></returns>
+        private SynchronizingProxyEntryWriter<TEntry> CreateSynchronizingProxyEntryWriter<TEntry>(IEntryWriter<TEntry> innerEntryWriter)
+            where TEntry : ILogEntry
+        {
+            return new SynchronizingProxyEntryWriter<TEntry>(this, innerEntryWriter);
+        }
 
 
-		// ReSharper disable once UnusedMember.Local
-		/// <summary>
-		/// Called via reflection to create a <see cref="SynchronizingProxyEntryWriter{TEntry}"/>
-		/// </summary>
-		/// <typeparam name="TEntry"></typeparam>
-		/// <param name="innerEntryWriter"></param>
-		/// <returns></returns>
-		private SynchronizingProxyEntryWriter<TEntry> CreateSynchronizingProxyEntryWriter<TEntry>(IEntryWriter<TEntry> innerEntryWriter)
-			where TEntry : ILogEntry
-		{
-			return new SynchronizingProxyEntryWriter<TEntry>(this, innerEntryWriter);
-		}
+        /// <summary>
+        /// Standard initializer to create a <see cref="SynchronizingProxyLogWriter" /> if <see cref="ILogWriterConfig.Synchronize" /> is <c>true</c> and <see cref="ILogWriterConfig.BackgroundLogging" /> is
+        /// <c>false</c>.
+        /// </summary>
+        /// <remarks>
+        /// This initializer is included in <see cref="LogManagerConfig.Initializers" /> by default.
+        /// </remarks>
+        public sealed class Initializer : IExtendLogWriterPipeline
+        {
 
-		/// <summary>
-		/// A proxy EntryWriter that ensures that all operations are synchronized (ensured sequential/non-overlapping) via the 
-		/// parent <see cref="SynchronizingProxyLogWriter"/>'s lock.
-		/// </summary>
-		/// <typeparam name="TEntry"></typeparam>
-		internal sealed class SynchronizingProxyEntryWriter<TEntry> : ProxyEntryWriter<TEntry>
-			where TEntry : ILogEntry
-		{
-			private readonly SynchronizingProxyLogWriter _parent;
+            public ILogWriter InitializeLogWriter(ITracerFactory setupTracerFactory, ILogWriter logWriter, DependencyDictionary dependencyDictionary)
+            {
+                var logWriterConfig = dependencyDictionary.Get<ILogWriterConfig>();
+                if (! logWriter.IsSynchronized && logWriterConfig.Synchronize && ! logWriterConfig.BackgroundLogging)
+                {
+                    // Wrap non-synchronized LogWriters to make them threadsafe
+                    var synchronizingLogWriter = new SynchronizingProxyLogWriter(setupTracerFactory, logWriter);
+                    setupTracerFactory.TracerFor(this).Verbose("Adding synchronizing proxy in front of {0}", logWriter);
+                    dependencyDictionary.AddIfNotDefined(typeof(ISynchronizingLogWriter), synchronizingLogWriter);
+                    return synchronizingLogWriter;
+                }
+                else
+                {
+                    return logWriter;
+                }
+            }
+
+        }
+
+
+        /// <summary>
+        /// A proxy EntryWriter that ensures that all operations are synchronized (ensured sequential/non-overlapping) via the
+        /// parent <see cref="SynchronizingProxyLogWriter" />'s lock.
+        /// </summary>
+        /// <typeparam name="TEntry"></typeparam>
+        internal sealed class SynchronizingProxyEntryWriter<TEntry> : ProxyEntryWriter<TEntry>
+            where TEntry : ILogEntry
+        {
+
+            private readonly SynchronizingProxyLogWriter _parent;
 
             internal SynchronizingProxyEntryWriter(SynchronizingProxyLogWriter parent, IEntryWriter<TEntry> innerEntryWriter)
                 : base(innerEntryWriter)
             {
                 Arg.NotNull(parent, nameof(parent));
 
-				_parent = parent;
-			}
+                _parent = parent;
+            }
 
-			public override void Write(ref TEntry entry)
-			{
-				lock (_parent._lock)
-				{
-					// Run actions queued in parent logwriter
-					_parent.RunQueuedActions();
+            public override void Write(ref TEntry entry)
+            {
+                lock (_parent._lock)
+                {
+                    // Run actions queued in parent logwriter
+                    _parent.RunQueuedActions();
 
-					// Delegate to the inner EntryWriter
-					base.Write(ref entry);
-				}
-			}
+                    // Delegate to the inner EntryWriter
+                    base.Write(ref entry);
+                }
+            }
 
-			public override void Dispose()
-			{
-				lock (_parent._lock)
-				{
-					base.Dispose();
-				}
-			}
+            public override void Dispose()
+            {
+                lock (_parent._lock)
+                {
+                    base.Dispose();
+                }
+            }
 
-		}
+        }
 
-	}
+
+        #region ILogWriter
+
+        public override bool IsSynchronized => true;
+
+        #endregion
+
+    }
 
 }

@@ -20,7 +20,7 @@ namespace LogJam.Writer
 		/// </summary>
 		Uninitialized = 0,
 		/// <summary>
-		/// Delaying completion is preferred.
+		/// Delaying completion is preferred - eg after currently queued actions are completed.
 		/// </summary>
 		Delay = 1,
 		/// <summary>

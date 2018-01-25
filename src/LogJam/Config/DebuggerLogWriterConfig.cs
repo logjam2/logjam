@@ -17,6 +17,9 @@ namespace LogJam.Config
     /// <summary>
     /// Configures a log writer that writes to the debugger window.
     /// </summary>
+    /// <remarks>
+    /// All instances of <see cref="DebuggerLogWriterConfig"/> are equal, to prevent duplicate instances in <see cref="LogManagerConfig.Writers"/>.
+    /// </remarks>
     [JsonTypeHint("Target", "Debugger")]
     public sealed class DebuggerLogWriterConfig : TextLogWriterConfig
     {
@@ -25,11 +28,22 @@ namespace LogJam.Config
         /// Creates a new <see cref="DebuggerLogWriterConfig" />.
         /// </summary>
         public DebuggerLogWriterConfig()
-        {}
+        { }
 
         protected override FormatWriter CreateFormatWriter(ITracerFactory setupTracerFactory)
         {
             return new DebuggerFormatWriter(setupTracerFactory);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is DebuggerLogWriterConfig;
+        }
+
+        public override int GetHashCode()
+        {
+            // All instances of this type have the same HashCode
+            return GetType().GetHashCode();
         }
 
     }

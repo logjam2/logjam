@@ -1,20 +1,20 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ListDictionary.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2. 
+// Copyright (c) 2011-2018 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
 
-namespace LogJam.Util
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+using LogJam.Shared.Internal;
+
+namespace LogJam.Util.Collections
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-
-    using LogJam.Shared.Internal;
-
 
     /// <summary>
     /// Implements <see cref="IDictionary{TKey,TValue}" /> using a list. It's not efficient, but it preserves the order of key
@@ -31,6 +31,14 @@ namespace LogJam.Util
 
         private static readonly KeyValuePairComparer<TKey, TValue> s_comparer = new KeyValuePairComparer<TKey, TValue>();
 
+        public bool Equals(IDictionary<TKey, TValue> other)
+        {
+            if (other == null)
+                return false;
+
+            return this.SequenceEqual(other, s_comparer);
+        }
+
         /// <summary>
         /// Returns the index of the element with key equal to <paramref name="key" />.
         /// </summary>
@@ -46,9 +54,17 @@ namespace LogJam.Util
         private void RequireNotNull(TKey key)
         {
             if (key == null)
-            {
                 throw new ArgumentNullException("key");
-            }
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as ListDictionary<TKey, TValue>);
+        }
+
+        public override int GetHashCode()
+        {
+            return this.GetOrderedDictionaryHashCode();
         }
 
         #region IDictionary
@@ -65,9 +81,7 @@ namespace LogJam.Util
             RequireNotNull(key);
 
             if (ContainsKey(key))
-            {
                 throw new ArgumentException("Key already exists in ListDictionary.", "key");
-            }
             Add(new KeyValuePair<TKey, TValue>(key, value));
         }
 
@@ -81,6 +95,7 @@ namespace LogJam.Util
                 RemoveAt(index);
                 return true;
             }
+
             return false;
         }
 
@@ -109,13 +124,9 @@ namespace LogJam.Util
 
                 int index = IndexOf(key);
                 if (index >= 0)
-                {
                     return this[index].Value;
-                }
                 else
-                {
                     throw new KeyNotFoundException("Key not found");
-                }
             }
             set
             {
@@ -123,13 +134,9 @@ namespace LogJam.Util
 
                 int index = IndexOf(key);
                 if (index >= 0)
-                {
                     this[index] = new KeyValuePair<TKey, TValue>(key, value);
-                }
                 else
-                {
                     Add(new KeyValuePair<TKey, TValue>(key, value));
-                }
             }
         }
 
@@ -138,26 +145,6 @@ namespace LogJam.Util
         public ICollection<TValue> Values { get { return this.Select(kvp => kvp.Value).ToArray(); } }
 
         #endregion
-
-        public bool Equals(IDictionary<TKey, TValue> other)
-        {
-            if (other == null)
-            {
-                return false;
-            }
-
-            return this.SequenceEqual(other, s_comparer);
-        }
-
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as ListDictionary<TKey, TValue>);
-        }
-
-        public override int GetHashCode()
-        {
-            return this.GetOrderedDictionaryHashCode();
-        }
 
     }
 

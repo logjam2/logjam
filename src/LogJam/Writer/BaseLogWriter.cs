@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="BaseLogWriter.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -90,7 +90,7 @@ namespace LogJam.Writer
             Stop();
             lock (this)
             {
-                if (! IsDisposed)
+                if (! this.IsDisposed())
                 {
                     State = StartableState.Disposing;
                     Dispose(true);
@@ -102,14 +102,6 @@ namespace LogJam.Writer
 
         protected virtual void Dispose(bool disposing)
         {}
-
-        protected void EnsureNotDisposed()
-        {
-            if (IsDisposed)
-            {
-                throw new ObjectDisposedException(this.ToString());
-            }
-        }
 
         #region ILogWriter
 
@@ -135,7 +127,7 @@ namespace LogJam.Writer
             }
         }
 
-        public virtual IEnumerable<KeyValuePair<Type, object>> EntryWriters { get { return _entryWriters.ToArray(); } }
+        public virtual IEnumerable<KeyValuePair<Type, IEntryWriter>> EntryWriters { get { return _entryWriters.ToArray(); } }
 
         #endregion
 

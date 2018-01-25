@@ -13,6 +13,7 @@
 1. Headers and footers for text files
 2. Events for creating and disposing log writers - unless this is costly, in which case just add this for log file writers
 2. Merge rotating log file writers
+1. Make setuplog self-pruning (eg don't hold more than x entries per category per severity)
 2. HttpClient log writer (similar to HTTP server, but distinguishable)
 2. LogJam.Powershell - formatter for Powershell host
 3. Benchmark file writing perf
