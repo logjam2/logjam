@@ -21,15 +21,27 @@ namespace LogJam.Config
     /// <remarks>
     /// This configuration type is used for both text log files, and binary log files.
     /// </remarks>
-    public class LogFileConfig
+    public class LogFileConfig : ILogFileConfig
     {
 
         private bool? _append;
 
+        private string _filenameExtension;
+
+        /// <summary>
+        /// The default directory for writing log files.
+        /// </summary>
+        public const string DefaultLogFileDirectory = ".\\logs";
+
         /// <summary>
         /// The default filename, used if both <see cref="Filename"/> and <see cref="FilenameFunc"/> are not set.
         /// </summary>
-        public const string DefaultFilename = "LogJam.log";
+        public const string DefaultFilename = "LogJam";
+
+        /// <summary>
+        /// The default filename extension, used if <see cref="FilenameExtension"/> is not set.
+        /// </summary>
+        public const string DefaultFilenameExtension = ".log";
 
         /// <summary>
         /// The default buffer size for writing to log files.
@@ -64,6 +76,12 @@ namespace LogJam.Config
         public Func<string> DirectoryFunc { get; set; }
 
         /// <summary>
+        /// If <c>true</c>, directories are created if needed before the file is created. If <c>false</c>
+        /// log file creation will fail if the file does not exist.
+        /// </summary>
+        public bool CreateDirectories { get; set; } = true;
+
+        /// <summary>
         /// Gets or sets the log file name.
         /// </summary>
         public string Filename
@@ -77,7 +95,29 @@ namespace LogJam.Config
             {
                 Arg.NotNullOrWhitespace(value, nameof(Filename));
 
+                string extension = FilenameExtension;
+                if (value.EndsWith(extension))
+                {
+                    value = value.Substring(0, value.Length - extension.Length);
+                }
                 FilenameFunc = () => value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the log file name extension.
+        /// </summary>
+        public string FilenameExtension
+        {
+            get
+            {
+                return _filenameExtension ?? DefaultFilenameExtension;
+            }
+            set
+            {
+                Arg.NotNullOrWhitespace(value, nameof(FilenameExtension));
+
+                _filenameExtension = value;
             }
         }
 
@@ -90,7 +130,11 @@ namespace LogJam.Config
         /// Set to <c>true</c> to append to an existing log file; set to <c>false</c> to overwrite an existing log file.
         /// Default is <c>true</c>.
         /// </summary>
-        public bool Append { get { return _append ?? true; } set { _append = value; } }
+        public bool Append
+        {
+            get => _append ?? true;
+            set => _append = value;
+        }
 
         /// <summary>
         /// The size of the buffer used for writing to the log file. Larger buffers are generally faster,
@@ -104,16 +148,27 @@ namespace LogJam.Config
         /// <returns></returns>
         public string GetNewLogFileFullPath()
         {
-            return Path.Combine(Directory, Filename);
+            return Path.Combine(Directory, Filename + FilenameExtension);
         }
 
         /// <summary>
         /// Creates and returns a <see cref="FileStream"/> which writes to a new logfile.
         /// </summary>
         /// <returns></returns>
-        public FileStream CreateNewLogFileStream()
+        public virtual FileStream CreateNewLogFileStream()
         {
-            return new FileStream(GetNewLogFileFullPath(), Append ? FileMode.Append : FileMode.CreateNew, FileAccess.Write, FileShare.Read, BufferSize);
+            string logfilePath = GetNewLogFileFullPath();
+            if (CreateDirectories)
+            {
+                var logFile = new FileInfo(logfilePath);
+                var directory = logFile.Directory;
+                if (! directory.Exists)
+                {
+                    directory.Create();
+                }
+            }
+
+            return new FileStream(logfilePath, Append ? FileMode.Append : FileMode.CreateNew, FileAccess.Write, FileShare.Read, BufferSize);
         }
 
     }

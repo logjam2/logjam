@@ -18,7 +18,7 @@ namespace LogJam.Config
     {
 
         /// <summary>
-        /// Returns the <see cref="LogFileConfig" />, which is used to configure the log file.
+        /// Returns the <see cref="ILogFileConfig" />, which is used to configure the log file.
         /// </summary>
         LogFileConfig LogFile { get; }
 

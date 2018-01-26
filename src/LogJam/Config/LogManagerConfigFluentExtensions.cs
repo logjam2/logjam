@@ -129,26 +129,46 @@ namespace LogJam.Config
             return useExistingConfig;
         }
 
-
         /// <summary>
-        /// Adds a new <see cref="RotatingLogFileWriterConfig" /> which uses <paramref name="logFileRotator" />
-        /// and <paramref name="logFileWriterConfig" />.
+        /// Adds a new <see cref="RotatingLogFileWriterConfig" /> which uses a <see cref="TimeIntervalLogFileRotator" /> and writes to rotating text log files.
         /// </summary>
         /// <param name="logManagerConfig"></param>
-        /// <param name="logFileRotator"></param>
-        /// <param name="logFileWriterConfig"></param>
+        /// <param name="logfileName"></param>
+        /// <param name="rootDirectory"></param>
+        /// <param name="directoryPattern"></param>
+        /// <param name="timeZone"></param>
         /// <returns></returns>
-        public static RotatingLogFileWriterConfig UseHourlyRotatingLogFile(this LogManagerConfig logManagerConfig,
-                                                                           ILogFileRotator logFileRotator,
-                                                                           ILogFileWriterConfig logFileWriterConfig)
+        public static RotatingLogFileWriterConfig UseHourlyRotatingTextLogFile(this LogManagerConfig logManagerConfig,
+                                                                               string logfileName,
+                                                                               string rootDirectory = LogFileConfig.DefaultLogFileDirectory,
+                                                                               string directoryPattern = TimeIntervalLogFileRotator.DefaultDirectoryPattern,
+                                                                               TimeZoneInfo timeZone = null)
         {
             Arg.NotNull(logManagerConfig, nameof(logManagerConfig));
-            Arg.NotNull(logFileRotator, nameof(logFileRotator));
-            Arg.NotNull(logFileWriterConfig, nameof(logFileWriterConfig));
+            Arg.NotNullOrWhitespace(logfileName, nameof(logfileName));
+            if (timeZone == null)
+            {
+                timeZone = TimeZoneInfo.Local;
+            }
 
-            var useExistingConfig = new RotatingLogFileWriterConfig(new UseExistingLogFileRotatorConfig(logFileRotator), logFileWriterConfig);
-            logManagerConfig.Writers.Add(useExistingConfig);
-            return useExistingConfig;
+            var rotatingLogFileConfig = new RotatingLogFileWriterConfig(new TimeIntervalRotatorConfig()
+                                                                        {
+                                                                            LogfileName = logfileName,
+                                                                            RotateInterval = TimeSpan.FromHours(1),
+                                                                            RootDirectory = rootDirectory,
+                                                                            DirectoryPattern = directoryPattern,
+                                                                            TimeZone = timeZone
+                                                                        },
+                                                                        new TextLogFileWriterConfig()
+                                                                        {
+                                                                            TimeZone = timeZone
+                                                                        })
+                                        {
+                                            BackgroundLogging = true
+                                        };
+
+            logManagerConfig.Writers.Add(rotatingLogFileConfig);
+            return rotatingLogFileConfig;
         }
 
         /// <summary>
@@ -214,7 +234,10 @@ namespace LogJam.Config
                                     }
                                 };
             if (directoryFunc != null)
+            {
                 logfileConfig.LogFile.DirectoryFunc = directoryFunc;
+            }
+
             logManagerConfig.Writers.Add(logfileConfig);
             return logfileConfig;
         }
@@ -239,7 +262,10 @@ namespace LogJam.Config
                                     }
                                 };
             if (directory != null)
+            {
                 logfileConfig.LogFile.Directory = directory;
+            }
+
             logManagerConfig.Writers.Add(logfileConfig);
             return logfileConfig;
         }
@@ -275,20 +301,46 @@ namespace LogJam.Config
             { // Try creating the default entry formatter
                 entryFormatter = DefaultFormatterAttribute.GetDefaultFormatterFor<TEntry>();
                 if (entryFormatter == null)
+                {
                     throw new ArgumentNullException(nameof(entryFormatter),
                                                     $"No [DefaultFormatter] attribute could be found for entry type {typeof(TEntry).FullName}, so {nameof(entryFormatter)} argument must be set.");
+                }
             }
 
-            foreach (var logWriterConfig in logWriterConfigs)
+            foreach (var logWriterConfig in logWriterConfigs.Flatten())
             {
                 if (logWriterConfig is TextLogWriterConfig textLogWriterConfig)
+                {
                     if (overwriteExistingFormatters || ! textLogWriterConfig.HasFormatterFor<TEntry>())
+                    {
                         textLogWriterConfig.Format(entryFormatter);
+                    }
+                }
             }
 
             return logWriterConfigs;
         }
 
-    }
+        /// <summary>
+        /// Returns a flattened collection of <see cref="ILogWriterConfig"/> instances. Some <see cref="ILogWriterConfig"/>
+        /// instances may contain other <c>ILogWriterConfig</c> instances, eg <see cref="RotatingLogFileWriterConfig"/>.
+        /// </summary>
+        /// <param name="logWriterConfigs"></param>
+        /// <returns></returns>
+        internal static IEnumerable<ILogWriterConfig> Flatten(this IEnumerable<ILogWriterConfig> logWriterConfigs)
+        {
+            foreach (var logWriterConfig in logWriterConfigs)
+            {
+                if (logWriterConfig is IEnumerable<ILogWriterConfig> subLogWriterConfigs)
+                {
+                    foreach (var subLogWriterConfig in subLogWriterConfigs)
+                    {
+                        yield return subLogWriterConfig;
+                    }
+                }
+                yield return logWriterConfig;
+            }
+        }
 
+    }
 }

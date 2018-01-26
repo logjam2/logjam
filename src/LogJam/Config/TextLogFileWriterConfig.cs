@@ -33,9 +33,9 @@ namespace LogJam.Config
         public string Encoding { get; set; } = DefaultEncoding;
 
         /// <summary>
-        /// Returns the <see cref="LogFileConfig"/>, which is used to configure the log file.
+        /// Returns the <see cref="ILogFileConfig"/>, which is used to configure the log file.
         /// </summary>
-        public LogFileConfig LogFile { get; } = new LogFileConfig();
+        public LogFileConfig LogFile { get; set; } = new LogFileConfig();
 
         /// <summary>
         /// A delegate called to write a log file header.
@@ -49,6 +49,11 @@ namespace LogJam.Config
 
         protected override FormatWriter CreateFormatWriter(ITracerFactory setupTracerFactory)
         {
+            if (LogFile == null)
+            {
+                throw new InvalidOperationException($"{nameof(TextLogFileWriterConfig)}.{nameof(LogFile)} must be set.");
+            }
+
             var fileStream = LogFile.CreateNewLogFileStream();
             TextWriter textWriter = new StreamWriter(fileStream, System.Text.Encoding.GetEncoding(Encoding));
             // TODO: Add support for configuring which FormatWriter is used.

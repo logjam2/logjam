@@ -25,8 +25,9 @@ namespace LogJam.Config
         /// <summary>
         /// Returns an <see cref="ILogFileRotator"/>.
         /// </summary>
+        /// <param name="logFileWriterConfig">The inner <see cref="ILogFileWriterConfig"/> that is used for each rotated file.</param>
         /// <returns></returns>
-        public abstract ILogFileRotator CreateLogFileRotator();
+        public abstract ILogFileRotator CreateLogFileRotator(ILogFileWriterConfig logFileWriterConfig);
 
         /// <summary>
         /// Returns a collection of initializers that are applied to any <see cref="RotatingLogFileWriter" />s that

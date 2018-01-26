@@ -8,7 +8,9 @@
 
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 using LogJam.Config.Initializer;
 using LogJam.Shared.Internal;
@@ -22,8 +24,12 @@ namespace LogJam.Config
     /// <summary>
     /// Configures a rotating log file writer.
     /// </summary>
-    public sealed class RotatingLogFileWriterConfig : LogWriterConfig, IExtendLogWriterPipeline, IImportInitializer
+    public sealed class RotatingLogFileWriterConfig : LogWriterConfig, IExtendLogWriterPipeline, IImportInitializer, IEnumerable<ILogWriterConfig>
     {
+
+        private LogFileRotatorConfig _logFileRotator;
+
+        private ILogFileWriterConfig _logFileWriter;
 
         public RotatingLogFileWriterConfig(LogFileRotatorConfig logFileRotatorConfig, ILogFileWriterConfig logFileWriterConfig)
         {
@@ -33,18 +39,37 @@ namespace LogJam.Config
             LogFileRotator = logFileRotatorConfig;
             LogFileWriter = logFileWriterConfig;
 
-            Initializers.Add(this);
+            // By default, copy the LogFileWriter extension to the rotator
+            LogFileRotator.Initializers.Add(this);
         }
 
         /// <summary>
         /// Configures the writer for individual files.
         /// </summary>
-        public ILogFileWriterConfig LogFileWriter { get; set; }
+        public ILogFileWriterConfig LogFileWriter
+        {
+            get { return _logFileWriter; }
+            set
+            {
+                Arg.NotNull(value, nameof(LogFileWriter));
+
+                _logFileWriter = value;
+            }
+        }
 
         /// <summary>
         /// Configures the <see cref="ILogFileRotator" /> used to implement file rotation logic.
         /// </summary>
-        public LogFileRotatorConfig LogFileRotator { get; set; }
+        public LogFileRotatorConfig LogFileRotator
+        {
+            get => _logFileRotator;
+            set
+            {
+                Arg.NotNull(value, nameof(LogFileRotator));
+
+                _logFileRotator = value;
+            }
+        }
 
         /// <summary>
         /// This property can only be <c>true</c>; file rotation is dependent on synchronization.
@@ -55,7 +80,9 @@ namespace LogJam.Config
             set
             {
                 if (value != true)
+                {
                     throw new LogJamSetupException("RotatingLogFileWriterConfig.Synchronize cannot be set to false.", this);
+                }
             }
         }
 
@@ -96,7 +123,10 @@ namespace LogJam.Config
             // Connect the RotatingLogFileWriter to the ISynchronizingLogWriter
             var rotatingLogFileWriter = dependencyDictionary.Get<RotatingLogFileWriter>();
             if (! dependencyDictionary.TryGet(out ISynchronizingLogWriter synchronizingLogWriter))
+            {
                 throw new LogJamSetupException("Cannot create RotatingLogFileWriter because ISynchronizingLogWriter reference is not available.", this);
+            }
+
             rotatingLogFileWriter.SetSynchronizingLogWriter(synchronizingLogWriter);
         }
 
@@ -112,18 +142,47 @@ namespace LogJam.Config
             Tracer tracer = setupTracerFactory.TracerFor(this);
 
             if (logFileWriterConfig == null)
+            {
                 tracer.Error("LogFileWriter (config object) must be set to create a RotatingLogFileWriter.");
+            }
+
             if (rotatorConfig == null)
+            {
                 tracer.Error("LogFileRotator (config object) must be set to create a RotatingLogFileWriter.");
+            }
+
             if ((logFileWriterConfig == null) || (rotatorConfig == null))
+            {
                 return null;
+            }
 
             var rotatingLogFileWriter = new RotatingLogFileWriter(setupTracerFactory,
                                                                   logFileWriterConfig,
-                                                                  rotatorConfig.CreateLogFileRotator());
+                                                                  rotatorConfig.CreateLogFileRotator(logFileWriterConfig));
             rotatingLogFileWriter.AfterRotate += AfterRotate;
             return rotatingLogFileWriter;
         }
+
+        #region IEnumerable<ILogWriterConfig>
+
+        public IEnumerator<ILogWriterConfig> GetEnumerator()
+        {
+            if (_logFileWriter != null)
+            {
+                return new List<ILogWriterConfig>(1) { _logFileWriter }.GetEnumerator();
+            }
+            else
+            {
+                return Enumerable.Empty<ILogWriterConfig>().GetEnumerator();
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        #endregion
 
     }
 

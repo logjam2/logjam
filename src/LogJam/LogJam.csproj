@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard1.3;net45</TargetFrameworks>
     <Title>LogJam</Title>
-    <Description>Efficient .NET logging library</Description>
+    <Description>Efficient .NET logging and observability library</Description>
     <PackageTags>Log Trace Tracing Logging LogJam</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 

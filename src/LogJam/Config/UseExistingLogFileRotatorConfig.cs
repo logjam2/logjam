@@ -29,7 +29,7 @@ namespace LogJam.Config
         }
 
         /// <inheritdoc />
-        public override ILogFileRotator CreateLogFileRotator()
+        public override ILogFileRotator CreateLogFileRotator(ILogFileWriterConfig logFileWriterConfig)
         {
             return _rotator;
         }

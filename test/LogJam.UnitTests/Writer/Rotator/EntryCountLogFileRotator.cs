@@ -85,7 +85,7 @@ namespace LogJam.UnitTests.Writer.Rotator
 
             public int EntriesPerFile { get; set; }
 
-            public override ILogFileRotator CreateLogFileRotator()
+            public override ILogFileRotator CreateLogFileRotator(ILogFileWriterConfig logFileWriterConfig)
             {
                 return new EntryCountLogFileRotator(FileNamePattern, EntriesPerFile);
             }

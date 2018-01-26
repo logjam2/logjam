@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ConsoleFormatWriter.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -72,7 +72,7 @@ namespace LogJam.Writer.Text
 
         protected override void InternalStop()
         {
-            CloseTextWriter();
+            base.InternalStop();
 
             Console.ForegroundColor = _prevTextColor;
 

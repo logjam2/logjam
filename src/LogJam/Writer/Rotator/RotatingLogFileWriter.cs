@@ -62,6 +62,9 @@ namespace LogJam.Writer.Rotator
             _logFileRotator = logFileRotator;
         }
 
+        /// <summary>
+        /// The <see cref="ILogFileRotator"/> used to manage file rotation.
+        /// </summary>
         public ILogFileRotator LogFileRotator { get { return _logFileRotator; } }
 
         #region ILogWriter
@@ -207,7 +210,9 @@ namespace LogJam.Writer.Rotator
                 IEntryWriter<TEntry> oldInnerEntryWriter = InnerEntryWriter;
 
                 if (ReferenceEquals(newInnerEntryWriter, oldInnerEntryWriter))
+                {
                     return;
+                }
 
                 // Start the EntryWriter, then switch
                 if ((newInnerEntryWriter as IStartable).SafeStart(setupTracerFactory))
@@ -223,7 +228,9 @@ namespace LogJam.Writer.Rotator
 
                 // Shut down the old one
                 if (oldInnerEntryWriter != null)
+                {
                     (oldInnerEntryWriter as IStartable).SafeStop(setupTracerFactory);
+                }
             }
 
         }
@@ -234,13 +241,22 @@ namespace LogJam.Writer.Rotator
         protected override void InternalStart()
         {
             if (_synchronizingLogWriter == null)
+            {
                 throw new LogJamStartException("ISynchronizingLogWriter reference not set - synchronization is required for RotatingLogFileWriter to work.", this);
+            }
+
+            if (_logFileRotator is IStartable startableRotator)
+            {
+                startableRotator.SafeStart(SetupTracerFactory);
+            }
 
             _logFileRotator.TriggerRotate += HandleTriggerRotateEvent;
 
             FileInfo logFile = _logFileRotator.CurrentLogFile;
             if (logFile == null)
+            {
                 throw new LogJamStartException("No CurrentLogFile returned from LogFileRotator {0}", _logFileRotator);
+            }
 
             lock (this)
             {
@@ -265,6 +281,11 @@ namespace LogJam.Writer.Rotator
         {
             _logFileRotator.TriggerRotate -= HandleTriggerRotateEvent;
 
+            if (_logFileRotator is IStartable startableRotator)
+            {
+                startableRotator.SafeStop(SetupTracerFactory);
+            }
+
             lock (this)
             {
                 (_currentLogWriter as IStartable).SafeStop(SetupTracerFactory);
@@ -275,7 +296,14 @@ namespace LogJam.Writer.Rotator
         protected override void Dispose(bool disposing)
         {
             if (disposing)
+            {
+                Stop();
+
+                (_currentLogWriter as IDisposable).SafeDispose(SetupTracerFactory);
                 (_logFileRotator as IDisposable).SafeDispose(SetupTracerFactory);
+            }
+
+            base.Dispose(disposing);
         }
 
         #endregion
