@@ -162,12 +162,14 @@ namespace LogJam.Writer.Rotator
                 _logFileWriterConfig.LogFile.Directory = logFile.DirectoryName;
                 _logFileWriterConfig.LogFile.Filename = logFile.Name;
 
-                ILogWriter logWriter = _logFileWriterConfig.CreateLogWriter(SetupTracerFactory);
+                ILogWriter logWriter = LogManager.CreateLogWriter(_logFileWriterConfig, SetupTracerFactory);
                 (logWriter as IStartable).SafeStart(SetupTracerFactory);
                 return logWriter;
             }
         }
 
+        // ReSharper disable once UnusedMember.Local
+        // Called from <see cref="InternalStart"/> via reflection.
         private RotatingEntryWriter<TEntry> CreateRotatingEntryWriter<TEntry>(IEntryWriter<TEntry> innerEntryWriter)
             where TEntry : ILogEntry
         {

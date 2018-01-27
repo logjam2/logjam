@@ -20,6 +20,7 @@ using LogJam.Shared.Internal;
 using LogJam.Trace;
 using LogJam.Util;
 using LogJam.Writer;
+using LogJam.Writer.Rotator;
 
 namespace LogJam
 {
@@ -100,7 +101,7 @@ namespace LogJam
                     continue;
                 }
 
-                ILogWriter logWriter = CreateLogWriter(logWriterConfig);
+                ILogWriter logWriter = CreateLogWriter(logWriterConfig, SetupTracerFactory, this);
 
                 if (logWriter != null)
                 {
@@ -122,35 +123,53 @@ namespace LogJam
         }
 
         /// <summary>
-        /// Create an <see cref="ILogWriter" /> from <paramref name="logWriterConfig" />, then proxy it as configured and log any
-        /// errors in <see cref="SetupLog" />.
+        /// Creates a log writer and builds a pipeline to it based on the specified configuration.
         /// </summary>
         /// <param name="logWriterConfig"></param>
+        /// <param name="setupLog"></param>
+        /// <param name="logManager"></param>
         /// <returns></returns>
-        internal ILogWriter CreateLogWriter(ILogWriterConfig logWriterConfig)
+        /// <remarks>
+        /// This method is static so it may be used without a <paramref name="logManager"/>, eg within <see cref="RotatingLogFileWriter"/>
+        /// to create inner log writers.
+        /// </remarks>
+        internal static ILogWriter CreateLogWriter(ILogWriterConfig logWriterConfig, ITracerFactory setupLog, LogManager logManager = null)
         {
+            Arg.NotNull(logWriterConfig, nameof(logWriterConfig));
+
             ILogWriter logWriter = null;
 
             // A lightweight service locator scoped to a single LogWriter pipeline
             DependencyDictionary logWriterDependencyDictionary = new DependencyDictionary();
-            logWriterDependencyDictionary.Add<LogManager>(this);
-            logWriterDependencyDictionary.Add<ITracerFactory>(SetupTracerFactory);
+            if (logManager != null)
+            {
+                logWriterDependencyDictionary.Add<LogManager>(logManager);
+            }
+            if (setupLog != null)
+            {
+                logWriterDependencyDictionary.Add<ITracerFactory>(setupLog);
+            }
+
             logWriterDependencyDictionary.Add<ILogWriterConfig>(logWriterConfig);
             logWriterDependencyDictionary.Add(logWriterConfig.GetType(), logWriterConfig);
 
             try
             {
                 // Combine the initializers - LogWriterConfig.Initializers comes first
-                var initializers = new List<ILogWriterInitializer>(logWriterConfig.Initializers.Concat(Config.Initializers));
+                var initializers = new List<ILogWriterInitializer>(logWriterConfig.Initializers);
+                if (logManager != null)
+                {
+                    initializers.AddRange(logManager.Config.Initializers);
+                }
 
                 ILogWriterPipelineBuilder pipelineBuilder = initializers.OfType<ILogWriterPipelineBuilder>().FirstOrDefault() ?? new DefaultLogWriterPipelineBuilder();
 
-                logWriter = pipelineBuilder.CreateLogWriterPipeline(logWriterConfig, initializers, logWriterDependencyDictionary, SetupTracerFactory);
+                logWriter = pipelineBuilder.CreateLogWriterPipeline(logWriterConfig, initializers, logWriterDependencyDictionary, setupLog);
             }
             catch (Exception excp)
             {
                 // TODO: Store initialization failure status
-                var tracer = SetupTracerFactory.TracerFor(logWriterConfig);
+                var tracer = setupLog.TracerFor(logWriterConfig);
                 tracer.Severe(excp, "Exception creating logwriter from config: {0}", logWriterConfig);
                 logWriter = null;
             }

@@ -86,14 +86,12 @@ namespace LogJam.Internal.UnitTests.Writer.Rotator
             }
             Assert.Collection(testLogFileConfig.CreatedFileStreams, AssertFileIsClosed, AssertFileIsClosed);
 
-            // Ensure log files exist + are not empty
-            // REVIEW: This reads the file instead of just checking the file size b/c file size takes some time to show up
+            // Ensure log files exist + have expected # of lines
             void AssertFileHas4Lines(FileInfo file)
             {
                 string fileContents = File.ReadAllText(file.FullName);
                 Assert.Equal(4, fileContents.CountOf('\n'));
             }
-            //Action<FileInfo> assertFileIsNotEmpty = file => Assert.NotEqual(0, File.ReadAllText(file.FullName).Length);
             Assert.Collection(GetTestLogFiles(logSubdirectory, logFileName), AssertFileHas4Lines, AssertFileHas4Lines);
         }
 
