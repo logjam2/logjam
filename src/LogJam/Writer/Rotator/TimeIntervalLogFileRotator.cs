@@ -165,7 +165,7 @@ namespace LogJam.Writer.Rotator
             // - eg spring daylight savings transition, where 2 adjacent hours have the same time
             if (! string.Equals(CurrentLogFile?.FullName, nextLogFile.FullName, StringComparison.OrdinalIgnoreCase))
             {
-                var rotateEventArgs = new RotateLogFileEventArgs(this, CurrentLogFile, nextLogFile);
+                var rotateEventArgs = new RotateLogFileEventArgs(this, CurrentLogFile, nextLogFile, LogWriterActionPriority.Normal);
                 TriggerRotate?.Invoke(this, rotateEventArgs);
             }
         }

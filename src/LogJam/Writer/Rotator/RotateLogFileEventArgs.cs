@@ -21,32 +21,47 @@ namespace LogJam.Writer.Rotator
     public class RotateLogFileEventArgs : EventArgs
     {
 
-        private readonly FileInfo _currentLogFile;
-
-        private readonly ILogFileRotator _logFileRotator;
-        private readonly FileInfo _nextLogFile;
-
         /// <summary>
         /// Initializes a new <see cref="RotateLogFileEventArgs"/> instance.
         /// </summary>
-        /// <param name="logFileRotator"></param>
+        /// <param name="logFileRotator">The <see cref="ILogFileRotator"/> triggering the rotation (the source of this event)</param>
         /// <param name="currentLogFile">The current log file. May be <c>null</c>, eg when the first log file is opened.</param>
-        /// <param name="nextLogFile"></param>
-        public RotateLogFileEventArgs(ILogFileRotator logFileRotator, FileInfo currentLogFile, FileInfo nextLogFile)
+        /// <param name="nextLogFile">The next log file. Must not be <c>null</c>.</param>
+        /// <param name="priority">The priority of the rotation. Use <see cref="LogWriterActionPriority.Normal"/> for queue order, meaning the switch
+        /// to the new log file should occur after currently queued log entries are written. Use <see cref="LogWriterActionPriority.High"/>
+        /// to switch to the new log file before the next log entry is written.</param>
+        public RotateLogFileEventArgs(ILogFileRotator logFileRotator, FileInfo currentLogFile, FileInfo nextLogFile, LogWriterActionPriority priority)
         {
             Arg.NotNull(logFileRotator, nameof(logFileRotator));
             Arg.NotNull(nextLogFile, nameof(nextLogFile));
 
-            _logFileRotator = logFileRotator;
-            _currentLogFile = currentLogFile;
-            _nextLogFile = nextLogFile;
+            LogFileRotator = logFileRotator;
+            CurrentLogFile = currentLogFile;
+            NextLogFile = nextLogFile;
+            Priority = priority;
         }
 
-        public ILogFileRotator LogFileRotator { get { return _logFileRotator; } }
+        /// <summary>
+        /// The <see cref="ILogFileRotator"/> triggering the rotation (the source of this event)
+        /// </summary>
+        public ILogFileRotator LogFileRotator { get; }
 
-        public FileInfo CurrentLogFile { get { return _currentLogFile; } }
+        /// <summary>
+        /// The current log file.
+        /// </summary>
+        public FileInfo CurrentLogFile { get; }
 
-        public FileInfo NextLogFile { get { return _nextLogFile; } }
+        /// <summary>
+        /// The next log file (the file to switch to).
+        /// </summary>
+        public FileInfo NextLogFile { get; }
+
+        /// <summary>
+        /// The priority of the rotation. Use <see cref="LogWriterActionPriority.Normal"/> for queue order, meaning the switch
+        /// to the new log file should occur after currently queued log entries are written. Use <see cref="LogWriterActionPriority.High"/>
+        /// to switch to the new log file before the next log entry is written.
+        /// </summary>
+        public LogWriterActionPriority Priority { get; }
 
     }
 }

@@ -15,7 +15,8 @@ namespace LogJam.Writer.Rotator
 
 
     /// <summary>
-    /// An object that implements file rotation logic.
+    /// An object that implements file rotation logic. The log file rotator controls when file rotation happens, and it controls the
+    /// full path of the log files that are written.
     /// </summary>
     public interface ILogFileRotator
     {

@@ -59,9 +59,7 @@ namespace LogJam.UnitTests.Writer.Rotator
             { // Time to trigger rotation
                 int nextFileNumber = incremented / _entriesPerFile;
                 FileInfo nextLogFile = new FileInfo(string.Format(_filenamePattern, nextFileNumber));
-                var eventDelegate = TriggerRotate;
-                if (eventDelegate != null)
-                    eventDelegate(this, new RotateLogFileEventArgs(this, CurrentLogFile, nextLogFile));
+                TriggerRotate?.Invoke(this, new RotateLogFileEventArgs(this, CurrentLogFile, nextLogFile, LogWriterActionPriority.High));
             }
         }
 

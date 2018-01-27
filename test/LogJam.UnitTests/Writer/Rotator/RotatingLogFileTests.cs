@@ -14,6 +14,7 @@ using System.Linq;
 using LogJam.Config;
 using LogJam.Internal.UnitTests.Examples;
 using LogJam.Trace.Format;
+using LogJam.Writer;
 using LogJam.Writer.Rotator;
 
 using NSubstitute;
@@ -77,7 +78,7 @@ namespace LogJam.UnitTests.Writer.Rotator
                 LoadHelper.LogTestEntries(ref counter, logWriter, 1);
 
                 // Trigger rotation
-                rotator.TriggerRotate += Raise.EventWith(new RotateLogFileEventArgs(rotator, rotator.CurrentLogFile, file2));
+                rotator.TriggerRotate += Raise.EventWith(new RotateLogFileEventArgs(rotator, rotator.CurrentLogFile, file2, LogWriterActionPriority.Normal));
 
                 LoadHelper.LogTestEntries(ref counter, logWriter, 1);
             }

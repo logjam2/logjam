@@ -97,7 +97,7 @@ namespace LogJam.Writer.Rotator
         private void HandleTriggerRotateEvent(object source, RotateLogFileEventArgs rotateEventArgs)
         {
             _tracer.Debug("Queueing log rotation to {0}", rotateEventArgs.NextLogFile);
-            _synchronizingLogWriter.QueueSynchronized(() => SynchronizedRotate(rotateEventArgs), LogWriterActionPriority.High);
+            _synchronizingLogWriter.QueueSynchronized(() => SynchronizedRotate(rotateEventArgs), rotateEventArgs.Priority);
         }
 
         /// <summary>

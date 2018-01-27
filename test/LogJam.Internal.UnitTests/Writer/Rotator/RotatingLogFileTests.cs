@@ -10,14 +10,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading;
 
 using LogJam.Config;
 using LogJam.Internal.UnitTests.Examples;
 using LogJam.Test.Shared;
-
-using NSubstitute;
 
 using Xunit;
 
@@ -42,9 +38,9 @@ namespace LogJam.Internal.UnitTests.Writer.Rotator
         }
 
         [Fact]
-        public void TimeIntervalRotatingLogFileWorks()
+        public void HourlyRotatingLogFileWorks()
         {
-            string logFileName = nameof(TimeIntervalRotatingLogFileWorks);
+            string logFileName = nameof(HourlyRotatingLogFileWorks);
             var testSystemClock = new TestSystemClock();
             testSystemClock.UtcNow = new DateTimeOffset(2017,2,2,1,1,1, TimeSpan.FromHours(-8));
             const string logSubdirectory = "2017\\02\\02";
@@ -92,13 +88,13 @@ namespace LogJam.Internal.UnitTests.Writer.Rotator
 
             // Ensure log files exist + are not empty
             // REVIEW: This reads the file instead of just checking the file size b/c file size takes some time to show up
-            void AssertFileIsNotEmpty(FileInfo file)
+            void AssertFileHas4Lines(FileInfo file)
             {
-                file.Refresh();
-                Assert.NotEqual(0, file.Length);
+                string fileContents = File.ReadAllText(file.FullName);
+                Assert.Equal(4, fileContents.CountOf('\n'));
             }
             //Action<FileInfo> assertFileIsNotEmpty = file => Assert.NotEqual(0, File.ReadAllText(file.FullName).Length);
-            Assert.Collection(GetTestLogFiles(logSubdirectory, logFileName), AssertFileIsNotEmpty, AssertFileIsNotEmpty);
+            Assert.Collection(GetTestLogFiles(logSubdirectory, logFileName), AssertFileHas4Lines, AssertFileHas4Lines);
         }
 
 
