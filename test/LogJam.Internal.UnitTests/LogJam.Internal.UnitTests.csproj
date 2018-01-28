@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NSubstitute" Version="3.1.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\src\LogJam.XUnit2\LogJam.XUnit2.csproj" />
     <ProjectReference Include="..\..\src\LogJam\LogJam.csproj" />
     <ProjectReference Include="..\LogJam.Test.Shared\LogJam.Test.Shared.csproj" />
