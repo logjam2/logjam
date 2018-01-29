@@ -19,7 +19,7 @@ namespace LogJam.Activity
 	/// </summary>
 	/// <remarks>
 	/// An activity record tracks the beginning and ending of an activity, along with any activity-specific
-	/// metadata.  It also can be correlated with trace records that occur within the activity.
+	/// metadata. It also can be correlated with trace records that occur within the activity.
 	/// </remarks>
 	public abstract class ActivityRecord
 	{
@@ -120,7 +120,7 @@ namespace LogJam.Activity
 		#endregion
 
 		/// <summary>
-		/// CreateLogWriter and returns a new activity ID.  May be overridden.
+		/// CreateLogWriter and returns a new activity ID. May be overridden.
 		/// </summary>
 		/// <returns>
 		/// The <see cref="string"/>.

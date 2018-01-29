@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TextWriterLogWriterConfig.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2. 
+// Copyright (c) 2011-2016 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -18,13 +18,14 @@ namespace LogJam.Config
 
 
     /// <summary>
-    /// Configures use of a <see cref="TextWriterLogWriter" />.
+    /// Configures use of a <see cref="TextLogWriter" />, which writes text log output to
+    /// any <see cref="TextWriter"/>.
     /// </summary>
     public class TextWriterLogWriterConfig : TextLogWriterConfig
     {
 
         /// <summary>
-        /// Initializes a new config object that will create <see cref="TextWriterLogWriter" /> instances
+        /// Initializes a new config object that will create <see cref="TextLogWriter" /> instances
         /// that write to a <see cref="TextWriter" /> returned from <paramref name="createTextWriterFunc" />.
         /// </summary>
         /// <param name="createTextWriterFunc">
@@ -40,7 +41,7 @@ namespace LogJam.Config
         }
 
         /// <summary>
-        /// Initializes a new config object that will create <see cref="TextWriterLogWriter" /> instances
+        /// Initializes a new config object that will create <see cref="TextLogWriter" /> instances
         /// that write to <paramref name="textWriter" />.
         /// </summary>
         /// <param name="textWriter"></param>
@@ -59,7 +60,7 @@ namespace LogJam.Config
         }
 
         /// <summary>
-        /// Initializes a new <see cref="TextWriterLogWriterConfig" />. <see cref="CreateTextWriter" /> must be set before
+        /// Initializes a new <see cref="TextWriterLogWriterConfig" />.  <see cref="CreateTextWriter" /> must be set before
         /// the config object can be used.
         /// </summary>
         public TextWriterLogWriterConfig()

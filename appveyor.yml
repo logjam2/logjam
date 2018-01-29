@@ -1,5 +1,10 @@
+# LogJam appveyor config
+
 # Build worker image (VM template)
 image: Visual Studio 2017
+
+init:
+  - git config --global core.autocrlf input
 
 configuration: Release
 

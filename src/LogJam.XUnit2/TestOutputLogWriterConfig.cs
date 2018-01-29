@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TestOutputLogWriterConfig.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2.  
 // </copyright>
@@ -61,7 +61,7 @@ namespace LogJam.XUnit2
         public ITestOutputAccessor TestOutputAccessor { get { return _proxyTestOutputAccessor; } }
 
         /// <summary>
-        /// <c>true</c> to include the time offset (since <see cref="StartTimeUtc" />)  when formatting timestamps.
+        /// <c>true</c> to include the time offset (since <see cref="TestOutputFormatWriter.StartTimeUtc" />)  when formatting timestamps.
         /// </summary>
         public bool IncludeTimeOffset { get; set; }
 

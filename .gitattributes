@@ -1,5 +1,8 @@
 # Normalize line endings
 * text=auto
 
+*.cs text diff=csharp
+*.md text
+
 # Resharper DotSettings files are in Unix Format
 *.DotSettings text eol=lf

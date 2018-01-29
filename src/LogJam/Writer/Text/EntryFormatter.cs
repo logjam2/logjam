@@ -32,10 +32,10 @@ namespace LogJam.Writer.Text
         public abstract void Format(ref TEntry entry, FormatWriter formatWriter);
 
         /// <summary>
-        /// Provides automatic conversion from <see cref="EntryFormatActionrmatAction{TEntry}" /> to
+        /// Provides automatic conversion from <see cref="EntryFormatAction{TEntry}" /> to
         /// <see cref="EntryFormatter{TEntry}" />.
         /// </summary>
-        /// <param name="formatAction">A <see cref="EntryFormatActionrmatAction{TEntry}" /></param>
+        /// <param name="formatAction">A <see cref="EntryFormatAction{TEntry}" /></param>
         /// <returns>A <see cref="EntryFormatter{TEntry}" /> that calls <paramref name="formatAction" /> to format text.</returns>
         public static explicit operator EntryFormatter<TEntry>(EntryFormatAction<TEntry> formatAction)
         {

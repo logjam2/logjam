@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="StartableExtensions.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -22,55 +22,95 @@ namespace LogJam.Util
     internal static class StartableExtensions
     {
 
-        internal static void SafeStart(this IStartable startable, Tracer tracer)
+        /// <summary>
+        /// Starts <paramref name="startable"/>, reporting any errors to <paramref name="tracer"/>.
+        /// </summary>
+        /// <param name="startable"></param>
+        /// <param name="tracer"></param>
+        /// <returns><c>true</c> if <paramref name="startable"/> did not fail starting.</returns>
+        internal static bool SafeStart(this IStartable startable, Tracer tracer)
         {
             Arg.DebugNotNull(tracer, nameof(tracer));
 
             if (startable == null)
             {
-                return;
+                return true;
             }
 
-            if (startable.IsStarted)
+            var state = startable.State;
+
+            if (state == StartableState.Started)
             {
-                tracer.Info("{0} already started, not restarting it.", startable);
-                return;
+                return true;
+            }
+            if (state == StartableState.Starting)
+            {
+                tracer.Debug("{0} already starting, not restarting it.", startable);
+                // Return to avoid re-entrant start tracking
+                return true;
             }
 
             try
             {
                 tracer.Verbose("Starting {0} ...", startable);
                 startable.Start();
-                tracer.Info("Successfully started {0}.", startable);
+                if (startable.State == StartableState.Started)
+                {
+                    tracer.Info("Successfully started {0}.", startable);
+                }
+                else if (startable.State == StartableState.Starting)
+                {
+                    tracer.Info("Start in progress for {0}.", startable);
+                }
+                else
+                {
+                    tracer.Warn("{0} not started, but no exception thrown.", startable);
+                }
+                return true;
             }
             catch (Exception excp)
             {
                 tracer.Severe(excp, "Exception Start()ing {0}", startable);
+                return false;
             }
         }
 
-        internal static void SafeStart(this IStartable startable, ITracerFactory tracerFactory)
+        /// <summary>
+        /// Starts <paramref name="startable"/>, reporting any errors to <paramref name="tracerFactory"/>.
+        /// </summary>
+        /// <param name="startable"></param>
+        /// <param name="tracerFactory"></param>
+        /// <returns><c>true</c> if <paramref name="startable"/> did not fail starting.</returns>
+        internal static bool SafeStart(this IStartable startable, ITracerFactory tracerFactory)
         {
             Arg.NotNull(tracerFactory, nameof(tracerFactory));
 
             if (startable == null)
             {
-                return;
+                return true;
             }
 
             Tracer tracer = tracerFactory.TracerFor(startable);
-            SafeStart(startable, tracer);
+            return SafeStart(startable, tracer);
         }
 
-        internal static void SafeStart(this IEnumerable collection, ITracerFactory tracerFactory)
+        /// <summary>
+        /// Starts all objects in <paramref name="collection"/>, reporting any errors to <paramref name="tracerFactory"/>.
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <param name="tracerFactory"></param>
+        /// <returns><c>true</c> if no elements in <paramref name="collection"/> failed starting.</returns>
+        internal static bool SafeStart(this IEnumerable collection, ITracerFactory tracerFactory)
         {
             Arg.NotNull(collection, nameof(collection));
             Arg.NotNull(tracerFactory, nameof(tracerFactory));
 
+            bool allStarted = true;
             foreach (object o in collection)
             {
-                SafeStart(o as IStartable, tracerFactory);
+                allStarted &= SafeStart(o as IStartable, tracerFactory);
             }
+            return allStarted;
         }
 
         internal static void SafeStop(this IStartable startable, Tracer tracer)
@@ -82,13 +122,24 @@ namespace LogJam.Util
                 return;
             }
 
-            if (startable.IsStarted)
+            if (startable.State == StartableState.Started)
             {
                 try
                 {
                     tracer.Verbose("Stopping {0} ...", startable);
                     startable.Stop();
-                    tracer.Info("Successfully stopped {0}.", startable);
+                    if (startable.State == StartableState.Stopped)
+                    {
+                        tracer.Info("Successfully stopped {0}.", startable);
+                    }
+                    else if (startable.State == StartableState.Stopping)
+                    {
+                        tracer.Info("Stop still in progress for {0}.", startable);
+                    }
+                    else
+                    {
+                        tracer.Warn("{0} not stopped, but no exception thrown.", startable);
+                    }
                 }
                 catch (Exception excp)
                 {
@@ -134,7 +185,7 @@ namespace LogJam.Util
             {
                 tracer.Debug("Disposing {0} ...", disposable);
                 disposable.Dispose();
-                tracer.Verbose("Disposed {0}.", disposable);
+                tracer.Debug("Disposed {0}.", disposable);
             }
             catch (Exception excp)
             {

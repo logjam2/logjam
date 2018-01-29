@@ -66,7 +66,12 @@ namespace LogJam.Writer.Text
         /// <summary>
         /// Markup text, eg field delimiters, line prefixes, etc.
         /// </summary>
-        Markup = 9
+        Markup = 9,
+
+        /// <summary>
+        /// Header or footer text.
+        /// </summary>
+        Header = 10
 
     }
 

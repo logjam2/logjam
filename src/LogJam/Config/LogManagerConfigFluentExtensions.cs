@@ -1,24 +1,24 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="LogManagerConfigFluentExtensions.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2. 
+// Copyright (c) 2011-2018 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+
+using LogJam.Shared.Internal;
+using LogJam.Writer;
+using LogJam.Writer.Rotator;
+using LogJam.Writer.Text;
+
 namespace LogJam.Config
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-
-    using LogJam.Shared.Internal;
-    using LogJam.Trace;
-    using LogJam.Writer;
-    using LogJam.Writer.Text;
-
 
     /// <summary>
     /// Extension methods to <see cref="LogManagerConfig" /> for configuring using fluent syntax.
@@ -61,6 +61,7 @@ namespace LogJam.Config
                 debuggerConfig = new DebuggerLogWriterConfig();
                 logManagerConfig.Writers.Add(debuggerConfig);
             }
+
             return debuggerConfig;
         }
 
@@ -87,11 +88,97 @@ namespace LogJam.Config
         }
 
         /// <summary>
-        /// Use the specified <paramref name="logWriter"/>.
+        /// Adds a new <see cref="RotatingLogFileWriterConfig" /> which uses <paramref name="logFileRotatorConfig" />
+        /// and <paramref name="logFileWriterConfig" />.
+        /// </summary>
+        /// <param name="logManagerConfig"></param>
+        /// <param name="logFileRotatorConfig"></param>
+        /// <param name="logFileWriterConfig"></param>
+        /// <returns></returns>
+        public static RotatingLogFileWriterConfig UseRotatingLogFileWriter(this LogManagerConfig logManagerConfig,
+                                                                           LogFileRotatorConfig logFileRotatorConfig,
+                                                                           ILogFileWriterConfig logFileWriterConfig)
+        {
+            Arg.NotNull(logManagerConfig, nameof(logManagerConfig));
+            Arg.NotNull(logFileRotatorConfig, nameof(logFileRotatorConfig));
+            Arg.NotNull(logFileWriterConfig, nameof(logFileWriterConfig));
+
+            var useExistingConfig = new RotatingLogFileWriterConfig(logFileRotatorConfig, logFileWriterConfig);
+            logManagerConfig.Writers.Add(useExistingConfig);
+            return useExistingConfig;
+        }
+
+        /// <summary>
+        /// Adds a new <see cref="RotatingLogFileWriterConfig" /> which uses <paramref name="logFileRotator" />
+        /// and <paramref name="logFileWriterConfig" />.
+        /// </summary>
+        /// <param name="logManagerConfig"></param>
+        /// <param name="logFileRotator"></param>
+        /// <param name="logFileWriterConfig"></param>
+        /// <returns></returns>
+        public static RotatingLogFileWriterConfig UseRotatingLogFileWriter(this LogManagerConfig logManagerConfig,
+                                                                           ILogFileRotator logFileRotator,
+                                                                           ILogFileWriterConfig logFileWriterConfig)
+        {
+            Arg.NotNull(logManagerConfig, nameof(logManagerConfig));
+            Arg.NotNull(logFileRotator, nameof(logFileRotator));
+            Arg.NotNull(logFileWriterConfig, nameof(logFileWriterConfig));
+
+            var useExistingConfig = new RotatingLogFileWriterConfig(new UseExistingLogFileRotatorConfig(logFileRotator), logFileWriterConfig);
+            logManagerConfig.Writers.Add(useExistingConfig);
+            return useExistingConfig;
+        }
+
+        /// <summary>
+        /// Adds a new <see cref="RotatingLogFileWriterConfig" /> which uses a <see cref="TimeIntervalLogFileRotator" /> and writes to rotating text log files.
+        /// </summary>
+        /// <param name="logManagerConfig"></param>
+        /// <param name="logfileName"></param>
+        /// <param name="rootDirectory"></param>
+        /// <param name="directoryPattern"></param>
+        /// <param name="timeZone"></param>
+        /// <returns></returns>
+        public static RotatingLogFileWriterConfig UseHourlyRotatingTextLogFile(this LogManagerConfig logManagerConfig,
+                                                                               string logfileName,
+                                                                               string rootDirectory = LogFileConfig.DefaultLogFileDirectory,
+                                                                               string directoryPattern = TimeIntervalLogFileRotator.DefaultDirectoryPattern,
+                                                                               TimeZoneInfo timeZone = null)
+        {
+            Arg.NotNull(logManagerConfig, nameof(logManagerConfig));
+            Arg.NotNullOrWhitespace(logfileName, nameof(logfileName));
+            if (timeZone == null)
+            {
+                timeZone = TimeZoneInfo.Local;
+            }
+
+            var rotatingLogFileConfig = new RotatingLogFileWriterConfig(new TimeIntervalRotatorConfig()
+                                                                        {
+                                                                            LogfileName = logfileName,
+                                                                            RotateInterval = TimeSpan.FromHours(1),
+                                                                            RootDirectory = rootDirectory,
+                                                                            DirectoryPattern = directoryPattern,
+                                                                            TimeZone = timeZone
+                                                                        },
+                                                                        new TextLogFileWriterConfig()
+                                                                        {
+                                                                            TimeZone = timeZone
+                                                                        })
+                                        {
+                                            BackgroundLogging = true
+                                        };
+
+            logManagerConfig.Writers.Add(rotatingLogFileConfig);
+            return rotatingLogFileConfig;
+        }
+
+        /// <summary>
+        /// Use the specified <paramref name="logWriter" />.
         /// </summary>
         /// <param name="logManagerConfig"></param>
         /// <param name="logWriter"></param>
-        /// <returns>A <see cref="UseExistingLogWriterConfig"/> that will return <paramref name="logWriter"/> when the <see cref="LogManager"/> is started.</returns>
+        /// <returns>
+        /// A <see cref="UseExistingLogWriterConfig" /> that will return <paramref name="logWriter" /> when the <see cref="LogManager" /> is started.
+        /// </returns>
         public static UseExistingLogWriterConfig UseLogWriter(this LogManagerConfig logManagerConfig, ILogWriter logWriter)
         {
             Arg.NotNull(logManagerConfig, nameof(logManagerConfig));
@@ -103,12 +190,14 @@ namespace LogJam.Config
         }
 
         /// <summary>
-        /// Log to <paramref name="list"/>.
+        /// Log to <paramref name="list" />.
         /// </summary>
-        /// <typeparam name="TEntry">The <see cref="ILogEntry"/> type to log to the list.</typeparam>
-        /// <param name="logManagerConfig">The <see cref="LogManagerConfig"/> being configured.</param>
+        /// <typeparam name="TEntry">The <see cref="ILogEntry" /> type to log to the list.</typeparam>
+        /// <param name="logManagerConfig">The <see cref="LogManagerConfig" /> being configured.</param>
         /// <param name="list">A list object.</param>
-        /// <returns>A <see cref="ListLogWriterConfig{TEntry}"/> holding the configuration for the <see cref="ListLogWriter{TEntry}"/>. Can be further configured.</returns>
+        /// <returns>
+        /// A <see cref="ListLogWriterConfig{TEntry}" /> holding the configuration for the <see cref="ListLogWriter{TEntry}" />. Can be further configured.
+        /// </returns>
         public static ListLogWriterConfig<TEntry> UseList<TEntry>(this LogManagerConfig logManagerConfig, IList<TEntry> list)
             where TEntry : ILogEntry
         {
@@ -116,11 +205,69 @@ namespace LogJam.Config
             Arg.NotNull(list, nameof(list));
 
             var listLogWriterConfig = new ListLogWriterConfig<TEntry>()
-            {
-                List = list
-            };
+                                      {
+                                          List = list
+                                      };
             logManagerConfig.Writers.Add(listLogWriterConfig);
             return listLogWriterConfig;
+        }
+
+        /// <summary>
+        /// Log to a text log file with the specified name and directory functions.
+        /// </summary>
+        /// <param name="logManagerConfig">The <see cref="LogManagerConfig" /> being configured.</param>
+        /// <param name="fileNameFunc">A function which returns a log file name when called.</param>
+        /// <param name="directoryFunc">
+        /// A function which returns a log directory path when called; or <c>null</c> to create the log file in the current directory.
+        /// </param>
+        /// <returns>A <see cref="TextLogFileWriterConfig" /> holding the configuration for the log file. Can be further configured.</returns>
+        public static TextLogFileWriterConfig UseTextLogFile(this LogManagerConfig logManagerConfig, Func<string> fileNameFunc, Func<string> directoryFunc = null)
+        {
+            Arg.NotNull(logManagerConfig, nameof(logManagerConfig));
+            Arg.NotNull(fileNameFunc, nameof(fileNameFunc));
+
+            var logfileConfig = new TextLogFileWriterConfig()
+                                {
+                                    LogFile =
+                                    {
+                                        FilenameFunc = fileNameFunc
+                                    }
+                                };
+            if (directoryFunc != null)
+            {
+                logfileConfig.LogFile.DirectoryFunc = directoryFunc;
+            }
+
+            logManagerConfig.Writers.Add(logfileConfig);
+            return logfileConfig;
+        }
+
+        /// <summary>
+        /// Log to a text log file with the specified name and directory.
+        /// </summary>
+        /// <param name="logManagerConfig">The <see cref="LogManagerConfig" /> being configured.</param>
+        /// <param name="fileName">The log file name.</param>
+        /// <param name="directory">The directory path to create the log file in; or <c>null</c> to create the log file in the current directory.</param>
+        /// <returns>A <see cref="TextLogFileWriterConfig" /> holding the configuration for the log file. Can be further configured.</returns>
+        public static TextLogFileWriterConfig UseTextLogFile(this LogManagerConfig logManagerConfig, string fileName, string directory = null)
+        {
+            Arg.NotNull(logManagerConfig, nameof(logManagerConfig));
+            Arg.NotNullOrWhitespace(fileName, nameof(fileName));
+
+            var logfileConfig = new TextLogFileWriterConfig()
+                                {
+                                    LogFile =
+                                    {
+                                        Filename = fileName
+                                    }
+                                };
+            if (directory != null)
+            {
+                logfileConfig.LogFile.Directory = directory;
+            }
+
+            logManagerConfig.Writers.Add(logfileConfig);
+            return logfileConfig;
         }
 
         /// <summary>
@@ -160,10 +307,9 @@ namespace LogJam.Config
                 }
             }
 
-            foreach (var logWriterConfig in logWriterConfigs)
+            foreach (var logWriterConfig in logWriterConfigs.Flatten())
             {
-                var textLogWriterConfig = logWriterConfig as TextLogWriterConfig;
-                if (textLogWriterConfig != null)
+                if (logWriterConfig is TextLogWriterConfig textLogWriterConfig)
                 {
                     if (overwriteExistingFormatters || ! textLogWriterConfig.HasFormatterFor<TEntry>())
                     {
@@ -171,9 +317,30 @@ namespace LogJam.Config
                     }
                 }
             }
+
             return logWriterConfigs;
         }
 
-    }
+        /// <summary>
+        /// Returns a flattened collection of <see cref="ILogWriterConfig"/> instances. Some <see cref="ILogWriterConfig"/>
+        /// instances may contain other <c>ILogWriterConfig</c> instances, eg <see cref="RotatingLogFileWriterConfig"/>.
+        /// </summary>
+        /// <param name="logWriterConfigs"></param>
+        /// <returns></returns>
+        internal static IEnumerable<ILogWriterConfig> Flatten(this IEnumerable<ILogWriterConfig> logWriterConfigs)
+        {
+            foreach (var logWriterConfig in logWriterConfigs)
+            {
+                if (logWriterConfig is IEnumerable<ILogWriterConfig> subLogWriterConfigs)
+                {
+                    foreach (var subLogWriterConfig in subLogWriterConfigs)
+                    {
+                        yield return subLogWriterConfig;
+                    }
+                }
+                yield return logWriterConfig;
+            }
+        }
 
+    }
 }

@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TraceManager.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -27,7 +27,7 @@ namespace LogJam.Trace
     {
         #region Static fields
 
-        private static readonly Lazy<TraceManager> s_instance;
+        private static readonly Lazy<TraceManager> s_instance = new Lazy<TraceManager>(() => new TraceManager(LogManager.Instance, TraceManagerConfig.Default(LogManager.Instance.Config)));
 
         #endregion
 
@@ -47,15 +47,10 @@ namespace LogJam.Trace
 
         #endregion
 
-        static TraceManager()
-        {
-            s_instance = new Lazy<TraceManager>(() => new TraceManager(LogManager.Instance, TraceManagerConfig.Default(LogManager.Instance.Config)));
-        }
-
         /// <summary>
         /// Returns an AppDomain-global <see cref="TraceManager" />.
         /// </summary>
-        public static TraceManager Instance { get { return s_instance.Value; } }
+        public static TraceManager Instance => s_instance.Value;
 
         #region Constructors and Destructors
 
@@ -80,7 +75,7 @@ namespace LogJam.Trace
         }
 
         /// <summary>
-        /// Creates a new <see cref="TraceManager" /> instance using the specified <paramref name="logManager"/> and <paramref name="traceWriterConfig" />.
+        /// Creates a new <see cref="TraceManager" /> instance using the specified <paramref name="logManager"/> and <paramref name="traceWriterConfigs" />.
         /// </summary>
         /// <param name="logManager"></param>
         /// <param name="traceWriterConfigs">A set of 1 or more <see cref="TraceWriterConfig" />s to use for this <c>TraceManager</c>.</param>
@@ -192,10 +187,6 @@ namespace LogJam.Trace
         /// The <see cref="Tracer.Name" /> prefix to use. Tracing will not occur if the
         /// <c>Tracer.Name</c> doesn't match this prefix. By default, <see cref="Tracer.All" /> is used.
         /// </param>
-        /// <param name="setupTracerFactory">
-        /// The <see cref="SetupTracerFactory" /> to use for tracing setup operations. This should be the
-        /// same <see cref="SetupTracerFactory" /> used to initialize <paramref name="logWriter" />.
-        /// </param>
         public TraceManager(ILogWriter logWriter, TraceLevel traceThreshold, string tracerNamePrefix = Tracer.All)
             : this(new UseExistingLogWriterConfig(logWriter), new ThresholdTraceSwitch(traceThreshold))
         {
@@ -287,6 +278,7 @@ namespace LogJam.Trace
                 // Reset TraceWriter for each Tracer
                 ForEachTracer(tracer => tracer.Configure(GetTraceWritersFor(tracer.Name)));
             }
+
         }
 
         protected override void InternalStop()
@@ -304,7 +296,6 @@ namespace LogJam.Trace
         protected override void InternalReset()
         {
             // Stop has already been called
-
             _traceConfig.SetToDefaultConfiguration();
         }
 

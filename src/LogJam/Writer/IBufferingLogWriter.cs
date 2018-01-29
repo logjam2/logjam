@@ -61,7 +61,7 @@ namespace LogJam.Writer
             throw new NotImplementedException();
         }
 
-        public IEnumerable<KeyValuePair<Type, object>> EntryWriters { get { throw new NotImplementedException(); } }
+		public IEnumerable<KeyValuePair<Type, IEntryWriter>> EntryWriters { get { throw new NotImplementedException(); } }
 
 #endregion
     }

@@ -32,7 +32,7 @@ namespace LogJam.Config
 
 		public override ILogWriter CreateLogWriter(ITracerFactory setupTracerFactory)
         {
-            return new ListLogWriter<TEntry>(setupTracerFactory, List, Synchronized);
+            return new ListLogWriter<TEntry>(setupTracerFactory, List, Synchronize);
         }
 
     }

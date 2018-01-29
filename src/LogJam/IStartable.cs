@@ -9,6 +9,8 @@
 
 namespace LogJam
 {
+    using System;
+
 
     /// <summary>
     /// Interface for LogJam objects that can be started, stopped, and re-started.
@@ -20,8 +22,9 @@ namespace LogJam
         /// Starts the object - after <c>Start()</c> is called, the object is active and should operate normally.
         /// <c>Start()</c> must be called after the object is created to prepare it for operation.
         /// </summary>
+        /// <exception cref="ObjectDisposedException">If this object was previously disposed.</exception>
         /// <exception cref="LogJamStartException">
-        /// If activation cannot complete. If the problem is corrected, <c>Start()</c> can
+        /// If the object or its children cannot be started. If the problem is corrected, <c>Start()</c> can
         /// be called again.
         /// </exception>
         void Start();
@@ -30,22 +33,20 @@ namespace LogJam
         /// Stops the object - after <c>Stop()</c> is called, the object is considered inactive. In many cases
         /// <see cref="Start" /> can be called after <c>Stop()</c> to re-activate the object.
         /// </summary>
+        /// <remarks>
+        /// Calls to <see cref="Stop"/> should not throw exceptions.
+        /// </remarks>
         void Stop();
 
         /// <summary>
-        /// The <see cref="StartableState"/> that defines the state of the object.
+        /// The <see cref="StartableState"/> representing the current state of the object within the <see cref="IStartable"/> lifecycle.
         /// </summary>
         StartableState State { get; }
 
         /// <summary>
         /// Returns <c>true</c> if the object is ready to be <see cref="Start"/>ed.
         /// </summary>
-        bool ReadyToStart { get; }
-
-        /// <summary>
-        /// Returns <c>true</c> when the object has been successfully <see cref="Start"/>ed, and has not yet been <see cref="Stop"/>ped.
-        /// </summary>
-        bool IsStarted { get; }
+        bool IsReadyToStart { get; }
 
     }
 

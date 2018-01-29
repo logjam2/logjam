@@ -1,28 +1,26 @@
-// // --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="SharedTestFixtureTests.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2.  
+// Copyright (c) 2011-2018 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
 
+using System;
+
+using LogJam.Shared.Internal;
+using LogJam.Trace;
+
+using Xunit;
+using Xunit.Abstractions;
+
 namespace LogJam.XUnit2.UnitTests
 {
-    using System;
-    using System.Diagnostics.Contracts;
-
-    using LogJam.Shared.Internal;
-    using LogJam.Trace;
-    using LogJam.Trace.Config;
-
-    using Xunit;
-    using Xunit.Abstractions;
-
 
     /// <summary>
-    /// This test handles the case where multiple test cases share a fixture, and the fixture holds the <see cref="LogManager"/>.
-    /// In such cases, the <see cref="ITestOutputHelper"/> is changed for each test, b/c each test has its own test output.
+    /// This test handles the case where multiple test cases share a fixture, and the fixture holds the <see cref="LogManager" />.
+    /// In such cases, the <see cref="ITestOutputHelper" /> is changed for each test, b/c each test has its own test output.
     /// </summary>
     public sealed class SharedTestFixtureTests : IClassFixture<SharedTestFixtureTests.TestFixture>
     {
@@ -50,19 +48,17 @@ namespace LogJam.XUnit2.UnitTests
             // Clear the test output
             _fixture.TestOutputAccessor.TestOutput = null;
 
-            var testOutputLines = testOutput.GetTestOutput().Split(new []{"\r\n"}, StringSplitOptions.RemoveEmptyEntries);
+            var testOutputLines = testOutput.GetTestOutput().Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
             Assert.Single(testOutputLines);
             Assert.Equal(traceMessage, testOutputLines[0]);
         }
+
 
         /// <summary>
         /// A test fixture shared between multiple tests.
         /// </summary>
         public class TestFixture : IDisposable
         {
-
-            public TraceManager TraceManager { get; }
-            public ITestOutputAccessor TestOutputAccessor { get; }
 
             public TestFixture()
             {
@@ -83,12 +79,16 @@ namespace LogJam.XUnit2.UnitTests
                 TestOutputAccessor = testOutputConfig.TestOutputAccessor;
             }
 
+            public TraceManager TraceManager { get; }
+            public ITestOutputAccessor TestOutputAccessor { get; }
+
             public void Dispose()
             {
                 TraceManager.Dispose();
             }
 
         }
+
     }
 
 }

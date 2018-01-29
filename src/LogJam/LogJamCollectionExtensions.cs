@@ -53,15 +53,20 @@ namespace LogJam
             var formatWriter = new TextWriterFormatWriter(setupLog, textWriter, disposeWriter: false);
             var logWriter = new TextLogWriter(setupLog, formatWriter);
             logWriter.AddFormat(entryFormatter);
-            IEntryWriter<TEntry> entryWriter;
-            logWriter.TryGetEntryWriter(out entryWriter);
             using (logWriter)
             {
                 logWriter.Start();
-                for (var enumerator = entries.GetEnumerator(); enumerator.MoveNext();)
+
+                IEntryWriter<TEntry> entryWriter;
+                logWriter.TryGetEntryWriter(out entryWriter);
+                using (logWriter)
                 {
-                    TEntry logEntry = enumerator.Current;
-                    entryWriter.Write(ref logEntry);
+                    logWriter.Start();
+                    for (var enumerator = entries.GetEnumerator(); enumerator.MoveNext();)
+                    {
+                        TEntry logEntry = enumerator.Current;
+                        entryWriter.Write(ref logEntry);
+                    }
                 }
             }
         }

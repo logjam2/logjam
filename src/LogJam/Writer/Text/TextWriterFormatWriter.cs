@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TextWriterFormatWriter.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -86,11 +86,6 @@ namespace LogJam.Writer.Text
             atBeginningOfLine = true;
         }
 
-        public void CloseTextWriter()
-        {
-            Dispose();
-        }
-
         protected int BufferLength { get { return _charBuffer.Length; } }
 
         public override bool IsEnabled { get { return _textWriter != null; } }
@@ -111,6 +106,17 @@ namespace LogJam.Writer.Text
             if (_textWriter == null)
             {
                 setupTracer.Error("TextWriter must be set before Start()ing.");
+            }
+        }
+
+
+        protected override void InternalStop()
+        {
+            if (_textWriter != null)
+            {
+                _textWriter.Flush();
+                _textWriter.Dispose();
+                _textWriter = null;
             }
         }
 

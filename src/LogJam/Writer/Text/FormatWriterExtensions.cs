@@ -63,8 +63,10 @@ namespace LogJam.Writer.Text
         /// <summary>
         /// Formats a time offset field
         /// </summary>
+        /// <param name="formatWriter"></param>
         /// <param name="timeOffset"></param>
         /// <param name="colorCategory"></param>
+        /// <param name="leftPaddedWidth"></param>
         public static void WriteTimeOffset(this FormatWriter formatWriter, TimeSpan timeOffset, ColorCategory colorCategory, int leftPaddedWidth = 9)
         {
             var buf = formatWriter.FieldBuffer;

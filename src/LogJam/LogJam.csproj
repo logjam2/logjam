@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard1.3;net45</TargetFrameworks>
     <Title>LogJam</Title>
-    <Description>Efficient .NET logging library</Description>
+    <Description>Efficient .NET logging and observability library</Description>
     <PackageTags>Log Trace Tracing Logging LogJam</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
@@ -18,7 +18,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="SourceLink.Create.CommandLine" Version="2.6.0" PrivateAssets="All" />
+    <PackageReference Include="SourceLink.Create.CommandLine" Version="2.7.6" PrivateAssets="All" /> 
   </ItemGroup>
+  
+<ItemGroup>
+  <!-- <DotNetCliToolReference Include="dotnet-sourcelink" Version="2.4.0" /> -->
+</ItemGroup>
 
 </Project>

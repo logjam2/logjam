@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="LogManagerTests.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -67,7 +67,7 @@ namespace LogJam.UnitTests
                 int countTraces1 = logManager.SetupLog.Count();
 
                 // Messing with the SetupLog doesn't force a Start()
-                Assert.False(logManager.IsStarted);
+                Assert.False(logManager.IsStarted());
 
                 // Start and stop create trace records
                 logManager.Start();
@@ -91,7 +91,7 @@ namespace LogJam.UnitTests
 
             // Slow log writer - starting, stopping, disposing, writing an entry, all take at least 10ms each.
             const int opDelayMs = 5;
-            var slowLogWriter = new SlowTestLogWriter<MessageEntry>(setupLog, opDelayMs, false);
+            var slowLogWriter = new SlowTestLogWriter<MessageEntry>(setupLog, opDelayMs);
             const int countLoggingThreads = 5;
             const int countMessagesPerThread = 5;
             const int expectedEntryCount = countLoggingThreads * countMessagesPerThread;
@@ -130,11 +130,11 @@ namespace LogJam.UnitTests
             var textLogWriterConfig = logManager.Config.UseTextWriter(stringWriter);
 
             // LogManager.GetLogWriter starts the LogManager
-            Assert.False(logManager.IsStarted);
+            Assert.False(logManager.IsStarted());
             var logWriter = logManager.GetLogWriter(textLogWriterConfig);
             Assert.NotNull(logWriter);
-            Assert.True((logWriter as IStartable).IsStarted);
-            Assert.True(logManager.IsStarted);
+            Assert.True((logWriter as IStartable).IsStarted());
+            Assert.True(logManager.IsStarted());
             Assert.True(logManager.IsHealthy);
         }
 
@@ -147,17 +147,17 @@ namespace LogJam.UnitTests
             logWriterConfig.DisposeOnStop = false; // Disposing the LogWriter will also stop it; for this test, we don't want the Dispose() to cover up Stop() not being called.
 
             // LogManager.GetLogWriter starts the LogManager
-            Assert.False(logManager.IsStarted);
+            Assert.False(logManager.IsStarted());
             var logWriter = logManager.GetLogWriter(logWriterConfig);
             Assert.NotNull(logWriter);
-            Assert.True((logWriter as IStartable).IsStarted);
-            Assert.True(logManager.IsStarted);
+            Assert.True((logWriter as IStartable).IsStarted());
+            Assert.True(logManager.IsStarted());
 
             logManager.Stop();
-            Assert.True(logManager.IsStopped);
+            Assert.True(logManager.State == StartableState.Stopped);
             Assert.True(logManager.IsHealthy);
 
-            Assert.False((logWriter as IStartable).IsStarted);
+            Assert.False((logWriter as IStartable).IsStarted());
         }
 
         [Fact]
@@ -192,7 +192,7 @@ namespace LogJam.UnitTests
             Assert.NotNull(entryWriter);
 
             logManager.Stop();
-            logManager.Config.Clear();
+            logManager.Config.Reset();
 
             // Stopped, no active entrywriters
             Assert.False(logManager.TryGetEntryWriter<TraceEntry>(out entryWriter));

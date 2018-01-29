@@ -1,22 +1,22 @@
-﻿// // --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ObservableSet.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2. 
+// Copyright (c) 2011-2018 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
 
-namespace LogJam.Util
-{
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Linq;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
+namespace LogJam.Util.Collections
+{
 
     /// <summary>
-    /// An <see cref="ISet{T}"/> that raises events when the set contents are changed.
+    /// An <see cref="ISet{T}" /> that raises events when the set contents are changed.
     /// </summary>
     internal class ObservableSet<T> : ISet<T>
     {
@@ -45,25 +45,17 @@ namespace LogJam.Util
 
         private void OnAddingItem(T item)
         {
-            var addingItem = AddingItem;
-            if (addingItem != null)
-            {
-                addingItem(item);
-            }
+            AddingItem?.Invoke(item);
         }
 
         private void OnRemovingItem(T item)
         {
-            var removingItem = RemovingItem;
-            if (removingItem != null)
-            {
-                removingItem(item);
-            }
+            RemovingItem?.Invoke(item);
         }
 
         #region ISet<T>
 
-        public IEnumerator<T> GetEnumerator() =>_innerSet.GetEnumerator();
+        public IEnumerator<T> GetEnumerator() => _innerSet.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator()
         {
@@ -79,6 +71,7 @@ namespace LogJam.Util
                     OnAddingItem(item);
                 }
             }
+
             _innerSet.UnionWith(other);
         }
 
@@ -98,7 +91,7 @@ namespace LogJam.Util
 
         public void ExceptWith(IEnumerable<T> other)
         {
-            foreach (var item in other.ToList())
+            foreach (var item in other.ToArray())
             {
                 if (Contains(item))
                 {
@@ -121,7 +114,7 @@ namespace LogJam.Util
 
         public bool IsProperSubsetOf(IEnumerable<T> other) => _innerSet.IsProperSubsetOf(other);
 
-        public bool Overlaps(IEnumerable<T> other) =>_innerSet.Overlaps(other);
+        public bool Overlaps(IEnumerable<T> other) => _innerSet.Overlaps(other);
 
         public bool SetEquals(IEnumerable<T> other) => _innerSet.SetEquals(other);
 
@@ -145,11 +138,14 @@ namespace LogJam.Util
 
         public void Clear()
         {
-            var innerList = _innerSet.ToList();
-            _innerSet.Clear();
-            foreach (var item in innerList)
+            if (_innerSet.Count > 0)
             {
-                OnRemovingItem(item);
+                var previousElements = _innerSet.ToArray();
+                _innerSet.Clear();
+                foreach (var item in previousElements)
+                {
+                    OnRemovingItem(item);
+                }
             }
         }
 
@@ -175,6 +171,7 @@ namespace LogJam.Util
         public bool IsReadOnly => _innerSet.IsReadOnly;
 
         #endregion
+
     }
 
 }

@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TracerTests.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -6,6 +6,8 @@
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
+
+using System.Diagnostics;
 
 namespace LogJam.UnitTests.Trace
 {
@@ -29,6 +31,7 @@ namespace LogJam.UnitTests.Trace
     /// <summary>
     /// Verifies that <see cref="Tracer" /> behaves as expected.
     /// </summary>
+    [Collection(nameof(GlobalAccessTestCollection))]
     public sealed class TracerTests
     {
 
@@ -53,14 +56,14 @@ namespace LogJam.UnitTests.Trace
             Tracer tracer;
             using (var traceManager = new TraceManager())
             {
-	            traceManager.Config.TraceToList(list);
+                traceManager.Config.TraceToList(list);
 
                 tracer = traceManager.TracerFor(this);
                 tracer.Info("By default info is enabled");
                 tracer.Debug("This message won't be logged");
             }
             Assert.Single(list);
-			list.Clear();
+            list.Clear();
 
             // Tracing after TraceManager is disposed does nothing
             tracer.Info("Not logged, b/c TraceManager has been disposed.");
@@ -69,12 +72,91 @@ namespace LogJam.UnitTests.Trace
             // Trace everything for the test class, nothing for other types
             using (var traceManager = new TraceManager())
             {
-	            traceManager.Config.TraceToList(list, GetType().FullName, new OnOffTraceSwitch(true));
+                traceManager.Config.TraceToList(list, GetType().FullName, new OnOffTraceSwitch(true));
 
                 tracer = traceManager.TracerFor(this);
                 tracer.Debug("Now debug is enabled for this class");
             }
             Assert.Single(list);
+        }
+
+        /// <summary>
+        /// Shows how to verify tracing for a class under test; and how to re-use the global <see cref="TraceManager.Instance"/>.
+        /// </summary>
+        [Theory]
+        [InlineData(ConfigForm.Fluent)]
+        [InlineData(ConfigForm.ObjectGraph)]
+        public void UnitTestTracingWithGlobalTraceManager(ConfigForm configForm)
+        {
+            // In a real app you probably don't have to reset the LogManager + TraceManager before configuring
+            LogManager.Instance.Reset(true);
+            TraceManager.Instance.Reset(true);
+            Assert.Same(LogManager.Instance, TraceManager.Instance.LogManager);
+            Assert.True(TraceManager.Instance.IsHealthy);
+
+            if (System.Diagnostics.Debugger.IsAttached)
+            {   // If a debugger is attached, default config is logging to the debugger
+                Assert.Single(LogManager.Instance.Config.Writers);
+                Assert.Single(TraceManager.Instance.Config.Writers);
+            }
+            else
+            {   // If no debugger is attached, default config is no logging.
+                _testOutputHelper.WriteLine("LogManager Writers should be empty, size: " + LogManager.Instance.Config.Writers.Count);
+                Assert.Empty(LogManager.Instance.Config.Writers);
+                _testOutputHelper.WriteLine("TraceManager Writers should be empty, size: " + TraceManager.Instance.Config.Writers.Count);
+                Assert.Empty(TraceManager.Instance.Config.Writers);
+            }
+
+            // It can occur that the Tracer was obtained before the test starts
+            Tracer tracer = TraceManager.Instance.TracerFor(this);
+
+            // Traces sent to this list
+            var setupTracerFactory = TraceManager.Instance.SetupTracerFactory;
+            var listWriter = new ListLogWriter<TraceEntry>(setupTracerFactory);
+
+            // Add the list TraceWriter only for this class
+            TraceManagerConfig config = TraceManager.Instance.Config;
+            TraceWriterConfig listTraceConfig;
+            if (configForm == ConfigForm.ObjectGraph)
+            {
+                listTraceConfig = new TraceWriterConfig(listWriter)
+                                  {
+                                      Switches =
+                                      {
+                                          { GetType(), new OnOffTraceSwitch(true) }
+                                      }
+                                  };
+                config.Writers.Add(listTraceConfig);
+            }
+            else if (configForm == ConfigForm.Fluent)
+            {
+                listTraceConfig = config.UseLogWriter(listWriter, GetType(), new OnOffTraceSwitch(true));
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
+
+            // restart to load config and assign writers
+            TraceManager.Instance.Start();
+
+            // Ensure start didn't result in any errors
+            Assert.True(TraceManager.Instance.IsHealthy);
+
+            tracer.Info("Info message");
+            tracer.Debug("Debug message");
+            Assert.Equal(2, listWriter.Count);
+
+            // Remove the TraceWriterConfig just to ensure that everything returns to normal
+            Assert.True(TraceManager.Instance.Config.Writers.Remove(listTraceConfig));
+            // restart to reset config
+            TraceManager.Instance.Start();
+
+            LogJam.Internal.UnitTests.Trace.TraceManagerConfigTests.AssertEquivalentToDefaultTraceManagerConfig(TraceManager.Instance);
+
+            // Now tracing goes to the debug window only, but not to the list
+            tracer.Info("Not logged to list, but logged to debug out.");
+            Assert.Equal(2, listWriter.Count);
         }
 
         [Fact]
@@ -86,21 +168,21 @@ namespace LogJam.UnitTests.Trace
 
             var traceManager = new TraceManager(setupLog);
             traceManager.Config.Writers.Add(new TraceWriterConfig()
-                                            {
-                                                LogWriterConfig = new UseExistingLogWriterConfig(exceptionLogWriter, disposeOnStop: true),
-                                                Switches =
-                                                {
-                                                    { Tracer.All, new OnOffTraceSwitch(true) }
-                                                }
-                                            });
+                                    {
+                                        LogWriterConfig = new UseExistingLogWriterConfig(exceptionLogWriter, disposeOnStop: true),
+                                        Switches =
+                                        {
+                                            { Tracer.All, new OnOffTraceSwitch(true) }
+                                        }
+                                    });
             traceManager.Config.Writers.Add(new TraceWriterConfig()
-                                            {
-                                                LogWriterConfig = new UseExistingLogWriterConfig(listLogWriter, disposeOnStop: true),
-                                                Switches =
-                                                {
-                                                    { Tracer.All, new OnOffTraceSwitch(true) }
-                                                }
-                                            });
+                                    {
+                                        LogWriterConfig = new UseExistingLogWriterConfig(listLogWriter, disposeOnStop: true),
+                                        Switches =
+                                        {
+                                            { Tracer.All, new OnOffTraceSwitch(true) }
+                                        }
+                                    });
 
             using (traceManager)
             {
@@ -229,7 +311,15 @@ namespace LogJam.UnitTests.Trace
                     throw new NotImplementedException();
                 }
 
-                public bool IsEnabled { get { return true; } }
+                public bool IsEnabled
+                {
+                    get { return true; }
+                }
+
+                public Type LogEntryType
+                {
+                    get { return typeof(TEntry); }
+                }
 
             }
 

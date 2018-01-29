@@ -22,6 +22,8 @@ namespace LogJam.Writer
     public abstract class SingleEntryTypeLogWriter<TEntry> : BaseLogWriter, IEntryWriter<TEntry>
         where TEntry : ILogEntry
     {
+        // Set to true when this is started.
+        private bool _isStarted;
 
         protected SingleEntryTypeLogWriter(ITracerFactory setupTracerFactory)
             : base(setupTracerFactory)
@@ -41,31 +43,42 @@ namespace LogJam.Writer
             }
         }
 
-        public override IEnumerable<KeyValuePair<Type, object>> EntryWriters { get { return new[] { new KeyValuePair<Type, object>(typeof(TEntry), this) }; } }
+        public override IEnumerable<KeyValuePair<Type, IEntryWriter>> EntryWriters
+        {
+            get { return new[] { new KeyValuePair<Type, IEntryWriter>(typeof(TEntry), this) }; }
+        }
 
         #region IEntryWriter<TEntry>
 
-        public virtual bool IsEnabled { get { return IsStarted; } }
+        public virtual bool IsEnabled
+        {
+            get { return _isStarted; }
+        }
+
+        public Type LogEntryType
+        {
+            get { return typeof(TEntry); }
+        }
 
         public abstract void Write(ref TEntry entry);
 
         #endregion
+
         #region Startable overrides
 
-        /// <summary>
-        /// Override <c>InternalStart</c> to NOT start the <see cref="EntryWriters"/>, since the <see cref="IEntryWriter{TEntry}"/> is <c>this</c>.
-        /// </summary>
         protected override void InternalStart()
-        {}
+        {
+            _isStarted = true;
+            // Don't call base.InternalStart() - because it's redundant to start the EntryWriter
+        }
 
-        /// <summary>
-        /// Override <c>InternalStart</c> to NOT stop the <see cref="EntryWriters"/>, since the <see cref="IEntryWriter{TEntry}"/> is <c>this</c>.
-        /// </summary>
         protected override void InternalStop()
-        {}
-        
-        #endregion
+        {
+            _isStarted = false;
+            // Don't call base.InternalStop() - because it's redundant to stop the EntryWriter
+        }
 
+        #endregion
     }
 
 }

@@ -1,4 +1,4 @@
-// // --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="StartableState.cs">
 // Copyright (c) 2011-2016 https://github.com/logjam2. 
 // </copyright>
@@ -17,14 +17,15 @@ namespace LogJam
     {
 
         Unstarted = 0,
-        Starting = 1,
-        Started = 2,
-        Stopping = 3,
-        Stopped = 4,
-        FailedToStart = 5,
-        FailedToStop = 6,
-        Disposing = 7,
-        Disposed = 8
+        Starting,
+        Restarting,
+        Started,
+        Stopping,
+        Stopped,
+        FailedToStart,
+        FailedToStop,
+        Disposing,
+        Disposed
     }
 
 }

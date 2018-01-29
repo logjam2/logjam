@@ -94,7 +94,7 @@ namespace LogJam.Owin.UnitTests
             testOutputHelper.WriteLine(logOutput);
 
             int countLineBreaks = TestHelper.CountLineBreaks(logOutput);
-            Assert.True(countLineBreaks > 140 && countLineBreaks < 180);
+            Assert.InRange(countLineBreaks, 140, 180);
 
             Assert.NotEmpty(setupLog);
             Assert.False(setupLog.HasAnyExceeding(TraceLevel.Info));

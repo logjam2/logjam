@@ -31,15 +31,23 @@ namespace LogJam
         }
 
         /// @inheritdoc
-        public StartableState State { get { return _startableState; } protected set { _startableState = value; } }
+        public StartableState State
+        {
+            get { return _startableState; }
+            protected set { _startableState = value; }
+        }
 
         /// @inheritdoc
-        public bool IsStarted { get { return _startableState == StartableState.Started; } }
+        [Obsolete("Obsoleted in IStartable")]
+        public bool IsStarted
+        {
+            get { return (_startableState == StartableState.Started); }
+        }
 
         /// <summary>
         /// Returns <c>true</c> if this object is in a state that can be <see cref="Start"/>ed.
         /// </summary>
-        public virtual bool ReadyToStart
+        public virtual bool IsReadyToStart
         {
             get
             {
@@ -51,22 +59,27 @@ namespace LogJam
         /// <summary>
         /// Returns <c>true</c> if this object is being disposed or has been disposed.
         /// </summary>
-        protected bool IsDisposed { get { return _startableState >= StartableState.Disposing; } }
+        protected bool IsDisposed
+        {
+            get { return _startableState >= StartableState.Disposing; }
+        }
 
         /// @inheritdoc
         public virtual void Start()
         {
+            if (IsDisposed)
+            {
+                throw new ObjectDisposedException(this.ToString(), "Cannot be started; state is: " + _startableState);
+            }
+
             lock (this)
             {
-                if (IsStarted || (_startableState == StartableState.Starting))
+                var state = _startableState;
+                if ((state == StartableState.Started) || (state == StartableState.Starting))
                 { // Do nothing if already started or starting.
                     return;
                 }
-                if (_startableState >= StartableState.Disposing)
-                { // Do nothing if already started.
-                    throw new ObjectDisposedException(this.ToString(), "Cannot be started; state is: " + _startableState);
-                }
-                if (! ReadyToStart)
+                if (! IsReadyToStart)
                 {
                     throw new LogJamStartException(this + " cannot be started; state is: " + _startableState, this);
                 }
@@ -101,7 +114,7 @@ namespace LogJam
         {
             lock (this)
             {
-                if (! IsStarted)
+                if (_startableState != StartableState.Started)
                 {
                     return;
                 }
@@ -132,7 +145,7 @@ namespace LogJam
         /// <returns></returns>
         public override string ToString()
         {
-            // This makes Start/Stop logging friendlier, but subclasses are welcome to provider a better ToString()
+            // This makes Start/Stop logging friendlier, but subclasses are welcome to provide a better ToString()
             return GetType().GetCSharpName();
         }
 

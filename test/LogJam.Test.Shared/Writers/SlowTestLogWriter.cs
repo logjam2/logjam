@@ -21,7 +21,7 @@ namespace LogJam.Test.Shared.Writers
         where TEntry : ILogEntry
     {
 
-        public SlowTestLogWriter(ITracerFactory setupTracerFactory, int msDelay, bool synchronize)
+        public SlowTestLogWriter(ITracerFactory setupTracerFactory, int msDelay, bool synchronize = false)
             : base(setupTracerFactory, synchronize)
         {
             WriteEntryDelayMs = msDelay;
@@ -43,16 +43,13 @@ namespace LogJam.Test.Shared.Writers
 
         protected override void InternalStop()
         {
-            if (IsStarted)
-            {
-                Thread.Sleep(StopDelayMs);
-                base.InternalStop();
-            }
+            Thread.Sleep(StopDelayMs);
+            base.InternalStop();
         }
 
         public override void Write(ref TEntry entry)
         {
-            if (IsStarted)
+            if (IsEnabled)
             {
                 Thread.Sleep(WriteEntryDelayMs);
                 base.Write(ref entry);

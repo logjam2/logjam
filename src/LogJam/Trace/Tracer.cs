@@ -193,7 +193,7 @@ namespace LogJam.Trace
         #region Internal methods
 
         /// <summary>
-        /// Configuration method called by <see cref="TraceManager" /> after <see cref="TraceManager.GetTracer" /> is called,
+        /// Configuration method called by <see cref="TraceManager" /> after <see cref="TraceManager.GetTracer(string)" /> is called,
         /// or when the configuration is changed for this <c>Tracer</c>.
         /// </summary>
         /// <param name="traceWriters">
@@ -222,7 +222,7 @@ namespace LogJam.Trace
                 newWriter = new FanOutTraceWriter(traceWriters);
             }
 
-            TraceWriter[] previousTraceWriters = _writer == null ? null : _writer.ToTraceWriterArray();
+            TraceWriter[] previousTraceWriters = _writer?.ToTraceWriterArray();
 
             // REVIEW: This is a lockless set - ok?
             // The expectation is that these values are set infrequently, and it doesn't matter if the switch changes before the traceLogWriter does

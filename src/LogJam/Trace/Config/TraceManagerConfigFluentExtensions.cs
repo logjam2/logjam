@@ -12,6 +12,7 @@ namespace LogJam.Trace.Config
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
 
     using LogJam.Config;
     using LogJam.Shared.Internal;
@@ -43,8 +44,8 @@ namespace LogJam.Trace.Config
             Arg.NotNull(textLogWriterConfig, nameof(textLogWriterConfig));
             Arg.NotNull(switchSet, nameof(switchSet));
 
-            textLogWriterConfig.Format(traceFormatter);
             var traceWriterConfig = new TraceWriterConfig(textLogWriterConfig, switchSet);
+            textLogWriterConfig.Format(traceFormatter);
             traceManagerConfig.Writers.Add(traceWriterConfig);
             return traceWriterConfig;
         }

@@ -44,7 +44,7 @@ namespace LogJam.UnitTests.Writer
                 // This LogWriter throws Assert exceptions if writes aren't properly synchronized
                 validatingLogWriter = new ValidateSyncedLogWriter(logManager.SetupTracerFactory, s_defaultWriteDelay);
                 var logWriterConfig = logManager.Config.UseLogWriter(validatingLogWriter);
-                logWriterConfig.Synchronized = false;
+                logWriterConfig.Synchronize = false;
 
                 AggregateException aggregateException = null;
                 try
@@ -76,7 +76,7 @@ namespace LogJam.UnitTests.Writer
             {
                 validatingLogWriter = new ValidateSyncedLogWriter(logManager.SetupTracerFactory, s_defaultWriteDelay);
                 var logWriterConfig = logManager.Config.UseLogWriter(validatingLogWriter);
-                Assert.True(logWriterConfig.Synchronized);
+                Assert.True(logWriterConfig.Synchronize);
 
                 RunParallelWrites(logManager, c_defaultParallelThreads, c_defaultEntriesPerThread);
             }
