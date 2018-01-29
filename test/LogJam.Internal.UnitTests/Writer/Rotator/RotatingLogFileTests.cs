@@ -81,8 +81,8 @@ namespace LogJam.Internal.UnitTests.Writer.Rotator
             // Ensure log file handles are closed
             void AssertFileIsClosed(FileStream filestream)
             {
-                Assert.False(filestream.CanWrite);
                 Assert.Throws<ObjectDisposedException>(() => filestream.SafeFileHandle.IsClosed);
+                Assert.False(filestream.CanWrite);
             }
             Assert.Collection(testLogFileConfig.CreatedFileStreams, AssertFileIsClosed, AssertFileIsClosed);
 
