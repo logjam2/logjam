@@ -20,6 +20,7 @@ LogJam is productive and useful for these types of projects:
 
 * .NET libraries
 * .NET Command-line applications
+* ASP.NET Core applications
 * .NET Web applications using OWIN and/or Web API
 * XUnit 2.0 tests
 
@@ -35,7 +36,7 @@ Its features include:
   * Logging to text uses replaceable formatters
 * Threadsafe log writing on a background thread - improves performance for logging clients.
 * All internal setup operations are traced to a setup log
-* Best-of-breed efficiency - including minimizing locks and impact on the managed heap
+* Best-of-breed efficiency - including minimizing locks and minimal impact on the managed heap
 
 Current API integrations:
 
@@ -50,6 +51,8 @@ Current log targets:
 * .NET debugger
 * XUnit 2.0 test output
 * ```List<TLogEntry>``` - in memory collection of log entries.
+* Log files
+* Rotating log files
 
 ## Near-term Goals
 * Add instrumentation classes
