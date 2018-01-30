@@ -203,7 +203,7 @@ namespace LogJam
                 State = StartableState.FailedToStop;
             }
 
-            foreach (var disposableRef in _disposeOnStop)
+            foreach (var disposableRef in _disposeOnStop.ToArray())
             {
                 if (disposableRef.Target is IDisposable disposable)
                 {
@@ -310,7 +310,7 @@ namespace LogJam
                 if (disposing)
                 {
                     // Dispose all the linked disposables
-                    foreach (var disposable in _linkedDisposables)
+                    foreach (var disposable in _linkedDisposables.ToArray())
                     {
                         if (disposable != null)
                         {
