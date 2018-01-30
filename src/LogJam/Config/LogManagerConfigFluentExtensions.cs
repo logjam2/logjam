@@ -387,7 +387,7 @@ namespace LogJam.Config
         /// <returns></returns>
         internal static IEnumerable<ILogWriterConfig> Flatten(this IEnumerable<ILogWriterConfig> logWriterConfigs)
         {
-            foreach (var logWriterConfig in logWriterConfigs)
+            foreach (var logWriterConfig in logWriterConfigs.ToArray())
             {
                 if (logWriterConfig is IEnumerable<ILogWriterConfig> subLogWriterConfigs)
                 {

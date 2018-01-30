@@ -11,7 +11,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 
 using LogJam.Config;
 using LogJam.Config.Initializer;
@@ -64,7 +63,8 @@ namespace LogJam
         /// <returns></returns>
         internal bool IsRestartNeeded()
         {
-            return ! ((_logWriters.Count == Config.Writers.Count) && Config.Writers.SetEquals(_logWriters.Keys));
+            // REVIEW: This currently only picks up new log writers. If there are changes to logwriter configuration, the changes are not detected.
+            return State == StartableState.Started && ! ((_logWriters.Count == Config.Writers.Count) && Config.Writers.SetEquals(_logWriters.Keys));
         }
 
         /// <summary>
@@ -137,7 +137,7 @@ namespace LogJam
         /// <param name="logManager"></param>
         /// <returns></returns>
         /// <remarks>
-        /// This method is static so it may be used without a <paramref name="logManager"/>, eg within <see cref="RotatingLogFileWriter"/>
+        /// This method is static so it may be used without a <paramref name="logManager" />, eg within <see cref="RotatingLogFileWriter" />
         /// to create inner log writers.
         /// </remarks>
         internal static ILogWriter CreateLogWriter(ILogWriterConfig logWriterConfig, ITracerFactory setupLog, LogManager logManager = null)
@@ -152,6 +152,7 @@ namespace LogJam
             {
                 logWriterDependencyDictionary.Add<LogManager>(logManager);
             }
+
             if (setupLog != null)
             {
                 logWriterDependencyDictionary.Add<ITracerFactory>(setupLog);
@@ -223,7 +224,9 @@ namespace LogJam
 
             // If the config has changed since starting, restart
             if (IsRestartNeeded())
+            {
                 Start();
+            }
 
             lock (this)
             {
@@ -255,11 +258,18 @@ namespace LogJam
                 // Cache miss
                 IEntryWriter<TEntry>[] entryWriters = GetEntryWriters<TEntry>().ToArray();
                 if (entryWriters.Length == 1)
+                {
                     entryWriter = entryWriters[0];
+                }
                 else if (entryWriters.Length == 0)
+                {
                     entryWriter = null;
+                }
                 else
+                {
                     entryWriter = new FanOutEntryWriter<TEntry>(entryWriters);
+                }
+
                 _cachedEntryWriters.TryAdd(typeof(TEntry), entryWriter);
             }
 
@@ -319,7 +329,10 @@ namespace LogJam
             Arg.NotNull(logWriterConfig, nameof(logWriterConfig));
 
             if (! TryGetLogWriter(logWriterConfig, out var logWriter))
+            {
                 throw new KeyNotFoundException("LogManager does not contain logWriterConfig: " + logWriterConfig);
+            }
+
             return logWriter;
         }
 
