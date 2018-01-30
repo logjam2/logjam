@@ -190,6 +190,7 @@ namespace LogJam.UnitTests
             logManager.Stop();
 
             // List logwriter enabled
+            logManager.Start();
             Assert.True(logManager.TryGetEntryWriter<TraceEntry>(out entryWriter));
             Assert.NotNull(entryWriter);
 

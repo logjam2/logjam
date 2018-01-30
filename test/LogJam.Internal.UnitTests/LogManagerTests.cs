@@ -41,7 +41,8 @@ namespace LogJam.Internal.UnitTests
                 logManager.Config.UseList(new List<TraceEntry>());
                 var listConfig2 = logManager.Config.UseList(new List<MessageEntry>());
 
-                Assert.True(logManager.IsRestartNeeded());
+                // No restart needed, b/c LogManager isn't started
+                Assert.False(logManager.IsRestartNeeded());
 
                 // Starts the LogManager
                 var traceWriter = logManager.GetEntryWriter<TraceEntry>();

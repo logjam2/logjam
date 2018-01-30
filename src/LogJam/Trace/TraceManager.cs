@@ -253,10 +253,10 @@ namespace LogJam.Trace
                     // Restart the LogManager to pick up any config changes
                     _logManager.Start();
                 }
-                else
+                else if (_logManager.IsReadyToStart && ! _logManager.IsStarted())
                 {
                     // No config changes needed, just start it if not already started
-                    _logManager.EnsureAutoStarted();
+                    _logManager.Start();
                 }
 
                 // Create all the TraceWriters associated with each config entry
