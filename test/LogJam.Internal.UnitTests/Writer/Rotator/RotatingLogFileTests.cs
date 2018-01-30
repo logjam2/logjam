@@ -10,6 +10,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 
 using LogJam.Config;
 using LogJam.Internal.UnitTests.Examples;
@@ -77,6 +78,9 @@ namespace LogJam.Internal.UnitTests.Writer.Rotator
 
                 Assert.True(logManager.IsHealthy);
             }
+
+            // Avoid race conditions with following Assert on appveyor. !!
+            Thread.Sleep(10);
 
             // Ensure log file handles are closed
             void AssertFileIsClosed(FileStream filestream)
