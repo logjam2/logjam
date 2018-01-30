@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.0;net452;net471</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.0;net451;net471</TargetFrameworks>
     <Title>LogJam.UnitTests</Title>
     <Description>LogJam unit tests</Description>
   </PropertyGroup>
@@ -9,10 +9,11 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="NSubstitute" Version="3.1.0" />
-    <PackageReference Include="System.ValueTuple" Version="4.4.0" Condition="'$(TargetFramework)' == 'net452'" />
+    <PackageReference Include="System.ValueTuple" Version="4.4.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\LogJam.XUnit2\LogJam.XUnit2.csproj" />
     <ProjectReference Include="..\..\src\LogJam\LogJam.csproj" />
     <ProjectReference Include="..\LogJam.ConsoleTester\LogJam.ConsoleTester.csproj" />
     <ProjectReference Include="..\LogJam.Internal.UnitTests\LogJam.Internal.UnitTests.csproj" />
