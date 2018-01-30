@@ -115,6 +115,8 @@ namespace LogJam.UnitTests
             // Force a GC cyle, and wait for finalizers to complete.
             GC.Collect();
             GC.WaitForPendingFinalizers();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
 
             Assert.Equal(expectedEntryCount, slowLogWriter.Count);
 
