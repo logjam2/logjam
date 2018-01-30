@@ -7,6 +7,8 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 
+using LogJam.Config.Initializer;
+
 namespace LogJam.Trace.Config
 {
     using System;
@@ -181,7 +183,7 @@ namespace LogJam.Trace.Config
                 switches = TraceManagerConfig.CreateDefaultSwitchSet();
             }
 
-            logWriterConfigs.FormatAll(traceFormatter);
+            logWriterConfigs.Format(traceFormatter);
             foreach (var logWriterConfig in logWriterConfigs)
             {
                 traceManagerConfig.Writers.Add(new TraceWriterConfig(logWriterConfig, switches));
@@ -195,13 +197,28 @@ namespace LogJam.Trace.Config
         /// <param name="switches"></param>
         /// <param name="traceFormatter"></param>
         /// <returns></returns>
-        public static void TraceToAllLogWriters(this TraceManagerConfig traceManagerConfig,
+        public static TraceManagerConfig TraceToAllLogWriters(this TraceManagerConfig traceManagerConfig,
                                                 SwitchSet switches = null,
                                                 EntryFormatter<TraceEntry> traceFormatter = null)
         {
             Arg.NotNull(traceManagerConfig, nameof(traceManagerConfig));
 
-            TraceTo(traceManagerConfig, traceManagerConfig.LogManagerConfig.Writers, switches, traceFormatter);
+            if (switches == null)
+            {
+                switches = TraceManagerConfig.CreateDefaultSwitchSet();
+            }
+
+            traceManagerConfig.LogManagerConfig.FormatAllTextLogWriters(traceFormatter);
+
+            traceManagerConfig.LogManagerConfig.Initializers.Add(new UpdateLogWriterConfigInitializer<ILogWriterConfig>(logWriterConfig =>
+                                                                                                                           {
+                                                                                                                               if (! traceManagerConfig.HasTraceWriterFor(logWriterConfig))
+                                                                                                                               {
+                                                                                                                                   traceManagerConfig.Writers.Add(new TraceWriterConfig(logWriterConfig, switches));
+                                                                                                                               }
+                                                                                                                           } ));
+
+            return traceManagerConfig;
         }
 
         /// <summary>
@@ -309,6 +326,28 @@ namespace LogJam.Trace.Config
             Arg.NotNull(tracerName, nameof(tracerName));
 
             return TraceToList(traceManagerConfig, list, CreateSwitchSet(tracerName, traceSwitch));
+        }
+
+        /// <summary>
+        /// Returns <c>true</c> if a <see cref="TraceWriterConfig"/> exists that is associated with <paramref name="logWriterConfig"/>
+        /// </summary>
+        /// <param name="traceManagerConfig"></param>
+        /// <param name="logWriterConfig"></param>
+        /// <returns></returns>
+        public static bool HasTraceWriterFor(this TraceManagerConfig traceManagerConfig, ILogWriterConfig logWriterConfig)
+        {
+            Arg.NotNull(traceManagerConfig, nameof(traceManagerConfig));
+            Arg.NotNull(logWriterConfig, nameof(logWriterConfig));
+
+            foreach (var traceWriterConfig in traceManagerConfig.Writers)
+            {
+                if (ReferenceEquals(traceWriterConfig.LogWriterConfig, logWriterConfig))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static SwitchSet CreateSwitchSet(string rootTracerName, ITraceSwitch traceSwitch = null)

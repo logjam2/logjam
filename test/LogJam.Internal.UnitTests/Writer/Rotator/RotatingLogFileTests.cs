@@ -64,7 +64,7 @@ namespace LogJam.Internal.UnitTests.Writer.Rotator
                 testLogFileConfig = new TestLogFileConfig(textLogFileWriterConfig.LogFile);
                 textLogFileWriterConfig.LogFile = testLogFileConfig;
 
-                logManager.Config.Writers.FormatAll(new MessageEntry.MessageEntryFormatter());
+                logManager.Config.FormatAllTextLogWriters(new MessageEntry.MessageEntryFormatter());
 
                 var entryWriter = logManager.GetEntryWriter<MessageEntry>();
 

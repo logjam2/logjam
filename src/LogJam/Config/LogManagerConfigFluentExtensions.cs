@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
+using LogJam.Config.Initializer;
 using LogJam.Shared.Internal;
 using LogJam.Writer;
 using LogJam.Writer.Rotator;
@@ -272,6 +273,63 @@ namespace LogJam.Config
 
         /// <summary>
         /// Adds <paramref name="entryFormatter" /> or the default formatter for <typeparamref name="TEntry" /> to each of
+        /// the <see cref="ILogWriterConfig" /> objects in <paramref name="logManagerConfig" /> that are of type
+        /// <see cref="TextLogWriterConfig" />.
+        /// <para>
+        /// This is a convenience function to make it easy to apply the same formatting for the same entry types to multiple
+        /// logwriters.
+        /// </para>
+        /// </summary>
+        /// <typeparam name="TEntry"></typeparam>
+        /// <param name="logManagerConfig">The <see cref="LogManagerConfig"/> being updated</param>
+        /// <param name="entryFormatter">
+        /// The <see cref="EntryFormatter{TEntry}" /> to use for all entries of type <typeparamref name="TEntry" />;
+        /// or <c>null</c> to use the default entryformatter for <typeparamref name="TEntry" />.
+        /// </param>
+        /// <param name="overwriteExistingFormatters">
+        /// If <c>true</c>, existing formatters for <typeparamref name="TEntry" /> are
+        /// overwritten with default formatters.
+        /// </param>
+        /// <returns><paramref name="logManagerConfig"/>.</returns>
+        public static LogManagerConfig FormatAllTextLogWriters<TEntry>(this LogManagerConfig logManagerConfig,
+                                                                      EntryFormatter<TEntry> entryFormatter = null,
+                                                                      bool overwriteExistingFormatters = false)
+            where TEntry : ILogEntry
+        {
+            Arg.NotNull(logManagerConfig, nameof(logManagerConfig));
+
+            if (entryFormatter == null)
+            { // Try creating the default entry formatter
+                entryFormatter = DefaultFormatterAttribute.GetDefaultFormatterFor<TEntry>();
+                if (entryFormatter == null)
+                {
+                    throw new ArgumentNullException(nameof(entryFormatter),
+                                                    $"No [DefaultFormatter] attribute could be found for entry type {typeof(TEntry).FullName}, so {nameof(entryFormatter)} argument must be set.");
+                }
+            }
+
+            logManagerConfig.Initializers.Add(new UpdateLogWriterConfigInitializer<TextLogWriterConfig>((textLogWriterConfig) =>
+                                                                                                        {
+                                                                                                            if (overwriteExistingFormatters || ! textLogWriterConfig.HasFormatterFor<TEntry>())
+                                                                                                            {
+                                                                                                                textLogWriterConfig.Format(entryFormatter);
+                                                                                                            }
+                                                                                                        } ));
+
+            return logManagerConfig;
+        }
+
+        [Obsolete("Use either LogManagerConfig.FormatAllTextLogWriters, or IEnumerable<ILogWriterConfig>.Format")]
+        public static IEnumerable<ILogWriterConfig> FormatAll<TEntry>(this IEnumerable<ILogWriterConfig> logWriterConfigs,
+                                                                      EntryFormatter<TEntry> entryFormatter = null,
+                                                                      bool overwriteExistingFormatters = false)
+            where TEntry : ILogEntry
+        {
+            return Format<TEntry>(logWriterConfigs, entryFormatter, overwriteExistingFormatters);
+        }
+
+        /// <summary>
+        /// Adds <paramref name="entryFormatter" /> or the default formatter for <typeparamref name="TEntry" /> to each of
         /// the <see cref="ILogWriterConfig" /> objects in <paramref name="logWriterConfigs" /> that are of type
         /// <see cref="TextLogWriterConfig" />.
         /// <para>
@@ -290,7 +348,7 @@ namespace LogJam.Config
         /// overwritten with default formatters.
         /// </param>
         /// <returns>The <paramref name="logWriterConfigs" /> parameter, for fluent call chaining.</returns>
-        public static IEnumerable<ILogWriterConfig> FormatAll<TEntry>(this IEnumerable<ILogWriterConfig> logWriterConfigs,
+        public static IEnumerable<ILogWriterConfig> Format<TEntry>(this IEnumerable<ILogWriterConfig> logWriterConfigs,
                                                                       EntryFormatter<TEntry> entryFormatter = null,
                                                                       bool overwriteExistingFormatters = false)
             where TEntry : ILogEntry

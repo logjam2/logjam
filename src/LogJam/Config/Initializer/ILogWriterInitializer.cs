@@ -28,7 +28,7 @@ namespace LogJam.Config.Initializer
 	/// <description>are called in order, to connect objects in the log writer pipeline to services that have been exported by other initializers.</description></item>
 	/// </list>
 	/// </remarks>
-	public interface ILogWriterInitializer
+	public interface ILogWriterInitializer : IInitializer
 	{
 	}
 

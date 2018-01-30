@@ -90,6 +90,12 @@ namespace LogJam
                 Stop();
             }
 
+            // Apply all ILogManagerConfigInitializers
+            foreach (var logManagerConfigInitializer in Config.Initializers.OfType<ILogManagerConfigInitializer>())
+            {
+                logManagerConfigInitializer.UpdateLogManagerConfig(Config);
+            }
+
             // Create LogWriters from config
             foreach (ILogWriterConfig logWriterConfig in Config.Writers)
             {
@@ -115,8 +121,9 @@ namespace LogJam
                     }
                 }
 
-                _cachedEntryWriters.Clear();
             }
+
+            _cachedEntryWriters.Clear();
 
             // Start any BackgroundMultiLogWriters, if created during initialization
             _backgroundMultiLogWriters.SafeStart(SetupTracerFactory);
@@ -159,7 +166,7 @@ namespace LogJam
                 var initializers = new List<ILogWriterInitializer>(logWriterConfig.Initializers);
                 if (logManager != null)
                 {
-                    initializers.AddRange(logManager.Config.Initializers);
+                    initializers.AddRange(logManager.Config.Initializers.OfType<ILogWriterInitializer>());
                 }
 
                 ILogWriterPipelineBuilder pipelineBuilder = initializers.OfType<ILogWriterPipelineBuilder>().FirstOrDefault() ?? new DefaultLogWriterPipelineBuilder();

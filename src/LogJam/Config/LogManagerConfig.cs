@@ -35,14 +35,14 @@ namespace LogJam.Config
         /// <summary>
         /// Holds initializers that are applied to all log writers created from this <c>LogManagerConfig</c>.
         /// </summary>
-        private readonly List<ILogWriterInitializer> _initializers;
+        private readonly List<IInitializer> _initializers;
 
         #endregion
 
         /// <summary>
         /// The default set of initializers used to configure a <see cref="LogManager"/> on startup.
         /// </summary>
-        public static readonly IEnumerable<ILogWriterInitializer> DefaultInitializers = new ILogWriterInitializer[]
+        public static readonly IEnumerable<IInitializer> DefaultInitializers = new ILogWriterInitializer[]
                                                                                         {
                                                                                             new BackgroundMultiLogWriter.Initializer(),
                                                                                             new SynchronizingProxyLogWriter.Initializer()
@@ -54,7 +54,7 @@ namespace LogJam.Config
         public LogManagerConfig()
         {
             _logWriterConfigs = new ObservableSet<ILogWriterConfig>();
-            _initializers = new List<ILogWriterInitializer>(DefaultInitializers);
+            _initializers = new List<IInitializer>(DefaultInitializers);
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace LogJam.Config
             Arg.NoneNull(logWriterConfigs, nameof(logWriterConfigs));
 
             _logWriterConfigs = new ObservableSet<ILogWriterConfig>(new HashSet<ILogWriterConfig>(logWriterConfigs));
-            _initializers = new List<ILogWriterInitializer>(DefaultInitializers);
+            _initializers = new List<IInitializer>(DefaultInitializers);
         }
 
         /// <summary>
@@ -74,7 +74,8 @@ namespace LogJam.Config
         public ISet<ILogWriterConfig> Writers { get { return _logWriterConfigs; } }
 
         /// <summary>
-        /// Returns a collection of initializers that are applied to all <see cref="ILogWriter"/>s created from this <see cref="LogManagerConfig"/>.
+        /// Returns a collection of initializers that are applied to this <see cref="LogManagerConfig"/>, and all <see cref="ILogWriter"/>s 
+        /// created from this <see cref="LogManagerConfig"/>.
         /// </summary>
         /// <remarks>
         /// These are <c>LogManager</c>-global initializers. Each <see cref="ILogWriterConfig"/> also has a collection of initializers that are
@@ -83,7 +84,7 @@ namespace LogJam.Config
         /// Initializers are applied in-order.  <see cref="ILogWriterConfig.Initializers"/> are applied before these global initializers.
         /// </para>
         /// </remarks>
-        public ICollection<ILogWriterInitializer> Initializers { get { return _initializers; } }
+        public ICollection<IInitializer> Initializers => _initializers;
 
         /// <summary>
         /// Reset the configuration to empty/brand new, so that the containing <see cref="LogManager"/> can be re-used with new configuration.

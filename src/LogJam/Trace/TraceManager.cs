@@ -224,7 +224,7 @@ namespace LogJam.Trace
         /// </summary>
         /// <param name="logManager">The <see cref="LogManager" /> associated with this <see cref="TraceManager" />.</param>
         /// <param name="configuration">The <see cref="TraceManagerConfig" /> to use to configure this <c>TraceManager</c>.</param>
-        private TraceManager(LogManager logManager, TraceManagerConfig configuration = null)
+        public TraceManager(LogManager logManager, TraceManagerConfig configuration = null)
         {
             Arg.NotNull(logManager, nameof(logManager));
 #if CODECONTRACTS
@@ -237,7 +237,7 @@ namespace LogJam.Trace
             }
             else if (! ReferenceEquals(logManager.Config, configuration.LogManagerConfig))
             {
-                throw new ArgumentException();
+                throw new ArgumentException("TraceManagerConfig.LogManagerConfig must be the same instance as LogManager.Config", nameof(configuration));
             }
 
             _logManager = logManager;

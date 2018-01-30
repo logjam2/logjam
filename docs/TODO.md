@@ -6,6 +6,7 @@
 3. Evidence perf tests (to guide decisions)
   * Compare Type.GetCSharpName() impls, using CodeDomProvider vs explicit
   * Synchronous file IO vs async
+1. Make CircularListLogWriter - multiple lists, one per type, with overall ordering preserved, and no additional allocation.
 1. Fix: Severe error in startup log for console logging failing to start
   * Add LogManager.Config.UseConsoleIfAvailable() - no setuplog error if not available
 1. Test that multiple debugger outputs configured results in a single instance
