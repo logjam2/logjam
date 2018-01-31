@@ -31,10 +31,11 @@ namespace LogJam.Internal.UnitTests.Writer.Rotator
         }
 
         [Theory]
-        [InlineData("12/31/2017 2:10 PM", 60, "\\logs\\2017\\12\\31\\unittest.20171231-14.log")]
-        [InlineData("1/1/2018 2:00 AM", 60, "\\logs\\2018\\01\\01\\unittest.20180101-02.log")]
-        [InlineData("1/1/2018 1:59 AM", 60, "\\logs\\2018\\01\\01\\unittest.20180101-01.log")]
-        [InlineData("1/1/2018 12:01 AM", 60, "\\logs\\2018\\01\\01\\unittest.20180101-00.log")]
+        [InlineData("12/31/2017 2:10 PM", 60, "\\log\\2017\\12\\31\\unittest.20171231-14.log")]
+        [InlineData("1/1/2018 2:00 AM", 60, "\\log\\2018\\01\\01\\unittest.20180101-02.log")]
+        [InlineData("1/1/2018 1:59 AM", 60, "\\log\\2018\\01\\01\\unittest.20180101-01.log")]
+        [InlineData("1/1/2018 12:01 AM", 60, "\\log\\2018\\01\\01\\unittest.20180101-00.log")]
+        [InlineData("1/30/2018 6:18 PM", 60, "\\log\\2018\\01\\30\\unittest.20180130-18.log")]
         public void DefaultLogFilePaths(string datetimeString, int rotateIntervalMinutes, string expectedLogFilePath)
         {
             // Parse dateTime in PST

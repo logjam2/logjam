@@ -26,7 +26,7 @@ namespace LogJam.Internal.UnitTests.Writer.Rotator
     /// </summary>
     public sealed class RotatingLogFileTests
     {
-        private readonly DirectoryInfo _logFileDirectory = new DirectoryInfo(".\\logs");
+        private readonly DirectoryInfo _logFileDirectory = new DirectoryInfo(".\\log");
 
         private FileInfo[] GetTestLogFiles(string directory, string filenamePrefix)
         {
@@ -43,7 +43,7 @@ namespace LogJam.Internal.UnitTests.Writer.Rotator
         {
             string logFileName = nameof(HourlyRotatingLogFileWorks);
             var testSystemClock = new TestSystemClock();
-            testSystemClock.UtcNow = new DateTimeOffset(2017,2,2,1,1,1, TimeSpan.FromHours(-8));
+            testSystemClock.UtcNow = new DateTimeOffset(2017,2,2,19,1,1, TimeSpan.FromHours(-8));
             const string logSubdirectory = "2017\\02\\02";
 
             // Delete log files to allow a clean start

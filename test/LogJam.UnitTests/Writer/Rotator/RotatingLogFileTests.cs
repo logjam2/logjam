@@ -113,16 +113,16 @@ namespace LogJam.UnitTests.Writer.Rotator
                                                              });
 
                 logManager.Start();
+
+                _testOutput.WriteEntries(logManager.SetupLog,
+                                         new DefaultTraceFormatter()
+                                         {
+                                             IncludeTimestamp = true
+                                         });
                 Assert.True(logManager.IsHealthy);
 
                 LoadHelper.LogTestEntriesInParallel(logManager.GetEntryWriter<TestEntry>(), entriesPerThread, parallelLogThreads);
             }
-
-            //_testOutput.WriteEntries(logManager.SetupLog,
-            //                         new DefaultTraceFormatter()
-            //                         {
-            //                             IncludeTimestamp = true
-            //                         });
 
             Assert.True(logManager.IsHealthy);
             Assert.Equal(parallelLogThreads * entriesPerThread, logFileRotator.Count);

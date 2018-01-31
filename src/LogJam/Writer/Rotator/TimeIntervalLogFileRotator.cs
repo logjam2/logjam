@@ -33,7 +33,7 @@ namespace LogJam.Writer.Rotator
         /// <summary>
         /// The default filename pattern for time-interval based log file rotation. This pattern is appended to the f
         /// </summary>
-        public const string DefaultFileNameTimestampPattern = "'.'yyyyMMdd-HH";
+        public const string DefaultFileNameTimestampPattern = "'.'yyyyMMdd'-'HH";
 
         /// <summary>
         /// If we're within this margin of the actual rotation time, and rotate (or new logfile) is opened, round up to the next rotation.

@@ -26,8 +26,8 @@ namespace LogJam.Config
 
         private TimeSpan _rotateInterval;
         private string _logfileName;
-        private string _directoryPattern = "yyyy/MM/dd";
-        private string _logFileNameTimestampPattern = "'.'yyyyMMdd-hh";
+        private string _directoryPattern = TimeIntervalLogFileRotator.DefaultDirectoryPattern;
+        private string _logFileNameTimestampPattern = TimeIntervalLogFileRotator.DefaultFileNameTimestampPattern;
 
         //public TimeIntervalRotatorConfig(TimeSpan rotateInterval, ILogFileConfig innerLogFileConfig)
         //{ }

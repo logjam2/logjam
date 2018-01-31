@@ -31,7 +31,7 @@ namespace LogJam.Config
         /// <summary>
         /// The default directory for writing log files.
         /// </summary>
-        public const string DefaultLogFileDirectory = ".\\logs";
+        public const string DefaultLogFileDirectory = ".\\log";
 
         /// <summary>
         /// The default filename, used if both <see cref="Filename"/> and <see cref="FilenameFunc"/> are not set.
