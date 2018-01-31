@@ -1,12 +1,19 @@
 ﻿# LogJam TODO
 
-1. Add netstandard versions of LogJam
-2. ASP.NET Core logging (equivalent to LogJam.OWIN)
+1. Improve ASP.NET Core configuration
+  * IncludeScopes
+  * Separate configuration + combined configuration for all LogJam sources
+  * Enable support for Tracing thresholds based on log settings
+2. Make LogEntry codes part of FormatWriter (+ part of logwriter config)?
+3. Add flush support, so buffering log writers can be flushed on command.
+  * Support periodic flushing eg every .5s (more efficient than "always flush")
+  * Remove auto-flush from text logger after every entry
 3. Make proxy/fanout EntryWriters self-updating when downstream entrywriters are started or stopped
 3. Evidence perf tests (to guide decisions)
   * Compare Type.GetCSharpName() impls, using CodeDomProvider vs explicit
   * Synchronous file IO vs async
 1. Make CircularListLogWriter - multiple lists, one per type, with overall ordering preserved, and no additional allocation.
+  * Use CircularListLogWriter for setuplog
 1. Fix: Severe error in startup log for console logging failing to start
   * Add LogManager.Config.UseConsoleIfAvailable() - no setuplog error if not available
 1. Test that multiple debugger outputs configured results in a single instance
@@ -41,8 +48,6 @@
 5. Add useful log file headers - datetime opened, PID, entry point assembly, assembly version, CWD
 6. Support extending default logs - eg username for HTTP requests, thread ID and name for tracing
 1. Custom log rotator behavior - datetime changes, log size, etc
-3. Add flush support, so buffering log writers can be flushed on command.
-  * Support periodic flushing eg every .5s (more efficient than "always flush")
 4. Make background logging multi log writer support periodic flushing, eg every 600ms by default. Also support flushing from foreground delegated to background thread.
 5. Instruments: Counters, Timers, HealthItems
 1. Profile and perf test various use-cases
