@@ -1,35 +1,35 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="FunctionalTests.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2. 
+// <copyright file="OwinFunctionalTests.cs">
+// Copyright (c) 2011-2018 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
 
+using System;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
+
+using LogJam.Config;
+using LogJam.Test.Shared;
+using LogJam.Trace;
+using LogJam.Trace.Config;
+using LogJam.Trace.Format;
+using LogJam.Trace.Switches;
+using LogJam.XUnit2;
+
+using Microsoft.Owin.Testing;
+
+using Owin;
+
+using Xunit;
+using Xunit.Abstractions;
+
 namespace LogJam.Owin.UnitTests
 {
-    using System;
-    using System.IO;
-    using System.Linq;
-    using System.Net;
-    using System.Threading.Tasks;
-
-    using global::Owin;
-
-    using LogJam.Config;
-    using LogJam.Test.Shared;
-    using LogJam.Trace;
-    using LogJam.Trace.Config;
-    using LogJam.Trace.Format;
-    using LogJam.Trace.Switches;
-    using LogJam.XUnit2;
-
-    using Microsoft.Owin.Testing;
-
-    using Xunit;
-    using Xunit.Abstractions;
-
 
     /// <summary>
     /// Functional tests for <see cref="LogJam.Owin" />.
@@ -39,7 +39,7 @@ namespace LogJam.Owin.UnitTests
 
         public OwinFunctionalTests(ITestOutputHelper testOutputHelper)
             : base(testOutputHelper)
-        {}
+        { }
 
         [Fact]
         public void SingleRequestWithTracing()
@@ -109,6 +109,7 @@ namespace LogJam.Owin.UnitTests
             {
                 IssueTraceRequest(testServer, 2);
             }
+
             testOutputHelper.WriteLine("Logging complete.");
 
             testOutputHelper.WriteLine("");
@@ -149,7 +150,7 @@ namespace LogJam.Owin.UnitTests
 
             public OwinTestWith3LogTargets(ITestOutputHelper testOutputHelper)
                 : base(testOutputHelper)
-            {}
+            { }
 
             protected override void ConfigureLogging(IAppBuilder appBuilder, TextWriter logTarget, bool backgroundThreadLogging)
             {

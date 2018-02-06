@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.2024
+VisualStudioVersion = 15.0.27130.2027
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{F89C3372-408F-4F99-A7BF-D2818C959F50}"
 	ProjectSection(SolutionItems) = preProject
@@ -51,6 +51,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "perf", "perf", "{7B6D8AA4-C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Evidence", "perf\Evidence\Evidence.csproj", "{A9CC05D6-7CE9-478F-A44E-557AA5CB0D18}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogJam.Owin", "src\LogJam.Owin\LogJam.Owin.csproj", "{491A58F9-103B-4FAA-950C-3278BFC1B8A3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogJam.WebApi", "src\LogJam.WebApi\LogJam.WebApi.csproj", "{2B874BD9-F8DF-4815-BE29-BA56DAC0231F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogJam.Owin.UnitTests", "test\LogJam.Owin.UnitTests\LogJam.Owin.UnitTests.csproj", "{40D0633B-EDC5-4BEC-B3E7-D1BE87659893}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		src\Shared-Internal\Shared-Internal.projitems*{6d0d7963-136b-4336-a4b0-3b8cd0461d79}*SharedItemsImports = 13
@@ -92,6 +98,18 @@ Global
 		{A9CC05D6-7CE9-478F-A44E-557AA5CB0D18}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A9CC05D6-7CE9-478F-A44E-557AA5CB0D18}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A9CC05D6-7CE9-478F-A44E-557AA5CB0D18}.Release|Any CPU.Build.0 = Release|Any CPU
+		{491A58F9-103B-4FAA-950C-3278BFC1B8A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{491A58F9-103B-4FAA-950C-3278BFC1B8A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{491A58F9-103B-4FAA-950C-3278BFC1B8A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{491A58F9-103B-4FAA-950C-3278BFC1B8A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B874BD9-F8DF-4815-BE29-BA56DAC0231F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B874BD9-F8DF-4815-BE29-BA56DAC0231F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B874BD9-F8DF-4815-BE29-BA56DAC0231F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B874BD9-F8DF-4815-BE29-BA56DAC0231F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40D0633B-EDC5-4BEC-B3E7-D1BE87659893}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40D0633B-EDC5-4BEC-B3E7-D1BE87659893}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40D0633B-EDC5-4BEC-B3E7-D1BE87659893}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40D0633B-EDC5-4BEC-B3E7-D1BE87659893}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -106,6 +124,9 @@ Global
 		{A2E1A4B8-1A47-4E9B-874E-F1BA1E0659E8} = {45DD2233-A75B-42B8-BE5A-D8C631A9291C}
 		{0324386F-8763-4F68-B465-A9AA6BA7F399} = {45DD2233-A75B-42B8-BE5A-D8C631A9291C}
 		{A9CC05D6-7CE9-478F-A44E-557AA5CB0D18} = {7B6D8AA4-CE45-42C9-AAD9-3D33438941BC}
+		{491A58F9-103B-4FAA-950C-3278BFC1B8A3} = {E3D54447-25CA-42F6-B58A-8A544118802E}
+		{2B874BD9-F8DF-4815-BE29-BA56DAC0231F} = {E3D54447-25CA-42F6-B58A-8A544118802E}
+		{40D0633B-EDC5-4BEC-B3E7-D1BE87659893} = {45DD2233-A75B-42B8-BE5A-D8C631A9291C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {562113F5-7581-41F9-8F10-698F533C0C7A}

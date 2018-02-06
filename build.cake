@@ -13,8 +13,6 @@ var configuration = Argument("configuration", "Release");
 //////////////////////////////////////////////////////////////////////
 
 var solutionFile = "LogJam.sln";
-var unitTestProjects = new string[] { "LogJam.UnitTests", "LogJam.Internal.UnitTests", "LogJam.XUnit2.UnitTests" };
-var nugetPackageProjects = new string[] { "LogJam", "LogJam.XUnit2" };
 var nugetOutputDir = "./NuGetOut/";
 
 //////////////////////////////////////////////////////////////////////
@@ -66,15 +64,10 @@ Task("Build")
 
 Task("Run-Unit-Tests")
     .IsDependentOn("Build")
-// Can't quite use this, b/c of Owin.UnitTests
-//    .DoesForEach(GetFiles("./test/*.UnitTests/*.csproj"), (unitTestProject) =>
-//{
-//  DotNetCoreTool(unitTestProject, "xunit", "-nobuild -configuration " + configuration);
-//}); 
-    .DoesForEach(unitTestProjects, (unitTestProject) =>
+    .DoesForEach(GetFiles("./test/*.UnitTests/*.csproj"), (unitTestProject) =>
 {
-  DotNetCoreTool("./test/" + unitTestProject + "/" + unitTestProject + ".csproj", "xunit", "-nobuild -configuration " + configuration);
-});
+  DotNetCoreTool(unitTestProject, "xunit", "-nobuild -configuration " + configuration);
+}); 
 
 Task("Package")
     .IsDependentOn("Build")
@@ -82,21 +75,9 @@ Task("Package")
 {
   CreateDirectory(nugetOutputDir);
 })
-// Can't quite use this, b/c of LogJam.Owin
-//    .DoesForEach(GetFiles("./src/*/*.csproj"), (srcProjectFile) =>
-//{
-//  DotNetCorePack(srcProjectFile.FullPath, new DotNetCorePackSettings
-//     {
-//         Configuration = configuration,
-//         OutputDirectory = nugetOutputDir,
-//         NoBuild = true,
-//         NoRestore = true
-//     });
-//});
-    .DoesForEach(nugetPackageProjects, (nugetPackageProject) =>
+    .DoesForEach(GetFiles("./src/*/*.csproj"), (srcProjectFile) =>
 {
-  var csprojPath = "./src/" + nugetPackageProject + "/" + nugetPackageProject + ".csproj";
-  DotNetCorePack(csprojPath, new DotNetCorePackSettings
+  DotNetCorePack(srcProjectFile.FullPath, new DotNetCorePackSettings
      {
          Configuration = configuration,
          OutputDirectory = nugetOutputDir,

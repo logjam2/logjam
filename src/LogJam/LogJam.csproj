@@ -21,8 +21,8 @@
     <PackageReference Include="SourceLink.Create.CommandLine" Version="2.7.6" PrivateAssets="All" /> 
   </ItemGroup>
   
-<ItemGroup>
-  <!-- <DotNetCliToolReference Include="dotnet-sourcelink" Version="2.4.0" /> -->
-</ItemGroup>
+  <ItemGroup>
+    <!-- <DotNetCliToolReference Include="dotnet-sourcelink" Version="2.4.0" /> -->
+  </ItemGroup>
 
 </Project>

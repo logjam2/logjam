@@ -1,21 +1,21 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="LogJamWebApiTraceWriter.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2. 
+// Copyright (c) 2011-2018 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
 
+using System;
+using System.Net.Http;
+using System.Text;
+
+using LogJam.Shared.Internal;
+using LogJam.Trace;
+
 namespace LogJam.WebApi
 {
-    using System;
-    using System.Diagnostics.Contracts;
-    using System.Net.Http;
-    using System.Text;
-
-    using LogJam.Trace;
-
 
     /// <summary>
     /// A Web API <see cref="ITraceWriter" /> that writes all Web API trace output to LogJam <see cref="Tracer" />s.
@@ -32,7 +32,7 @@ namespace LogJam.WebApi
         /// <param name="tracerFactory">A <see cref="ITracerFactory" />.</param>
         public LogJamWebApiTraceWriter(ITracerFactory tracerFactory)
         {
-            Contract.Requires<ArgumentNullException>(tracerFactory != null);
+            Arg.NotNull(tracerFactory, nameof(tracerFactory));
 
             _tracerFactory = tracerFactory;
         }
@@ -47,7 +47,7 @@ namespace LogJam.WebApi
         /// from correlating the trace to a particular request.
         /// </param>
         /// <param name="category">The logical category for the trace. Users can define their own.</param>
-        /// <param name="level">The <see cref="System.Web.Http.Tracing.TraceLevel" /> at which to write this trace.</param>
+        /// <param name="level">The <see cref="TraceLevel" /> at which to write this trace.</param>
         /// <param name="traceAction">
         /// The action to invoke if tracing is enabled. The caller is expected to fill in the fields of the
         /// given <see cref="System.Web.Http.Tracing.TraceRecord" /> in this action.
@@ -70,6 +70,7 @@ namespace LogJam.WebApi
                     {
                         sb.Append(request.RequestUri.OriginalString);
                     }
+
                     sb.Append(": ");
                 }
 

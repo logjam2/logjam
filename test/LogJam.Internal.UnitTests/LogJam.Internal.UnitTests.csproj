@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.0;net451;net471</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.0;net452;net471</TargetFrameworks>
     <Title>LogJam.Internal.UnitTests</Title>
     <Description>LogJam unit tests that require internal access.</Description>
   </PropertyGroup>

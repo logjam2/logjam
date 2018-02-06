@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+﻿<?xml version="1.0"?>
 <package >
   <metadata>
     <id>$id$</id>
@@ -12,25 +12,27 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <!--<releaseNotes>Summary of changes made in this release of the package.</releaseNotes>-->
-    <copyright>Copyright 2011-2015</copyright>
+    <copyright>Copyright 2011-2018</copyright>
     <tags>Log Trace Tracing OWIN Logging Katana LogJam</tags>
-    <dependencies>
-      <dependency id="LogJam" version="1.0.4" />
-    </dependencies>
 
-    <!-- Explicitly specify which assemblys are referenced when this project is referenced (to not link to the CodeContracts DLL). -->
     <references>
+      <!-- Explicitly specify which assemblies are referenced when this project is referenced (to not link to the CodeContracts DLLs for net45). -->
       <reference file="$id$.dll" />
     </references>
+
+    <dependencies>
+      <group targetFramework=".NETFramework4.5">
+        <dependency id="LogJam" version="$version$" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Owin" version="3.0.0" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
   </metadata>
 
   <!-- Include the dll, pdb, code contracts, xml (xml docs). -->
   <files>
-    <!-- DLLs and XML comments are implicitly added -->
-    <!-- Include the PDB file in nuget package -->
-    <file src="$TargetDir$$id$.pdb" target="lib\net45" />
-    <!-- Code-contracts reference assembly -->
-    <file src="$TargetDir$\CodeContracts\$id$.Contracts.*" target="lib\net45\CodeContracts" />
+    <file src="bin\$configuration$\net45\$id$.*" target="lib\net45" />
+    <!-- Code-contracts reference assembly + PDBs in net45 -->
+    <file src="bin\$configuration$\net45\CodeContracts\$id$.Contracts.*" target="lib\net45\CodeContracts" />
   </files>
 
 </package>

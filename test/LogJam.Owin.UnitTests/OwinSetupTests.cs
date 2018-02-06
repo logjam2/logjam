@@ -1,36 +1,36 @@
-﻿// // --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="OwinSetupTests.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2. 
+// Copyright (c) 2011-2018 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
 
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
+
+using LogJam.Config;
+using LogJam.Owin.Http;
+using LogJam.Trace;
+using LogJam.Trace.Config;
+using LogJam.XUnit2;
+
+using Microsoft.Owin.Testing;
+
+using Owin;
+
+using Xunit;
+using Xunit.Abstractions;
+
 namespace LogJam.Owin.UnitTests
 {
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Net;
-    using System.Threading.Tasks;
-
-    using global::Owin;
-
-    using LogJam.Config;
-    using LogJam.Owin.Http;
-    using LogJam.Trace;
-    using LogJam.Trace.Config;
-    using LogJam.XUnit2;
-
-    using Microsoft.Owin.Testing;
-
-    using Xunit;
-    using Xunit.Abstractions;
-
 
     /// <summary>
-    /// Exercises different <see cref="LogJam.Owin"/> setup use-cases.
+    /// Exercises different <see cref="LogJam.Owin" /> setup use-cases.
     /// </summary>
     public sealed class OwinSetupTests
     {
@@ -64,7 +64,7 @@ namespace LogJam.Owin.UnitTests
                                                    Assert.Equal(2, logManagerConfig.Writers.Count);
 
                                                    // Enable HTTP logging #1
-                                                   owinAppBuilder.LogHttpRequestsToAll();                                                   
+                                                   owinAppBuilder.LogHttpRequestsToAll();
 
                                                    // Add ListLogWriters for requests and responses
                                                    var requestListConfig = new ListLogWriterConfig<HttpRequestEntry>()

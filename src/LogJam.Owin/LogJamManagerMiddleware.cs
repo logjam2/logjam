@@ -1,22 +1,22 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="LogJamManagerMiddleware.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2. 
+// Copyright (c) 2011-2018 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
 
+using System;
+using System.Threading.Tasks;
+
+using LogJam.Shared.Internal;
+using LogJam.Trace;
+
+using Microsoft.Owin;
+
 namespace LogJam.Owin
 {
-    using System;
-    using System.Diagnostics.Contracts;
-    using System.Threading.Tasks;
-
-    using LogJam.Trace;
-
-    using Microsoft.Owin;
-
 
     /// <summary>
     /// Handles startup and shutdown of logging; and stores a <see cref="LogManager" /> and <see cref="TraceManager" />
@@ -32,9 +32,9 @@ namespace LogJam.Owin
         public LogJamManagerMiddleware(OwinMiddleware next, LogManager logManager, TraceManager traceManager)
             : base(next)
         {
-            Contract.Requires<ArgumentNullException>(next != null);
-            Contract.Requires<ArgumentNullException>(logManager != null);
-            Contract.Requires<ArgumentNullException>(traceManager != null);
+            Arg.NotNull(next, nameof(next));
+            Arg.NotNull(logManager, nameof(logManager));
+            Arg.NotNull(traceManager, nameof(traceManager));
 
             _enabled = (logManager.Config.Writers.Count > 0) || (traceManager.Config.Writers.Count > 0);
             _logManager = logManager;

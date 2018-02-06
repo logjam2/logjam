@@ -1,23 +1,23 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ExceptionLoggingMiddleware.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2. 
+// Copyright (c) 2011-2018 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
 
+using System;
+using System.Runtime.ExceptionServices;
+using System.Threading.Tasks;
+
+using LogJam.Shared.Internal;
+using LogJam.Trace;
+
+using Microsoft.Owin;
+
 namespace LogJam.Owin
 {
-    using System;
-    using System.Diagnostics.Contracts;
-    using System.Runtime.ExceptionServices;
-    using System.Threading.Tasks;
-
-    using LogJam.Trace;
-
-    using Microsoft.Owin;
-
 
     /// <summary>
     /// Middleware that logs exceptions that are passed up the Owin stack.
@@ -39,7 +39,8 @@ namespace LogJam.Owin
                                           bool logUnhandled = true)
             : base(next)
         {
-            Contract.Requires<ArgumentNullException>(tracer != null);
+            Arg.NotNull(next, nameof(next));
+            Arg.NotNull(tracer, nameof(tracer));
 
             _tracer = tracer;
             _messageFormatter = messageFormatter ?? DefaultMessageFormatter;
@@ -78,6 +79,7 @@ namespace LogJam.Owin
                 {
                     TraceUnhandledException(owinContext, ex);
                 }
+
                 throw;
             }
         }

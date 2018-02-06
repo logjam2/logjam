@@ -1,65 +1,29 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <Import Project="..\..\build\CsprojCommon.targets" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <RootNamespace>LogJam.WebApi</RootNamespace>
-    <AssemblyName>LogJam.WebApi</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <ProjectGuid>{6D0A4D76-AAA5-454E-A013-AB4B05C7DD5C}</ProjectGuid>
-    <DocumentationFile>$(OutputPath)\LogJam.WebApi.xml</DocumentationFile>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
+    <TargetFrameworks>net45</TargetFrameworks>
+    <Title>LogJam.WebApi</Title>
+    <Description>WebApi (System.Web.Http) logging extensions using LogJam</Description>
+    <PackageTags>Log WebApi web-api Logging LogJam</PackageTags>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <!-- Need to pack using a nuspec file, to include <references> -->
+    <NuspecFile>LogJam.WebApi.nuspec</NuspecFile>
   </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="Microsoft.Owin">
-      <HintPath>$(PackagesDir)\Microsoft.Owin.3.0.0\lib\net45\Microsoft.Owin.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Owin">
-      <HintPath>$(PackagesDir)\Owin.1.0\lib\net40\Owin.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Net.Http.Formatting, Version=5.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(PackagesDir)\Microsoft.AspNet.WebApi.Client.5.2.2\lib\net45\System.Net.Http.Formatting.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Web.Http, Version=5.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(PackagesDir)\Microsoft.AspNet.WebApi.Core.5.2.2\lib\net45\System.Web.Http.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Web.Http.Owin">
-      <HintPath>$(PackagesDir)\Microsoft.AspNet.WebApi.Owin.5.2.2\lib\net45\System.Web.Http.Owin.dll</HintPath>
-    </Reference>
+    <PackageReference Include="SourceLink.Create.CommandLine" Version="2.7.6" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Owin" Version="3.0.0" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.2" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Core" Version="5.2.2" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Owin" Version="5.2.2" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="LogJamExceptionLogger.cs" />
-    <Compile Include="LogJamWebApiTraceWriter.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RequestExtensions.cs" />
-    <Compile Include="Tasks\TaskHelper.cs" />
+    <ProjectReference Include="..\LogJam\LogJam.csproj" />
+    <ProjectReference Include="..\LogJam.Owin\LogJam.Owin.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-    <None Include="LogJam.WebApi.nuspec" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\..\packages\CodeContracts.MSBuild.1.9.10714.3\build\CodeContracts.MSBuild.targets" Condition="Exists('..\..\packages\CodeContracts.MSBuild.1.9.10714.3\build\CodeContracts.MSBuild.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\..\packages\CodeContracts.MSBuild.1.9.10714.3\build\CodeContracts.MSBuild.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\CodeContracts.MSBuild.1.9.10714.3\build\CodeContracts.MSBuild.targets'))" />
-  </Target>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+
+  <Import Project="..\Shared-Internal\Shared-Internal.projitems" Label="Shared" />
+
 </Project>

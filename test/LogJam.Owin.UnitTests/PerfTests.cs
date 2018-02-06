@@ -1,28 +1,28 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="PerfTests.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2. 
+// Copyright (c) 2011-2018 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
 
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+
+using Microsoft.Owin.Testing;
+
+using Xunit;
+using Xunit.Abstractions;
+
+using TraceLevel = LogJam.Trace.TraceLevel;
+
 namespace LogJam.Owin.UnitTests
 {
-    using System;
-    using System.Diagnostics;
-    using System.IO;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
-
-    using Microsoft.Owin.Testing;
-
-    using Xunit;
-    using Xunit.Abstractions;
-
-    using TraceLevel = LogJam.Trace.TraceLevel;
-
 
     /// <summary>
     /// Runs perf test on standard <see cref="LogJam.Owin" /> setup.
@@ -32,7 +32,7 @@ namespace LogJam.Owin.UnitTests
 
         public PerfTests(ITestOutputHelper testOutputHelper)
             : base(testOutputHelper)
-        {}
+        { }
 
         [Theory]
         [InlineData(4, 1000, 0)]
@@ -58,6 +58,7 @@ namespace LogJam.Owin.UnitTests
                                         {
                                             IssueTraceRequest(testServer, tracesPerRequest);
                                         }
+
                                         stopWatch.Stop();
 
                                         testOutputHelper.WriteLine("{0}: Completed {1} requests on thread {2} in {3}",

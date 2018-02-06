@@ -1,24 +1,23 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="LogJamExceptionLogger.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2. 
+// Copyright (c) 2011-2018 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
 
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Web.Http.ExceptionHandling;
+
+using LogJam.Shared.Internal;
+using LogJam.Trace;
+using LogJam.WebApi.Tasks;
+
 namespace LogJam.WebApi
 {
-    using System;
-    using System.Diagnostics.Contracts;
-    using System.Net.Http;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using System.Web.Http.ExceptionHandling;
-
-    using LogJam.Trace;
-    using LogJam.WebApi.Tasks;
-
 
     /// <summary>
     /// Logs Web API exceptions to a LogJam <see cref="Tracer" />.
@@ -36,7 +35,7 @@ namespace LogJam.WebApi
         /// <param name="tracerFactory">A <see cref="ITracerFactory" />.</param>
         public LogJamExceptionLogger(ITracerFactory tracerFactory)
         {
-            Contract.Requires<ArgumentNullException>(tracerFactory != null);
+            Arg.NotNull(tracerFactory, nameof(tracerFactory));
 
             _tracer = tracerFactory.TracerFor(this);
         }

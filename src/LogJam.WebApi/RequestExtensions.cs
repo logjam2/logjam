@@ -1,24 +1,24 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="RequestExtensions.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2. 
+// Copyright (c) 2011-2018 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
 
+using System.Collections.Generic;
+
+using LogJam.Shared.Internal;
+
+using Microsoft.Owin;
+using Microsoft.Owin.Builder;
+
+using Owin;
+
 // ReSharper disable once CheckNamespace
 namespace System.Net.Http
 {
-    using System.Collections.Generic;
-    using System.Diagnostics.Contracts;
-
-    using LogJam.Config;
-
-    using Microsoft.Owin;
-
-    using Owin;
-
 
     /// <summary>
     /// Extension methods for <see cref="HttpRequestMessage" />.
@@ -31,13 +31,13 @@ namespace System.Net.Http
         /// <summary>
         /// Returns the request number (ordinal) for the request described by <paramref name="webApiRequest" />. This
         /// method will return monotonically increasing request numbers if OWIN request logging is enabled
-        /// via <see cref="AppBuilderExtensions.LogHttpRequests(IAppBuilder, IEnumerable{ILogWriterConfig})" />.
+        /// via <see cref="Owin.AppBuilderExtensions.LogHttpRequests(IAppBuilder,IEnumerable{LogJam.Config.ILogWriterConfig})" /> or <see cref="Owin.AppBuilderExtensions.LogHttpRequestsToAll"/>.
         /// </summary>
         /// <param name="webApiRequest">An <see cref="HttpRequestMessage" /> for the current request.</param>
         /// <returns>The request number for the current OWIN request.</returns>
         public static long GetRequestNumber(this HttpRequestMessage webApiRequest)
         {
-            Contract.Requires<ArgumentNullException>(webApiRequest != null);
+            Arg.NotNull(webApiRequest, nameof(webApiRequest));
 
             IOwinContext owinContext = webApiRequest.GetOwinContext();
             if (owinContext == null)
@@ -58,7 +58,7 @@ namespace System.Net.Http
         /// <param name="exception">An exception to store. If <c>null</c>, the stored exception is cleared.</param>
         public static void LoggedRequestException(this HttpRequestMessage webApiRequest, Exception exception)
         {
-            Contract.Requires<ArgumentNullException>(webApiRequest != null);
+            Arg.NotNull(webApiRequest, nameof(webApiRequest));
 
             IOwinContext owinContext = webApiRequest.GetOwinContext();
             if (owinContext != null)
@@ -82,8 +82,8 @@ namespace System.Net.Http
         /// <returns><c>true</c> if <paramref name="exception" /> has already been logged for this request.</returns>
         public static bool HasRequestExceptionBeenLogged(this HttpRequestMessage webApiRequest, Exception exception)
         {
-            Contract.Requires<ArgumentNullException>(webApiRequest != null);
-            Contract.Requires<ArgumentNullException>(exception != null);
+            Arg.NotNull(webApiRequest, nameof(webApiRequest));
+            Arg.NotNull(exception, nameof(exception));
 
             IOwinContext owinContext = webApiRequest.GetOwinContext();
             if (owinContext != null)

@@ -1,23 +1,26 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="OwinContextExtensions.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2. 
+// Copyright (c) 2011-2018 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
 
+using System;
+using System.Collections.Generic;
+
+using LogJam;
+using LogJam.Owin;
+using LogJam.Owin.Http;
+using LogJam.Shared.Internal;
+using LogJam.Trace;
+#if CODECONTRACTS
+using System.Diagnostics.Contracts;
+#endif
+
 namespace Microsoft.Owin
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics.Contracts;
-
-    using LogJam;
-    using LogJam.Owin;
-    using LogJam.Owin.Http;
-    using LogJam.Trace;
-
 
     /// <summary>
     /// Extension methods for <see cref="IOwinContext" />.
@@ -38,7 +41,7 @@ namespace Microsoft.Owin
         /// <returns>The request number for the current OWIN request.</returns>
         public static long GetRequestNumber(this IOwinContext owinContext)
         {
-            Contract.Requires<ArgumentNullException>(owinContext != null);
+            Arg.NotNull(owinContext, nameof(owinContext));
 
             return owinContext.Get<long>(HttpLoggingMiddleware.RequestNumberKey);
         }
@@ -51,7 +54,7 @@ namespace Microsoft.Owin
         /// <param name="exception">An exception to store. If <c>null</c>, the stored exception is cleared.</param>
         public static void LoggedRequestException(this IOwinContext owinContext, Exception exception)
         {
-            Contract.Requires<ArgumentNullException>(owinContext != null);
+            Arg.NotNull(owinContext, nameof(owinContext));
 
             owinContext.Environment[c_lastLoggedExceptionKey] = exception;
         }
@@ -66,8 +69,8 @@ namespace Microsoft.Owin
         /// <returns><c>true</c> if <paramref name="exception" /> has already been logged for this request.</returns>
         public static bool HasRequestExceptionBeenLogged(this IOwinContext owinContext, Exception exception)
         {
-            Contract.Requires<ArgumentNullException>(owinContext != null);
-            Contract.Requires<ArgumentNullException>(exception != null);
+            Arg.NotNull(owinContext, nameof(owinContext));
+            Arg.NotNull(exception, nameof(exception));
 
             var lastLoggedException = owinContext.Get<Exception>(c_lastLoggedExceptionKey);
             return ReferenceEquals(exception, lastLoggedException);
@@ -80,8 +83,10 @@ namespace Microsoft.Owin
         /// <returns></returns>
         public static ITracerFactory GetTracerFactory(this IOwinContext owinContext)
         {
-            Contract.Requires<ArgumentNullException>(owinContext != null);
+            Arg.NotNull(owinContext, nameof(owinContext));
+#if CODECONTRACTS
             Contract.Ensures(Contract.Result<ITracerFactory>() != null);
+#endif
 
             ITracerFactory tracerFactory = owinContext.Environment.Get<ITracerFactory>(TracerFactoryKey);
             if (tracerFactory != null)
@@ -100,8 +105,10 @@ namespace Microsoft.Owin
         /// <returns></returns>
         public static LogManager GetLogManager(this IOwinContext owinContext)
         {
-            Contract.Requires<ArgumentNullException>(owinContext != null);
+            Arg.NotNull(owinContext, nameof(owinContext));
+#if CODECONTRACTS
             Contract.Ensures(Contract.Result<LogManager>() != null);
+#endif
 
             LogManager logManager = owinContext.Environment.Get<LogManager>(LogManagerKey);
             if (logManager != null)
@@ -121,8 +128,8 @@ namespace Microsoft.Owin
         /// <returns></returns>
         internal static void SetLogManager(this IOwinContext owinContext, LogManager logManager)
         {
-            Contract.Requires<ArgumentNullException>(owinContext != null);
-            Contract.Requires<ArgumentNullException>(logManager != null);
+            Arg.NotNull(owinContext, nameof(owinContext));
+            Arg.NotNull(logManager, nameof(logManager));
 
             if (owinContext.Environment.ContainsKey(LogManagerKey))
             {
@@ -150,8 +157,8 @@ namespace Microsoft.Owin
         /// <returns></returns>
         internal static void SetTracerFactory(this IOwinContext owinContext, ITracerFactory tracerFactory)
         {
-            Contract.Requires<ArgumentNullException>(owinContext != null);
-            Contract.Requires<ArgumentNullException>(tracerFactory != null);
+            Arg.NotNull(owinContext, nameof(owinContext));
+            Arg.NotNull(tracerFactory, nameof(tracerFactory));
 
             if (owinContext.Environment.ContainsKey(TracerFactoryKey))
             {

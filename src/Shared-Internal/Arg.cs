@@ -1,21 +1,24 @@
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="Arg.cs">
-// Copyright (c) 2011-2017 https://github.com/logjam2.  
+// Copyright (c) 2011-2018 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
 
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+
 namespace LogJam.Shared.Internal
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
+
 #if CODECONTRACTS
     using System.Diagnostics.Contracts;
     using System.Linq;
 #endif
+
 
     /// <summary>
     /// Argument validation helpers.
@@ -61,6 +64,7 @@ namespace LogJam.Shared.Internal
             {
                 throw new ArgumentNullException(parameterName);
             }
+
             if (array.Length == 0)
             {
                 throw new ArgumentException($"{parameterName} array must not be empty", paramName: parameterName);
@@ -79,6 +83,7 @@ namespace LogJam.Shared.Internal
             {
                 throw new ArgumentNullException(parameterName);
             }
+
             for (int i = 0; i < array.Length; ++i)
             {
                 if (array[i] == null)
@@ -100,6 +105,7 @@ namespace LogJam.Shared.Internal
             {
                 throw new ArgumentNullException(parameterName);
             }
+
             if (collection.Count == 0)
             {
                 throw new ArgumentException($"{parameterName} collection must not be empty", paramName: parameterName);
@@ -118,6 +124,7 @@ namespace LogJam.Shared.Internal
             {
                 throw new ArgumentNullException(parameterName);
             }
+
             foreach (T t in collection)
             {
                 if (t == null)
@@ -139,6 +146,7 @@ namespace LogJam.Shared.Internal
             {
                 throw new ArgumentNullException(parameterName);
             }
+
             if (value.Length == 0)
             {
                 throw new ArgumentException($"{parameterName} string must not be empty", paramName: parameterName);
@@ -147,8 +155,8 @@ namespace LogJam.Shared.Internal
         }
 
         /// <summary>
-        /// Throws an <see cref="ArgumentException"/> if <paramref name="value"/> is empty or all whitespace.
-        /// Throws an <see cref="ArgumentNullException"/> if <paramref name="value"/> is <c>null</c>.
+        /// Throws an <see cref="ArgumentException" /> if <paramref name="value" /> is empty or all whitespace.
+        /// Throws an <see cref="ArgumentNullException" /> if <paramref name="value" /> is <c>null</c>.
         /// </summary>
         /// <param name="value"></param>
         /// <param name="parameterName"></param>
@@ -163,14 +171,16 @@ namespace LogJam.Shared.Internal
             {
                 throw new ArgumentNullException(parameterName);
             }
+
             int i = 0;
             for (; i < value.Length; i++)
             {
-                if (!char.IsWhiteSpace(value[i]))
+                if (! char.IsWhiteSpace(value[i]))
                 {
                     break;
                 }
             }
+
             if (i == value.Length)
             {
                 throw new ArgumentException($"The argument for parameter {parameterName} must not be empty or all whitespace.", paramName: parameterName);
@@ -189,6 +199,7 @@ namespace LogJam.Shared.Internal
             {
                 throw new ArgumentOutOfRangeException(paramName: parameterName, actualValue: value, message: $"{parameterName} value {value} cannot be less than {minimum}.");
             }
+
             if (value > maximum)
             {
                 throw new ArgumentOutOfRangeException(paramName: parameterName, actualValue: value, message: $"{parameterName} value {value} cannot be greater than {maximum}.");
@@ -202,7 +213,7 @@ namespace LogJam.Shared.Internal
 #if CODECONTRACTS
             Contract.Requires<ArgumentException>(assertion, assertionDescription);
 #else
-            if (!assertion)
+            if (! assertion)
             {
                 throw new ArgumentException(assertionDescription);
             }
@@ -216,7 +227,7 @@ namespace LogJam.Shared.Internal
 #if CODECONTRACTS
             Contract.Requires<ArgumentException>(assertion, assertionDescription);
 #else
-            if (!assertion)
+            if (! assertion)
             {
                 throw new ArgumentException(assertionDescription);
             }
@@ -224,7 +235,7 @@ namespace LogJam.Shared.Internal
         }
 
         /// <summary>
-        /// Verifies that <paramref name="value"/> is of type <typeparamref name="T"/>.
+        /// Verifies that <paramref name="value" /> is of type <typeparamref name="T" />.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="value">The value of the parameter.</param>
@@ -236,7 +247,7 @@ namespace LogJam.Shared.Internal
 #if CODECONTRACTS
             Contract.Requires<ArgumentException>((value is T), message);
 #else
-            if (!(value is T))
+            if (! (value is T))
             {
                 if (message != null)
                 {
@@ -251,7 +262,7 @@ namespace LogJam.Shared.Internal
         }
 
         /// <summary>
-        /// Verifies that <paramref name="value"/> is NOT of type <typeparamref name="T"/>.
+        /// Verifies that <paramref name="value" /> is NOT of type <typeparamref name="T" />.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="value">The value of the parameter.</param>

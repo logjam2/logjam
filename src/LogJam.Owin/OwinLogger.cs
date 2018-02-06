@@ -1,24 +1,24 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="OwinLogger.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2. 
+// Copyright (c) 2011-2018 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
 
+using System;
+using System.Diagnostics;
+
+using LogJam.Shared.Internal;
+using LogJam.Trace;
+
+using Microsoft.Owin.Logging;
+
+using TraceLevel = LogJam.Trace.TraceLevel;
+
 namespace LogJam.Owin
 {
-    using System;
-    using System.Diagnostics;
-    using System.Diagnostics.Contracts;
-
-    using LogJam.Trace;
-
-    using Microsoft.Owin.Logging;
-
-    using TraceLevel = LogJam.Trace.TraceLevel;
-
 
     /// <summary>
     /// Provides an <see cref="ILogger" /> implementation using <see cref="LogJam.Trace.Tracer" />.
@@ -40,11 +40,13 @@ namespace LogJam.Owin
             {
                 return false;
             }
+
             string message = state as string;
             if ((message != null) || (exception != null))
             {
                 _tracer.Trace(traceLevel, exception, message);
             }
+
             return true;
         }
 
@@ -77,7 +79,7 @@ namespace LogJam.Owin
 
         public OwinLoggerFactory(ITracerFactory tracerFactory)
         {
-            Contract.Requires<ArgumentNullException>(tracerFactory != null);
+            Arg.NotNull(tracerFactory, nameof(tracerFactory));
 
             _tracerFactory = tracerFactory;
         }

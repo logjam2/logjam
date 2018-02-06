@@ -1,29 +1,28 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="HttpLoggingMiddleware.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2. 
+// Copyright (c) 2011-2018 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+
+using LogJam.Shared.Internal;
+using LogJam.Trace;
+using LogJam.Writer;
+
+using Microsoft.Owin;
+
 namespace LogJam.Owin.Http
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics.Contracts;
-    using System.IO;
-    using System.Linq;
-    using System.Text;
-    using System.Threading;
-    using System.Threading.Tasks;
-
-    using LogJam.Config;
-    using LogJam.Trace;
-    using LogJam.Writer;
-
-    using Microsoft.Owin;
-
 
     /// <summary>
     /// Middleware that logs HTTP requests and responses
@@ -44,9 +43,9 @@ namespace LogJam.Owin.Http
         public HttpLoggingMiddleware(OwinMiddleware next, LogManager logManager, ITracerFactory tracerFactory)
             : base(next)
         {
-            Contract.Requires<ArgumentNullException>(next != null);
-            Contract.Requires<ArgumentNullException>(logManager != null);
-            Contract.Requires<ArgumentNullException>(tracerFactory != null);
+            Arg.NotNull(next, nameof(next));
+            Arg.NotNull(logManager, nameof(logManager));
+            Arg.NotNull(tracerFactory, nameof(tracerFactory));
 
             _requestCounter = 0L;
 
@@ -68,8 +67,6 @@ namespace LogJam.Owin.Http
 
         public override Task Invoke(IOwinContext owinContext)
         {
-            Contract.Assert(owinContext != null);
-
             DateTimeOffset requestStarted = DateTimeOffset.Now;
 
             // Create RequestNumber
