@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="LogManagerConfig.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2. 
+// Copyright (c) 2011-2016 https://github.com/logjam2.
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
@@ -74,7 +74,7 @@ namespace LogJam.Config
         public ISet<ILogWriterConfig> Writers { get { return _logWriterConfigs; } }
 
         /// <summary>
-        /// Returns a collection of initializers that are applied to this <see cref="LogManagerConfig"/>, and all <see cref="ILogWriter"/>s 
+        /// Returns a collection of initializers that are applied to this <see cref="LogManagerConfig"/>, and all <see cref="ILogWriter"/>s
         /// created from this <see cref="LogManagerConfig"/>.
         /// </summary>
         /// <remarks>
@@ -94,6 +94,15 @@ namespace LogJam.Config
             _logWriterConfigs.Clear();
             _initializers.Clear();
             _initializers.AddRange(DefaultInitializers);
+        }
+
+        /// <summary>
+        /// Reset the configuration to empty/brand new, so that the containing <see cref="LogManager"/> can be re-used with new configuration.
+        /// </summary>
+        [Obsolete("Clear() is obsolete, use Reset() instead.")]
+        public void Clear()
+        {
+            Reset();
         }
 
     }
