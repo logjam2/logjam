@@ -1,21 +1,21 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TextWriterFormatWriter.cs">
-// Copyright (c) 2011-2016 https://github.com/logjam2. 
+// Copyright (c) 2011-2018 https://github.com/logjam2.  
 // </copyright>
 // Licensed under the <a href="https://github.com/logjam2/logjam/blob/master/LICENSE.txt">Apache License, Version 2.0</a>;
 // you may not use this file except in compliance with the License.
 // --------------------------------------------------------------------------------------------------------------------
 
 
+using System.IO;
+using System.Text;
+
+using LogJam.Shared.Internal;
+using LogJam.Trace;
+using LogJam.Util.Text;
+
 namespace LogJam.Writer.Text
 {
-    using System.IO;
-    using System.Text;
-
-    using LogJam.Shared.Internal;
-    using LogJam.Trace;
-    using LogJam.Util.Text;
-
 
     /// <summary>
     /// A <see cref="FormatWriter" /> that writes to a <see cref="TextWriter" />.
@@ -109,13 +109,16 @@ namespace LogJam.Writer.Text
             }
         }
 
-
         protected override void InternalStop()
         {
             if (_textWriter != null)
             {
                 _textWriter.Flush();
-                _textWriter.Dispose();
+                if (_disposeWriter)
+                {
+                    _textWriter.Dispose();
+                }
+
                 _textWriter = null;
             }
         }
@@ -130,6 +133,7 @@ namespace LogJam.Writer.Text
                 {
                     _textWriter.Dispose();
                 }
+
                 _textWriter = null;
                 State = StartableState.Disposed;
             }
