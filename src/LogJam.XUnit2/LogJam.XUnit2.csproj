@@ -13,7 +13,7 @@
   
   <ItemGroup>
     <PackageReference Include="SourceLink.Create.CommandLine" Version="2.7.6" PrivateAssets="All" /> 
-    <PackageReference Include="xunit.abstractions" Version="2.0.1" />
+    <PackageReference Include="xunit.abstractions" Version="2.0.0" />
   </ItemGroup>
   
   <ItemGroup>
